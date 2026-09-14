@@ -212,6 +212,12 @@ tempCodeRunnerFile.py
 # Marimo
 marimo/_static/
 marimo/_lsp/
+
+/.quarto/
+/_site/
+*_files/
+*.html
+*.pdf
 __marimo__/
 
 # Streamlit
