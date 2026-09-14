@@ -53,3 +53,32 @@ rf_model.fit(X_train, y_train)
 
 doğruluk = rf_model.score(X_test, y_test) * 100
 print(f"Test Seti Doğruluğu (Accuracy): %{doğruluk}")
+
+
+Modelimiz %100 doğrulukla çalışıyor! Kaggle'da olsak yarışmayı kazandık. Peki model botları gerçekten fare hızından mı tanıdı?
+
+Ağaç tabanlı basit bir açıklanabilirlik (XAI) yöntemi olan Feature Importance (Öznitelik Önemi) ile modelin beyninin içine bakalım.
+
+# 3. Açıklanabilirlik (Modeli Sorgulama)
+importances = rf_model.feature_importances_
+features = X.columns
+
+plt.figure(figsize=(8, 4))
+plt.barh(features, importances, color='darkred')
+plt.title("Model Hangi Özelliğe Bakarak Karar Verdi?")
+plt.xlabel("Önem Derecesi")
+plt.show()
+
+3. Sonuç ve Yüzleşme
+Yukarıdaki grafikte net bir şekilde görüldüğü üzere, model davranışsal veriler olan Fare_Hizi veya Sayfa_Sure değişkenlerinin yüzüne bile bakmamış. Sadece Kullanici_ID değişkenini ezberleyerek %100 başarıya ulaşmıştır.
+
+Eğer bu modeli canlı sisteme alsaydık, ID'si 1000'den küçük olan yepyeni ve agresif bir bot sisteme girdiğinde, model ona sırf ID'si küçük diye "Kesinlikle İnsandır" diyecek ve sistem çökecekti.
+
+İşte Açıklanabilir Yapay Zekaya (XAI), modelimiz başarısız olduğunda değil; modelimiz kusursuz çalıştığını iddia ettiğinde şüphe duymak için ihtiyacımız vardır.
+
+### Bunu Nasıl Test Edeceksiniz?
+1. VS Code'da klasörünüzü açın.
+2. Bu metni `01_zeki_hans.qmd` adlı bir dosyaya yapıştırıp kaydedin.
+3. Terminalde `quarto render 01_zeki_hans.qmd` komutunu çalıştırın.
+
+Klasörünüzde oluşan HTML dosyasını açtığınızda, kodların çalıştığını ve o kırmızı grafiğin metnin tam ortasına nasıl şık bir şekilde oturduğunu göreceksiniz. Hatalar veya kütüphane eksiklikleri varsa (örneğin ortamınızda `scikit-learn` yüklü değilse) Quarto size terminalde doğrudan hatayı gösterecektir.
