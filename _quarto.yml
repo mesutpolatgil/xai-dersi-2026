@@ -1,0 +1,8 @@
+project:
+  type: book
+
+book:
+  title: "Açıklanabilir Yapay Zeka (XAI)"
+  chapters:
+    - index.qmd
+    - 01_zeki_hans.qmd
