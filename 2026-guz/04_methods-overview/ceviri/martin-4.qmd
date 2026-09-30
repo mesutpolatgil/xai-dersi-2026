@@ -1,0 +1,174 @@
+---
+title: "Yöntemlere Genel Bakış"
+subtitle: "Bölüm 4"
+author: "Asasira Martin"
+lang: tr
+bibliography: references.bib
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+> **Çeviri kaynağı:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı (2025), [Bölüm 4: Methods Overview](https://christophm.github.io/interpretable-ml-book/overview.html). Özgün eser CC BY-NC-SA 4.0 lisanslıdır. Teknik terimler, gerekli olduğu yerlerde İngilizce karşılıklarıyla birlikte verilmiştir.
+
+Bu bölüm, yorumlanabilirlik yaklaşımlarına genel bir bakış sunar. Amaç, tek tek modellere ve yöntemlere geçtiğinizde büyük resmi görebilmeniz için bir yol haritası vermektir. Şekil @fig-taxonomy, farklı yaklaşımların bir sınıflandırmasını sunar.
+
+![Kitabın yapısını yansıtan yorumlanabilirlik yöntemlerinin kısa sınıflandırması.](https://christophm.github.io/interpretable-ml-book/images/taxonomy.jpg){#fig-taxonomy width=70%}
+
+Genel olarak, **tasarım gereği yorumlanabilirlik** (*interpretability by design*) ile **sonradan yorumlanabilirlik** (*post-hoc interpretability*) arasında ayrım yapabiliriz. Tasarım gereği yorumlanabilirlik, rastgele orman yerine lojistik regresyon kullanmak gibi, doğası gereği yorumlanabilir modeller eğittiğimiz anlamına gelir. Sonradan yorumlanabilirlik ise model eğitildikten sonra bir yorumlama yönteminin uygulanmasıdır.
+
+Sonradan yorumlama yöntemleri, permütasyon özellik önemi gibi **modelden bağımsız** (*model-agnostic*) ya da sinir ağının öğrendiği özelliklerin incelenmesi gibi **modele özgü** (*model-specific*) olabilir. Modelden bağımsız yöntemler ayrıca, tek tek tahminleri açıklayan **yerel** (*local*) ve veri kümelerine odaklanan **genel** (*global*) yöntemlere ayrılır. Bu kitap ağırlıkla sonradan uygulanan modelden bağımsız yöntemlere odaklanır; bununla birlikte tasarım gereği yorumlanabilir temel modelleri ve sinir ağlarına özgü yöntemleri de ele alır.
+
+Şimdi yorumlanabilirliğin her kategorisini, yorumlama hedefleri bakımından güçlü ve zayıf yönleriyle inceleyelim.
+
+## Tasarım gereği yorumlanabilir modeller
+
+Tasarım gereği yorumlanabilirlik, makine öğrenmesi **algoritması** düzeyinde belirlenir. Yorumlanabilir modeller üreten bir makine öğrenmesi algoritması istiyorsanız, algoritmanın model aramasını yorumlanabilir modellerle sınırlaması gerekir. En basit örnek doğrusal regresyondur: Bir doğrusal regresyon modelini sıradan en küçük kareler yöntemiyle uyarladığınız/eğittiğinizde, girdi özellikleri bakımından doğrusal modeller bulan bir algoritma kullanmış olursunuz. Tasarım gereği yorumlanabilir modellere **içsel** (*intrinsic*) veya **doğası gereği** (*inherently*) yorumlanabilir modeller de denir; bkz. Şekil @fig-inherently.
+
+![Tasarım gereği yorumlanabilirlik, doğası gereği yorumlanabilir modeller üreten makine öğrenmesi algoritmalarının kullanılması demektir.](https://christophm.github.io/interpretable-ml-book/images/interpretable-box.jpg){#fig-inherently fig-align="center" width=80%}
+
+Bu kitap, tasarım gereği yorumlanabilirliğe ilişkin en temel yaklaşımları kapsar:
+
+- **Doğrusal regresyon:** Kareli hataların toplamını en aza indirerek doğrusal bir model uyarlar.
+- **Lojistik regresyon:** Doğrusal regresyonu, doğrusal olmayan bir dönüşüm kullanarak sınıflandırmaya genişletir.
+- **Doğrusal model uzantıları:** Daha fazla esneklik için ceza terimleri, etkileşimler ve doğrusal olmayan terimler ekler.
+- **Karar ağaçları:** Ağaç tabanlı modeller oluşturmak için veriyi özyinelemeli biçimde böler.
+- **Karar kuralları:** Veriden eğer-ise kuralları çıkarır.
+- **RuleFit:** Seyrek, kural tabanlı modeller öğrenmek üzere ağaç tabanlı kuralları Lasso regresyonuyla birleştirir.
+
+Yorumlanabilir modeller için, bu temel yaklaşımların uzantılarından çok özel yöntemlere kadar uzanan çok daha fazla seçenek vardır. Hepsini ele almak olanaksız olduğundan burada temel yaklaşımlara odaklanılmıştır. Tasarım gereği yorumlanabilir diğer yaklaşımlara örnekler şunlardır:
+
+- Görüntü sınıflandırması için prototip tabanlı sinir ağları olan **ProtoViT** [@ma2024]. Bu ağlar, görüntü sınıflandırmasının prototiplerin (eğitim verisinden özel görüntülerin) ve alt prototiplerin ağırlıklı toplamı olacağı şekilde eğitilir.
+- Yang ve arkadaşları [@yang2024], düşük azami ağaç derinliği gibi ayarlanmış hiperparametrelere, özellik etkilerini ana etkiler ve etkileşimler olarak sıralayan farklı bir gösterime ve etkilerin budanmasına sahip doğası gereği yorumlanabilir ağaç toplulukları önermiştir. Bu yaklaşım, tasarım gereği ve sonradan yorumlanabilirliği bir araya getirir.
+- Model tabanlı boosting, toplamsal bir modelleme çerçevesidir. Eğitilmiş model; doğrusal etkilerin, spline'ların, ağaç kütüklerinin (*tree stumps*) ve diğer zayıf öğrenicilerin ağırlıklı toplamıdır [@buhlmann2007].
+- Otomatik etkileşim tespitine sahip genelleştirilmiş toplamsal modeller [@caruana2015].
+
+Peki, doğası gereği yorumlanabilir modeller ne kadar yorumlanabilirdir? Yorumlanabilir model yaklaşımları ve bunların yorumları büyük ölçüde farklılaşır. Yaklaşımları sınıflandırmaya yardımcı olan yorumlanabilirliğin kapsamını ele alalım:
+
+- **Modelin tamamı yorumlanabilirdir.** Küçük bir karar ağacı görselleştirilebilir ve kolayca anlaşılabilir; çok fazla katsayısı olmayan doğrusal regresyon için de aynı durum geçerlidir. Ancak “tamamen yorumlanabilir” zorlu ve aynı zamanda belirsiz bir gerekliliktir. Bu terim, kullanılacaksa, yalnızca çok seyrek doğrusal regresyonlar veya çok kısa ağaçlar gibi en basit modeller için kullanılmalıdır.
+- **Modelin bazı bölümleri yorumlanabilirdir.** Yüzlerce özelliğe sahip bir regresyon modeli tamamen yorumlanabilir olmayabilir; fakat özelliklerle ilişkili tek tek katsayılar yine de yorumlanabilir. Büyük bir karar listesinde de tek tek kurallar incelenebilir.
+- **Model tahminleri yorumlanabilirdir.** Bazı yaklaşımlar tek tek tahminleri yorumlamamızı sağlar. Örneğin, görüntüler için $k$-en yakın komşuya benzer bir algoritma geliştirdiğinizi düşünün. Bir görüntüyü sınıflandırmak için en benzer $k$ görüntüyü alır ve en sık görülen sınıfı döndürürsünüz. Tahmin, bu $k$ benzer görüntü gösterilerek tamamen açıklanır. Karar ağaçlarında ise tahmine götüren karar listesi döndürülerek tahmin açıklanabilir.
+
+::: {.callout-tip}
+## Yorumlanabilirlik kapsamını değerlendirin
+
+Yeni bir yorumlanabilirlik yaklaşımını incelerken kapsamını değerlendirin. Yaklaşımın hangi düzeylerde çalıştığını sorun: modelin tamamı, modelin bir bölümü ya da tek tek tahminler yorumlanabilir mi?
+:::
+
+Tasarım gereği yorumlanabilir modeller, iç işleyişleri hakkında içgörü sağladıkları için genellikle daha kolay hata ayıklanır ve geliştirilir.
+
+Bu modeller, tahminlerin nasıl üretildiğini çoğu zaman sadık biçimde açıkladıkları için modelleri ve çıktıları gerekçelendirmede de öne çıkar. Ayrıca alan uzmanlarıyla modellerin alan bilgisiyle tutarlı olup olmadığını kontrol etmeyi kolaylaştırırlar. Tıp araştırmalarında lojistik regresyon örneğinde olduğu gibi, veri odaklı birçok alanda yerleşik yorumlanabilir modelleme yaklaşımları zaten vardır.
+
+İçgörü keşfi söz konusu olduğunda yorumlanabilir modellerin durumu karmaşıktır. Modellerin kendisi hakkında içgörü çıkarmayı kolaylaştırırlar. Fakat veri hakkında içgörü söz konusu olduğunda, model yapısı ile veri arasında kuramsal bir bağ kurulması gerektiği için durum zorlaşır. Modeli verinin yerine yorumlamak için model yapısının dünyayı yansıttığını varsaymanız gerekir; istatistikçiler bunun için çok çalışır ve çok sayıda varsayıma ihtiyaç duyar. Peki daha iyi tahmin performansına sahip başka bir model varsa? Yorumlanabilir modelin tahmin performansı daha düşük olsa bile veriyi doğru temsil ettiğini savunmanız gerekir. Ayrıca, benzer performanslı fakat farklı yorumlara sahip birden çok model bulunabilir. Buna **Rashomon etkisi** denir. Bu model çokluğu, hangi modelin yorumlanması gerektiğini belirsizleştirir.
+
+::: {.callout-note}
+## Rashomon
+
+1950 tarihli Japon filmi *Rashomon*, bir cinayet olayının birbirinden farklı dört anlatımını sunar. Her anlatım olayları eşit derecede iyi açıklayabilse de anlatımlar birbirleriyle bağdaşmaz. Bu olguya Rashomon etkisi adı verilmiştir.
+:::
+
+## Sonradan yorumlanabilirlik
+
+Sonradan yöntemler, model eğitildikten sonra uygulanır. Bu yöntemler modelden bağımsız veya modele özgü olabilir:
+
+- **Modelden bağımsız:** Modelin *içinde* ne olduğunu göz ardı eder, yalnızca özellik girdilerindeki değişikliklere göre model çıktısının nasıl değiştiğini analiz ederiz. Örneğin, bir özelliği permüte eder ve model hatasının ne kadar arttığını ölçeriz.
+- **Modele özgü:** Modeli daha iyi anlamak için modelin bazı bölümlerini analiz ederiz. Bir sinir ağındaki nöronun en çok hangi tür görüntülere tepki verdiğini ya da rastgele ormanlardaki Gini önemini incelemek buna örnektir.
+
+### Modelden bağımsız sonradan yöntemler
+
+Modelden bağımsız yöntemler SIPA ilkesiyle çalışır: veriden **örnekleme** (*sample*) yapılır, veriye bir **müdahale** (*intervention*) uygulanır, değiştirilmiş veri için **tahminler** (*predictions*) alınır ve sonuçlar **birleştirilir** (*aggregate*) [@scholbeck2020]. Permütasyon özellik önemi buna örnektir: veri örneklemi alınır, veri permüte edilerek müdahale edilir, model tahminleri elde edilir; ardından model hatası yeniden hesaplanır ve özgün kayıpla karşılaştırılır (birleştirme). Bu yöntemleri modelden bağımsız yapan şey, Şekil @fig-black-box'ta gösterildiği gibi, katsayıları veya ağırlıkları okumak için modelin “içine” bakmalarını gerektirmemesidir.
+
+![Modelden bağımsız yorumlama yöntemleri girdiler ve çıktılarla çalışır; modelin iç işleyişini göz ardı eder.](https://christophm.github.io/interpretable-ml-book/images/agnostic-black-box.jpg){#fig-black-box fig-align="center" width=80%}
+
+Modelden bağımsız yorumlama, model yorumlamasını model eğitiminden ayırır. Daha üst düzeyden bakıldığında modelleme sürecine yeni bir katman eklenir: Gerçek dünyayla başlarız, onu veri biçiminde yakalar ve veriden bir model öğreniriz. Modelin üzerinde ise insanların kullanacağı yorumlanabilirlik yöntemleri bulunur; bkz. Şekil @fig-big-picture. Modelden bağımsız yöntemlerde bu ayrım vardır; tasarım gereği yorumlanabilirlikte ise model ve yorumlanabilirlik katmanları tek bir yapıda birleşir.
+
+![Modelden bağımsız yorumlanabilir makine öğrenmesinin büyük resmi: gerçek dünya, açıklamalar biçiminde insana ulaşana kadar birçok katmandan geçer.](https://christophm.github.io/interpretable-ml-book/images/big-picture.jpg){#fig-big-picture}
+
+Açıklamaları makine öğrenmesi modelinden ayırmanın (yani modelden bağımsız yorumlama yöntemlerinin) bazı avantajları vardır [@ribeiro2016]. En büyük avantaj, hem model hem de yorumlama yöntemi seçimindeki esnekliktir. Örneğin, bir XGBoost modelinin özellik etkilerini kısmi bağımlılık grafiğiyle (PDP) görselleştiriyorsanız, temel modeli değiştirip aynı yorumlama türünü kullanabilirsiniz. PDP'yi artık uygun bulmazsanız, temel XGBoost modelini değiştirmeden birikimli yerel etkileri (ALE) kullanabilirsiniz. Buna karşılık doğrusal regresyon kullanıp katsayıları yorumluyorsanız, kural tabanlı bir sınıflandırıcıya geçmek yorumlama aracını da değiştirir. Bazı modelden bağımsız yöntemler, açıklama oluştururken kullanılan özellik gösteriminde bile esneklik sağlar: Örneğin, görüntü sınıflandırıcı çıktısını açıklarken pikseller yerine görüntü parçalarına dayalı açıklamalar oluşturabilirsiniz.
+
+Modelden bağımsız yorumlama yöntemleri yerel ve genel yöntemlere ayrılabilir. [Yerel yöntemler](#yerel-modelden-bağımsız-sonradan-yöntemler) **tek tek tahminleri** açıklamayı amaçlar; [genel yöntemler](#genel-modelden-bağımsız-sonradan-yöntemler) ise özelliklerin tahminleri **ortalama olarak** nasıl etkilediğini açıklar.
+
+#### Yerel modelden bağımsız sonradan yöntemler
+
+Yerel yorumlama yöntemleri tek tek tahminleri açıklar. Bu kategorideki yaklaşımlar oldukça çeşitlidir:
+
+- **Ceteris paribus grafikleri**, bir özelliği değiştirmenin tahmini nasıl değiştirdiğini gösterir.
+- **Bireysel koşullu beklenti (ICE) eğrileri**, tek bir özelliği değiştirmenin birden çok veri noktasının tahminini nasıl değiştirdiğini gösterir.
+- **Yerel vekil modeller (LIME)**, karmaşık modeli yerel olarak yorumlanabilir bir modelle değiştirerek tahmini açıklar.
+- **Kapsamlı kurallar (anchors)**, hangi özellik değerlerinin bir tahmini “sabitlediğini” açıklar: diğer özelliklerin kaç tanesi değiştirilirse değiştirilsin tahmin sabit kalır.
+- **Karşı-olgusal açıklamalar**, istenen bir tahmine ulaşmak için hangi özelliklerin değiştirilmesi gerektiğini inceleyerek tahmini açıklar.
+- **Shapley değerleri**, tahmini tek tek özelliklere adil biçimde paylaştırır.
+- **SHAP**, Shapley değerleri için bir hesaplama yöntemidir; ayrıca veri genelindeki Shapley değerlerinin bileşimlerine dayalı genel yorumlama yöntemleri de önerir.
+
+LIME ve Shapley değerleri (ve SHAP), bir veri noktasının tahminini özellik etkilerinin toplamı olarak açıklayan atıf yöntemleridir. Ceteris paribus ve ICE gibi diğer yöntemler tek tek özelliklere ve tahmin fonksiyonunun bu özelliklere ne kadar duyarlı olduğuna odaklanır. Karşı-olgusal açıklamalar ve anchors gibi yöntemler ise açıklama için özelliklerin bir alt kümesine dayanarak bu iki yaklaşım arasında yer alır.
+
+Model hata ayıklamada yerel yöntemler, sınır durumları anlamak veya sıra dışı tahminleri incelemek için yararlı olabilecek “yakınlaştırılmış” bir görünüm sağlar. Örneğin, tahmin hatası en yüksek olan tahminin açıklamasına bakıp bunun yalnızca tahmin edilmesi zor bir veri noktası mı olduğunu, modelin yetersiz mi kaldığını ya da veri noktasının yanlış etiketlenip etiketlenmediğini inceleyebilirsiniz. Bunun ötesinde, modeli geliştirmek için genel modelden bağımsız yöntemler daha kullanışlıdır.
+
+Yerel yorumlama yöntemleriyle tek tek tahminleri gerekçelendirme açısından yararları farklılaşır. Ceteris paribus ve karşı-olgusal açıklamalar, ham model tahminlerini sadık biçimde yansıttıkları için çok yararlı olabilir. SHAP veya LIME gibi atıf yöntemleri ise açıklanan modelin üzerinde bir tür “model” (ya da en azından daha karmaşık bir kestirim) olduğundan, yüksek riskli gerekçelendirme amaçları için daha az uygun olabilir [@rudin2019].
+
+Yerel yöntemler veri içgörüleri için de yararlı olabilir. Shapley değerleri gibi atıf yöntemleri bir referans veri kümesiyle çalışır; dolayısıyla mevcut tahminin farklı alt kümelerle karşılaştırılmasına ve farklı sorular sorulmasına olanak tanır. Genel olarak hem yerel hem de genel modelden bağımsız yorumlamanın yararı model performansına bağlıdır. Ceteris paribus grafikleri ve ICE de model içgörüleri için faydalıdır.
+
+#### Genel modelden bağımsız sonradan yöntemler
+
+Genel yöntemler, bir makine öğrenmesi modelinin veri kümesi üzerindeki ortalama davranışını açıklar. Bu kitapta aşağıdaki modelden bağımsız genel yorumlama tekniklerini öğreneceksiniz:
+
+- **Kısmi bağımlılık grafiği (PDP)**, bir özellik etkisi yöntemidir.
+- **Birikimli yerel etki (ALE) grafikleri**, korelasyonlu özellikler için de tasarlanmış özellik etkilerini görselleştirir.
+- **Özellik etkileşimi (H-istatistiği)**, tahminin özelliklerin ortak etkilerinden ne ölçüde kaynaklandığını nicelleştirir.
+- **Fonksiyonel ayrıştırma**, tahmin fonksiyonlarını daha küçük parçalara ayırmak için kullanılan merkezi bir yorumlanabilirlik fikri ve tekniğidir.
+- **Permütasyon özellik önemi (PFI)**, bir özellik permüte edildiğinde kayıptaki artış olarak özelliğin önemini ölçer.
+- **Bir özelliği dışarıda bırakma (LOFO)**, bir özelliği çıkarır ve model o özellik olmadan yeniden eğitildikten sonra kayıptaki artışı ölçer.
+- **Vekil modeller**, yorumlama için özgün modelin yerine daha basit bir model koyar.
+- **Prototipler ve eleştiriler**, bir dağılımın temsilî veri noktalarıdır ve yorumlanabilirliği iyileştirmek için kullanılabilir.
+
+Genel modelden bağımsız yöntemlerde iki geniş kategori vardır: **özellik etkileri** ve **özellik önemi**. Özellik etkileri (PDP, ALE, H-istatistiği, ayrıştırma), girdiler ile çıktılar arasındaki ilişkiyi göstermeye yöneliktir. Özellik önemi (PFI, LOFO, SHAP önemi vb.) ise özellikleri önemlerine göre sıralamaya yöneliktir; önem tanımı her yöntemde farklıdır.
+
+Genel yorumlama yöntemleri ortalama davranışı açıkladığı için, özellikle modelleyenin hata ayıklamak istediği durumlarda faydalıdır. Özellikle LOFO, özellik seçimi yöntemleriyle ilişkilidir ve modeli iyileştirmek için çok kullanışlıdır.
+
+Modelleri paydaşlara gerekçelendirmek için genel yöntemler, hangi özelliklerin ilgili olduğu gibi geniş bir çerçeve sunabilir. Genel yöntemleri doğası gereği yorumlanabilir modellerle birlikte de kullanabilirsiniz. Örneğin karar kural listeleri tek tek tahminleri gerekçelendirmeyi kolaylaştırsa da, özelliklerin genel olarak ne kadar önemli olduğunu göstererek modelin kendisini de gerekçelendirmek isteyebilirsiniz.
+
+Genel yöntemler çoğunlukla veri dağılımına dayalı beklenen değerler olarak ifade edilir. Örneğin bir özellik etkisi grafiği olan PDP, diğer tüm özellikler marjinalleştirildiğinde elde edilen beklenen tahmindir. Bu, yöntemleri verideki genel mekanizmaları anlamak için çok yararlı kılar. PDP ve PFI'nin veri üretim sürecinin özellikleri hakkında çıkarım yapmak için nasıl kullanılabileceği incelenmiştir [@molnar2023; @freiesleben2024].
+
+::: {.callout-tip}
+## Genelden grup-temelli yoruma geçin
+
+Genel yöntemleri verinizin alt kümelerine uygulayarak genel yöntemleri “grup-temelli” veya “bölgesel” yöntemlere dönüştürebilirsiniz. Kitaptaki örneklerde bunu göreceğiz.
+:::
+
+### Modele özgü sonradan yöntemler
+
+Adından da anlaşılacağı gibi, sonradan uygulanan modele özgü yöntemler model eğitildikten sonra uygulanır; ancak yalnızca belirli makine öğrenmesi modelleri için çalışır (Şekil @fig-model-specific). Rastgele ormanlar için Gini öneminden lojistik regresyonda odds oranlarının hesaplanmasına kadar pek çok örnek vardır. Bu kitap, sinir ağları için sonradan yorumlama yöntemlerine odaklanır.
+
+![Modele özgü yöntemler, karmaşık modelleri modelleri analiz ederek daha yorumlanabilir hâle getirir.](https://christophm.github.io/interpretable-ml-book/images/specific-black-box.jpg){#fig-model-specific fig-align="center" width=80%}
+
+Sinir ağıyla tahmin yapmak için girdi verisi, öğrenilmiş ağırlıklarla çok sayıda çarpma katmanından ve doğrusal olmayan dönüşümlerden geçirilir. Bir sinir ağının mimarisine bağlı olarak tek bir tahmin milyonlarca çarpma içerebilir. İnsanlar olarak verinin girdiden tahmine tam eşlemesini izlememiz mümkün değildir. Bir sinir ağının tahminini anlamak için karmaşık biçimde etkileşen milyonlarca ağırlığı hesaba katmamız gerekir. Bu nedenle sinir ağlarının davranışını ve tahminlerini yorumlamak için özel yorumlama yöntemlerine ihtiyaç duyarız. Sinir ağları, gizli katmanlarında özellikler ve kavramlar öğrendikleri için yorumlama açısından ilgi çekici bir hedeftir. Ayrıca hesaplama açısından verimli yöntemler için ağların gradyanlarından yararlanabiliriz.
+
+Sinir ağları bölümü, farklı soruları yanıtlayan şu teknikleri kapsar:
+
+- **Öğrenilmiş özellikler:** Sinir ağı hangi özellikleri öğrendi?
+- **Belirginlik haritaları (saliency maps):** Her piksel belirli bir tahmine nasıl katkıda bulundu?
+- **Kavramlar:** Sinir ağı hangi kavramları öğrendi?
+- **Çekişmeli örnekler (adversarial examples):** Sinir ağını nasıl yanıltabiliriz?
+- **Etkili örnekler (influential instances):** Bir eğitim veri noktası verilen tahmin için ne kadar etkiliydi?
+
+Genel olarak, modele özgü yöntemlerin en büyük gücü modellerin kendileri hakkında bilgi edinme olanağı sağlamasıdır. Bu, modeli iyileştirmeye ve başkalarına gerekçelendirmeye de yardımcı olabilir. Veri içgörüleri söz konusu olduğunda modele özgü yöntemler, doğası gereği yorumlanabilir modellerle benzer sorunlar yaşar: Model yorumunun veriyi yansıttığını göstermek için kuramsal bir gerekçeye ihtiyaç duyarlar.
+
+## Sınırlar bulanıktır
+
+Burada düzenli kategoriler sunduk. Oysa gerçekte tasarım gereği ve sonradan yorumlanabilirlik arasındaki sınırlar belirsizdir. Birkaç örnek:
+
+- Lojistik regresyon doğası gereği yorumlanabilir bir model midir? Odds oranlarını yorumlamak için katsayıları sonradan işlemelisiniz. Etkileri olasılık düzeyinde yorumlamak isterseniz marjinal etkileri hesaplamanız gerekir; bu işlem, başka modellere de uygulanabilen sonradan yorumlama yöntemi olarak görülebilir.
+- Boost edilmiş ağaç toplulukları yorumlanabilir kabul edilmez. Ancak azami ağaç derinliğini 1 olarak ayarlarsanız boost edilmiş ağaç kütükleri elde edersiniz; bu da genelleştirilmiş toplamsal modele benzer bir yapı verir.
+- Doğrusal regresyon tahminini açıklamak için her özellik değerini kendi katsayısıyla çarpabilirsiniz; bunlara etkiler denir. Ayrıca her etkiden verideki ortalama etkiyi çıkarabilirsiniz. Bu işlemleri yaptığınızda, genellikle modelden bağımsız kabul edilen Shapley değerlerini hesaplamış olursunuz.
+
+Bu bölümün ana mesajı şudur: Yorumlanabilirlik bulanık bir kavramdır. Bu belirsizliği kabul edin; tek bir yaklaşıma gereğinden fazla bağlanmayın, yaklaşımları ihtiyacınıza göre birleştirmekten çekinmeyin.
+
+## Kaynakça
+
+::: {#refs}
+:::
+
+## Kaynakça bilgisi
+
+Bu çeviri aşağıdaki özgün bölüm esas alınarak hazırlanmıştır: Molnar, C. (2025). “Methods Overview.” *Interpretable Machine Learning*, 3. baskı. https://christophm.github.io/interpretable-ml-book/overview.html

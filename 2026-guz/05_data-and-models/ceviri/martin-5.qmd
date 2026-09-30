@@ -1,0 +1,175 @@
+---
+title: "Veri ve Modeller"
+subtitle: "Bölüm 5"
+author: "Asasira Martin"
+lang: tr
+bibliography: references.bib
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+> **Çeviri kaynağı:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı (2025), [Bölüm 5: Data and Models](https://christophm.github.io/interpretable-ml-book/data.html). Özgün eser CC BY-NC-SA 4.0 lisanslıdır.
+
+Kitap boyunca sıkça karşılaşacağınız iki veri kümesi vardır: biri bisikletler, diğeri penguenler hakkındadır. Bu bölüm, kitapta yorumlanacak verileri ve modelleri tanıtır.
+
+## Bisiklet kiralama (regresyon)
+
+Bu veri kümesi, Washington, D.C.'deki Capital Bikeshare bisiklet kiralama şirketinden günlük kiralanan bisiklet sayılarını, hava durumu ve mevsim bilgileriyle birlikte içerir. Veri, Capital Bikeshare tarafından açık olarak sunulmuştur. Fanaee-T ve Gama [@fanaeet2014] hava durumu verisi ve mevsimsel bilgi eklemiştir. Veri, [UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset)'den indirilebilir. Verinin işlenmesi sonucunda aşağıdaki sütunlar elde edilmiştir:
+
+- Hem sıradan hem de kayıtlı kullanıcıların kiraladığı bisikletlerin sayısı. Regresyon görevinin hedef değişkenidir (`cnt`).
+- Mevsim: ilkbahar, yaz, sonbahar veya kış (`season`).
+- Günün tatil olup olmadığını belirten gösterge (`holiday`).
+- Günün iş günü mü hafta sonu mu olduğunu belirten gösterge (`workday`).
+- O günkü hava durumu: iyi, sisli veya kötü (`weather`).
+- Santigrat derece cinsinden sıcaklık (`temp`).
+- Yüzde olarak bağıl nem, 0--100 (`hum`).
+- Saatte kilometre cinsinden rüzgâr hızı (`windspeed`).
+- İki gün önce kiralanan bisiklet sayısı (`cnt_2d_bfr`).
+
+Nem değerinin 0 ölçüldüğü bir gün ile, iki gün önceki bisiklet sayısı eksik olan ilk iki gün çıkarılmıştır. İşlenmiş veri toplamda 728 gün içerir.
+
+### Bisiklet kiralamayı tahmin etme
+
+Bu örnek yalnızca yorumlanabilirlik yöntemlerini göstermek için kullanıldığından bazı basitleştirici varsayımlar yapılmıştır. Hava durumu özelliklerinin tahmin olduğu varsayılır; gerçekte değildir. Böylece tahmin görevi şu şekli alır: Yarınki kiralanan bisiklet sayısını, hava tahminleri, mevsim bilgisi ve dün kiralanan bisiklet sayısına dayanarak tahmin etmek.
+
+Tüm regresyon modelleri basit bir holdout stratejisiyle eğitilmiştir: verinin üçte ikisi eğitim, üçte biri test için kullanılmıştır. Kullanılan makine öğrenmesi algoritmaları rastgele orman, CART karar ağacı, destek vektör makinesi ve doğrusal regresyondur. Tablo @tbl-bike-performance, kök ortalama kare hata (RMSE) ve ortalama mutlak hata (MAE) en düşük olduğu için destek vektör makinesinin en iyi performansı gösterdiğini ortaya koyar. Rastgele orman biraz daha kötü, doğrusal regresyon daha da kötüdür. Karar ağacı ise belirgin biçimde geride kalmıştır.
+
+| Model | RMSE | MAE |
+|:--|--:|--:|
+| Destek Vektör Makinesi (SVM) | 852 | 628 |
+| Rastgele Orman | 883 | 676 |
+| Doğrusal Regresyon | 948 | 737 |
+| Karar Ağacı | 1056 | 794 |
+
+: Bisiklet kiralama modellerinin test verisindeki performansının RMSE ve MAE ile karşılaştırılması. {#tbl-bike-performance}
+
+### Özellik bağımlılığı
+
+Birçok yorumlama yöntemi için özelliklerin nasıl ilişkili olduğunu anlamak önemlidir. Bu nedenle sayısal özelliklerin Pearson korelasyonuna bakalım. Tablo @tbl-bike-correlations, belirgin tek korelasyonun iki gün önceki bisiklet sayısı ile sıcaklık arasında olduğunu gösterir. Peki kategorik özellikler ne olacak? Doğrusal olmayan ilişki ne olacak?
+
+Doğrusal olmayan bağımlılıkları anlamak için iki şey yaparız:
+
+- Ham ikili bağımlılığı görselleştirmek (örneğin saçılım grafiği),
+- İki özellik arasındaki normalize edilmiş karşılıklı bilgiyi (NMI) hesaplamak.
+
+| Değişken 1 | Değişken 2 | Korelasyon |
+|:--|:--|--:|
+| `temp` | `hum` | 0.13 |
+| `temp` | `windspeed` | -0.16 |
+| `hum` | `windspeed` | -0.25 |
+| `temp` | `cnt_2d_bfr` | 0.60 |
+| `hum` | `cnt_2d_bfr` | 0.06 |
+| `windspeed` | `cnt_2d_bfr` | -0.11 |
+
+: Sayısal bisiklet kiralama özellikleri arasındaki ikili Pearson korelasyonu. {#tbl-bike-correlations}
+
+Normalize edilmiş karşılıklı bilgi 0 ile 1 arasında bir sayıdır. NMI'ın 0 olması özelliklerin hiç bilgi paylaşmadığı; 1 olması ise tüm değişimin bağımlılıklarından kaynaklandığı anlamına gelir. NMI, çok sayıda kategori/kutu içeren özelliklerde yukarı yönlü yanlı olabilir [@mahmoudi2024]. Başka bir deyişle, kutu veya kategori sayısı arttıkça büyük bir NMI değerine daha az güvenmelisiniz. Bu nedenle yalnızca NMI'a dayanmaz; ham veriyi görselleştirir ve Pearson korelasyonunu da analiz ederiz.
+
+::: {.callout-note}
+## Normalize edilmiş karşılıklı bilgi
+
+İki kategorik rassal değişken $X_j$ ve $X_k$ arasındaki karşılıklı bilgi şöyle verilir:
+
+$$
+MI(X_j, X_k) = \sum_{c, d} \mathbb{P}(c, d) \log \frac{\mathbb{P}(c, d)}{\mathbb{P}(c) \mathbb{P}(d)}.
+$$
+
+Burada $c \in X_j$ ve $d \in X_k$'dir. $\mathbb{P}(c) = \mathbb{P}(X_j = c)$, $X_j$ özelliğinin $c$ kategorisini alma olasılığıdır; $\mathbb{P}(d)$ için de aynı tanım geçerlidir. $\mathbb{P}(c, d) = \mathbb{P}(X_j = c, X_k = d)$, $X_j$'nin $c$ ve $X_k$'nin $d$ kategorisini birlikte alma olasılığıdır. Normalize edilmiş karşılıklı bilgi, MI'ı $[0, \infty[$ aralığından $[0,1]$ aralığına ölçekler (bazı koşullarda NMI bu aralığı aşabilir):
+
+$$
+NMI(X_j, X_k) = \frac{2 \cdot MI(X_j, X_k)}{H(X_j) + H(X_k)}.
+$$
+
+Burada
+
+$$
+H(X_j) = -\sum_{c \in C_j} \mathbb{P}(c) \log \mathbb{P}(c).
+$$
+
+$C_j$, $X_j$'nin alabileceği tüm kategorilerin kümesidir. Sayısal özelliklerde (normalize edilmiş) karşılıklı bilgiyi kullanmak için, $X_j$ özelliğinin gözlemlenen $\mathbf{x}_j$ değerlerini eşit genişlikli kutulara ayırırız. Kutu sayısı Freedman--Diaconis kuralıyla belirlenir [@freedman1981]:
+
+$$
+\text{nbins}_j = \left\lceil \frac{\max(\mathbf{x}_j) - \min(\mathbf{x}_j)}{2 \cdot \frac{\text{IQR}(\mathbf{x}_j)}{n^{1/3}}} \right\rceil.
+$$
+
+$\text{IQR}(\mathbf{x}_j)$, $\mathbf{x}_j$'nin çeyrekler arası aralığı; $n$ veri örneği sayısıdır. Sonuç bir sonraki büyük tam sayıya yuvarlanır.
+:::
+
+Şimdi bisiklet paylaşım verisindeki özelliklerin ham bağımlılık verisine ve normalize edilmiş karşılıklı bilgisine bakalım (Şekil @fig-bike-mi). Okunabilirliği artırmak için `holiday` ve `workday` grafikten çıkarılmıştır.
+
+![Bisiklet paylaşım verisindeki özellikler için normalize edilmiş karşılıklı bilgi ve ikili grafikler. `holiday` ile `workday` okunabilirlik için çıkarılmıştır.](https://christophm.github.io/interpretable-ml-book/data_files/figure-html/fig-bike-mi-1.png){#fig-bike-mi width=672}
+
+NMI analizi genel olarak korelasyon analizinden edinilen izlenimi doğrular. Buna ek olarak kategorik özellikler hakkında içgörü sağlar: mevsimin sıcaklıkla ve iki gün önceki kiralama sayısıyla bilgi paylaşması şaşırtıcı değildir. İkili grafikler, sayısal özellikler sıra dışı değil çoğunlukla doğrusal bağımlılık örüntüleri sergilediği için, korelasyon katsayılarının bu veri kümesindeki bağımlılık için iyi ölçüler olduğunu doğrular. Bir sonraki veri örneğinde bağımlılık analizi daha fazla sürpriz sunacaktır.
+
+## Palmer penguenleri (sınıflandırma)
+
+Sınıflandırma için Palmer penguenleri verisini kullanacağız. Bu sevimli veri kümesi, Antarktika'daki Palmer Takımadalarından 333 penguenin ölçümlerini içerir (Şekil @fig-penguins). Veri kümesi Gorman, Williams ve Fraser [@gorman2014] ile Long Term Ecological Research Network'ün parçası olan Antarktika'daki Palmer İstasyonu tarafından toplanmış ve yayımlanmıştır. Çalışma, diğer konuların yanında dişi ve erkek penguenlerin görünüşleri arasındaki farkları inceler. Bu nedenle veri kümesini oluşturanların makalesinde yaptığı gibi, vücut ölçülerine dayalı dişi/erkek sınıflandırmasını kullanacağız.
+
+::: {#fig-penguins layout-ncol=2}
+![Verideki üç penguen türü.](https://christophm.github.io/interpretable-ml-book/images/lter_penguins.jpg){#fig-penguin-species}
+
+![Gaga ölçümleri.](https://christophm.github.io/interpretable-ml-book/images/culmen_depth.jpg){#fig-penguin-bill}
+
+Palmer penguenleri çizimleri, Allison Horst.
+:::
+
+Her satır bir pengueni temsil eder ve şunları içerir:
+
+- Penguenin cinsiyeti (erkek/dişi); sınıflandırma hedefidir (`sex`).
+- Penguen türü: Chinstrap, Gentoo veya Adelie (`species`).
+- Gram cinsinden vücut kütlesi (`body_mass_g`).
+- Milimetre cinsinden gaga uzunluğu (`bill_length_mm`).
+- Milimetre cinsinden gaga derinliği (`bill_depth_mm`).
+- Milimetre cinsinden palet uzunluğu (`flipper_length_mm`).
+
+On bir penguende eksik veri vardır. Bu veri, penguenlerin derinlemesine incelenmesi için değil yorumlanabilir makine öğrenmesi yöntemlerini göstermek için kullanıldığından, eksik değere sahip penguen kayıtları çıkarılmıştır. Veri kümesi `palmerpenguins` R paketiyle yüklenir [@horst2020].
+
+### Penguen cinsiyetini sınıflandırma (erkek / dişi)
+
+Veri örneklerinde modeller, verinin üçte ikisi eğitim ve üçte biri holdout test verisi olacak şekilde basit bir ayrımla eğitilmiştir. Model performansını değerlendirmek için test verisinde log kaybı ve doğruluk ölçülmüştür. Sonuçlar Tablo @tbl-penguin-performance'da gösterilmektedir.
+
+Lojistik regresyon modeli aslında üç modelden oluşur: veri önce türe göre ayrılmış, her tür için bir lojistik regresyon modeli eğitilmiş ve performans sonuçları birleştirilmiştir. Gorman, Williams ve Fraser [@gorman2014] da makalelerinde bunu yapmıştır. En iyi performans gösteren yaklaşım budur. Rastgele orman ve karar ağacı için tür bir özellik olarak kullanılmıştır. Bu yaklaşım karar ağacı için iyi sonuç vermemiştir; ancak en azından doğruluk bakımından rastgele ormanın performansı lojistik regresyon modellerine yakındır.
+
+| Model | Log kaybı | Doğruluk |
+|:--|--:|--:|
+| Lojistik Regresyon (türe göre) | 0.16 | 0.93 |
+| Rastgele Orman | 0.19 | 0.92 |
+| Karar Ağacı | 1.23 | 0.86 |
+
+: Penguen cinsiyeti sınıflandırması (erkek/dişi) için model performanslarının karşılaştırılması. {#tbl-penguin-performance}
+
+### Özellik bağımlılığı
+
+Penguen vücut ölçülerinin nasıl korelasyon gösterdiğine (Pearson korelasyonu) bakalım.
+
+| Değişken 1 | Değişken 2 | Korelasyon |
+|:--|:--|--:|
+| `bill_depth_mm` | `bill_length_mm` | -0.23 |
+| `bill_depth_mm` | `flipper_length_mm` | -0.58 |
+| `bill_length_mm` | `flipper_length_mm` | 0.65 |
+| `bill_depth_mm` | `body_mass_g` | -0.47 |
+| `bill_length_mm` | `body_mass_g` | 0.59 |
+| `flipper_length_mm` | `body_mass_g` | 0.87 |
+
+: Penguen özellikleri arasındaki Pearson korelasyonu. {#tbl-penguin-correlations}
+
+Tablo @tbl-penguin-correlations, özellikle vücut kütlesi ile palet uzunluğunun güçlü korelasyon gösterdiğini ortaya koyar. Palet uzunluğu ile gaga uzunluğu ya da palet uzunluğu ile gaga derinliği gibi başka özellikler de ilişkilidir. Ancak Pearson korelasyonu yalnızca doğrusal bağımlılığı ölçtüğünden hikâyenin yalnızca yarısını anlatır. Özelliklerin ikili grafiklerine, normalize edilmiş karşılıklı bilgiyle birlikte bakalım.
+
+![Sayısal penguen özellikleri için ikili grafikler ve normalize edilmiş karşılıklı bilgi.](https://christophm.github.io/interpretable-ml-book/data_files/figure-html/fig-penguins-nmi-1.png){#fig-penguins-nmi width=672}
+
+Şekil @fig-penguins-nmi, Pearson korelasyonunun gösterdiğinden daha ayrıntılı bir tablo sunar. Örneğin vücut kütlesi ile gaga derinliği arasındaki NMI, vücut kütlesi ile palet uzunluğu arasındaki NMI'a benzerdir; fakat vücut kütlesi ile gaga derinliği arasındaki korelasyon çok daha düşüktür. Bunun nedeni, doğrusal korelasyonun tüm penguenler bir araya getirildiğinde dinamikleri yakalayamamasıdır. Burada doğrusal korelasyonun iyi çalışmamasının nedeni Simpson paradoksudur. Simpson paradoksunda, verinin birkaç grubunda görülen bir eğilim tüm veri birleştirildiğinde kaybolur veya yön değiştirir. Tüm penguen verisini birleştirmek, Şekil @fig-simpsons'ta gösterildiği gibi gaga derinliği ile vücut kütlesi arasındaki pozitif korelasyonu negatif korelasyona dönüştürür. Bunun nedeni Gentoo penguenlerinin daha ağır ve daha derin gagalı olmasıdır. Karşılıklı bilgi bu sorunun üstesinden gelir.
+
+![Üç penguen türü için penguen ağırlığı ve gaga derinliği. Çizgiler, penguenlerin farklı alt kümelerinde vücut kütlesinden gaga derinliğini tahmin eden regresyon doğrularıdır.](https://christophm.github.io/interpretable-ml-book/data_files/figure-html/fig-simpsons-1.png){#fig-simpsons width=80%}
+
+Tüm penguenleri birlikte modellemeye dair bir not: Kitap boyunca varsayılan olarak penguenler tek bir veri kümesi kabul edilir ve tür bir özellik olarak kullanılır. Türlere göre ayrı ayrı modelleme ve analiz yapmak tartışılabilir biçimde daha iyi olabilir. Ancak bu, makine öğrenmesinde çok yaygın bir gerilimdir: Veri örnekleri çoğu zaman bir kümeye veya varlığa aittir. Örneğin farklı mağazaların satışlarını tahmin ederken ya da aynı partilerden gelen laboratuvar örneklerini sınıflandırırken, ayrı modeller mi kullanacağımıza yoksa varlık kimliğini bir özellik olarak mı kullanacağımıza karar vermemiz gerekir.
+
+## Kaynakça
+
+::: {#refs}
+:::
+
+## Kaynakça bilgisi
+
+Bu çeviri aşağıdaki özgün bölüm esas alınarak hazırlanmıştır: Molnar, C. (2025). “Data and Models.” *Interpretable Machine Learning*, 3. baskı. https://christophm.github.io/interpretable-ml-book/data.html
