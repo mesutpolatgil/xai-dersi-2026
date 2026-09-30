@@ -1,0 +1,145 @@
+---
+title: "2 Yorumlanabilirlik"
+author: "Tania El Hawari"
+lang: tr
+bibliography: references.bib
+link-citations: true
+format:
+  html:
+    toc: true
+    toc-title: "İçindekiler"
+---
+
+> **Kaynak ve lisans:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı, [“Interpretability”](https://christophm.github.io/interpretable-ml-book/interpretability.html). Bu dosya özgün bölümün Türkçe çevirisidir; metin ve şekil açıklamaları Türkçeye çevrilmiştir. Özgün eser ve bu çeviri [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) lisansı altındadır. Şekiller özgün eserden alınmıştır. Kaynağa erişim: 30 Eylül 2026.
+
+Bu bölüm yorumlanabilirlikle ilgili kavramları tanıtıyor. Yorumlanabilirliği matematiksel olarak tanımlamak zor olsa da Biran ve Cotton'ın [-@biran], Miller'ın da [-@miller] kullandığı tanımını beğeniyorum:
+
+> “Yorumlanabilirlik, bir insanın bir kararın nedenini anlayabilme derecesidir.”
+
+Bir başka iyi tanım da Kim, Khanna ve Koyejo'ya [-@kim] aittir:
+
+> “Bir kullanıcı bir yöntemin sonuçlarını doğru ve verimli biçimde öngörebiliyorsa o yöntem yorumlanabilirdir.”
+
+Bir makine öğrenmesi modeli ne kadar yorumlanabilirse, bir kişinin belirli kararların veya tahminlerin neden yapıldığını anlaması o kadar kolaydır. Bir modelin kararları, başka bir modelin kararlarına kıyasla insanlar tarafından daha kolay anlaşılabiliyorsa bu model diğerinden daha yorumlanabilirdir.
+
+Bazen bu bağlamda, “açıklanabilir yapay zekâ” ifadesinde olduğu gibi, “açıklanabilir” terimiyle de karşılaşırsınız. Açıklanabilir ile yorumlanabilir arasındaki fark nedir? Genel olarak alandaki araştırmacılar, bu iki terimden herhangi birinin tanımı üzerinde anlaşamıyor gibi görünüyor [@flora]. Roscher ve diğerlerinin [-@roscher] tanımlarına katılıyorum:
+
+- Yorumlanabilirlik, modellerdeki soyut bir kavramın anlaşılabilir bir biçime dönüştürülmesiyle ilgilidir.
+- Açıklanabilirlik, yorumlanabilirlik ve ek bağlam gerektiren daha güçlü bir terimdir.
+
+Ayrıca açıklama terimi genellikle bir tahmini “açıklamaya” yönelik yerel yöntemler için kullanılır. Her hâlükârda bu terimler öylesine belirsizdir ki pratik yaklaşım, onları “veride bulunan veya modelin öğrendiği ilişkilere dair ilgili bilginin bir makine öğrenmesi modelinden çıkarılmasını” kapsayan bir şemsiye terim olarak görmektir [@murdoch].
+
+## Yorumlanabilirliğin önemi {#importance-of-interpretability}
+
+Bir makine öğrenmesi modeli iyi performans gösteriyorsa neden modele güvenip belirli bir kararı neden verdiğini göz ardı etmiyoruz? “Sorun, sınıflandırma doğruluğu gibi tek bir ölçütün gerçek dünyadaki çoğu görevi eksik tanımlamasıdır.” [@doshi]
+
+Yorumlanabilirliğin neden bu kadar önemli olduğunu daha derinlemesine inceleyelim. Tahmine dayalı modelleme söz konusu olduğunda bir ödünleşim yapmanız gerekir: Yalnızca neyin tahmin edildiğini mi bilmek istiyorsunuz? Örneğin bir müşterinin ayrılma olasılığını veya bir ilacın bir hasta için ne kadar etkili olacağını. Yoksa tahminin neden yapıldığını da bilmek ve bunun karşılığında tahmin performansındaki olası bir düşüşü göze almak mı istiyorsunuz? Bazı durumlarda bir kararın neden verildiğini önemsemezsiniz; test veri kümesindeki tahmin performansının iyi olduğunu bilmek yeterlidir. Ancak başka durumlarda “neden” sorusunun yanıtını bilmek, problem, veriler ve modelin neden başarısız olabileceği hakkında daha fazla bilgi edinmenizi sağlar.
+
+Bazı modeller, hatanın ciddi sonuçlar doğurmayacağı düşük riskli ortamlarda kullanıldıkları için açıklama gerektirmeyebilir; film öneri sistemi buna örnektir. Yöntemin daha önce kapsamlı biçimde incelenmiş ve değerlendirilmiş olması da mümkündür; örneğin optik karakter tanıma.
+
+Yorumlanabilirlik ihtiyacı, problemin biçimsel tanımının eksik olmasından kaynaklanır [@doshi]. Bu, belirli problemler veya görevler için tahmini, yani “ne”yi elde etmenin yeterli olmadığı anlamına gelir. Model, tahmine nasıl ulaştığını, yani “neden”i de açıklamalıdır; çünkü doğru tahmin, başlangıçtaki probleminizi ancak kısmen çözer. Aşağıdaki nedenler yorumlanabilirlik ve açıklama talebini doğurur [@doshi; @miller].
+
+**İnsan merakı ve öğrenme:** İnsanların çevrelerine ilişkin zihinsel modelleri vardır; beklenmedik bir şey olduğunda bu modeller güncellenir. Güncelleme, beklenmedik olaya bir açıklama bulunmasıyla gerçekleşir. Örneğin bir kişi beklenmedik biçimde rahatsızlanır ve “Neden kendimi bu kadar hasta hissediyorum?” diye sorar. O kırmızı meyveleri her yediğinde hastalandığını öğrenir. Zihinsel modelini günceller; hastalığa meyvelerin neden olduğuna ve bu nedenle onlardan kaçınması gerektiğine karar verir.
+
+Araştırmada iç işleyişi anlaşılmayan makine öğrenmesi modelleri kullanıldığında, model yalnızca tahmin verip açıklama sunmuyorsa bilimsel bulgular bütünüyle gizli kalır. Öğrenmeyi kolaylaştırmak ve makinelerin neden belirli tahminler ya da davranışlar ürettiğine ilişkin merakı gidermek için yorumlanabilirlik ve açıklamalar kritik önemdedir. Elbette insanlar olan her şey için açıklamaya ihtiyaç duymaz. Örneğin çoğu insanın bilgisayarın nasıl çalıştığını anlaması gerekmez. Ancak beklenmedik olaylar merakımızı uyandırır. Örneğin: Bilgisayarım neden beklenmedik biçimde kapanıyor?
+
+Öğrenmeyle yakından ilişkili bir başka etken, insanın dünyada anlam bulma arzusudur. Bilgi yapılarımızın öğeleri arasındaki çelişkileri veya tutarsızlıkları uzlaştırmak isteriz. Bir insan “Köpeğim daha önce hiç yapmadığı hâlde neden beni ısırdı?” diye sorabilir. Köpeğin geçmiş davranışlarına ilişkin bilgiyle, yeni yaşanan tatsız ısırılma deneyimi arasında bir çelişki vardır. Veterinerin açıklaması, köpek sahibinin bu çelişkisini giderir: “Köpek stres altındaydı ve bu yüzden sizi ısırdı.” Bir makinenin kararı bir kişinin yaşamını ne kadar etkiliyorsa makinenin davranışını açıklaması da o kadar önemlidir. Bir makine öğrenmesi modelinin kredi başvurusunu reddetmesi, başvuranlar için tamamen beklenmedik olabilir. Beklenti ile gerçeklik arasındaki bu tutarsızlığı ancak bir tür açıklamayla uzlaştırabilirler.
+
+Açıklamaların aslında durumu bütünüyle açıklaması gerekmez; ancak temel bir nedene değinmeleri gerekir. Algoritmik ürün önerileri başka bir örnektir. Şahsen, belirli ürünlerin veya filmlerin bana algoritmalar tarafından neden önerildiğini hep düşünürüm. Çoğu zaman bunun nedeni açıktır: Yakın zamanda çamaşır makinesi aldığım için reklamlar internette peşimden gelir; önümüzdeki günlerde çamaşır makinesi reklamlarının beni izleyeceğini bilirim. Evet, alışveriş sepetimde zaten bir kışlık şapka varsa eldiven önermek mantıklıdır. Algoritma bu belirli filmi önerir; çünkü benim sevdiğim diğer filmleri seven kullanıcılar önerilen filmi de beğenmiştir. İnternet şirketleri önerilerine giderek daha fazla açıklama ekliyor. [Şekil 2.1](#birlikte-alinan-urunler) içinde gösterildiği gibi, sık satın alınan ürün birleşimlerine dayalı ürün önerileri iyi bir örnektir.
+
+![Şekil 2.1: Birlikte sık satın alınan ürünlerin önerilmesine ilişkin bir gösterim.](images/amazon-freq-bought-together.jpg){#birlikte-alinan-urunler width=60%}
+
+Birçok bilim dalında nitel yöntemlerden nicel yöntemlere (örneğin sosyoloji ve psikolojide) ve makine öğrenmesine (biyoloji ve genomikte) doğru bir geçiş yaşanıyor. Bilimin amacı bilgi edinmektir; ancak birçok problem büyük veri kümeleri ve kara kutu makine öğrenmesi modelleriyle çözülüyor. Verinin yerine modelin kendisi bilgi kaynağı hâline geliyor. Yorumlanabilirlik, modelin yakaladığı bu ek bilginin çıkarılmasını mümkün kılar.
+
+Makine öğrenmesi modelleri, güvenlik önlemleri ve testler gerektiren gerçek dünya görevlerini üstlenir. Sürücüsüz bir aracın, derin öğrenme sistemine dayanarak bisikletlileri otomatik algıladığını düşünün. Bisikletlileri ezmek çok kötü olduğu için sistemin öğrendiği soyutlamanın hatasız olduğundan yüzde yüz emin olmak istersiniz. Bir açıklama, öğrenilen en önemli özelliğin bisikletin iki tekerleğini tanımak olduğunu gösterebilir. Bu açıklama, tekerlekleri kısmen örten yan çantaları olan bisikletler gibi uç durumları düşünmenize yardımcı olur.
+
+Makine öğrenmesi modelleri, varsayılan olarak eğitim verilerindeki yanlılıkları öğrenir. Bu durum modellerinizi ırkçı hâle getirebilir ve yeterince temsil edilmeyen gruplara karşı ayrımcılığa yol açabilir. Yorumlanabilirlik, makine öğrenmesi modellerindeki yanlılıkları saptamak için yararlı bir hata ayıklama aracıdır. Kredi başvurularının otomatik onaylanması veya reddedilmesi için eğittiğiniz model, tarihsel olarak haklarından mahrum bırakılmış bir azınlığa karşı ayrımcılık yapabilir. Temel amacınız, yalnızca sonunda krediyi geri ödeyecek kişilere kredi vermektir. Bu durumda problem tanımının eksikliği şuradadır: Yalnızca geri ödenmeyen kredileri en aza indirmek istemezsiniz; aynı zamanda belirli demografik özelliklere dayanarak ayrımcılık yapmamakla da yükümlüsünüzdür. Bu, probleminizin tanımının — düşük riskli ve kurallara uygun biçimde kredi vermenin — parçası olan ek bir kısıttır; ancak modelin eniyilendiği kayıp fonksiyonu bunu kapsamaz.
+
+Makineleri ve algoritmaları günlük yaşamımıza katma sürecinde toplumsal kabulü artırmak için yorumlanabilirliğe ihtiyaç vardır. İnsanlar nesnelere inançlar, arzular, niyetler ve benzeri özellikler atfeder. Heider ve Simmel [-@heider], ünlü bir deneyde katılımcılara, bir dairenin bir “odaya” (aslında yalnızca bir dikdörtgene) girmek için bir “kapıyı” açtığı şekil videoları gösterdi. Katılımcılar şekillerin eylemlerini, bir insanın eylemlerini anlatır gibi anlattı; şekillere niyetler, hatta duygular ve kişilik özellikleri atfetti. “Doge” adını verdiğimiz elektrikli süpürgemiz gibi robotlar buna iyi bir örnektir.
+
+Doge sıkışırsa şöyle düşünüyorum: “Doge temizlemeye devam etmek istiyor ama sıkıştığı için benden yardım istiyor.” Daha sonra Doge temizliği bitirip şarj olmak için istasyonunu aradığında “Doge şarj olmak istiyor ve istasyonunu bulmaya niyetli” diye düşünüyorum. Kişilik özellikleri de atfediyorum: “Doge biraz aptal ama sevimli bir biçimde.” Özellikle Doge'un evi görev bilinciyle süpürürken bir bitkiyi devirdiğini fark ettiğimde aklımdan bunlar geçiyor. Tahminlerini açıklayan bir makine veya algoritma daha fazla kabul görecektir.
+
+Açıklamalar toplumsal etkileşimleri yönetmek için kullanılır. Açıklayan taraf, bir şey hakkında ortak anlam oluşturarak açıklamayı alan kişinin eylemlerini, duygularını ve inançlarını etkiler. Bir makinenin bizimle etkileşime girebilmesi için duygularımızı ve inançlarımızı şekillendirmesi gerekebilir. Makineler, hedefledikleri amaca ulaşmak için bizi “ikna etmek” zorundadır. Robot süpürgem davranışını belli ölçüde açıklamasaydı onu tamamen kabullenmezdim. Süpürge, örneğin banyo halısına yine takılmak gibi bir “kaza” hakkında ortak anlam oluşturur: Hiçbir açıklama yapmadan durmak yerine sıkıştığını açıklar. İlginç biçimde, açıklama yapan makinenin amacı (güven oluşturmak) ile açıklamayı alanın amacı (tahmini veya davranışı anlamak) arasında uyumsuzluk olabilir.
+
+Belki de Doge'un neden sıkıştığının tam açıklaması, pilinin çok azalması, tekerleklerinden birinin düzgün çalışmaması ve karşısında engel olmasına rağmen robotu tekrar tekrar aynı noktaya götüren bir yazılım hatasının bulunmasıdır. Bu nedenler ve birkaç başka neden robotun sıkışmasına yol açmıştır; ancak robot yalnızca yolunda bir şey bulunduğunu açıkladı. Bu da davranışına güvenmem ve kazaya ilişkin ortak bir anlam edinmem için yeterliydi.
+
+Bu arada Doge yine banyoda sıkıştı. Kanıtı [Şekil 2.2](#doge-sikisti) içinde. Doge'un süpürmesine izin vermeden önce her seferinde halıları kaldırmamız gerekiyor.
+
+![Şekil 2.2: Elektrikli süpürgemiz Doge sıkıştı. Doge, kazanın açıklaması olarak düz bir yüzey üzerinde bulunması gerektiğini söyledi.](images/doge-stuck.jpg){#doge-sikisti width=70%}
+
+Makine öğrenmesi modellerinde ancak yorumlanabilir olduklarında hata ayıklanabilir ve denetim yapılabilir. Film önerileri gibi düşük riskli ortamlarda bile yorumlama olanağı hem araştırma ve geliştirme aşamasında hem de kullanıma alındıktan sonra değerlidir. Daha sonra model bir üründe kullanılırken işler ters gidebilir. Hatalı bir tahmine ilişkin yorum, hatanın nedenini anlamaya yardımcı olur ve sistemin nasıl düzeltileceğine dair yön gösterir.
+
+Bazı Sibirya kurtlarını yanlışlıkla kurt olarak sınıflandıran bir Sibirya kurdu–kurt sınıflandırıcısını düşünün. Yorumlanabilir makine öğrenmesi yöntemlerini kullanarak yanlış sınıflandırmanın resimdeki kardan kaynaklandığını bulabilirsiniz. Sınıflandırıcı, görüntüleri “kurt” olarak sınıflandırmak için karı bir özellik olarak kullanmayı öğrenmiştir. Bu, eğitim veri kümesinde kurtları Sibirya kurtlarından ayırmak açısından anlamlı olabilir; ancak gerçek dünyadaki kullanımda anlamlı değildir.
+
+Makine öğrenmesi modelinin kararlarını açıklayabilmesini sağlarsanız aşağıdaki özellikleri de daha kolay kontrol edebilirsiniz [@doshi]:
+
+- **Adalet:** Tahminlerin yanlı olmamasını ve yeterince temsil edilmeyen gruplara karşı örtük veya açık biçimde ayrımcılık yapmamasını sağlamak.
+- **Gizlilik:** Verilerdeki hassas bilgilerin korunmasını sağlamak.
+- **Güvenilirlik veya sağlamlık:** Girdideki küçük değişikliklerin tahminde büyük değişikliklere yol açmamasını sağlamak.
+- **Nedensellik:** Yalnızca nedensel ilişkilerin öğrenilmesini sağlamak.
+- **Güven:** İnsanların kararlarını açıklayan bir sisteme güvenmesi, bir kara kutuya güvenmesinden daha kolaydır.
+
+Bazen yorumlanabilirliğe ihtiyaç duymayız.
+
+Aşağıdaki senaryolar, makine öğrenmesi modellerinin yorumlanabilirliğine ne zaman ihtiyaç duymadığımızı, hatta bunu ne zaman istemediğimizi gösterir.
+
+Modelin kayda değer bir etkisi yoksa yorumlanabilirlik gerekli değildir. Mike adında birinin, Facebook verilerinden yararlanarak arkadaşlarının bir sonraki tatilde nereye gideceğini tahmin eden bir makine öğrenmesi yan projesi üzerinde çalıştığını düşünün. Mike yalnızca, tatilde nereye gideceklerine ilişkin bilgiye dayalı tahminlerle arkadaşlarını şaşırtmaktan hoşlanıyor. Model yanılıyorsa gerçek bir sorun yoktur; en kötü ihtimalle Mike biraz mahcup olur. Mike modelinin çıktısını açıklayamıyorsa da sorun yoktur. Bu durumda yorumlanabilirliğin olmaması gayet kabul edilebilirdir. Mike bu tatil yeri tahminleri etrafında bir iş kurmaya başlasaydı durum değişirdi. Model yanılıyorsa işletme para kaybedebilir veya öğrenilmiş ırksal yanlılık nedeniyle model bazı kişiler için daha kötü çalışabilir. Modelin finansal ya da toplumsal bakımdan kayda değer bir etkisi olduğu anda yorumlanabilirlik önem kazanır.
+
+Problem iyi incelenmişse yorumlanabilirlik gerekli değildir. Bazı uygulamalar yeterince kapsamlı biçimde incelenmiştir; dolayısıyla modelle ilgili yeterli pratik deneyim vardır ve modelin sorunları zaman içinde çözülmüştür. Zarf görüntülerini işleyerek adresleri çıkaran bir optik karakter tanıma modeli iyi bir örnektir. Bu sistemler yıllardır kullanılıyor ve çalıştıkları açıktır. Ayrıca ele alınan görev hakkında ek içgörüler edinmekle ilgilenmiyor olabiliriz.
+
+Yorumlanabilirlik, insanların veya programların sistemi manipüle etmesine olanak tanıyabilir. Sistemi aldatan kullanıcılarla ilgili sorunlar, modeli oluşturanın amaçlarıyla kullanıcının amaçları arasındaki uyuşmazlıktan kaynaklanır. Kredi puanlaması böyle bir sistemdir: Bankalar kredilerin yalnızca geri ödeme olasılığı yüksek başvuranlara verilmesini ister; başvuranlar ise banka vermek istemese bile krediyi almayı amaçlar. Amaçlar arasındaki bu uyuşmazlık, başvuranları kredi alma şanslarını artırmak için sistemi kendi lehlerine kullanmaya teşvik eder. Bir başvuran, ikiden fazla kredi kartına sahip olmanın puanını olumsuz etkilediğini biliyorsa puanını artırmak için üçüncü kartını iade eder ve kredisi onaylandıktan sonra yeni bir kart çıkarır. Puanı iyileşmiş olsa da krediyi geri ödeme olasılığı değişmemiştir.
+
+Sistem ancak girdiler nedensel bir özelliğin vekili olduğunda, ancak sonuca gerçekten neden olmadığında bu şekilde kullanılabilir. Modelleri manipülasyona açık hâle getirdikleri için mümkün olduğunda vekil özelliklerden kaçınılmalıdır. Örneğin Google, grip salgınlarını tahmin etmek için Google Flu Trends adlı bir sistem geliştirdi. Sistem, Google aramalarıyla grip salgınları arasında ilişki kuruyordu ve kötü performans gösterdi. Arama sorgularının dağılımı değişti ve Google Flu Trends birçok grip salgınını kaçırdı. Google aramaları gribe neden olmaz. İnsanlar “ateş” gibi belirtileri aradığında bu, gerçek grip salgınlarıyla yalnızca bir korelasyon oluşturur. İdeal olarak modeller yalnızca manipüle edilemeyen nedensel özellikleri kullanırdı.
+
+## İnsanların kolay anlayabileceği açıklamalar {#human-friendly-explanations}
+
+Daha derine inerek insanların hangi açıklamaları “iyi” bulduğunu ve bunun yorumlanabilir makine öğrenmesi açısından ne anlama geldiğini keşfedelim. Beşerî bilimlerdeki araştırmalar bunu anlamamıza yardımcı olabilir. Miller [-@miller], açıklamalara ilişkin yayınları çok kapsamlı biçimde taramıştır ve bu bölüm onun özetine dayanır.
+
+Bu bölümde sizi şuna ikna etmek istiyorum: İnsanlar bir olay için, mevcut durumu olayın gerçekleşmeyeceği bir durumla karşılaştıran kısa açıklamaları, yani yalnızca bir veya iki nedeni tercih eder. Özellikle olağandışı nedenler iyi açıklamalar sunar. Açıklamalar, açıklamayı yapan ile açıklamayı alan arasındaki toplumsal etkileşimlerdir; bu nedenle toplumsal bağlam açıklamanın gerçek içeriği üzerinde büyük etkiye sahiptir.
+
+### İyi bir açıklama nedir? {#whats-a-good-explanation}
+
+Açıklama, bir “neden” sorusunun yanıtıdır [@miller].
+
+- Tedavi hastada neden işe yaramadı?
+- Kredi başvurum neden reddedildi?
+- Dünya dışı yaşam neden henüz bizimle iletişim kurmadı?
+
+İlk iki soru “gündelik” bir açıklamayla yanıtlanabilirken üçüncü soru “daha genel bilimsel olgular ve felsefi sorular” kategorisine girer. Yorumlanabilir makine öğrenmesiyle ilgili oldukları için “gündelik” türde açıklamalara odaklanıyoruz. Bundan sonra “açıklama” terimi hem açıklamanın toplumsal ve bilişsel sürecini hem de bu süreçlerin ürününü ifade eder. Açıklamayı yapan bir insan veya makine olabilir.
+
+Bu kısım, Miller'ın “iyi” açıklamalara ilişkin özetini daha da yoğunlaştırır ve yorumlanabilir makine öğrenmesi için somut çıkarımlar ekler.
+
+**Açıklamalar karşılaştırmalıdır** [@lipton]. İnsanlar genellikle belirli bir tahminin neden yapıldığını değil, başka bir tahmin yerine neden bu tahminin yapıldığını sorar. Karşıolgusal durumlar üzerinden düşünme eğilimindeyiz; yani “$\mathbf{x}$ girdisi farklı olsaydı tahmin nasıl olurdu?” diye sorarız. Bir ev fiyatı tahmininde ev sahibi, tahmin edilen fiyatın beklediği daha düşük fiyata göre neden yüksek olduğunu merak edebilir.
+
+Kredi başvurum reddedilirse, genel olarak ret lehine veya aleyhine olan tüm etkenleri duymakla ilgilenmem. Krediyi alabilmek için başvurumdaki hangi etkenlerin değişmesi gerektiğiyle ilgilenirim. Başvurum ile başvurumun kabul edilecek hâli arasındaki farkı bilmek isterim. Karşılaştırmalı açıklamaların önemli olduğunun farkına varılması, açıklanabilir makine öğrenmesi için önemli bir bulgudur.
+
+Yorumlanabilir modellerin çoğundan, bir örneğin tahminini yapay bir veri örneğinin tahminiyle veya örneklerin ortalamasıyla örtük biçimde karşılaştıran bir açıklama çıkarabilirsiniz. Hekimler “İlaç hastamda neden işe yaramadı?” diye sorabilir. Hastalarını, ilacın işe yaradığı ve tedaviye yanıt vermeyen hastaya benzeyen bir hastayla karşılaştıran bir açıklama isteyebilirler. Karşılaştırmalı açıklamaları anlamak, eksiksiz açıklamaları anlamaktan daha kolaydır. Hekimin ilacın neden işe yaramadığı sorusuna verilecek eksiksiz bir açıklama şunları içerebilir: Hasta on yıldır bu hastalığa sahip; on bir gen aşırı ifade ediliyor; hastanın vücudu ilacı etkisiz kimyasallara çok hızlı parçalıyor… Karşılaştırmalı açıklama çok daha basit olabilir: Yanıt veren hastanın aksine, yanıt vermeyen hastada ilacın etkisini azaltan belirli bir gen birleşimi vardır.
+
+En iyi açıklama, ilgilenilen nesne ile referans nesne arasındaki en büyük farkı öne çıkaran açıklamadır. **Yorumlanabilir makine öğrenmesi açısından anlamı:** İnsanlar bir tahminin eksiksiz açıklamasını istemez; başka bir örneğin — yapay da olabilir — tahminiyle aradaki farkları karşılaştırmak ister. Karşılaştırmalı açıklamalar oluşturmak uygulamaya bağlıdır; çünkü karşılaştırma için bir referans noktası gerekir. Bu nokta hem açıklanacak veri noktasına hem de açıklamayı alan kullanıcıya bağlı olabilir. Ev fiyatı tahmin eden bir web sitesinin kullanıcısı, tahmini kendi eviyle, sitedeki başka bir evle veya mahalledeki ortalama bir evle karşılaştıran bir açıklama isteyebilir. Karşılaştırmalı açıklamaların otomatik üretilmesine yönelik çözüm, verilerde prototipler veya arketipler bulmayı da içerebilir.
+
+**Açıklamalar seçicidir.** İnsanlar bir olayın gerçek ve eksiksiz nedenler listesini kapsayan açıklamalar beklemez. Olası pek çok neden arasından bir veya iki nedeni seçip bunları ASIL açıklama olarak görmeye alışığız.
+
+Kanıt için televizyon haberlerini açın: “Hisse fiyatlarındaki düşüş, son yazılım güncellemesindeki sorunlar nedeniyle şirketin ürününe yönelik büyüyen tepkiye bağlanıyor.” “Tsubasa ve takımı zayıf savunma nedeniyle maçı kaybetti: Rakiplerine stratejilerini uygulamaları için çok fazla alan bıraktılar.” “Yerleşik kurumlara ve hükümetimize duyulan güvensizliğin artması, seçime katılımı azaltan başlıca etkenlerdir.” Makine öğrenmesi modelleri için farklı özelliklerden iyi tahminler yapılabilmesi avantajlıdır. Farklı özelliklere, yani farklı açıklamalara sahip birden çok modeli birleştiren topluluk yöntemleri genellikle iyi performans gösterir; çünkü bu “hikâyelerin” ortalamasını almak tahminleri daha sağlam ve doğru kılar. Ancak bu, belirli bir tahminin neden yapıldığına ilişkin birden fazla seçici açıklama olduğu anlamına da gelir. **Yorumlanabilir makine öğrenmesi açısından anlamı:** Açıklamayı kısa tutun; dünya daha karmaşık olsa bile yalnızca bir ila üç neden verin.
+
+**Açıklamalar toplumsaldır.** Açıklamayı yapan ile açıklamayı alan arasındaki konuşmanın veya etkileşimin parçasıdır. Toplumsal bağlam, açıklamaların içeriğini ve niteliğini belirler.
+
+Dijital kripto paraların neden bu kadar değerli olduğunu teknik bilgisi olan birine açıklamak isteseydim şöyle derdim: “Merkezî bir kuruluşun denetleyemediği, merkezsiz, dağıtık ve blokzincir tabanlı kayıt defteri, servetini güvenceye almak isteyen insanlara hitap eder; yüksek talebi ve fiyatı bu açıklar.” Ama büyükanneme şöyle derdim: “Bak büyükanne, kripto paralar biraz bilgisayar altınına benziyor. İnsanlar altını sever ve ona çok para öder; gençler de bilgisayar altınını sever ve ona çok para öder.” **Yorumlanabilir makine öğrenmesi açısından anlamı:** Makine öğrenmesi uygulamanızın toplumsal ortamına ve hedef kitlesine dikkat edin. Modelin toplumsal yönünü doğru kurmak tamamen sizin uygulamanıza bağlıdır. Yardım almak için psikologlar ve sosyologlar gibi beşerî bilim uzmanları bulun.
+
+**Açıklamalar olağandışı olana odaklanır.** İnsanlar olayları açıklarken olağandışı nedenlere daha fazla odaklanır [@kahneman]. Bunlar olasılığı düşük olduğu hâlde gerçekleşen nedenlerdir. Bu olağandışı nedenlerin ortadan kaldırılması sonucu büyük ölçüde değiştirirdi; bu, karşıolgusal açıklamadır. İnsanlar bu tür “olağandışı” nedenleri iyi açıklamalar olarak görür. Štrumbelj ve Kononenko'dan [-@strumbelj] bir örnek: Öğretmenler ile öğrenciler arasındaki sınama durumlarını içeren bir veri kümemiz olduğunu varsayalım. Öğrenciler bir derse katılır ve başarılı bir sunum yaptıktan hemen sonra dersi geçer. Öğretmen, öğrencinin bilgisini sınamak için ek sorular sorma seçeneğine sahiptir. Bu soruları yanıtlayamayan öğrenciler dersten kalır. Öğrencilerin hazırlık düzeyleri farklı olabilir; bu da öğretmenin öğrenciyi sınamaya karar vermesi hâlinde sorularını doğru yanıtlama olasılıklarının farklı olması anlamına gelir.
+
+Bir öğrencinin dersi geçip geçmeyeceğini tahmin etmek ve tahminimizi açıklamak istiyoruz. Öğretmen ek soru sormazsa geçme olasılığı yüzde yüzdür; aksi hâlde geçme olasılığı öğrencinin hazırlık düzeyine ve buna bağlı olarak soruları doğru yanıtlama olasılığına bağlıdır. **Senaryo 1:** Öğretmen genellikle öğrencilere ek sorular sorar; örneğin yüz durumun doksan beşinde. Çalışmamış bir öğrenci, soru kısmını geçme olasılığı yüzde on olan bu öğrenci, şanslı azınlıktan değildir ve doğru yanıtlayamadığı ek sorularla karşılaşır. Öğrenci neden dersten kaldı? Ben bunun, çalışmadığı için öğrencinin hatası olduğunu söylerdim. **Senaryo 2:** Öğretmen nadiren ek soru sorar; örneğin yüz durumun ikisinde. Sorular için çalışmamış bir öğrencinin dersi geçme olasılığını yüksek tahmin ederiz; çünkü soru sorulması olası değildir.
+
+Elbette öğrencilerden biri sorulara hazırlanmamıştır ve soruları geçme olasılığı yüzde ondur. Şansı yaver gitmez; öğretmen, öğrencinin yanıtlayamadığı ek sorular sorar ve öğrenci dersten kalır. Kalmasının nedeni nedir? Artık daha iyi açıklamanın “öğretmen öğrenciyi sınadığı için” olduğunu savunurum. Öğretmenin sınama yapması düşük olasılıklıydı; dolayısıyla öğretmen olağandışı davranmıştır. **Yorumlanabilir makine öğrenmesi açısından anlamı:** Bir tahminin girdi özelliklerinden biri herhangi bir bakımdan olağandışıysa — kategorik bir özelliğin nadir bir kategorisi gibi — ve tahmini etkilediyse açıklamaya dahil edilmelidir; diğer “normal” özelliklerin tahmin üzerindeki etkisi aynı olsa bile. Ev fiyatı tahmini örneğimizde olağandışı özellik, oldukça pahalı bir evin iki balkonu olması olabilir. Bir katkı atama yöntemi, iki balkonun fiyat farkına katkısının ortalamanın üzerindeki ev büyüklüğü, iyi mahalle veya yakın zamanda yapılmış yenilemeyle aynı olduğunu bulsa bile, “iki balkon” özelliği evin neden bu kadar pahalı olduğunun en iyi açıklaması olabilir.
+
+**Açıklamalar gerçeğe uygundur.** İyi açıklamaların gerçeklikte, yani başka durumlarda da doğru olduğu görülür. Fakat rahatsız edici biçimde bu, “iyi” bir açıklamanın en önemli etkeni değildir. Örneğin seçicilik, gerçeğe uygunluktan daha önemli gibi görünür. Yalnızca bir veya iki olası nedeni seçen açıklama, ilgili nedenlerin bütün listesini nadiren kapsar. Seçicilik, gerçeğin bir kısmını dışarıda bırakır. Örneğin bir borsa çöküşüne yalnızca bir veya iki etkenin neden olduğu doğru değildir. Gerçekte milyonlarca neden, milyonlarca insanı sonunda çöküş doğuracak biçimde davranmaya yönlendirir. **Yorumlanabilir makine öğrenmesi açısından anlamı:** Açıklama, olayı mümkün olduğunca gerçeğe uygun biçimde öngörmelidir; makine öğrenmesinde buna bazen *sadakat* (fidelity) denir. Dolayısıyla ikinci bir balkonun evin fiyatını artırdığını söylüyorsak bu başka evler, en azından benzer evler için de geçerli olmalıdır. İnsanlar açısından açıklamanın sadakati; seçiciliği, karşılaştırmalı olması ve toplumsal yönü kadar önemli değildir.
+
+**İyi açıklamalar, açıklamayı alan kişinin önceden sahip olduğu inançlarla tutarlıdır.** İnsanlar, önceki inançlarıyla tutarsız bilgileri görmezden gelme eğilimindedir. Bu etkiye doğrulama yanlılığı denir [@nickerson]. Açıklamalar da bu yanlılıktan kurtulamaz. İnsanlar inançlarıyla uyuşmayan açıklamaları değersizleştirme veya görmezden gelme eğilimindedir. İnançlar kişiden kişiye değişir; ancak siyasal dünya görüşleri gibi grup temelli önceki inançlar da vardır.
+
+**Yorumlanabilir makine öğrenmesi açısından anlamı:** İyi açıklamalar önceki inançlarla tutarlıdır. Bunu makine öğrenmesine dahil etmek zordur ve muhtemelen tahmin performansını ciddi ölçüde düşürür. Ev büyüklüğünün tahmin edilen fiyata etkisine ilişkin önceki inancımız, ev büyüdükçe fiyatın artacağıdır. Bir modelin birkaç ev için ev büyüklüğünün tahmin edilen fiyat üzerinde olumsuz etkisi olduğunu da gösterdiğini varsayalım. Model bunu, bazı karmaşık etkileşimler nedeniyle tahmin performansını iyileştirdiği için öğrenmiştir; ancak bu davranış önceki inançlarımızla güçlü biçimde çelişir. Monotonluk kısıtları uygulayabilir — bir özellik tahmini yalnızca tek yönde etkileyebilir — veya bu özelliğe sahip doğrusal bir model gibi bir şey kullanabilirsiniz.
+
+**İyi açıklamalar geneldir ve olasıdır.** Birçok olayı açıklayabilen nedene “genel” denir ve bu, iyi bir açıklama sayılabilir. Bunun, olağandışı nedenlerin iyi açıklamalar oluşturduğu iddiasıyla çeliştiğine dikkat edin. Benim görüşüme göre olağandışı nedenler genel nedenlere üstün gelir. Olağandışı nedenler, tanımları gereği, söz konusu senaryoda nadirdir. Olağandışı bir olay yoksa genel açıklama iyi bir açıklama kabul edilir. Ayrıca insanların birlikte gerçekleşen olayların olasılıklarını yanlış değerlendirme eğiliminde olduğunu unutmayın. Joe bir kütüphanecidir. Utangaç biri olması mı, yoksa kitap okumayı seven utangaç biri olması mı daha olasıdır? “Ev büyük olduğu için pahalı” ifadesi, evlerin neden pahalı veya ucuz olduğuna dair çok genel ve iyi bir açıklama örneğidir. **Yorumlanabilir makine öğrenmesi açısından anlamı:** Genellik, özelliğin desteğiyle kolayca ölçülebilir: Açıklamanın geçerli olduğu örnek sayısının toplam örnek sayısına bölünmesi.
+
+## Kaynakça {.unnumbered}
+
+::: {#refs}
+:::

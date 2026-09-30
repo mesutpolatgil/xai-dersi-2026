@@ -1,0 +1,79 @@
+---
+title: "3 Yorumlanabilirliğin Amaçları"
+author: "Tania El Hawari"
+lang: tr
+bibliography: references.bib
+link-citations: true
+format:
+  html:
+    toc: true
+    toc-title: "İçindekiler"
+---
+
+> **Kaynak ve lisans:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı, [“Goals of Interpretability”](https://christophm.github.io/interpretable-ml-book/goals.html). Bu dosya özgün bölümün Türkçe çevirisidir; metin, açıklama kutuları ve dipnotlar Türkçeye çevrilmiştir. Özgün eser ve bu çeviri [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) lisansı altındadır. Kaynağa erişim: 30 Eylül 2026.
+
+Yorumlanabilirlik kendi başına bir amaç değil, bir amaca ulaşmanın aracıdır. Hangi yorumlanabilirlik yaklaşımının kullanılacağı, sizin özel amaçlarınıza bağlıdır; bu konu daha fazla tartışılmayı hak ediyor.[^1] Adadi ve Berrada'dan [-@adadi] esinlenerek yorumlanabilirliğin üç amacını ele alıyorum: modeli iyileştirmek, modeli ve tahminleri gerekçelendirmek ve içgörüler elde etmek.[^2]
+
+## Modeli iyileştirmek {#improving-the-model}
+
+::: {.callout-tip}
+## Performansı her zaman değerlendirin
+
+Yorumlanabilirlik amaçlarınızı belirlerken önce modelinizin performans ölçütlerini değerlendirin. Bu, mevcut amacınızın modeli iyileştirmek olup olmaması gerektiğini belirlemenize yardımcı olabilir.
+:::
+
+Modeli iyileştirmek için yorumlanabilirlik yöntemlerini kullanabilirsiniz. [Giriş bölümünde](https://christophm.github.io/interpretable-ml-book/introduction.html), tahmin yapmak için nedensel olmayan özelliklere dayanmak gibi “kestirme yollar” kullanmayı öğrenmiş modelleri ifade eden Akıllı Hans tahmin edicilerinden söz etmiştik. Bu kestirme yolların zor yanı, çoğu zaman model performansını düşürmemeleridir; hatta artırabilirler. Örneğin bir resimde kurt mu yoksa köpek mi bulunduğunu sınıflandırmak için arka plandaki kara dayanmak [@ribeiro] ya da acil servise başvuran astım hastalarının zatürreden ölme olasılığının daha düşük olduğunu yanıltıcı biçimde tahmin etmek [@caruana].[^3] Yorumlanabilirlik, modelin böyle istenmeyen kestirme yolları ne zaman kullandığını veya başka hatalar yaptığını belirleyerek modelde hata ayıklamaya yardımcı olur.
+
+Bazı hatalar, hedef özelliğin yanlış kodlanması veya özellik mühendisliğinde yapılan bir hata kadar basit olabilir. Özelliklerin etkileri alan bilginizle çelişiyor mu? Hedef sınıfları birbirine karıştırmış olabilirsiniz. Araştırmalarınıza göre model, önemli olduğunu bildiğiniz bir özelliği kullanmıyor mu? Veri işlemede veya özellik mühendisliğinde hata yapmış olabilirsiniz.
+
+Ben de makine öğrenmesi yarışmalarında önemli özellikleri belirlemek ve böylece özellik mühendisliği için fikir edinmek amacıyla yorumlanabilirlik yöntemlerini kullandım. Örneğin su arzını tahmin etmeye yönelik bir yarışmaya katıldım ve özellik önemini inceleyerek çevredeki dağlarda bulunan karın en önemli özellik olduğunu fark ettim. Bu nedenle, bu özelliği daha da iyileştirebilecek alternatif kar verisi kaynaklarını denemeye karar verdim ve özellik mühendisliğine zaman ayırdım. Sonuçta bu, model performansını iyileştirmeye yardımcı oldu.
+
+## Modeli ve tahminleri gerekçelendirmek {#justify-model-and-predictions}
+
+Yorumlanabilir makine öğrenmesi, modeli ve tahminlerini başka kişilere veya kuruluşlara gerekçelendirmeye yardımcı olur. Bir makine öğrenmesi sisteminin paydaşlarını düşünmek yararlıdır [@tomsett]:
+
+- **Geliştiriciler**, sistemi kurar ve modeli eğitir.
+- **Operatörler**, sistemle doğrudan etkileşime girer.
+- **Karar vericiler**, çıktılara dayanarak karar alır.
+- **Kararlardan etkilenen kişiler**, alınan kararların sonuçlarını yaşar.
+- **Denetçiler**, sistemi denetler ve inceler.
+- **Veri sahipleri**, modeli eğitmek için verileri kullanılan kişilerdir.
+
+Bu paydaşlar, modelin ve tahminlerinin gerekçelendirilmesini ister ve birbirinden çok farklı gerekçelendirme türlerine ihtiyaç duyabilir.
+
+Katıldığım makine öğrenmesi yarışmasında teslim edilmesi gereken çalışmalardan biri, su arzı tahminlerini açıklayan raporlar hazırlamaktı. Bu raporlar ve açıklamalar, su arzı tahminlerine dayanarak karar vermesi gereken hidrologlara ve yetkililere, yani karar vericilere yöneliktir. Diyelim ki model alışılmadık derecede düşük bir su arzı tahmin ediyor; bu, yetkililerin kuraklık acil durum planlarını devreye sokmasını ve su tahsislerini düzenlemesini gerektirir. Karar verici, tahminlere körü körüne güvenmek yerine, bu belirli tahminin neden yapıldığına ilişkin açıklamalara bakarak tahminleri doğrulamak isteyebilir. Açıklama alan bilgisiyle çelişiyorsa karar verici tahmini sorgulayabilir ve konuyu araştırabilir.
+
+Genel olarak bir makine öğrenmesi sisteminin yaptığı tahmine itiraz edebilmek, sistemin yorumlanabilir olmasını gerektirir. Bir makine öğrenmesi sisteminin kredi başvurusunu reddettiğini düşünün. Bir kişinin, yani karardan etkilenen kişinin, bu ret kararına itiraz edebilmesi için o tahminin neden yapıldığına ilişkin bir gerekçe bulunmalıdır. Bu kavrama *recourse* (karara itiraz etme ve değişmesini sağlama olanağı) denir.
+
+Başka bir örnek: Bir şirket tıbbi cihaz geliştirmek istiyorsa cihazın güvenli ve etkili olduğunu göstermek için çok sayıda düzenleyici süreçten geçmelidir. Cihaz makine öğrenmesine dayanıyorsa işler daha da karmaşıklaşır; çünkü şirket, makine öğrenmesi modelinin de amaçlandığı gibi çalıştığını göstermek zorundadır. Yorumlanabilir makine öğrenmesi, tıbbi cihazı onaylayacak veya reddedecek düzenleyici kurumlara, yani denetçilere, modeli gerekçelendirmek için çözümün bir parçasıdır.
+
+## İçgörüler elde etmek {#discover-insights}
+
+Makine öğrenmesi modelleri yalnızca tahmin yapmak için kullanılmaz; karar vermek veya özelliklerle hedef arasındaki ilişkiyi incelemek için de kullanılabilir. Her iki durumda da tahminler yeterli değildir; modelden ek içgörüler çıkarmak isteriz.
+
+Örneğin bir müşteri kaybı tahmin modeli, bir kişinin cep telefonu sözleşmesini iptal etme olasılığını tahmin eder. Pazarlama ekibi, pazarlama kampanyalarına ilişkin kararlarını modele dayandırabilir. Ancak bir kişinin neden ayrılma olasılığının yüksek olduğunu bilmeden etkili bir karşılık tasarlamak zordur.
+
+Giderek daha fazla bilim insanı da araştırma sorularına makine öğrenmesini uyguluyor. Örneğin Zhang ve diğerleri [-@zhang], gübre kullanımına dayanarak bahçelerdeki badem verimini tahmin etmek için rastgele ormanları kullandı. Tahmin yeterli değildir: Araştırmacılar, gübre de dahil olmak üzere farklı özelliklerin tahmin edilen verimi nasıl etkilediğini ortaya çıkarmak için yorumlanabilirlik yöntemlerini de kullandı. Özelliklerle tahmin arasındaki öğrenilmiş ilişkileri çıkarmak için yorumlanabilirliğe ihtiyaç duyarsınız. Aksi takdirde elinizde yalnızca tahmin yapan bir fonksiyon olur.
+
+::: {.callout-tip}
+## Bilimde makine öğrenmesi nasıl kullanılır?
+
+Bilimde makine öğrenmesini kullanmak çok daha derin bir felsefi sorudur ve yalnızca yorumlanabilirlik üzerine düşünmekten fazlasını gerektirir. Bu nedenle Timo Freiesleben ile birlikte, makine öğrenmesinin bilim için gerekçelendirilmesine adanmış bir kitap yazdık.
+
+Kitabı burada ücretsiz okuyabilirsiniz: [ml-science-book.com](https://ml-science-book.com/).
+:::
+
+Yorumlanabilir makine öğrenmesi yalnızca veriler hakkında bilgi edinmek için değil, model hakkında bilgi edinmek için de yararlıdır. Örneğin evrişimli sinir ağlarının nasıl çalıştığını öğrenmek istiyorsanız tek tek nöronların hangi kavramlara tepki verdiğini incelemek için yorumlanabilirliği kullanabilirsiniz.
+
+Makine öğrenmesi projenizdeki amaçlarınız neler ve yorumlanabilirlik size nasıl yardımcı olabilir? Amaçlarınız, hangi yorumlanabilirlik yaklaşımlarını ve yöntemlerini kullanacağınızı belirleyecektir. Bir sonraki bölümde yöntemlere genel bir bakış sunacak ve bunların amaçlarınızla nasıl ilişkili olduğunu tartışacağız.
+
+## Kaynakça {.unnumbered}
+
+::: {#refs}
+:::
+
+[^1]: Araştırmacılar yeni yorumlanabilir modeller veya yorumlanabilirlik yöntemleri önerirken bunların hangi özel amaçlara hizmet ettiğini nadiren tartışır. Kendimi de bunun dışında tutmuyorum: Örneğin amaçlarla ilgili bu bölümü kitabın ancak üçüncü baskısında ekledim.
+
+[^2]: Adadi ve Berrada'nın [-@adadi] makalesi ayrıca modelde hata ayıklamayı ve hataları bulmayı ifade eden “kontrol” amacını da tanıtmıştı; ancak ben bunu “iyileştirme” kapsamında ele aldım.
+
+[^3]: Bir model, astımın zatürre için bilinen bir risk etmeni olmasına rağmen, acil servise zatürreyle gelen hastaların astımları varsa zatürreden ölme olasılıklarının daha düşük olduğunu tahmin etmişti. Araştırmacılar, modelin bu ilişkiyi öğrendiğini ancak yorumlanabilir bir model kullanmaları sayesinde fark etti. Fakat bu, istenmeyen bir “kestirme yol”dur: Astım hastalarına antibiyotik tedavisi daha erken ve daha yoğun biçimde uygulanıyordu; bu nedenle gerçekten de ağır zatürre geliştirme olasılıkları daha düşüktü. Model, daha sonra uygulanan tedaviye ilişkin özelliklere sahip olmadığı için bu kestirme yolu (astım $\Rightarrow$ zatürreden ölme riskinin azalması) öğrenmişti.
