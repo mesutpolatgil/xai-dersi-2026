@@ -1,0 +1,68 @@
+---
+title: "Giriş"
+subtitle: "Bölüm 1"
+author: "Devid"
+lang: tr
+bibliography: references.bib
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+> **Çeviri kaynağı:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı (2025), [Bölüm 1: Introduction](https://christophm.github.io/interpretable-ml-book/intro.html). Özgün eser CC BY-NC-SA 4.0 lisanslıdır.
+
+“2 + 5 kaç eder?” diye sordu öğretmen Wilhelm van Osten. Cevap elbette 7'ydi. Bu gösteriye tanık olmak için toplanan kalabalık hayrete düşmüştü. Çünkü cevabı veren bir insan değil, “Akıllı Hans” adlı bir attı. Görünüşe göre Akıllı Hans matematik yapabiliyordu. 2 + 5 mi? Atın ayağıyla yaptığı yedi vuruş; ne bir eksik ne bir fazla. Bir at için oldukça etkileyici.
+
+Nitekim sonraki araştırmaların gösterdiği üzere Akıllı Hans gerçekten çok akıllıydı. Ancak yeteneği matematik değil, sosyal ipuçlarını okumaktı. Hans'a soruyu soran insanın cevabı bilmesi, başarısındaki önemli etkenlerden biriydi. Hans, insanın beden dilindeki ve yüz ifadelerindeki en küçük değişikliklere dayanarak doğru zamanda ayağını vurmayı bırakıyordu.
+
+## Model performansına körü körüne güvenmeyin
+
+Makine öğrenmesinde bu akıllı atın kendi karşılıkları vardır: Lapuschkin ve arkadaşlarının [@lapuschkin2019] adlandırdığı **Akıllı Hans tahmin edicileri** (*Clever Hans Predictors*). Bazı örnekler şunlardır:
+
+- Balinaları tespit etmek için eğitilen bir makine öğrenmesi modeli, sınıflandırmasını ses içeriğine dayandırmak yerine ses dosyalarındaki yapay izlere dayanmayı öğrendi [@kaggle2013].
+- Bir görüntü sınıflandırıcısı, görsel özellikler yerine görüntülerin üzerindeki metni kullanmayı öğrendi [@lapuschkin2019].
+- Kurt ile köpeği ayıran bir sınıflandırıcı, hayvanları gösteren görüntü bölgeleri yerine arka plandaki kara dayandı [@ribeiro2016].
+
+Bu örneklerin hiçbirinde kusurlar, test kümesindeki tahmin performansını düşürmedi. Bu nedenle insanlar, iyi performans gösteren modeller için bile temkinlidir. Modellerin kestirme yollara başvurmadığından emin olmak için içlerine bakmak isterler. Modelleri yorumlanabilir kılmak için başka birçok neden de vardır. Örneğin bilim insanları çalışmalarında makine öğrenmesini kullanmaktadır. Bilim insanlarına makine öğrenmesini kullanırken en büyük kaygıları sorulan bir ankette, en sık verilen yanıt “anlamadan örüntü tanımaya daha fazla dayanılmasına yol açması” olmuştur [@vannoorden2023].
+
+Bu anlayış eksikliği yalnızca bilime özgü değildir. Pazarlama alanında çalışıyor ve müşteri kaybı (*churn*) modeli geliştiriyorsanız, yalnızca ayrılma olasılığı yüksek müşterileri tahmin etmek değil, bunun nedenini de anlamak istersiniz. Aksi hâlde pazarlama ekibi doğru müdahalenin ne olduğunu nasıl bilebilir? Ekip herkese kupon gönderebilir; ancak yüksek müşteri kaybı olasılığının nedeni çok sayıdaki e-postadan rahatsız olmalarıysa ne olur? Müşteri kaybı modelinden tam olarak yararlanmak için iyi tahmin performansı tek başına yeterli değildir.
+
+Ayrıca birçok veri bilimci ve istatistikçi, “daha basit modeller” kullanmalarının nedenlerinden birinin yöneticilerini “kara kutu model” kullanmaya ikna edememeleri olduğunu belirtmiştir. Peki ya karmaşık modeller daha iyi tahminler yapıyorsa? Hem iyi performansa **hem de** yorumlanabilirliğe sahip olmak harika olmaz mıydı?
+
+Güven sorunlarını çözmek, modeller hakkında içgörü sağlamak ve modellerde daha iyi hata ayıklamak için doğru kitabı okuyorsunuz. *Interpretable Machine Learning*, modelden içgörü çıkarmaya yönelik araçlar sunar.
+
+## Eski köklere sahip genç bir alan
+
+Doğrusal regresyon modelleri 19. yüzyılın başında zaten kullanılıyordu [@legendre1806; @gauss1877]. İstatistiksel modelleme bu doğrusal regresyon modelinin etrafında gelişti; bugün genelleştirilmiş toplamsal modeller ve LASSO gibi daha fazla seçeneğimiz vardır. Klasik istatistikte genellikle dağılımları modeller, dünya hakkında sonuçlar çıkarmamızı sağlayan ek varsayımlara dayanırız. Bunu yapmak için yorumlanabilirlik temel önemdedir. Örneğin alkol tüketiminin kardiyovasküler sorun riski üzerindeki etkisini modelliyorsanız, istatistikçilerin bu içgörüyü modelden çıkarabilmesi gerekir. Bu, tipik olarak modeli yorumlanabilir tutarak ve bir özelliğin sonuç üzerindeki etkisi olarak yorumlanabilecek bir katsayıya sahip olarak yapılır.
+
+Makine öğrenmesi farklı bir modelleme yaklaşımına sahiptir. Daha çok görev odaklı ve tahmin merkezlidir; vurgu dağılımlar yerine algoritmalardadır. Makine öğrenmesi genellikle daha karmaşık modeller üretir. Alandaki temel çalışmalar 20. yüzyılın ortasında başlamış, sonraki gelişmeler yüzyılın ikinci yarısında alanı daha da genişletmiştir. Bununla birlikte sinir ağları 1960'lara kadar uzanır [@schmidhuber2015]; yorumlanabilir makine öğrenmesinin bir parçası olan kural tabanlı makine öğrenmesi ise 20. yüzyılın ortasından beri etkin bir araştırma alanıdır. Yorumlanabilirlik ana odak olmasa da makine öğrenmesinde her zaman bir kaygı olmuştur ve araştırmacılar yorumlanabilirliği geliştirmek için yollar önermiştir. Örneğin rastgele ormanlar [@breiman2001], yerleşik bir özellik önemi ölçüsüyle birlikte sunulmuştur.
+
+Yorumlanabilir Makine Öğrenmesi ya da Açıklanabilir Yapay Zekâ, yaklaşık 2015'ten itibaren bir alan olarak gerçekten hızla büyümüştür [@molnar2020]. Özellikle herhangi bir modelle çalışabilen yöntemler sunan modelden bağımsız yorumlanabilirlik alt alanı büyük ilgi görmüştür. Makine öğrenmesi modellerini yorumlamaya yönelik yeni yöntemler hâlâ baş döndürücü bir hızla yayımlanmaktadır. Yayımlanan her şeyi takip etmeye çalışmak çılgınlık olurdu ve basitçe imkânsızdır. Bu yüzden bu kitapta en yeni ve en gösterişli yöntemleri değil, yerleşik yöntemleri ve makine öğrenmesi yorumlanabilirliğinin temel kavramlarını bulacaksınız. Bu temeller, makine öğrenmesi modellerini yorumlanabilir kılmaya hazırlanmanızı sağlar. Temel kavramları özümsemek, kitabı okumaya başlamanızdan sonraki son beş dakika içinde arxiv.org ön baskı sunucusunda yayımlanan herhangi bir yorumlanabilirlik makalesini daha iyi anlamanıza ve değerlendirmenize de yardımcı olur (yayın hızını biraz abartıyor olabilirim).
+
+## Kitap nasıl okunmalı?
+
+*Interpretable Machine Learning* kitabını baştan sona okumak zorunda değilsiniz; çünkü bölümlerin çoğu tek bir yöntemi açıklayan bir başvuru kitabı niteliğindedir. Yorumlanabilirlik konusunda yeniyseniz, yorumlanabilirliğin ne olduğunu anlamak ve her yöntemi yerleştirebileceğiniz bir “haritaya” sahip olmak için önce yalnızca **Yorumlanabilirlik**, **Hedefler** ve **Yöntemlere Genel Bakış** bölümlerini okumanızı öneririm.
+
+Kitap şu bölümlerden oluşur:
+
+- Yorumlanabilirlik tanımları ve yöntemlere genel bakışı içeren giriş bölümleri,
+- Yorumlanabilir modeller,
+- Yerel modelden bağımsız yöntemler,
+- Genel modelden bağımsız yöntemler,
+- Sinir ağlarına yönelik yöntemler,
+- Geleceğe bakış,
+- Makine öğrenmesi terminolojisi.
+
+Her yöntem bölümü benzer bir yapı izler: İlk paragraf yöntemi özetler; ardından matematiğe dayanmayan sezgisel bir açıklama gelir. Daha sonra yöntemin nasıl çalıştığını, matematik ve algoritmalar dâhil olmak üzere daha derinlemesine anlamak için kuramını inceleriz. Yeni bir yöntemin en iyi örneklerle anlaşılacağına inanıyorum. Bu nedenle her yöntem gerçek verilere uygulanır. Bazı insanlar istatistikçilerin çok eleştirel kişiler olduğunu söyler. Benim için bu doğrudur; çünkü her bölüm ilgili yorumlama yönteminin artılarını ve eksilerini eleştirel biçimde tartışır. Bu kitap yöntemlerin reklamı değildir; bir yöntemin projeniz için uygun olup olmadığına karar vermenize yardımcı olmalıdır. Her bölümün son kısmında mevcut yazılım uygulamaları listelenmiştir.
+
+Umarım okumaktan keyif alırsınız!
+
+## Kaynakça
+
+::: {#refs}
+:::
+
+## Kaynakça bilgisi
+
+Bu çeviri aşağıdaki özgün bölüm esas alınarak hazırlanmıştır: Molnar, C. (2025). “Introduction.” *Interpretable Machine Learning*, 3. baskı. https://christophm.github.io/interpretable-ml-book/intro.html
