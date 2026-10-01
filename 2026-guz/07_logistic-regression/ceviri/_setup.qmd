@@ -1,0 +1,22 @@
+```{r}
+#| label: setup (Bölüm 7 için sadeleştirilmiş, kitabın _setup.qmd dosyasından)
+#| include: false
+library("dplyr")
+library("ggplot2")
+library("kableExtra")
+library("palmerpenguins")
+library("reshape2")
+
+set.seed(2)
+penguins = na.omit(penguins)
+penguins_col_selection = c('species', 'bill_depth_mm', 'bill_length_mm', 'flipper_length_mm', 'sex', 'body_mass_g')
+penguins = penguins[penguins_col_selection]
+# P(female) tahmin edilsin diye referans kategori "male"
+penguins$sex <- relevel(penguins$sex, ref = "male")
+
+my_theme = function(legend.position='right'){
+  theme_bw() %+replace%
+    theme(legend.position=legend.position)
+}
+theme_set(my_theme())
+```
