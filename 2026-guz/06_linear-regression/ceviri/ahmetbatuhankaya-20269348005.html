@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ahmetbatuhankaya-20269348005</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="ahmetbatuhankaya-20269348005_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/popper.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ahmetbatuhankaya-20269348005_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="ahmetbatuhankaya-20269348005_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="ahmetbatuhankaya-20269348005_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="limo" class="level1">
+<h1>Doğrusal Regresyon</h1>
+<p>Doğrusal regresyon modeli, hedef değişkeni öznitelik girdilerinin ağırlıklı toplamı olarak tahmin eder. Öğrenilen ilişkinin doğrusal olması, yorumlamayı kolaylaştırır. Doğrusal regresyon modelleri; istatistikçiler, bilgisayar bilimciler ve nicel problemlerle uğraşan diğer insanlar tarafından uzun zamandır kullanılmaktadır.</p>
+<p>Doğrusal modeller, bir y regresyon hedefinin <span class="math inline">\(\mathbf{x}\)</span> özniteliklerine bağımlılığını modellemek için kullanılabilir. Öğrenilen ilişkiler, tek bir i örneği için şu şekilde yazılabilir:</p>
+<p><span class="math display">\[y=\beta_{0}+\beta_{1}x_{1}+\ldots+\beta_{p}x_{p}+\epsilon\]</span></p>
+<p>Bir örneğin tahmin edilen sonucu, p özniteliğinin ağırlıklı toplamıdır. <span class="math inline">\(\beta_{j}, j \in 1, \ldots, p\)</span> betaları, öğrenilen öznitelik ağırlıklarını ya da katsayılarını temsil eder. Toplamdaki ilk ağırlık olan <span class="math inline">\(\beta_0\)</span>, sabit terim (kesişim) olarak adlandırılır ve herhangi bir öznitelikle çarpılmaz. Epsilon <span class="math inline">\(\epsilon\)</span> ise hâlâ yaptığımız hatadır, yani tahmin ile gerçek sonuç arasındaki farktır.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Bu hataların Gauss (normal) dağılımına uyduğu varsayılır; bu da hem negatif hem pozitif yönde hata yaptığımız, çok sayıda küçük ve az sayıda büyük hata yaptığımız anlamına gelir.</p>
+<p>En iyi katsayıyı bulmak için genellikle gerçek sonuçlar ile kestirilen sonuçlar arasındaki farkların karelerini en aza indiririz:</p>
+<p><span class="math display">\[\hat{\boldsymbol{\beta}} = \arg\!\min_{\beta_0, \ldots, \beta_p} \sum_{i=1}^n \left( y^{(i)} - \left( \beta_0 + \sum_{j=1}^p \beta_j x^{(i)}_{j} \right) \right)^{2}\]</span></p>
+<p>Optimal ağırlıkların nasıl bulunabileceğini ayrıntılı olarak ele almayacağız; ancak ilgileniyorsanız “The Elements of Statistical Learning” kitabının 3.2 bölümünü <span class="citation" data-cites="hastie2009elements">(<a href="#ref-hastie2009elements" role="doc-biblioref">Hastie vd. 2009</a>)</span> ya da doğrusal regresyon modelleri üzerine diğer çevrimiçi kaynaklardan birini okuyabilirsiniz.</p>
+<p>Doğrusal regresyon modellerinin en büyük avantajı doğrusallıktır: Doğrusallık kestirim sürecini basitleştirir ve en önemlisi, bu doğrusal denklemlerin modüler düzeyde (yani ağırlıklar düzeyinde) anlaşılması kolay bir yorumu vardır. Bu, doğrusal modelin ve benzer tüm modellerin tıp, sosyoloji, psikoloji ve diğer pek çok nicel araştırma alanı gibi akademik alanlarda bu kadar yaygın olmasının temel nedenlerinden biridir. Örneğin tıp alanında yalnızca bir hastanın klinik sonucunu tahmin etmek değil, aynı zamanda ilacın etkisini sayısallaştırmak ve bunu yaparken cinsiyet, yaş ve diğer öznitelikleri yorumlanabilir bir şekilde hesaba katmak da önemlidir.</p>
+<p>Kestirilen ağırlıklar güven aralıklarıyla birlikte gelir. Güven aralığı, ağırlık kestirimi için “gerçek” ağırlığı belirli bir güvenle kapsayan bir aralıktır. Örneğin 2 değerindeki bir ağırlık için %95 güven aralığı 1 ile 3 arasında olabilir. Bu aralığın yorumu şöyle olur: Doğrusal regresyon modelinin veri için doğru model olması koşuluyla, kestirimi yeni örneklenmiş verilerle 100 kez tekrarlasaydık, güven aralığı 100 durumun 95’inde gerçek ağırlığı içerirdi.</p>
+<p>Modelin “doğru” model olup olmadığı, verideki ilişkilerin belirli varsayımları karşılayıp karşılamadığına bağlıdır. Bu varsayımlar doğrusallık, normallik, eş varyanslılık (homoskedastisite), bağımsızlık, sabit öznitelikler ve çoklu bağlantının (multicollinearity) olmamasıdır.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Varsayımlar isteğe bağlıdır.
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Varsayımlara yalnızca doğrusal modelden güven aralıkları gibi ek çıkarımlar elde etmek için ihtiyaç duyarsınız.</p>
+</div>
+</div>
+<p><strong>Doğrusallık</strong><br>
+Doğrusal regresyon modeli, tahmini özniteliklerin doğrusal bir bileşimi olmaya zorlar; bu hem en büyük gücü hem de en büyük sınırlılığıdır. Doğrusallık, yorumlanabilir modellere yol açar. Doğrusal etkileri sayısallaştırmak ve betimlemek kolaydır. Toplamsaldırlar, dolayısıyla etkileri birbirinden ayırmak kolaydır. Öznitelik etkileşimlerinden ya da bir özniteliğin hedef değerle doğrusal olmayan bir ilişkisinden şüpheleniyorsanız, etkileşim terimleri ekleyebilir ya da regresyon spline’ları kullanabilirsiniz.</p>
+<p><strong>Normallik</strong><br>
+Özniteliklere koşullu hedef sonucun normal dağılıma uyduğu varsayılır. Bu varsayım ihlal edilirse, öznitelik ağırlıklarının kestirilen güven aralıkları geçersiz olur.</p>
+<p><strong>Eş varyanslılık</strong> (sabit varyans)<br>
+Hata terimlerinin varyansının tüm öznitelik uzayı boyunca sabit olduğu varsayılır. Bir evin değerini metrekare cinsinden yaşam alanına göre tahmin etmek istediğinizi düşünün. Evin büyüklüğünden bağımsız olarak, tahmin edilen yanıt etrafındaki hatanın aynı varyansa sahip olduğunu varsayan bir doğrusal model kestiriyorsunuz. Bu varsayım gerçekte sıklıkla ihlal edilir. Ev örneğinde, tahmin edilen fiyat etrafındaki hata terimlerinin varyansının daha büyük evlerde daha yüksek olması akla yatkındır; çünkü fiyatlar yükseldikçe fiyat dalgalanmalarına daha fazla alan vardır. Doğrusal regresyon modelinizdeki ortalama hatanın (tahmin edilen ile gerçek fiyat arasındaki fark) 50.000 Euro olduğunu varsayalım. Eş varyanslılığı varsayarsanız, 50.000’lik ortalama hatanın 1 milyonluk evler için de, yalnızca 40.000’lik evler için de aynı olduğunu varsaymış olursunuz. Bu makul değildir, çünkü negatif ev fiyatları bekleyebileceğimiz anlamına gelir.</p>
+<p><strong>Bağımsızlık</strong><br>
+Her örneğin diğer tüm örneklerden bağımsız olduğu varsayılır.<br>
+Hasta başına birden fazla kan testi gibi tekrarlı ölçümler yapıyorsanız, veri noktaları bağımsız değildir. Bağımlı veriler için karma etkiler modelleri (mixed effect models) ya da GEE’ler (genelleştirilmiş kestirim denklemleri) gibi özel doğrusal regresyon modellerine ihtiyacınız vardır.<br>
+“Olağan” doğrusal regresyon modelini kullanırsanız, modelden yanlış sonuçlar çıkarabilirsiniz.</p>
+<p><strong>Sabit öznitelikler</strong><br>
+Girdi özniteliklerinin “sabit” olduğu kabul edilir. Sabit olmaları, istatistiksel değişkenler olarak değil, “verili sabitler” olarak ele alındıkları anlamına gelir. Bu da ölçüm hatası içermedikleri anlamına gelir. Bu oldukça gerçekçi olmayan bir varsayımdır. Ancak bu varsayım olmadan, girdi özniteliklerinizin ölçüm hatalarını hesaba katan çok karmaşık ölçüm hatası modelleri uydurmanız gerekirdi. Ve genellikle bunu yapmak istemezsiniz.</p>
+<p><strong>Çoklu bağlantının olmaması</strong><br>
+Güçlü biçimde korelasyonlu öznitelikler istemezsiniz, çünkü bu ağırlıkların kestirimini bozar. İki özniteliğin güçlü biçimde korelasyonlu olduğu bir durumda ağırlıkları kestirmek sorunlu hâle gelir; çünkü öznitelik etkileri toplamsaldır ve etkilerin korelasyonlu özniteliklerden hangisine atfedileceği belirlenemez olur.</p>
+<section id="yorumlama" class="level2">
+<h2 class="anchored" data-anchor-id="yorumlama">Yorumlama</h2>
+<p>Doğrusal regresyon modelindeki bir ağırlığın yorumu, ilgili özniteliğin türüne bağlıdır.</p>
+<ul>
+<li>Sayısal öznitelik: Sayısal özniteliği bir birim artırmak, kestirilen sonucu ağırlığı kadar değiştirir. Sayısal özniteliğe bir örnek, bir evin büyüklüğüdür.</li>
+<li>İkili öznitelik: Her örnek için iki olası değerden birini alan özniteliktir. Bir örnek “Evin bahçesi var” özniteliğidir. Değerlerden biri, örneğin “Bahçe yok”, referans kategori olarak kabul edilir (bazı programlama dillerinde 0 ile kodlanır). Özniteliği referans kategoriden diğer kategoriye değiştirmek, kestirilen sonucu özniteliğin ağırlığı kadar değiştirir.</li>
+<li>Birden çok kategorisi olan kategorik öznitelik: Sabit sayıda olası değeri olan özniteliktir. Bir örnek, “halı”, “laminat” ve “parke” olası kategorilerine sahip “zemin türü” özniteliğidir. Çok sayıda kategoriyle başa çıkmanın bir yolu one-hot kodlamadır (one-hot encoding); yani her kategorinin kendi ikili sütunu olur. L kategorili bir kategorik öznitelik için yalnızca L-1 sütuna ihtiyacınız vardır, çünkü L’inci sütun gereksiz (tekrarlı) bilgi taşır. Örneğin bir örnek için 1’den L-1’e kadar olan sütunların hepsi 0 değerine sahipse, bu örneğin kategorik özniteliğinin L kategorisinde olduğunu biliriz. Bu durumda her kategorinin yorumu, ikili özniteliklerin yorumuyla aynıdır. R gibi bazı diller, <a href="#cat-code">bu bölümün ilerleyen kısmında açıklandığı</a> gibi, kategorik öznitelikleri çeşitli şekillerde kodlamanıza olanak tanır.</li>
+<li>Sabit terim <span class="math inline">\(\beta_0\)</span>: Sabit terim, tüm örnekler için her zaman 1 olan “sabit öznitelik” için öznitelik ağırlığıdır. Çoğu yazılım paketi, sabit terimi kestirmek için bu “1” özniteliğini otomatik olarak ekler. Yorumu şöyledir: Tüm sayısal öznitelik değerleri sıfırda ve kategorik öznitelik değerleri referans kategorilerde olan bir örnek için model tahmini, sabit terim ağırlığıdır. Sabit terimin yorumu genellikle önemli değildir, çünkü tüm öznitelik değerleri sıfır olan örnekler çoğu zaman anlamsızdır. Yorum ancak öznitelikler standartlaştırılmışsa (ortalaması sıfır, standart sapması bir) anlamlıdır. Bu durumda sabit terim, tüm özniteliklerin ortalama değerlerinde olduğu bir örneğin tahmin edilen sonucunu yansıtır.</li>
+</ul>
+<p>Doğrusal regresyon modelindeki özniteliklerin yorumu, aşağıdaki metin şablonları kullanılarak otomatikleştirilebilir.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Not</span>Yorumlama
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Sayısal öznitelik</strong>: Diğer tüm öznitelik değerleri sabit kaldığında, <span class="math inline">\(x_j\)</span> özniteliğindeki bir birimlik artış <span class="math inline">\(y\)</span> tahminini <span class="math inline">\(\beta_j\)</span> birim artırır.</li>
+<li><strong>Kategorik öznitelik</strong>: Diğer tüm öznitelikler sabit kaldığında, <span class="math inline">\(x_j\)</span> özniteliğini referans kategoriden diğer kategoriye değiştirmek y tahminini <span class="math inline">\(\beta_j\)</span> kadar artırır.</li>
+</ul>
+</div>
+</div>
+<p>Doğrusal modelleri yorumlamak için bir diğer önemli ölçü R-kare ölçüsüdür. R-kare, hedef sonucunuzun toplam varyansının ne kadarının model tarafından açıklandığını söyler. R-kare ne kadar yüksekse, modeliniz veriyi o kadar iyi açıklar. R-kareyi hesaplama formülü şöyledir:</p>
+<p><span class="math display">\[R^2=1-\frac{SSE}{SST}\]</span></p>
+<p>SSE, hata terimlerinin kareler toplamıdır:</p>
+<p><span class="math display">\[SSE = \sum_{i=1}^n (y^{(i)} - \hat{y}^{(i)})^2\]</span></p>
+<p>SST, veri varyansının kareler toplamıdır:</p>
+<p><span class="math display">\[SST = \sum_{i=1}^n (y^{(i)} - \bar{y})^2\]</span></p>
+<p>SSE, doğrusal model uydurulduktan sonra ne kadar varyansın kaldığını söyler; bu, tahmin edilen ve gerçek hedef değerler arasındaki farkların kareleriyle ölçülür. SST ise hedef sonucun toplam varyansıdır. R-kare, varyansınızın ne kadarının doğrusal model tarafından açıklanabildiğini söyler. R-kare genellikle, modelin veriyi hiç açıklamadığı durumda 0 ile verideki tüm varyansı açıkladığı durumda 1 arasında değişir. R-karenin herhangi bir matematiksel kuralı ihlal etmeden negatif bir değer alması da mümkündür. Bu, SSE’nin SST’den büyük olduğu durumda gerçekleşir; bu da modelin verideki eğilimi yakalayamadığı ve veriye, hedefin ortalamasını tahmin olarak kullanmaktan daha kötü uyduğu anlamına gelir.</p>
+<p>Burada bir püf nokta var: R-kare, hedef değer hakkında hiçbir bilgi içermeseler bile modeldeki öznitelik sayısı arttıkça artar. Bu nedenle, modelde kullanılan öznitelik sayısını hesaba katan düzeltilmiş R-kareyi kullanmak daha iyidir. Hesaplanışı şöyledir:</p>
+<p><span class="math display">\[\bar{R}^2 = 1 - (1 - R^2) \frac{n - 1}{n - p - 1}\]</span></p>
+<p>Burada <span class="math inline">\(p\)</span> öznitelik sayısı, <span class="math inline">\(n\)</span> ise örnek sayısıdır.</p>
+<p>(Düzeltilmiş) R-karesi çok düşük olan bir modeli yorumlamak anlamlı değildir, çünkü böyle bir model temelde varyansın büyük kısmını açıklamaz. Ağırlıkların herhangi bir yorumu anlamlı olmaz.</p>
+<p><strong>Öznitelik Önemi</strong></p>
+<p>Doğrusal regresyon modelindeki bir özniteliğin önemi, t-istatistiğinin mutlak değeriyle ölçülebilir. t-istatistiği, standart hatasıyla ölçeklendirilmiş kestirilen ağırlıktır.</p>
+<p><span class="math display">\[t_{\hat{\beta}_j}=\frac{\hat{\beta}_j}{SE(\hat{\beta}_j)}\]</span></p>
+<p>Bu formülün bize ne söylediğini inceleyelim: Bir özniteliğin önemi, ağırlık arttıkça artar. Bu mantıklıdır. Kestirilen ağırlığın varyansı ne kadar fazlaysa (= doğru değerden ne kadar az eminsek), öznitelik o kadar az önemlidir. Bu da mantıklıdır.</p>
+</section>
+<section id="örnek" class="level2">
+<h2 class="anchored" data-anchor-id="örnek">Örnek</h2>
+<p>Bu örnekte, belirli bir gündeki <a href="#bike-data">kiralanan bisiklet sayısını</a> hava durumu ve takvim bilgilerine göre tahmin etmek için doğrusal regresyon modelini kullanıyoruz. Yorumlama için kestirilen regresyon ağırlıklarını inceliyoruz. Öznitelikler sayısal ve kategorik özniteliklerden oluşmaktadır. <a href="#tbl-load-linear-model" class="quarto-xref">Tablo&nbsp;1</a>, her öznitelik için kestirilen ağırlığı, kestirimin standart hatasını ve t-istatistiğinin mutlak değerini göstermektedir.</p>
+<div class="cell">
+<div id="tbl-load-linear-model" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-load-linear-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;1: Bisiklet kiralamalarını tahmin eden doğrusal model için katsayılar, standart hatalar (SE) ve t-istatistiğinin mutlak değeri.
+</figcaption>
+<div aria-describedby="tbl-load-linear-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Weight</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">|t|</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">2742.4</td>
+<td style="text-align: right;">339.0</td>
+<td style="text-align: right;">8.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonSPRING</td>
+<td style="text-align: right;">454.8</td>
+<td style="text-align: right;">169.9</td>
+<td style="text-align: right;">2.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">seasonSUMMER</td>
+<td style="text-align: right;">263.3</td>
+<td style="text-align: right;">218.7</td>
+<td style="text-align: right;">1.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonFALL</td>
+<td style="text-align: right;">636.9</td>
+<td style="text-align: right;">152.7</td>
+<td style="text-align: right;">4.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">holidayY</td>
+<td style="text-align: right;">-441.1</td>
+<td style="text-align: right;">239.0</td>
+<td style="text-align: right;">1.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">workdayY</td>
+<td style="text-align: right;">242.0</td>
+<td style="text-align: right;">101.9</td>
+<td style="text-align: right;">2.4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weatherMISTY</td>
+<td style="text-align: right;">-345.3</td>
+<td style="text-align: right;">120.2</td>
+<td style="text-align: right;">2.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weatherBAD</td>
+<td style="text-align: right;">-1804.1</td>
+<td style="text-align: right;">306.0</td>
+<td style="text-align: right;">5.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">temp</td>
+<td style="text-align: right;">51.0</td>
+<td style="text-align: right;">10.3</td>
+<td style="text-align: right;">5.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hum</td>
+<td style="text-align: right;">-21.7</td>
+<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">4.8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">windspeed</td>
+<td style="text-align: right;">-46.5</td>
+<td style="text-align: right;">9.5</td>
+<td style="text-align: right;">4.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cnt_2d_bfr</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">19.3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Sayısal bir özniteliğin (<code>temp</code>) yorumu: Diğer tüm öznitelikler sabit kaldığında, sıcaklıktaki 1 santigrat derecelik artış tahmin edilen bisiklet sayısını 51.0 artırır.</p>
+<p>Kategorik bir özniteliğin (<code>weather</code>) yorumu: Hava kötü olduğunda (yağmurlu, karlı ya da fırtınalı), iyi havaya kıyasla kestirilen bisiklet sayısı -1804.1 daha düşüktür; yine diğer tüm özniteliklerin değişmediği varsayımıyla. Hava sisli olduğunda, diğer tüm öznitelikler aynı kalmak koşuluyla, tahmin edilen bisiklet sayısı iyi havaya kıyasla -345.3 daha düşüktür.</p>
+<p>Doğrusal regresyon modellerinin doğası gereği, tüm yorumlar her zaman “diğer tüm öznitelikler aynı kalmak koşuluyla” dipnotuyla birlikte gelir. Tahmin edilen hedef, ağırlıklandırılmış özniteliklerin doğrusal bir bileşimidir. Kestirilen doğrusal denklem, öznitelik/hedef uzayında bir hiperdüzlemdir (tek bir öznitelik durumunda basit bir doğru). Ağırlıklar, hiperdüzlemin her yöndeki eğimini (gradyanını) belirtir. İşin iyi tarafı, toplamsallığın tek bir öznitelik etkisinin yorumunu diğer tüm özniteliklerden yalıtmasıdır. Bu mümkündür, çünkü denklemdeki tüm öznitelik etkileri (= ağırlık çarpı öznitelik değeri) bir artı işaretiyle birleştirilir. İşin kötü tarafı ise yorumun özniteliklerin ortak dağılımını göz ardı etmesidir. Bir özniteliği artırıp diğerini değiştirmemek, gerçekçi olmayan ya da en azından olası olmayan veri noktalarına yol açabilir. Örneğin bir evin oda sayısını, büyüklüğünü de artırmadan artırmak gerçekçi olmayabilir.</p>
+</section>
+<section id="ağırlık-ve-etki-grafiği" class="level2">
+<h2 class="anchored" data-anchor-id="ağırlık-ve-etki-grafiği">Ağırlık ve etki grafiği</h2>
+<p>Ağırlık grafiği ve etki grafiği gibi görselleştirmeler, doğrusal regresyon modelinin insanlar tarafından kolay ve hızlı bir şekilde kavranmasını sağlar.</p>
+<p><strong>Ağırlık grafiği</strong></p>
+<p>Ağırlık tablosundaki bilgiler (ağırlık ve varyans kestirimleri) bir ağırlık grafiğinde görselleştirilebilir. <a href="#fig-linear-weights-plot" class="quarto-xref">Şekil&nbsp;1</a>, önceki doğrusal regresyon modelinin sonuçlarını göstermektedir.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-linear-weights-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-weights-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-linear-weights-plot-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-weights-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: Bisiklet kiralama verisi için doğrusal regresyon kestirimleri. Ağırlıklar noktalar, %95 güven aralıkları ise çizgiler olarak gösterilmiştir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Ağırlık grafiği, kötü havanın tahmin edilen bisiklet sayısı üzerinde güçlü bir negatif etkisi olduğunu göstermektedir. Yaz mevsiminin ağırlığı pozitiftir, ancak %95 güven aralığı 0’ı içerir; dolayısıyla diğer tüm öznitelikler verildiğinde yaz ile kış arasında anlamlı bir fark yoktur. Model sıcaklığı hesaba kattığından, yaz katsayısı yazın <strong>ek</strong> etkisiyle ilgilidir. Bazı güven aralıkları çok kısadır ve kestirimler sıfıra yakındır, yine de öznitelik etkileri istatistiksel olarak anlamlıdır. Sıcaklık bu adaylardan biridir. Ağırlık grafiğinin sorunu, özniteliklerin farklı ölçeklerde ölçülmesidir. Hava durumu için kestirilen ağırlık iyi ve kötü hava arasındaki farkı yansıtırken, sıcaklık için yalnızca 1 santigrat derecelik bir artışı yansıtır. Doğrusal modeli uydurmadan önce öznitelikleri ölçeklendirerek (ortalaması sıfır, standart sapması bir) kestirilen ağırlıkları daha karşılaştırılabilir hâle getirebilirsiniz.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Uyarı</span>Farklı ölçeklerdeki özniteliklerin ağırlıklarını karşılaştırmayın
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Bir özniteliğin ölçüldüğü birim, katsayıların/ağırlıkların büyüklüğünü etkiler. Örneğin kilogramdan grama dönüştürürken olduğu gibi bir özniteliği 1000 ile çarparsanız, yeni katsayı 1/1000 oranında küçülür.</p>
+</div>
+</div>
+<p><strong>Etki grafiği</strong></p>
+<p>Doğrusal regresyon modelinin ağırlıkları, gerçek öznitelik değerleriyle çarpıldıklarında daha anlamlı bir şekilde analiz edilebilir. Ağırlıklar özniteliklerin ölçeğine bağlıdır; örneğin bir kişinin boyunu ölçen bir özniteliğiniz varsa ve metreden santimetreye geçerseniz ağırlık farklı olacaktır. Ağırlık değişir, ancak verinizdeki gerçek etkiler değişmez. Özniteliğinizin verideki dağılımını bilmek de önemlidir; çünkü varyans çok düşükse, bu neredeyse tüm örneklerin bu öznitelikten benzer katkılar aldığı anlamına gelir. Etki grafiği, ağırlık ve öznitelik bileşiminin verinizdeki tahminlere ne kadar katkıda bulunduğunu anlamanıza yardımcı olabilir. İşe etkileri hesaplayarak başlayın; etki, öznitelik başına ağırlık ile bir örneğin öznitelik değerinin çarpımıdır:</p>
+<p><span class="math display">\[\text{effect}_{j}^{(i)} = w_{j} x^{(i)}_j\]</span></p>
+<p>Etkiler, <a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html">kutu grafikleriyle (boxplot)</a> görselleştirilebilir (bkz. <a href="#fig-linear-effects" class="quarto-xref">Şekil&nbsp;2</a>). Kutu grafiğindeki kutu, verinin yarısı için etki aralığını (%25 ile %75 etki çeyreklikleri) içerir. Kutudaki dikey çizgi medyan etkidir; yani örneklerin %50’si tahmin üzerinde daha düşük, diğer yarısı daha yüksek bir etkiye sahiptir. Noktalar aykırı değerlerdir; üçüncü çeyrekliğin 1,5 * IQR (çeyrekler açıklığı, yani birinci ve üçüncü çeyreklikler arasındaki fark) kadar üstünde ya da birinci çeyrekliğin 1,5 * IQR kadar altında kalan noktalar olarak tanımlanırlar. Alt ve üst bıyık olarak adlandırılan iki yatay çizgi, birinci çeyrekliğin altında ve üçüncü çeyrekliğin üstünde kalan, aykırı olmayan noktaları birleştirir. Aykırı değer yoksa bıyıklar minimum ve maksimum değerlere kadar uzanır.</p>
+<p>Her kategorinin kendi satırının olduğu ağırlık grafiğinin aksine, kategorik öznitelik etkileri tek bir kutu grafiğinde özetlenebilir.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-linear-effects" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-linear-effects-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: Bisiklet kiralama verisi için doğrusal regresyon sonuçlarının etki grafiği. Kutu grafikleri, her öznitelik için etkilerin (= öznitelik değeri çarpı öznitelik ağırlığı) veri genelindeki dağılımını göstermektedir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Beklenen kiralık bisiklet sayısına en büyük katkılar sıcaklık özniteliğinden ve önceki bisiklet sayısından gelmektedir. Sıcaklığın tahmine katkısı geniş bir aralıkta değişir. Sayı özniteliği sıfırdan büyük pozitif katkılara kadar uzanır. Negatif ağırlığa sahip etkilerde, pozitif etkiye sahip örnekler negatif öznitelik değerine sahip olanlardır. Örneğin rüzgâr hızının yüksek negatif etkiye sahip olduğu günler, rüzgâr hızının yüksek olduğu günlerdir.</p>
+<section id="tekil-tahminleri-etki-grafikleriyle-açıklama" class="level3">
+<h3 class="anchored" data-anchor-id="tekil-tahminleri-etki-grafikleriyle-açıklama">Tekil tahminleri etki grafikleriyle açıklama</h3>
+<p>Bir örneğin her bir özniteliği tahmine ne kadar katkıda bulundu? Bu soru, o örnek için etkiler hesaplanarak yanıtlanabilir. Örneğe özgü etkilerin yorumu ancak her özniteliğin etki dağılımıyla karşılaştırıldığında anlamlıdır. Bisiklet veri setindeki 6. örnek için doğrusal modelin tahminini açıklamak istiyoruz. Bu örneğin öznitelik değerleri aşağıda gösterilmektedir (bkz. <a href="#tbl-linear-effects-single-table" class="quarto-xref">Tablo&nbsp;2</a>).</p>
+<div class="cell">
+<div id="tbl-linear-effects-single-table" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-linear-effects-single-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;2: örneğin öznitelik değerleri
+</figcaption>
+<div aria-describedby="tbl-linear-effects-single-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Feature</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">season</td>
+<td style="text-align: left;">WINTER</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">holiday</td>
+<td style="text-align: left;">N</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">workday</td>
+<td style="text-align: left;">Y</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weather</td>
+<td style="text-align: left;">MISTY</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">temp</td>
+<td style="text-align: left;">-0.052723</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hum</td>
+<td style="text-align: left;">68.6364</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">windspeed</td>
+<td style="text-align: left;">8.182844</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cnt_2d_bfr</td>
+<td style="text-align: left;">822</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cnt</td>
+<td style="text-align: left;">1263</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Bu örneğin öznitelik etkilerini elde etmek için öznitelik değerlerini doğrusal regresyon modelindeki ilgili ağırlıklarla çarpmamız gerekir. -0.05 santigrat derecelik bir sıcaklık için etki -0.05 <span class="math inline">\(\cdot\)</span> 51.01 <span class="math inline">\(=\)</span> -2.69 olur. Bu tekil etkileri, verideki etkilerin dağılımını gösteren etki grafiğine çarpı işaretleri olarak ekliyoruz (bkz. <a href="#fig-linear-effects-single" class="quarto-xref">Şekil&nbsp;3</a>). Bu, tekil etkileri verideki etki dağılımıyla karşılaştırmamızı sağlar.</p>
+<p>Test verisi örnekleri için tahminlerin ortalamasını alırsak, 4452 ortalamasını elde ederiz. Buna kıyasla 6. örneğin tahmini düşüktür, çünkü yalnızca 1238 bisiklet kiralaması tahmin edilmektedir. Etki grafiği bunun nedenini ortaya koyar. Kutu grafikleri veri setindeki tüm örnekler için etkilerin dağılımlarını, çarpı işaretleri ise 6. örneğin etkilerini gösterir. 6. örneğin sıcaklık etkisi düşüktür, çünkü o gün sıcaklık 0 dereceydi ve bu diğer günlerin çoğuna kıyasla düşüktür (sıcaklık özniteliğinin ağırlığının pozitif olduğunu hatırlayın). Ayrıca <code>cnt_2d_bfr</code> özniteliğinin etkisi diğer veri örneklerine kıyasla küçüktür, çünkü 2011’in başlarında daha az bisiklet kiralanmıştır.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-linear-effects-single" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-effects-single-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-linear-effects-single-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-effects-single-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: Bisiklet verisi için tek bir doğrusal model tahmininin etki grafiği. Kutu grafikleri genel etki dağılımlarını gösterirken, çarpı işaretleri ilgilenilen örneğin etkilerini işaretlemektedir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="cat-code" class="level2">
+<h2 class="anchored" data-anchor-id="cat-code">Kategorik özniteliklerin kodlanması</h2>
+<p>Kategorik bir özniteliği kodlamanın birkaç yolu vardır ve bu seçim ağırlıkların yorumunu etkiler. Doğrusal regresyon modellerinde standart olan, çoğu durumda yeterli olan treatment kodlamadır (işlem kodlama). Farklı kodlamalar kullanmak, özünde kategorik özniteliği içeren tek bir sütundan farklı (tasarım) matrisleri oluşturmak demektir. Bu bölüm üç farklı kodlamayı sunmaktadır, ancak çok daha fazlası vardır. Aşağıdaki örnekte dört örnek ve üç kategorili bir kategorik öznitelik bulunmaktadır. İlk iki örnekte öznitelik A kategorisini; üçüncü örnekte B kategorisini; son örnekte ise C kategorisini alır. Dolayısıyla vektörümüz şöyle görünür:</p>
+<p><span class="math display">\[\begin{pmatrix}A\\A\\B\\C\\\end{pmatrix}\]</span></p>
+<p><strong>Treatment kodlama</strong></p>
+<p>Treatment kodlamada, kategori başına ağırlık, ilgili kategori ile referans kategori arasındaki tahminde kestirilen farktır. Doğrusal modelin sabit terimi, referans kategorinin ortalamasıdır (diğer tüm öznitelikler aynı kaldığında). Tasarım matrisinin ilk sütunu, her zaman 1 olan sabit terimdir. İkinci sütun i örneğinin B kategorisinde olup olmadığını, üçüncü sütun ise C kategorisinde olup olmadığını gösterir. A kategorisi için bir sütuna gerek yoktur; çünkü o durumda doğrusal denklem aşırı belirlenmiş olur ve ağırlıklar için tek bir çözüm bulunamaz. Bir örneğin ne B ne de C kategorisinde olduğunu bilmek yeterlidir.</p>
+<p><span class="math display">\[\begin{pmatrix}A\\A\\B\\C\\\end{pmatrix} \Rightarrow \begin{pmatrix}1&amp;0&amp;0\\1&amp;0&amp;0\\1&amp;1&amp;0\\1&amp;0&amp;1\\\end{pmatrix}\]</span></p>
+<p><strong>Etki kodlama</strong></p>
+<p>Etki kodlamada (effect coding), kategori başına ağırlık, ilgili kategoriden genel ortalamaya olan kestirilen y farkıdır (diğer tüm özniteliklerin sıfır ya da referans kategoride olması koşuluyla). İlk sütun sabit terimi kestirmek için kullanılır. Sabit terimle ilişkili <span class="math inline">\(\beta_{0}\)</span> ağırlığı genel ortalamayı temsil eder; ikinci sütunun ağırlığı olan <span class="math inline">\(\beta_{1}\)</span> ise genel ortalama ile B kategorisi arasındaki farktır. B kategorisinin toplam etkisi <span class="math inline">\(\beta_{0}+\beta_{1}\)</span>’dir. C kategorisinin yorumu da buna denktir. Referans kategori A için <span class="math inline">\(-(\beta_{1}+\beta_{2})\)</span> genel ortalamaya olan farkı, <span class="math inline">\(\beta_{0}-(\beta_{1}+\beta_{2})\)</span> ise toplam etkiyi verir.</p>
+<p><span class="math display">\[ \begin{pmatrix}A\\A\\B\\C\\\end{pmatrix} \Rightarrow \begin{pmatrix}1&amp;-1&amp;-1\\1&amp;-1&amp;-1\\1&amp;1&amp;0\\1&amp;0&amp;1\\\end{pmatrix}\]</span></p>
+<p><strong>Kukla kodlama</strong></p>
+<p>Kukla kodlamada (dummy coding) kategori başına <span class="math inline">\(\boldsymbol{\beta}\)</span>, her kategori için <span class="math inline">\(\mathbf{y}\)</span>’nin kestirilen ortalama değeridir (diğer tüm öznitelik değerlerinin sıfır ya da referans kategoride olması koşuluyla). Doğrusal model ağırlıkları için tek bir çözüm bulunabilmesi amacıyla burada sabit terimin çıkarıldığına dikkat edin. Bu çoklu bağlantı sorununu hafifletmenin bir başka yolu da kategorilerden birini dışarıda bırakmaktır.</p>
+<p><span class="math display">\[ \begin{pmatrix}A\\A\\B\\C\\\end{pmatrix} \Rightarrow \begin{pmatrix}1&amp;0&amp;0\\1&amp;0&amp;0\\0&amp;1&amp;0\\0&amp;0&amp;1\\\end{pmatrix}\]</span></p>
+<p>Kategorik özniteliklerin farklı kodlamalarına biraz daha derinlemesine dalmak isterseniz <a href="http://stats.idre.ucla.edu/r/library/r-library-contrast-coding-systems-for-categorical-variables/">bu genel bakış sayfasına</a> ve <a href="http://heidiseibold.github.io/page7/">bu blog yazısına</a> göz atın.</p>
+</section>
+<section id="sparse-linear" class="level2">
+<h2 class="anchored" data-anchor-id="sparse-linear">Seyrek doğrusal modeller</h2>
+<p>Seçtiğim doğrusal model örneklerinin hepsi hoş ve düzenli görünüyor, değil mi? Ancak gerçekte yalnızca bir avuç özniteliğiniz değil, yüzlerce ya da binlerce özniteliğiniz olabilir. Peki ya doğrusal regresyon modelleriniz? Yorumlanabilirlik yokuş aşağı gider. Hatta öznitelik sayısının örnek sayısından fazla olduğu ve standart bir doğrusal modeli hiç uyduramadığınız bir durumla bile karşılaşabilirsiniz. İyi haber şu ki doğrusal modellere seyreklik (= az sayıda öznitelik) kazandırmanın yolları vardır.</p>
+<section id="lasso" class="level3">
+<h3 class="anchored" data-anchor-id="lasso">Lasso</h3>
+<p>Lasso, doğrusal regresyon modeline seyreklik kazandırmanın otomatik ve kullanışlı bir yoludur. Lasso, “least absolute shrinkage and selection operator” (en küçük mutlak büzülme ve seçim operatörü) ifadesinin kısaltmasıdır ve bir doğrusal regresyon modelinde uygulandığında hem öznitelik seçimi hem de seçilen öznitelik ağırlıklarının düzenlileştirilmesini (regularization) gerçekleştirir. Ağırlıkların optimize ettiği minimizasyon problemini ele alalım:</p>
+<p><span class="math display">\[\min_{\boldsymbol{\beta}}\left(\frac{1}{n}\sum_{i=1}^n(y^{(i)} - \mathbf{x}^{(i) T} \boldsymbol{\beta})^2\right)\]</span></p>
+<p>Lasso bu optimizasyon problemine bir terim ekler.</p>
+<p><span class="math display">\[\min_{\boldsymbol{\beta}}\left(\frac{1}{n}\sum_{i=1}^n(y^{(i)} - \mathbf{x}^{(i) T} \boldsymbol{\beta})^2 + \lambda ||\boldsymbol{\beta}||_1\right)\]</span></p>
+<p>Öznitelik vektörünün L1-normu olan <span class="math inline">\(||\boldsymbol{\beta}||_1\)</span> terimi, büyük ağırlıkların cezalandırılmasına yol açar. L1-normu kullanıldığı için ağırlıkların çoğu 0 kestirimi alır, diğerleri ise büzülür (küçültülür). <span class="math inline">\(\lambda\)</span> parametresi düzenlileştirme etkisinin gücünü kontrol eder ve genellikle çapraz doğrulama ile ayarlanır. Özellikle <span class="math inline">\(\lambda\)</span> büyük olduğunda pek çok ağırlık 0 olur. Öznitelik ağırlıkları, ceza terimi <span class="math inline">\(\lambda\)</span>’nın bir fonksiyonu olarak görselleştirilebilir. <a href="#fig-lasso-path" class="quarto-xref">Şekil&nbsp;4</a> içinde her öznitelik ağırlığı bir eğriyle temsil edilmektedir. Ağırlıklar üzerindeki ceza arttıkça, giderek daha az öznitelik sıfırdan farklı bir ağırlık kestirimi alır. Bu eğrilere düzenlileştirme yolları (regularization paths) da denir.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-lasso-path" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lasso-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-lasso-path-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lasso-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: Ceza terimi <span class="math inline">\(\lambda\)</span>’nın bir doğrusal modeldeki ağırlık kestirimleri üzerindeki etkisi. Grafiğin üstündeki sayı, sıfırdan farklı ağırlıkların sayısıdır.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><span class="math inline">\(\lambda\)</span> için hangi değeri seçmeliyiz? Ceza terimini bir ayar parametresi (hiperparametre) olarak görürseniz, çapraz doğrulama ile model hatasını en aza indiren <span class="math inline">\(\lambda\)</span>’yı bulabilirsiniz. <span class="math inline">\(\lambda\)</span>’yı modelin yorumlanabilirliğini kontrol eden bir parametre olarak da düşünebilirsiniz. Ceza ne kadar büyükse modelde o kadar az öznitelik bulunur (çünkü ağırlıkları sıfırdır) ve model o kadar iyi yorumlanabilir.</p>
+<p><strong>Lasso ile örnek</strong></p>
+<p>Lasso kullanarak bisiklet kiralamalarını tahmin edeceğiz. Modelde bulunmasını istediğimiz öznitelik sayısını önceden belirliyoruz. Önce bu sayıyı 2 öznitelik olarak belirleyelim; sonuçlar için bkz. <a href="#tbl-lasso-effects" class="quarto-xref">Tablo&nbsp;3</a>.</p>
+<div class="cell">
+<div id="tbl-lasso-effects" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-lasso-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;3: Lasso kullanılıp öznitelik sayısı ikiye ayarlandığında elde edilen ağırlık kestirimleri.
+</figcaption>
+<div aria-describedby="tbl-lasso-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">seasonWINTER</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonSPRING</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">seasonSUMMER</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonFALL</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">holidayY</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">workdayY</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weatherMISTY</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weatherBAD</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">temp</td>
+<td style="text-align: right;">22.45</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hum</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">windspeed</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cnt_2d_bfr</td>
+<td style="text-align: right;">0.48</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Lasso yolunda sıfırdan farklı ağırlık alan ilk iki öznitelik sıcaklık (<code>temp</code>) ve önceki sayımdır (<code>cnt_2d_bfr</code>). Şimdi 5 öznitelik seçelim. Sonuçlar için bkz. <a href="#tbl-lasso-effects2" class="quarto-xref">Tablo&nbsp;4</a>. “temp” ve “cnt_2d_bfr” ağırlıklarının iki öznitelikli modeldekilerden farklı olduğuna dikkat edin. Bunun nedeni, <span class="math inline">\(\lambda\)</span> azaltıldığında modelde zaten “içeride” olan özniteliklerin de daha az cezalandırılması ve mutlak değerce daha büyük bir ağırlık alabilmesidir. Lasso ağırlıklarının yorumu, doğrusal regresyon modelindeki ağırlıkların yorumuna karşılık gelir. Yalnızca özniteliklerin standartlaştırılıp standartlaştırılmadığına dikkat etmeniz gerekir, çünkü bu ağırlıkları etkiler. Bu örnekte öznitelikler yazılım tarafından standartlaştırılmış, ancak ağırlıklar orijinal öznitelik ölçekleriyle eşleşecek şekilde bizim için otomatik olarak geri dönüştürülmüştür.</p>
+<div class="cell">
+<div id="tbl-lasso-effects2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-lasso-effects2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;4: Lasso kullanılıp öznitelik sayısı beşe ayarlandığında elde edilen ağırlık kestirimleri.
+</figcaption>
+<div aria-describedby="tbl-lasso-effects2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="lightable-paper cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">seasonWINTER</td>
+<td style="text-align: right;">-249.37</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonSPRING</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">seasonSUMMER</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonFALL</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">holidayY</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">workdayY</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weatherMISTY</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weatherBAD</td>
+<td style="text-align: right;">-789.74</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">temp</td>
+<td style="text-align: right;">31.14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hum</td>
+<td style="text-align: right;">-6.47</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">windspeed</td>
+<td style="text-align: right;">0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cnt_2d_bfr</td>
+<td style="text-align: right;">0.53</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><strong>Doğrusal modellerde seyreklik için diğer yöntemler</strong></p>
+<p>Bir doğrusal modeldeki öznitelik sayısını azaltmak için geniş bir yöntem yelpazesi kullanılabilir.</p>
+<p>Ön işleme yöntemleri:</p>
+<ul>
+<li>Elle seçilen öznitelikler: Bazı öznitelikleri seçmek ya da çıkarmak için her zaman uzman bilgisinden yararlanabilirsiniz. Büyük dezavantajı otomatikleştirilememesi ve veriyi anlayan birine erişiminizin olması gerekmesidir.</li>
+<li>Tek değişkenli seçim: Bir örnek korelasyon katsayısıdır. Yalnızca öznitelik ile hedef arasındaki korelasyonun belirli bir eşiği aştığı öznitelikleri dikkate alırsınız. Dezavantajı, öznitelikleri yalnızca tek tek ele almasıdır. Bazı öznitelikler, doğrusal model başka bazı öznitelikleri hesaba katana kadar bir korelasyon göstermeyebilir. Tek değişkenli seçim yöntemleriyle bu öznitelikleri kaçırırsınız.</li>
+</ul>
+<p>Adımsal yöntemler:</p>
+<ul>
+<li>İleri doğru seçim: Doğrusal modeli tek bir öznitelikle uydurun. Bunu her öznitelik için yapın. En iyi çalışan modeli seçin (örneğin en yüksek R-kareye sahip olanı). Şimdi de kalan öznitelikler için, her bir özniteliği mevcut en iyi modelinize ekleyerek modelinizin farklı sürümlerini uydurun. En iyi performansı göstereni seçin. Modeldeki azami öznitelik sayısı gibi bir ölçüte ulaşılana kadar devam edin.</li>
+<li>Geriye doğru seçim: İleri doğru seçime benzer. Ancak öznitelik eklemek yerine, tüm öznitelikleri içeren modelle başlayın ve en yüksek performans artışını elde etmek için hangi özniteliği çıkarmanız gerektiğini deneyin. Bunu bir durma ölçütüne ulaşılana kadar tekrarlayın.</li>
+</ul>
+<p>Otomatikleştirilebildiği, tüm öznitelikleri aynı anda dikkate aldığı ve <span class="math inline">\(\lambda\)</span> ile kontrol edilebildiği için Lasso kullanmanızı öneririm. Sınıflandırma için <a href="#logistic">lojistik regresyonda</a> da çalışır.</p>
+</section>
+</section>
+<section id="güçlü-yönler" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönler">Güçlü yönler</h2>
+<p>Tahminlerin <strong>ağırlıklı toplam</strong> olarak modellenmesi, tahminlerin nasıl üretildiğini şeffaf hâle getirir. Lasso ile de kullanılan öznitelik sayısının küçük kalmasını sağlayabiliriz.</p>
+<p>Pek çok kişi doğrusal regresyon modellerini kullanır. Bu, pek çok yerde tahmine dayalı modelleme ve çıkarım yapmak için <strong>kabul gördüğü</strong> anlamına gelir. Doğrusal regresyon modelleri üzerine öğretim materyalleri ve yazılım uygulamaları dahil olmak üzere <strong>yüksek düzeyde ortak deneyim ve uzmanlık</strong> vardır. Doğrusal regresyon R, Python, Java, Julia, Scala, Javascript gibi dillerde bulunabilir.</p>
+<p>Matematiksel olarak ağırlıkları kestirmek basittir ve (verinin doğrusal regresyon modelinin tüm varsayımlarını karşılaması koşuluyla) <strong>optimal ağırlıkları bulma garantiniz</strong> vardır.</p>
+<p>Ağırlıklarla birlikte güven aralıkları, testler ve sağlam bir istatistiksel teori elde edersiniz. Doğrusal regresyon modelinin pek çok uzantısı da vardır (bkz. <a href="#extend-lm">GLM, GAM ve ötesi bölümü</a>).</p>
+<p>Doğrusal denklem öznitelikler ile sonuç arasındaki ilişki için uygun bir model olduğu sürece, doğrusal modeller <strong>doğruya sadık açıklamalar üretebilir</strong>. Doğrusal olmayan ilişkiler ve etkileşimler ne kadar fazlaysa, doğrusal model o kadar az isabetli, açıklamalar da o kadar az doğruya sadık olur.</p>
+</section>
+<section id="sınırlılıklar" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlılıklar">Sınırlılıklar</h2>
+<p>Doğrusal regresyon modelleri yalnızca doğrusal ilişkileri, yani girdi özniteliklerinin ağırlıklı toplamını temsil edebilir. Her <strong>doğrusal olmayan ilişkinin ya da etkileşimin elle oluşturulması</strong> ve modele açıkça bir girdi özniteliği olarak verilmesi gerekir.</p>
+<p>Doğrusal modeller, öğrenilebilecek ilişkiler çok kısıtlı olduğundan ve genellikle gerçekliğin karmaşıklığını aşırı basitleştirdiğinden, çoğu zaman <strong>tahmin performansı açısından o kadar iyi değildir</strong>.</p>
+<p>Bir ağırlığın yorumu, diğer tüm özniteliklere bağlı olduğu için <strong>sezgilere aykırı olabilir</strong>. Y sonucuyla ve başka bir öznitelikle yüksek pozitif korelasyona sahip bir öznitelik, doğrusal modelde negatif bir ağırlık alabilir; çünkü diğer korelasyonlu öznitelik verildiğinde, yüksek boyutlu uzayda Y ile negatif korelasyonludur. Tamamen korelasyonlu öznitelikler ise doğrusal denklem için tek bir çözüm bulmayı imkânsız hâle getirir. Bir örnek: Bir evin değerini tahmin eden bir modeliniz var ve oda sayısı ile evin büyüklüğü gibi öznitelikleriniz var. Ev büyüklüğü ve oda sayısı yüksek düzeyde korelasyonludur: Bir ev ne kadar büyükse o kadar çok odası vardır. Her iki özniteliği de bir doğrusal modele alırsanız, evin büyüklüğü daha iyi bir yordayıcı olup büyük bir pozitif ağırlık alabilir. Oda sayısı ise negatif bir ağırlık alabilir; çünkü evin büyüklüğü aynı olduğunda oda sayısını artırmak evi daha az değerli kılabilir ya da korelasyon çok güçlü olduğunda doğrusal denklem daha az kararlı hâle gelir.</p>
+<p><a href="#good-explanation">İnsan Dostu Açıklamalar bölümünde</a> sunulan iyi bir açıklamayı oluşturan niteliklere bakılırsa, <strong>doğrusal modeller en iyi açıklamaları üretmez</strong>. Karşıtlıklıdırlar (contrastive), ancak referans örnek tüm sayısal özniteliklerin sıfır ve kategorik özniteliklerin referans kategorilerinde olduğu bir veri noktasıdır. Bu genellikle verinizde ya da gerçekte ortaya çıkması olası olmayan, yapay ve anlamsız bir örnektir. Bir istisna vardır: Tüm sayısal öznitelikler ortalamaya göre merkezlenmişse (öznitelik eksi özniteliğin ortalaması) ve tüm kategorik öznitelikler etki kodlamasıyla kodlanmışsa, referans örnek tüm özniteliklerin ortalama öznitelik değerini aldığı veri noktası olur. Bu da var olmayan bir veri noktası olabilir, ancak en azından daha olası ya da daha anlamlı olabilir. Bu durumda ağırlıklar çarpı öznitelik değerleri (öznitelik etkileri), tahmin edilen sonuca olan katkıyı “ortalama örneğe” göre karşıtlıklı olarak açıklar.</p>
+<p>Varsayılan olarak <strong>doğrusal modeller seçici açıklamalar üretmez</strong>.</p>
+
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referanslar</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-hastie2009elements" class="csl-entry" role="listitem">
+Hastie, Trevor, Robert Tibshirani, ve Jerome Friedman. 2009. <em>The elements of statistical learning: data mining, inference, and prediction</em>. 2. bs. Springer.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Dipnotlar</h2>
+
+<ol>
+<li id="fn1"><p>Bu bölüm doğrusal regresyona bir istatistikçinin gözünden bakmaktadır. Doğrusal regresyonu <span class="math inline">\(\epsilon\)</span> olmadan da tanımlayabilirsiniz.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
