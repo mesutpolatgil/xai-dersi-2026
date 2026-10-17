@@ -218,6 +218,28 @@ marimo/_lsp/
 *.pdf
 __marimo__/
 
+# Published Quarto outputs for Asasira Martin's assigned translations.
+!2026-guz/04_methods-overview/ceviri/martin-4.html
+!2026-guz/04_methods-overview/ceviri/martin-4_files/
+!2026-guz/04_methods-overview/ceviri/martin-4_files/**
+!2026-guz/05_data-and-models/ceviri/martin-5.html
+!2026-guz/05_data-and-models/ceviri/martin-5_files/
+!2026-guz/05_data-and-models/ceviri/martin-5_files/**
+
+# Published presentation files and browser-readable speaker notes.
+!2026-guz/04_methods-overview/sunum/martin-4.pdf
+!2026-guz/04_methods-overview/sunum/martin-4-presentation-notes.html
+!2026-guz/04_methods-overview/sunum/martin-4-presentation-notes_files/
+!2026-guz/04_methods-overview/sunum/martin-4-presentation-notes_files/**
+!2026-guz/05_data-and-models/sunum/martin-5.pdf
+!2026-guz/05_data-and-models/sunum/martin-5-presentation-notes.html
+!2026-guz/05_data-and-models/sunum/martin-5-presentation-notes_files/
+!2026-guz/05_data-and-models/sunum/martin-5-presentation-notes_files/**
+
+# Local operating-system and Office lock files.
+.DS_Store
+~$*.pptx
+
 # Streamlit
 .streamlit/secrets.toml
 
