@@ -17,3 +17,5 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 8 · GLM, GAM ve Ötesi | [Ahmet Batuhan Kaya](2026-guz/08_glm-gam-and-more/ceviri/ahmetbatuhankaya-20269348005.html) |
 | 14 · Lime | [İlker Uğur Kaya](2026-guz/14_lime/ceviri/14-lime.html) |
 | 15 · Counterfactual Explanations | [İlker Uğur Kaya](2026-guz/15_counterfactual_explanations/ceviri/15-Counterfactual%20Explanations.html) |
+| 16 · Kapsamı Belirli Kurallar (Anchors) | [Halil İbrahim Akyüz](2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html) |
+| 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Halil İbrahim Akyüz (20269258004)">
+
+<title>Kapsamı Belirli Kurallar (Anchors)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="halilibrahimakyuz-20269258004_files/libs/clipboard/clipboard.min.js"></script>
+<script src="halilibrahimakyuz-20269258004_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="halilibrahimakyuz-20269258004_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="halilibrahimakyuz-20269258004_files/libs/quarto-html/popper.min.js"></script>
+<script src="halilibrahimakyuz-20269258004_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="halilibrahimakyuz-20269258004_files/libs/quarto-html/anchor.min.js"></script>
+<link href="halilibrahimakyuz-20269258004_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="halilibrahimakyuz-20269258004_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="halilibrahimakyuz-20269258004_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="halilibrahimakyuz-20269258004_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="halilibrahimakyuz-20269258004_files/libs/bootstrap/bootstrap-c2e55264ed47ce3b2e0326a2269f9400.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#anchor-bulma" id="toc-anchor-bulma" class="nav-link active" data-scroll-target="#anchor-bulma"><span class="header-section-number">1</span> Anchor Bulma</a></li>
+  <li><a href="#karmaşıklık-ve-çalışma-süresi" id="toc-karmaşıklık-ve-çalışma-süresi" class="nav-link" data-scroll-target="#karmaşıklık-ve-çalışma-süresi"><span class="header-section-number">2</span> Karmaşıklık ve Çalışma Süresi</a></li>
+  <li><a href="#tablo-verisi-örneği" id="toc-tablo-verisi-örneği" class="nav-link" data-scroll-target="#tablo-verisi-örneği"><span class="header-section-number">3</span> Tablo Verisi Örneği</a></li>
+  <li><a href="#güçlü-yönler" id="toc-güçlü-yönler" class="nav-link" data-scroll-target="#güçlü-yönler"><span class="header-section-number">4</span> Güçlü Yönler</a></li>
+  <li><a href="#sınırlılıklar" id="toc-sınırlılıklar" class="nav-link" data-scroll-target="#sınırlılıklar"><span class="header-section-number">5</span> Sınırlılıklar</a></li>
+  <li><a href="#yazılım-ve-alternatifler" id="toc-yazılım-ve-alternatifler" class="nav-link" data-scroll-target="#yazılım-ve-alternatifler"><span class="header-section-number">6</span> Yazılım ve Alternatifler</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Kapsamı Belirli Kurallar (Anchors)</h1>
+<p class="subtitle lead">Bölüm 16</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Halil İbrahim Akyüz (20269258004) </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Çeviri kaynağı:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, 3. baskı (2025), <a href="https://christophm.github.io/interpretable-ml-book/anchors.html">Bölüm 16: Scoped Rules (Anchors)</a>. Özgün eser CC BY-NC-SA 4.0 lisanslıdır. Teknik terimler, gerekli olduğu yerlerde İngilizce karşılıklarıyla birlikte verilmiştir. Özgün bölümdeki R kodlarının ürettiği şekiller, kitabın yayımlanmış sürümünden alınmıştır.</p>
+</blockquote>
+<p><em>Yazarlar: Tobias Goerke &amp; Magdalena Lang (Christoph Molnar’ın sonraki düzenlemeleriyle)</em></p>
+<p>Anchors yöntemi, herhangi bir kara kutu (<em>black box</em>) sınıflandırma modelinin tekil tahminlerini, tahmini yeterince “sabitleyen” (<em>anchor</em>) bir karar kuralı bularak açıklar. Bir kural, diğer öznitelik değerlerindeki değişiklikler tahmini etkilemiyorsa o tahmini sabitler. Anchors, model çağrılarının sayısını (ve dolayısıyla gereken çalışma süresini) en aza indirirken yerel optimumlardan (<em>local optima</em>) kurtulabilmek için pekiştirmeli öğrenme (<em>reinforcement learning</em>) tekniklerini bir graf arama algoritmasıyla birlikte kullanır. Anchors algoritmasını, <a href="https://christophm.github.io/interpretable-ml-book/lime.html">LIME</a> algoritmasını da ortaya koyan araştırmacılar olan <span class="citation" data-cites="ribeiro2018anchors">Ribeiro vd. (<a href="#ref-ribeiro2018anchors" role="doc-biblioref">2018</a>)</span> önermiştir.</p>
+<p>Selefi gibi anchors yaklaşımı da kara kutu makine öğrenmesi modellerinin tahminlerine <em>yerel</em> (<em>local</em>) açıklamalar üretmek için <em>pertürbasyon tabanlı</em> (<em>perturbation-based</em>) bir strateji kullanır. Ancak LIME’ın kullandığı vekil modeller (<em>surrogate models</em>) yerine, ortaya çıkan açıklamalar <em>anchor</em> adı verilen, anlaşılması kolay <em>EĞER-İSE</em> (<em>IF-THEN</em>) kurallarıyla ifade edilir. Bu kurallar <em>kapsamı belirli</em> (<em>scoped</em>) olduğu için yeniden kullanılabilir: anchor’lar kapsam (<em>coverage</em>) kavramını içerir ve başka hangi, muhtemelen daha önce görülmemiş örneklere uygulanabileceklerini tam olarak belirtir. Anchor bulmak, kökeni pekiştirmeli öğrenme disiplinine dayanan bir keşif (<em>exploration</em>) ya da çok kollu haydut (<em>multi-armed bandit</em>) problemini içerir. Bu amaçla, açıklanan her örnek için komşular, yani pertürbasyonlar (<em>perturbations</em>) oluşturulur ve değerlendirilir. Böylece yaklaşım, kara kutunun yapısını ve iç parametrelerini göz ardı edebilir; bunlar hem gözlemlenmeden hem de değiştirilmeden kalabilir. Dolayısıyla algoritma <em>modelden bağımsızdır</em> (<em>model-agnostic</em>), yani <strong>herhangi bir</strong> model sınıfına uygulanabilir.</p>
+<p>Yazarlar makalelerinde iki algoritmalarını karşılaştırır ve sonuç üretmek için bir örneğin komşuluğuna ne kadar farklı biçimlerde başvurduklarını görselleştirir. Bunun için <a href="#fig-lime-vs-anchors" class="quarto-xref">Şekil&nbsp;1</a>, karmaşık bir ikili sınıflandırıcıyı (ya <span class="math inline">\(-\)</span> ya da <span class="math inline">\(+\)</span> tahmin eder) iki örnek üzerinden yerel olarak açıklayan LIME ve anchors yöntemlerini birlikte gösterir. LIME’ın sonuçları ne kadar sadık (<em>faithful</em>) olduklarını göstermez; çünkü LIME, verilen bir pertürbasyon uzayı <span class="math inline">\(\mathcal{D}\)</span> için modeli en iyi yaklaşıklayan doğrusal bir karar sınırını öğrenmekle yetinir. Aynı pertürbasyon uzayı verildiğinde anchors yaklaşımı, kapsamı modelin davranışına göre uyarlanmış açıklamalar oluşturur ve bu açıklamaların sınırlarını açıkça ifade eder. Böylece açıklamalar tasarım gereği sadıktır ve tam olarak hangi örnekler için geçerli olduklarını belirtir. Bu özellik anchor’ları özellikle sezgisel ve kolay anlaşılır kılar.</p>
+<div id="fig-lime-vs-anchors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lime-vs-anchors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/anchors-visualization.jpg" class="img-fluid figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lime-vs-anchors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: LIME ve Anchors karşılaştırması: basit bir görselleştirme. Ribeiro, Singh ve Guestrin’in (2018) bir şeklinden esinlenilmiştir.
+</figcaption>
+</figure>
+</div>
+<p>Daha önce belirtildiği gibi, algoritmanın sonuçları ya da açıklamaları anchor adı verilen kurallar biçiminde gelir. Aşağıdaki basit örnek böyle bir anchor’ı göstermektedir. Örneğin, bir yolcunun Titanik faciasından kurtulup kurtulmadığını tahmin eden iki değişkenli (<em>bivariate</em>) bir kara kutu modelimiz olduğunu varsayalım. Şimdi modelin belirli bir kişi için (bkz. <a href="#tbl-anchors-explain" class="quarto-xref">Tablo&nbsp;1</a>) <em>neden</em> hayatta kaldığını tahmin ettiğini öğrenmek istiyoruz. Anchors algoritması aşağıda gösterilene benzer bir açıklama sunar.</p>
+<div id="tbl-anchors-explain" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-anchors-explain-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;1: Açıklanacak örnek
+</figcaption>
+<div aria-describedby="tbl-anchors-explain-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Öznitelik</th>
+<th>Değer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Yaş</td>
+<td>20</td>
+</tr>
+<tr class="even">
+<td>Cinsiyet</td>
+<td>kadın</td>
+</tr>
+<tr class="odd">
+<td>Sınıf</td>
+<td>birinci</td>
+</tr>
+<tr class="even">
+<td>Bilet fiyatı</td>
+<td>300$</td>
+</tr>
+<tr class="odd">
+<td>Diğer öznitelikler</td>
+<td>…</td>
+</tr>
+<tr class="even">
+<td>Hayatta kaldı</td>
+<td>evet</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Buna karşılık gelen anchors açıklaması şöyledir:</p>
+<p>EĞER <code>SEX = female</code> VE <code>Class = first</code> İSE <code>Survived = true</code> TAHMİN ET; KESİNLİK (<em>precision</em>) %97 VE KAPSAM (<em>coverage</em>) %15</p>
+<p>Örnek, anchor’ların bir modelin tahmini ve bu tahminin altında yatan akıl yürütme hakkında nasıl temel içgörüler sağlayabileceğini göstermektedir. Sonuç, model tarafından hangi niteliklerin dikkate alındığını gösterir; bu örnekte bunlar kadın olmak ve birinci sınıfta seyahat etmektir. Doğruluğun belirlenmesinde belirleyici rol oynayan insanlar, bu kuralı modelin davranışını doğrulamak için kullanabilir. Anchor ayrıca bize pertürbasyon uzayındaki örneklerin %15’ine uygulandığını da söyler. Bu durumlarda açıklama %97 oranında doğrudur; yani gösterilen yüklemler (<em>predicates</em>) tahmin edilen sonuçtan neredeyse tek başına sorumludur.</p>
+<p>Bir anchor <span class="math inline">\(A\)</span> biçimsel olarak şöyle tanımlanır:</p>
+<p><span class="math display">\[ \mathbb{E}_{\mathcal{D}_\mathbf{x}(\mathbf{z}|A)}[1_{\hat{f}(\mathbf{x})=\hat{f}(\mathbf{z})}] \geq \tau; A(\mathbf{x})=1 \]</span></p>
+<p>Burada:</p>
+<ul>
+<li><span class="math inline">\(\mathbf{x}\)</span>, açıklanan örneği temsil eder (örneğin tablo biçimindeki bir veri kümesinde bir satır).</li>
+<li><span class="math inline">\(A\)</span>, bir yüklemler kümesidir, yani ortaya çıkan kural ya da anchor’dır; <span class="math inline">\(A\)</span> tarafından tanımlanan tüm öznitelik yüklemleri <span class="math inline">\(\mathbf{x}\)</span>’in öznitelik değerleriyle örtüştüğünde <span class="math inline">\(A(\mathbf{x})=1\)</span> olur.</li>
+<li><span class="math inline">\(\hat{f}\)</span>, açıklanacak sınıflandırma modelini ifade eder (örneğin bir yapay sinir ağı modeli). Bu modele <span class="math inline">\(\mathbf{x}\)</span> ve onun pertürbasyonları için etiket tahmin ettirilebilir.</li>
+<li><span class="math inline">\(\mathcal{D}_{\mathbf{x}} (\cdot|A)\)</span>, <span class="math inline">\(\mathbf{x}\)</span>’in <span class="math inline">\(A\)</span> ile eşleşen komşularının dağılımını gösterir.</li>
+<li><span class="math inline">\(0 \leq \tau \leq 1\)</span>, bir kesinlik eşiği (<em>precision threshold</em>) belirtir. Yalnızca en az <span class="math inline">\(\tau\)</span> düzeyinde yerel sadakate (<em>local fidelity</em>) ulaşan kurallar geçerli bir sonuç olarak kabul edilir.</li>
+</ul>
+<p>Biçimsel tanım göz korkutucu görünebilir, ama sözle de ifade edilebilir:</p>
+<blockquote class="blockquote">
+<p>Açıklanacak bir <span class="math inline">\(\mathbf{x}\)</span> örneği verildiğinde, <span class="math inline">\(\mathbf{x}\)</span>’e uygulanan ve <span class="math inline">\(A\)</span>’nın uygulanabildiği komşuların en az <span class="math inline">\(\tau\)</span> oranında bir kısmı için <span class="math inline">\(\mathbf{x}\)</span> ile aynı sınıfın tahmin edilmesini sağlayan bir kural ya da anchor <span class="math inline">\(A\)</span> bulunmalıdır. Bir kuralın kesinliği, komşuların ya da pertürbasyonların (<span class="math inline">\(\mathcal{D}_\mathbf{x} (\mathbf{z}|A)\)</span>’yı izleyerek) verilen makine öğrenmesi modeli kullanılarak değerlendirilmesiyle elde edilir (bu, <span class="math inline">\(1_{\hat{f}(\mathbf{x}) = \hat{f}(\mathbf{z})}\)</span> gösterge fonksiyonu (<em>indicator function</em>) ile ifade edilir).</p>
+</blockquote>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Kesinliği dikkatle belirleyin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Kesinlik eşiği <span class="math inline">\(\tau\)</span>’yu akıllıca seçin: Daha yüksek bir <span class="math inline">\(\tau\)</span> daha güçlü kurallar sağlar, ancak kapsamı azaltabilir. Kesinlik ile kapsam arasında denge kurmak için farklı değerlerle deneme yapın.</p>
+</div>
+</div>
+<section id="anchor-bulma" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="anchor-bulma"><span class="header-section-number">1</span> Anchor Bulma</h2>
+<p>Anchor’ların matematiksel tanımı açık ve anlaşılır görünse de belirli kuralları bu tanımla doğrudan oluşturmak uygulanabilir değildir. Bunun için tüm <span class="math inline">\(\mathbf{z} \in \mathcal{D}_\mathbf{x}(\cdot|A)\)</span> için <span class="math inline">\(1_{\hat{f}(\mathbf{x}) = \hat{f}(\mathbf{z})}\)</span> ifadesini değerlendirmek gerekirdi; bu da sürekli ya da büyük girdi uzaylarında mümkün değildir. Bu nedenle yazarlar, olasılıksal bir tanım oluşturmak için <span class="math inline">\(0 \leq \delta \leq 1\)</span> parametresini kullanmayı önerir. Bu şekilde, kesinlik konusunda istatistiksel güven elde edilene kadar örnekler çekilir. Olasılıksal tanım şöyledir:</p>
+<p><span class="math display">\[\mathbb{P}(prec(A) \geq \tau) \geq 1 - \delta \quad \textrm{with} \quad prec(A) = \mathbb{E}_{\mathcal{D}_\mathbf{x}(\mathbf{z}|A)}[1_{\hat{f}(\mathbf{x}) = \hat{f}(\mathbf{z})}]\]</span></p>
+<p>Önceki iki tanım birleştirilir ve kapsam kavramıyla genişletilir. Bunun arkasındaki mantık, modelin girdi uzayının tercihen geniş bir bölümüne uygulanan kurallar bulmaktır. Kapsam biçimsel olarak bir anchor’ın komşularına, yani pertürbasyon uzayına uygulanma olasılığı olarak tanımlanır:</p>
+<p><span class="math display">\[cov(A) = \mathbb{E}_{\mathcal{D}_{(\mathbf{x})}}[A(\mathbf{z})]\]</span></p>
+<p>Bu öğenin eklenmesiyle, kapsamın en büyük hâle getirilmesini (<em>maximization</em>) de hesaba katan nihai anchor tanımına ulaşılır:</p>
+<p><span class="math display">\[\underset{A \:\textrm{s.t.}\;\mathbb{P}(prec(A) \geq \tau) \geq 1 - \delta}{\textrm{max}} cov(A)\]</span></p>
+<p>Dolayısıyla yöntem, uygun olan tüm kurallar (olasılıksal tanıma göre kesinlik eşiğini sağlayan kuralların tümü) arasından en yüksek kapsama sahip kuralı bulmaya çalışır. Bu kuralların, modelin daha büyük bir bölümünü tanımladıkları için daha önemli olduğu düşünülür. Daha fazla yüklem içeren kuralların, daha az yüklem içerenlere göre daha yüksek kesinliğe sahip olma eğiliminde olduğuna dikkat edin. Özellikle, <span class="math inline">\(\mathbf{x}\)</span>’in tüm özniteliklerini sabitleyen bir kural, değerlendirilen komşuluğu özdeş örneklere indirger. Bu durumda model tüm komşuları aynı biçimde sınıflandırır ve kuralın kesinliği <span class="math inline">\(1\)</span> olur. Öte yandan, çok sayıda özniteliği sabitleyen bir kural aşırı özeldir ve yalnızca az sayıda örneğe uygulanabilir. Bu nedenle <em>kesinlik ile kapsam arasında bir ödünleşim</em> (<em>trade-off between precision and coverage</em>) vardır.</p>
+<p>Anchors yaklaşımı, açıklamaları bulmak için dört ana bileşen kullanır.</p>
+<p><strong>Aday Üretimi</strong> (<em>Candidate Generation</em>): Yeni açıklama adayları üretir. İlk turda <span class="math inline">\(\mathbf{x}\)</span>’in her özniteliği için bir aday oluşturulur ve bu aday, olası pertürbasyonlarda ilgili değeri sabitler. Sonraki her turda, önceki turun en iyi adayları, henüz içermedikleri bir öznitelik yüklemi eklenerek genişletilir.</p>
+<p><strong>En İyi Adayın Belirlenmesi</strong> (<em>Best Candidate Identification</em>): Aday kurallar, hangisinin <span class="math inline">\(\mathbf{x}\)</span>’i en iyi açıkladığı bakımından karşılaştırılmalıdır. Bu amaçla, o anda incelenen kurala uyan pertürbasyonlar oluşturulur ve model çağrılarak değerlendirilir. Ancak hesaplama yükünü sınırlamak için bu çağrıların en aza indirilmesi gerekir. Bu nedenle bu bileşenin merkezinde saf keşif odaklı (<em>pure-exploration</em>) bir Çok Kollu Haydut (<em>Multi-Armed Bandit, MAB</em>) bulunur. Daha açık söylemek gerekirse bu, <span class="citation" data-cites="kaufmann2013information">Kaufmann ve Kalyanakrishnan (<a href="#ref-kaufmann2013information" role="doc-biblioref">2013</a>)</span> tarafından önerilen <em>KL-LUCB</em> algoritmasıdır. MAB’ler, farklı stratejileri (kumar makinelerine benzetilerek kol (<em>arm</em>) olarak adlandırılır) ardışık seçim yoluyla verimli biçimde keşfetmek ve bunlardan yararlanmak için kullanılır. Bu bağlamda her aday kural, çekilebilecek bir kol olarak görülmelidir. Kol her çekildiğinde ilgili komşular değerlendirilir ve böylece aday kuralın getirisi (<em>payoff</em>) hakkında (anchor’lar söz konusu olduğunda bu getiri kesinliktir) daha fazla bilgi edinilir. Dolayısıyla kesinlik, kuralın açıklanacak örneği ne kadar iyi tanımladığını ifade eder.</p>
+<p><strong>Aday Kesinliğinin Doğrulanması</strong> (<em>Candidate Precision Validation</em>): Adayın <span class="math inline">\(\tau\)</span> eşiğini aştığına dair henüz istatistiksel güven yoksa daha fazla örnek alır.</p>
+<p><strong>Değiştirilmiş Işın Araması</strong> (<em>Modified Beam Search</em>): Yukarıdaki tüm bileşenler, bir graf arama algoritması ve genişlik öncelikli arama (<em>breadth-first search</em>) algoritmasının bir çeşidi olan ışın aramasında (<em>beam search</em>) bir araya getirilir. Işın araması her turun en iyi <span class="math inline">\(B\)</span> adayını bir sonraki tura taşır (<span class="math inline">\(B\)</span>’ye <em>Işın Genişliği</em> (<em>Beam Width</em>) denir). Bu en iyi <span class="math inline">\(B\)</span> kural daha sonra yeni kurallar oluşturmak için kullanılır. Her öznitelik bir kurala en fazla bir kez dahil edilebildiğinden ışın araması en fazla <span class="math inline">\(featureCount(\mathbf{x})\)</span> tur gerçekleştirir. Böylece her <span class="math inline">\(i\)</span> turunda tam olarak <span class="math inline">\(i\)</span> yüklem içeren adaylar üretir ve bunların en iyi <span class="math inline">\(B\)</span> tanesini seçer. Bu nedenle <span class="math inline">\(B\)</span> yüksek seçildiğinde algoritmanın yerel optimumlardan kaçınma olasılığı artar. Buna karşılık bu, çok sayıda model çağrısı gerektirir ve dolayısıyla hesaplama yükünü artırır.</p>
+<p>Bu dört bileşen <a href="#fig-anchors-algo" class="quarto-xref">Şekil&nbsp;2</a>’da gösterilmiştir.</p>
+<div id="fig-anchors-algo" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-anchors-algo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/anchors-process.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anchors-algo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: Anchors algoritmasının bileşenleri ve aralarındaki ilişkiler (basitleştirilmiş).
+</figcaption>
+</figure>
+</div>
+<p>Bu yaklaşım, herhangi bir sistemin bir örneği neden o şekilde sınıflandırdığına dair istatistiksel olarak sağlam bilgiyi verimli biçimde elde etmek için görünüşte kusursuz bir reçetedir. Modelin girdisiyle sistematik olarak deneyler yapar ve ilgili çıktıları gözlemleyerek sonuca varır. Modele yapılan çağrıların sayısını azaltmak için iyi bilinen ve üzerinde çok araştırma yapılmış makine öğrenmesi yöntemlerine (MAB’ler) dayanır. Bu da algoritmanın çalışma süresini büyük ölçüde azaltır.</p>
+</section>
+<section id="karmaşıklık-ve-çalışma-süresi" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="karmaşıklık-ve-çalışma-süresi"><span class="header-section-number">2</span> Karmaşıklık ve Çalışma Süresi</h2>
+<p>Anchors yaklaşımının asimptotik çalışma süresi davranışını bilmek, belirli problemlerde ne kadar iyi performans göstermesinin beklenebileceğini değerlendirmeye yardımcı olur. <span class="math inline">\(B\)</span> ışın genişliğini, <span class="math inline">\(p\)</span> ise tüm özniteliklerin sayısını göstersin. Bu durumda anchors algoritmasının karmaşıklığı şöyledir:</p>
+<p><span class="math display">\[\mathcal{O}(B \cdot p^2 + p^2 \cdot \mathcal{O}_{\textrm{MAB} [B \cdot p, B]})\]</span></p>
+<p>Bu sınır, istatistiksel güven <span class="math inline">\(\delta\)</span> gibi probleme bağlı olmayan hiperparametreleri (<em>hyperparameters</em>) dışarıda bırakır. Hiperparametrelerin göz ardı edilmesi sınırın karmaşıklığını azaltmaya yardımcı olur (daha fazla bilgi için özgün makaleye bakınız). MAB her turda <span class="math inline">\(B \cdot p\)</span> aday arasından en iyi <span class="math inline">\(B\)</span> tanesini seçtiğinden, çoğu MAB ve çalışma süreleri <span class="math inline">\(p^2\)</span> çarpanını diğer tüm parametrelerden daha fazla büyütür.</p>
+<p>Böylece şu açıkça görülür: Çok sayıda öznitelik bulunduğunda algoritmanın verimliliği düşer.</p>
+</section>
+<section id="tablo-verisi-örneği" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="tablo-verisi-örneği"><span class="header-section-number">3</span> Tablo Verisi Örneği</h2>
+<p>Tablo verisi (<em>tabular data</em>), sütunların öznitelikleri, satırların ise örnekleri temsil ettiği tablolarla gösterilen yapılandırılmış veridir. Örneğin, anchors yaklaşımının seçilen örnekler için makine öğrenmesi tahminlerini açıklama potansiyelini göstermek amacıyla <a href="https://christophm.github.io/interpretable-ml-book/data.html#bike-data">bisiklet kiralama verisini</a> kullanıyoruz. Bunun için regresyon problemini bir sınıflandırma problemine dönüştürüyor ve kara kutu modelimiz olarak bir rastgele orman (<em>random forest</em>) eğitiyoruz. Model, kiralanan bisiklet sayısının trend çizgisinin üzerinde mi yoksa altında mı olduğunu sınıflandırmaktadır. Ayrıca zaman trendi olarak 2011’den bu yana geçen gün sayısı, ay ve haftanın günü gibi ek öznitelikler de kullanıyoruz.</p>
+<p>Anchor açıklamaları oluşturmadan önce bir pertürbasyon fonksiyonu tanımlamak gerekir. Bunu yapmanın kolay bir yolu, tablo verisi açıklamaları için örneğin eğitim verisinden örnekleme yapılarak oluşturulabilen, sezgisel bir varsayılan pertürbasyon uzayı kullanmaktır. Bir örneğe pertürbasyon uygulanırken bu varsayılan yaklaşım, anchor’ların yüklemlerine konu olan özniteliklerin değerlerini korur; sabitlenmemiş öznitelikleri ise belirli bir olasılıkla, rastgele örneklenmiş başka bir örnekten alınan değerlerle değiştirir. Bu süreç, açıklanan örneğe benzeyen ancak bazı değerlerini diğer rastgele örneklerden almış yeni örnekler üretir. Böylece bu örnekler, açıklanan örneğin komşularına benzer.</p>
+<p>Sonuçlar (<a href="#fig-anchors1" class="quarto-xref">Şekil&nbsp;3</a>) sezgisel olarak yorumlanabilir ve açıklanan her örnek için modelin tahmininde en önemli özniteliklerin hangileri olduğunu gösterir. Anchor’lar yalnızca birkaç yüklem içerdiğinden ayrıca yüksek kapsama sahiptir ve dolayısıyla başka durumlara da uygulanabilir. Yukarıda gösterilen kurallar <span class="math inline">\(\tau = 0.9\)</span> ile üretilmiştir. Yani değerlendirilen pertürbasyonları etiketi en az <span class="math inline">\(\%90\)</span> doğrulukla sadık biçimde destekleyen anchor’lar istiyoruz. Ayrıca sayısal özniteliklerin ifade gücünü ve uygulanabilirliğini artırmak için ayrıklaştırma (<em>discretization</em>) kullanılmıştır.</p>
+<div id="fig-anchors1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-anchors1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/anchors1-1.jpg" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anchors1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: Bisiklet kiralama veri kümesindeki altı örneği açıklayan anchor’lar. Her satır bir açıklamayı ya da anchor’ı temsil eder ve her çubuk, o anchor’ın içerdiği öznitelik yüklemlerini gösterir. x ekseni bir kuralın kesinliğini gösterir; çubuğun kalınlığı ise kapsamına karşılık gelir. “base” (temel) kural hiçbir yüklem içermez. Bu anchor’lar, modelin tahminlerde esas olarak sıcaklığı dikkate aldığını göstermektedir.
+</figcaption>
+</figure>
+</div>
+<p>Önceki kuralların tümü, modelin birkaç özniteliğe dayanarak emin bir şekilde karar verdiği örnekler için üretilmiştir. Ancak diğer örnekler, daha fazla öznitelik önem taşıdığı için model tarafından bu kadar belirgin biçimde sınıflandırılmaz. Bu gibi durumlarda anchor’lar daha özel hâle gelir, daha fazla öznitelik içerir ve daha az örneğe uygulanır; örneğin <a href="#fig-anchors2" class="quarto-xref">Şekil&nbsp;4</a>’de olduğu gibi.</p>
+<div id="fig-anchors2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-anchors2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/anchors2-1.jpg" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-anchors2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: Karar sınırlarına yakın örneklerin açıklanması, daha fazla sayıda öznitelik yüklemi içeren ve daha düşük kapsama sahip özel kurallara yol açar. Ayrıca boş kural, yani temel (<em>base</em>) kural daha az önemli hâle gelir. Örnek değişken bir komşulukta bulunduğu için bu durum bir karar sınırının işareti olarak yorumlanabilir.
+</figcaption>
+</figure>
+</div>
+<p>Varsayılan pertürbasyon uzayını seçmek kolay bir tercih olsa da bu seçim algoritma üzerinde büyük bir etkiye sahip olabilir ve dolayısıyla yanlı (<em>biased</em>) sonuçlara yol açabilir. Örneğin eğitim kümesi dengesizse (her sınıftan eşit sayıda örnek yoksa) pertürbasyon uzayı da dengesiz olur. Bu durum, kural bulmayı ve sonucun kesinliğini de etkiler. Bu istenmeyen bir durum olabilir ve birçok şekilde ele alınabilir. Örneğin özel bir pertürbasyon uzayı tanımlanabilir. Bu özel pertürbasyon farklı biçimde örnekleme yapabilir; örneğin dengesiz bir veri kümesinden ya da bir normal dağılımdan örnekleyebilir. Ancak bunun bir yan etkisi vardır: Örneklenen komşular temsil edici olmaz ve kapsamın sınırlarını değiştirir. Alternatif olarak MAB’in güven parametresi <span class="math inline">\(\delta\)</span> ve hata parametresi <span class="math inline">\(\epsilon\)</span> değerlerini değiştirebiliriz. Bu, MAB’in daha fazla örnek çekmesine yol açar ve sonuçta azınlık sınıfının mutlak sayıda daha sık örneklenmesini sağlar.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Sınıf dengesizliğini kontrol edin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Özel bir pertürbasyon uzayı tanımlarken sınıf dengesizliğini (<em>class imbalance</em>) gözeten örnekleme stratejilerini değerlendirin. Örneğin, azınlık sınıflarının pertürbasyon uzayında uygun biçimde temsil edilmesini sağlamak için tabakalı örnekleme (<em>stratified sampling</em>) kullanın.</p>
+</div>
+</div>
+</section>
+<section id="güçlü-yönler" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="güçlü-yönler"><span class="header-section-number">4</span> Güçlü Yönler</h2>
+<p>Anchors yaklaşımı LIME’a göre birçok avantaj sunar. İlk olarak, kurallar (sıradan kullanıcılar için bile) <strong>kolay yorumlanabilir</strong> olduğundan algoritmanın çıktısını anlamak daha kolaydır.</p>
+<p>Ayrıca <strong>anchor’lar alt kümelere ayrılabilir</strong> (<em>subsettable</em>) ve kapsam kavramını içerdikleri için bir önem ölçüsü bile sunar. İkinci olarak anchors yaklaşımı, model tahminleri bir örneğin komşuluğunda <strong>doğrusal olmadığında ya da karmaşık olduğunda da işe yarar</strong>. Yaklaşım vekil modeller uydurmak yerine pekiştirmeli öğrenme teknikleri kullandığından modeli eksik öğrenme (<em>underfit</em>) olasılığı daha düşüktür.</p>
+<p>Bunun dışında algoritma <strong>modelden bağımsızdır</strong> ve dolayısıyla her modele uygulanabilir.</p>
+<p>Anchor’lar, belirli özniteliklerdeki değişikliklere karşı <strong>tahminlerin sağlamlığını</strong> (<em>robustness</em>) (ya da sağlam olmadığını) gösterdikleri için tahminleri gerekçelendirmede yararlı olabilir.</p>
+<p>Ayrıca toplu örneklemeyi (<em>batch sampling</em>) destekleyen MAB’lerden (örneğin BatchSAR) yararlanılarak <strong>paralelleştirilebildiği için oldukça verimlidir</strong>.</p>
+</section>
+<section id="sınırlılıklar" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sınırlılıklar"><span class="header-section-number">5</span> Sınırlılıklar</h2>
+<p>Algoritma, pertürbasyon tabanlı açıklayıcıların çoğu gibi <strong>çok sayıda ayar gerektiren</strong> (<em>highly configurable</em>) ve sonucu güçlü biçimde etkileyen bir kurulumdan muzdariptir. Anlamlı sonuçlar elde etmek için yalnızca ışın genişliği ya da kesinlik eşiği gibi hiperparametrelerin ayarlanması değil, aynı zamanda pertürbasyon fonksiyonunun da belirli bir alan ya da kullanım senaryosu için açıkça tasarlanması gerekir. Tablo verisine nasıl pertürbasyon uygulandığını düşünün ve aynı kavramların görüntü verisine nasıl uygulanacağını düşünün (ipucu: uygulanamazlar). Neyse ki bazı alanlarda (örneğin tablo verisinde) varsayılan yaklaşımlar kullanılabilir; bu da ilk açıklama kurulumunu kolaylaştırır.</p>
+<p>Ayrıca <strong>birçok senaryo ayrıklaştırma gerektirir</strong>; aksi takdirde sonuçlar fazla özel olur, kapsamları düşük kalır ve modeli anlamaya katkı sağlamaz. Ayrıklaştırma yardımcı olabilse de dikkatsizce kullanılırsa karar sınırlarını bulanıklaştırabilir ve tam tersi bir etki yaratabilir. En iyi ayrıklaştırma tekniği diye bir şey olmadığından, kullanıcıların kötü sonuçlar elde etmemek için veriyi nasıl ayrıklaştıracaklarına karar vermeden önce veriyi iyi tanıması gerekir.</p>
+<p>Anchor oluşturmak, tüm pertürbasyon tabanlı açıklayıcılarda olduğu gibi <strong>makine öğrenmesi modeline çok sayıda çağrı yapılmasını</strong> gerektirir. Algoritma çağrı sayısını en aza indirmek için MAB’ler kullansa da çalışma süresi hâlâ büyük ölçüde modelin performansına bağlıdır ve bu nedenle oldukça değişkendir.</p>
+<p>Son olarak <strong>kapsam kavramı bazı alanlarda tanımsızdır</strong>. Örneğin bir görüntüdeki süper piksellerin (<em>superpixels</em>) diğer görüntülerdekilerle nasıl karşılaştırılacağına dair açık ya da evrensel bir tanım yoktur.</p>
+</section>
+<section id="yazılım-ve-alternatifler" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="yazılım-ve-alternatifler"><span class="header-section-number">6</span> Yazılım ve Alternatifler</h2>
+<p>Şu anda iki uygulama mevcuttur: <a href="https://github.com/marcotcr/anchor">anchor adlı bir Python paketi</a> (<a href="https://github.com/SeldonIO/alibi">Alibi</a> tarafından da entegre edilmiştir) ve bir <a href="https://github.com/viadee/javaAnchorExplainer">Java uygulaması</a>. Bunlardan ilki anchors algoritmasının yazarlarının referans uygulamasıdır; ikincisi ise bu bölümdeki örnekler için kullanılan, <a href="https://github.com/viadee/anchorsOnR">anchors</a> adlı bir R arayüzüyle birlikte gelen yüksek performanslı bir uygulamadır. Şu an itibarıyla anchors uygulaması yalnızca tablo verisini desteklemektedir. Ancak anchor’lar teorik olarak herhangi bir alan ya da veri türü için oluşturulabilir.</p>
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referanslar</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-kaufmann2013information" class="csl-entry" role="listitem">
+Kaufmann, Emilie, ve Shivaram Kalyanakrishnan. 2013. <span>“Information <span>Complexity</span> in <span>Bandit Subset Selection</span>”</span>. <em>Proceedings of the 26th <span>Annual Conference</span> on <span>Learning Theory</span></em>, Haziran, 228-51. <a href="https://proceedings.mlr.press/v30/Kaufmann13.html">https://proceedings.mlr.press/v30/Kaufmann13.html</a>.
+</div>
+<div id="ref-ribeiro2018anchors" class="csl-entry" role="listitem">
+Ribeiro, Marco Tulio, Sameer Singh, ve Carlos Guestrin. 2018. <span>“Anchors: <span>High-Precision Model-Agnostic Explanations</span>”</span>. <em>Proceedings of the AAAI Conference on Artificial Intelligence</em> 32 (1). <a href="https://doi.org/10.1609/aaai.v32i1.11491">https://doi.org/10.1609/aaai.v32i1.11491</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
