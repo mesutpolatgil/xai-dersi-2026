@@ -19,3 +19,5 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 15 · Counterfactual Explanations | [İlker Uğur Kaya](2026-guz/15_counterfactual_explanations/ceviri/15-Counterfactual%20Explanations.html) |
 | 16 · Kapsamı Belirli Kurallar (Anchors) | [Halil İbrahim Akyüz](2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html) |
 | 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |
+| 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
+| 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
