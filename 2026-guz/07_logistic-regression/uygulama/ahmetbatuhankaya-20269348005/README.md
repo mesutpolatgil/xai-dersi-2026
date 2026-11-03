@@ -48,6 +48,12 @@ python main.py
 
 Ya da VS Code'da her `# %%` hücresini **Run Cell** ile çalıştırın. Veriler internetten otomatik indirilir; grafikler `sekiller/` klasörüne kaydedilir; rastgelelik `seed=42` ile sabitlenmiştir. 6. adımdaki `PerfectSeparationWarning` ve yakınsama uyarıları beklenen davranıştır ve deneyin parçasıdır.
 
+## Etkileşimli sayfa: Cam Kutu Laboratuvarı
+
+Sunumda kullanılan etkileşimli sayfa: Bölüm 6 uygulama klasöründeki `cam-kutu-laboratuvari.html`. Tarayıcıda açılır, kurulum gerektirmez. Dört sekme var: Bölüm 6 beş ev örneğinde en küçük kareler, Bölüm 7 S eğrisi ve odds oranı, Bölüm 8 bağlantı fonksiyonları ve GAM'in spline parçaları.
+
+Çevrimiçi: [cam-kutu-laboratuvari.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/06_linear-regression/uygulama/ahmetbatuhankaya-20269348005/cam-kutu-laboratuvari.html)
+
 ## Kaynaklar
 
 - Molnar, C. *Interpretable Machine Learning*. https://christophm.github.io/interpretable-ml-book/

@@ -54,6 +54,12 @@ python main.py
 
 Ya da VS Code'da dosyayı açıp her `# %%` hücresinin üstündeki **Run Cell** ile adım adım çalıştırın. Veriler internetten otomatik indirilir. Grafikler `sekiller/` klasörüne kaydedilir. Tüm rastgelelik sabit tohuma bağlıdır (`seed=42`), dolayısıyla sonuçlar tekrarlanabilir.
 
+## Etkileşimli sayfa: Cam Kutu Laboratuvarı
+
+Sunumda kullanılan etkileşimli sayfa: bu klasördeki `cam-kutu-laboratuvari.html`. Tarayıcıda açılır, kurulum gerektirmez. Dört sekme var: Bölüm 6 beş ev örneğinde en küçük kareler, Bölüm 7 S eğrisi ve odds oranı, Bölüm 8 bağlantı fonksiyonları ve GAM'in spline parçaları.
+
+Çevrimiçi: [cam-kutu-laboratuvari.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/06_linear-regression/uygulama/ahmetbatuhankaya-20269348005/cam-kutu-laboratuvari.html)
+
 ## Kaynaklar
 
 - Molnar, C. *Interpretable Machine Learning*. https://christophm.github.io/interpretable-ml-book/
