@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bölüm 24: Bir Özelliği Dışarıda Bırakma (LOFO) Önemi İnteraktif Uygulaması</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Üst Başlık -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full">
+            Bölüm 24 • İnteraktif Uygulama
+          </span>
+          <span class="text-xs text-slate-400 mono">Yunus Emre Yazarlı • 20269258002</span>
+        </div>
+        <h1 class="text-lg sm:text-xl font-bold tracking-tight mt-1">
+          Bir Özelliği Dışarıda Bırakma Önemi (Leave One Feature Out - LOFO)
+        </h1>
+      </div>
+
+      <!-- Alt Sekmeler (Bölüm 24 Konuları) -->
+      <nav class="flex flex-wrap gap-1.5 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700" aria-label="Bölüm 24 Modülleri">
+        <button id="tabBtnMainLofo" type="button" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-emerald-600 text-white shadow">
+          1. LOFO Simülatörü &amp; Özellik Seçimi (Şekil 24.1 - 24.3)
+        </button>
+        <button id="tabBtnLofoVsPfi" type="button" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/60">
+          2. LOFO vs. PFI Korelasyon Laboratuvarı
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- ==================== MODÜL 1: LOFO SİMÜLATÖRÜ ==================== -->
+    <section id="viewMainLofo" class="space-y-6">
+      <!-- Algoritma ve Teori Kartı -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-center">
+          <div class="lg:col-span-2 space-y-2">
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+              Teori: Modeli Özelliği Çıkararak Yeniden Eğitme (LOCO / LOFO)
+            </h2>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              Lei ve ark. (2018) tarafından tanımlanan LOFO, her bir <span class="mono text-emerald-700 font-semibold">j</span> özelliğini veri setinden çıkarır, modeli kalan <span class="mono font-semibold">p − 1</span> özellikle <strong>yeniden eğitir</strong> (<span class="mono font-semibold">f̂<sub>−j</sub></span>) ve test hatasındaki değişimi (<span class="mono font-semibold">e<sub>−j</sub> − e<sub>orig</sub></span>) ölçer. Diğer özellikler modelde kaldığı için LOFO <strong>koşullu (conditional)</strong> bir yoruma sahiptir ve doğrudan özellik seçimi (feature selection) için eyleme dönüştürülebilir bilgi sağlar.
+            </p>
+          </div>
+          <div class="bg-slate-900 text-slate-100 rounded-xl p-4 mono text-xs space-y-1.5 border border-slate-800">
+            <div class="text-emerald-300 font-semibold">// LOFO Algoritması (p Kez Yeniden Eğitim)</div>
+            <div>e<sub>orig</sub> = (1/n<sub>test</sub>) ∑ L(y<sup>(i)</sup>, f̂(x<sup>(i)</sup>))</div>
+            <div>e<sub>−j</sub> = (1/n<sub>test</sub>) ∑ L(y<sup>(i)</sup>, f̂<sub>−j</sub>(x<sub>−j</sub><sup>(i)</sup>))</div>
+            <div id="lofoFormulaDisplay" class="pt-1 text-amber-300 font-semibold border-t border-slate-800">
+              LOFO<sub>j</sub> = e<sub>−j</sub> − e<sub>orig</sub> (Hata Farkı)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kontrol Paneli ve Grafik -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sol Kontroller -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Bölüm 24 Parametreleri</h3>
+
+          <!-- Veri Seti Seçimi -->
+          <div class="space-y-1.5">
+            <label for="lofoDatasetSelect" class="block text-xs font-semibold text-slate-700">Kitap Örneği (Şekil 24.1 - 24.3)</label>
+            <select id="lofoDatasetSelect" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="bike">Bisiklet Kiralama (Random Forest - Şekil 24.1 &amp; 24.2)</option>
+              <option value="penguins">Palmer Penguenleri (Random Forest - Şekil 24.3)</option>
+            </select>
+          </div>
+
+          <!-- Tam Korelasyonlu temp_copy Deneyi (Şekil 24.2) -->
+          <div id="lofoCorrelatedBox" class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 space-y-2.5">
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-xs font-bold text-amber-900">Kopya Özellik Ekle (<span class="mono">temp_copy</span>)</span>
+              <input id="lofoTempCopyToggle" type="checkbox" class="w-4 h-4 accent-amber-600 rounded cursor-pointer" />
+            </label>
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] text-amber-900">
+                <span><span class="mono">temp</span> ile <span class="mono">temp_copy</span> Korelasyonu:</span>
+                <span id="lofoCorrVal" class="mono font-bold">100%</span>
+              </div>
+              <input id="lofoCorrSlider" type="range" min="0" max="100" value="100" class="w-full accent-amber-600 cursor-pointer" />
+            </div>
+            <p class="text-[11px] text-amber-800 leading-relaxed">
+              <strong>Şekil 24.2 Deneyi:</strong> <span class="mono">temp_copy</span> eklendiğinde (%100 korelasyon), birini çıkardığımızda model diğerini kullandığı için <strong>her iki sıcaklık özelliğinin de LOFO önemi sıfıra düşer!</strong>
+            </p>
+          </div>
+
+          <!-- Formül Türü -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-700">LOFO Ölçütü</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="lofoModeDiffBtn" type="button" class="px-3 py-2 rounded-xl text-xs font-semibold border bg-emerald-50 border-emerald-600 text-emerald-700 transition">
+                Fark (e<sub>−j</sub> − e<sub>orig</sub>)
+              </button>
+              <button id="lofoModeRatioBtn" type="button" class="px-3 py-2 rounded-xl text-xs font-semibold border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+                Oran (e<sub>−j</sub> / e<sub>orig</sub>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Sıralı Özellik Seçimi Simülatörü -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700">Özellik Seçimi (Modelden Çıkar / Tut)</span>
+              <button id="lofoResetFeaturesBtn" type="button" class="text-[11px] text-emerald-600 hover:underline font-semibold">
+                Tümünü Seç
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500">
+              Negatif LOFO değerine sahip bir özelliğin (ör. <span class="mono">holiday</span>) işaretini kaldırarak model hatasının nasıl düştüğünü test edin!
+            </p>
+            <div id="lofoFeatureCheckboxes" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+
+        <!-- Sağ Grafik ve Model Yeniden Eğitim Kartları -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div>
+                <h3 id="lofoChartTitle" class="text-base font-bold text-slate-900">
+                  Şekil 24.2: Bisiklet Kiralama Verisi İçin LOFO Özellik Önemleri
+                </h3>
+                <p class="text-xs text-slate-500">
+                  Yeşil çubuklar çıkarıldığında hatayı artıran önemli özellikleri, kırmızı çubuklar ise çıkarıldığında modeli iyileştiren (negatif LOFO) özellikleri gösterir.
+                </p>
+              </div>
+              <span id="lofoRetrainBadge" class="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-semibold text-xs mono">
+                p = 9 kez yeniden eğitildi
+              </span>
+            </div>
+            <div class="relative h-80 w-full">
+              <canvas id="lofoChartCanvas"></canvas>
+            </div>
+
+            <!-- Canlı LOFO Parametre Değişikliği Yorum Kutusu -->
+            <div id="lofoDynamicInterpretation" class="mt-4 p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-emerald-950 flex items-center gap-1.5 text-sm">
+                  <span>💡</span> Canlı Sonuç Yorumu (Bölüm 24 LOFO Analizi)
+                </span>
+                <span id="lofoInterpTag" class="px-2 py-0.5 rounded bg-emerald-600 text-white font-semibold mono text-[11px]">
+                  Standart LOFO
+                </span>
+              </div>
+              <div id="lofoInterpBody" class="space-y-1.5 leading-relaxed"></div>
+            </div>
+          </div>
+
+          <!-- Canlı Yeniden Eğitim & Özellik Seçimi Kartı -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <h3 class="text-sm font-bold text-slate-900">
+              Canlı Model Yeniden Eğitim (Retraining) &amp; Geriye Doğru Özellik Seçimi Analizi
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="text-xs text-slate-500">Orijinal Model Hatası (<span class="mono">e<sub>orig</sub></span>)</div>
+                <div id="lofoOrigErrCard" class="text-lg font-bold text-slate-900 mono mt-0.5">462.5 MAE</div>
+                <div class="text-[11px] text-slate-500 mt-1">Tüm özellikler modelde</div>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="text-xs text-slate-500">Yeniden Eğitilen Model Hatası (<span class="mono">e<sub>−j</sub></span>)</div>
+                <div id="lofoCurrentErrCard" class="text-lg font-bold text-emerald-600 mono mt-0.5">462.5 MAE</div>
+                <div id="lofoActiveCountText" class="text-[11px] text-slate-500 mt-1">9 / 9 özellik aktif</div>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-900 text-white">
+                <div class="text-xs text-slate-300">Performans Değişimi</div>
+                <div id="lofoPerfDeltaCard" class="text-lg font-bold text-amber-300 mono mt-0.5">0.00 MAE (Aynı)</div>
+                <div id="lofoRecommendationText" class="text-[11px] text-slate-300 mt-1">Sol listeden özellik çıkarıp deneyin</div>
+              </div>
+            </div>
+            <div id="lofoSelectionLiveCommentary" class="p-3.5 rounded-xl bg-indigo-50/90 border border-indigo-200 text-xs text-indigo-950 space-y-1.5 leading-relaxed"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODÜL 2: LOFO vs PFI KARŞILAŞTIRMASI ==================== -->
+    <section id="viewLofoVsPfi" class="space-y-6 hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900">
+          LOFO ve PFI Karşılaştırması: Ne Zaman Hangisi Kullanılmalı?
+        </h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Korelasyon (<span class="mono">r</span>) ve aşırı öğrenilmiş gürültü (<span class="mono">overfitting</span>) parametrelerini değiştirerek <strong>LOFO Önemi</strong> ile <strong>Marjinal PFI</strong> ve <strong>Koşullu PFI</strong> arasındaki temel farkı canlı olarak gözlemleyin.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sol Sliderlar -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Simülasyon Kontrolleri</h3>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <label for="cmpCorrSlider" class="font-semibold text-slate-700">X<sub>1</sub> ve X<sub>2</sub> Korelasyonu (r)</label>
+              <span id="cmpCorrVal" class="mono font-bold text-emerald-600">r = 0.85</span>
+            </div>
+            <input id="cmpCorrSlider" type="range" min="0" max="99" value="85" class="w-full accent-emerald-600 cursor-pointer" />
+            <p class="text-[11px] text-slate-500">
+              Korelasyon arttıkça LOFO'da yeni eğitilen model diğer özelliğe güvendiği için <span class="mono">X<sub>1</sub></span> ve <span class="mono">X<sub>2</sub></span> önemi sıfıra yaklaşır.
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <label for="cmpOverfitSlider" class="font-semibold text-slate-700">Gürültü Özelliği Aşırı Öğrenme Oranı</label>
+              <span id="cmpOverfitVal" class="mono font-bold text-rose-600">0.35</span>
+            </div>
+            <input id="cmpOverfitSlider" type="range" min="0" max="100" value="35" class="w-full accent-rose-600 cursor-pointer" />
+            <p class="text-[11px] text-slate-500">
+              Gürültü özelliği modelden çıkarılıp model yeniden eğitildiğinde test performansı iyileşir ve LOFO <strong>negatif değer</strong> alarak bu özelliğin çıkarılması gerektiğini doğrudan söyler.
+            </p>
+          </div>
+
+          <button id="cmpPresetZeroBtn" type="button" class="w-full py-2 px-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold text-xs transition">
+            ⚡ Şekil 24.2 Deneyi: %99 Korelasyon Uygula
+          </button>
+        </div>
+
+        <!-- Sağ Grafik -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <h3 class="text-base font-bold text-slate-900 mb-1">
+            LOFO Önemi vs. Koşullu PFI vs. Marjinal PFI
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">
+            LOFO, gerçekçi olmayan veri noktaları üretmez ve özellik seçimi için doğrudan eyleme dönüştürülebilir sonuç verir:
+          </p>
+          <div class="relative h-80 w-full">
+            <canvas id="cmpChartCanvas"></canvas>
+          </div>
+
+          <div id="cmpDynamicInterpretation" class="mt-4 p-4 rounded-xl bg-slate-900 text-slate-100 text-xs space-y-2 leading-relaxed"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const LOFO_DATASETS = {
+      bike: {
+        title: "Şekil 24.2: Bisiklet Kiralama Verileri İçin LOFO Özellik Önemleri (Random Forest)",
+        titleCorrelated: "Şekil 24.1 & 24.2: Tam Korelasyonlu temp_copy Eklendiğinde LOFO Önemleri",
+        origError: 462.5,
+        unit: "MAE",
+        features: [
+          { name: "cnt_2d_bfr", label: "cnt_2d_bfr (Önceki Bisiklet Sayısı)", diffError: 318.4 },
+          { name: "temp", label: "temp (Sıcaklık)", diffError: 264.0 },
+          { name: "hum", label: "hum (Nem)", diffError: 78.5 },
+          { name: "yr", label: "yr (Yıl)", diffError: 54.2 },
+          { name: "windspeed", label: "windspeed (Rüzgar Hızı)", diffError: 38.0 },
+          { name: "season", label: "season (Mevsim)", diffError: 29.1 },
+          { name: "weathersit", label: "weathersit (Hava Durumu)", diffError: 14.6 },
+          { name: "workingday", label: "workingday (İş Günü)", diffError: 3.2 },
+          { name: "holiday", label: "holiday (Tatil - Negatif LOFO!)", diffError: -14.8 }
+        ]
+      },
+      penguins: {
+        title: "Şekil 24.3: Penguen Verileri İçin LOFO Özellik Önemleri (Random Forest)",
+        titleCorrelated: "Şekil 24.3: Penguen Verileri İçin LOFO Özellik Önemleri",
+        origError: 0.088,
+        unit: "1 - Doğruluk (Hata Oranı)",
+        features: [
+          { name: "bill_depth_mm", label: "bill_depth_mm (Gaga Derinliği)", diffError: 0.068 },
+          { name: "body_mass_g", label: "body_mass_g (Vücut Kütlesi)", diffError: 0.052 },
+          { name: "bill_length_mm", label: "bill_length_mm (Gaga Uzunluğu)", diffError: 0.039 },
+          { name: "species", label: "species (Tür)", diffError: 0.000 },
+          { name: "flipper_length_mm", label: "flipper_length_mm (Yüzgeç Uzunluğu)", diffError: -0.008 }
+        ]
+      }
+    };
+
+    const state = {
+      datasetKey: "bike",
+      mode: "diff",
+      includeTempCopy: false,
+      corrPercent: 100,
+      activeFeatures: new Set(),
+      cmpCorr: 0.85,
+      cmpOverfit: 0.35
+    };
+
+    let lofoChart = null;
+    let cmpChart = null;
+
+    function initLofoActiveFeatures() {
+      const ds = LOFO_DATASETS[state.datasetKey];
+      state.activeFeatures = new Set(ds.features.map(f => f.name));
+      if (state.datasetKey === "bike" && state.includeTempCopy) {
+        state.activeFeatures.add("temp_copy");
+      }
+      document.getElementById("lofoCorrelatedBox").style.display =
+        state.datasetKey === "bike" ? "block" : "none";
+      renderLofoCheckboxes();
+      renderLofoChartAndCards();
+    }
+
+    function getComputedLofoFeatures() {
+      const ds = LOFO_DATASETS[state.datasetKey];
+      let list = ds.features.map(f => ({ ...f }));
+
+      if (state.datasetKey === "bike" && state.includeTempCopy) {
+        const corrRatio = state.corrPercent / 100;
+        const remainingImportance = 264.0 * (1 - 0.96 * corrRatio);
+        list = list.map(f => {
+          if (f.name === "temp") {
+            return {
+              ...f,
+              label: `temp (Sıcaklık - Kopya Korelasyonu %${state.corrPercent})`,
+              diffError: Number(remainingImportance.toFixed(1))
+            };
+          }
+          return f;
+        });
+        list.splice(2, 0, {
+          name: "temp_copy",
+          label: `temp_copy (Kopya Sıcaklık - %${state.corrPercent} Kor.)`,
+          diffError: Number((remainingImportance * 0.85).toFixed(1))
+        });
+      }
+
+      const isDiff = state.mode === "diff";
+      const computed = list.map(f => {
+        const errWithout = ds.origError + f.diffError;
+        const val = isDiff ? f.diffError : (errWithout / ds.origError);
+        return {
+          ...f,
+          errWithout,
+          val
+        };
+      });
+
+      computed.sort((a, b) => b.val - a.val);
+      return computed;
+    }
+
+    function renderLofoCheckboxes() {
+      const features = getComputedLofoFeatures();
+      const container = document.getElementById("lofoFeatureCheckboxes");
+      container.innerHTML = "";
+
+      features.forEach(f => {
+        const row = document.createElement("label");
+        row.className = "flex items-center justify-between p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs";
+        const checked = state.activeFeatures.has(f.name);
+        const signClass = f.diffError < 0 ? "text-rose-600 font-bold" : "text-slate-600";
+        const signPrefix = f.diffError > 0 ? "+" : "";
+        row.innerHTML = `
+          <span class="flex items-center gap-2 font-medium text-slate-800 mono">
+            <input type="checkbox" data-fname="${f.name}" ${checked ? "checked" : ""} class="w-3.5 h-3.5 accent-emerald-600 rounded" />
+            ${f.name}
+          </span>
+          <span class="mono ${signClass}">LOFO: ${signPrefix}${f.diffError}</span>
+        `;
+        const input = row.querySelector("input");
+        input.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            state.activeFeatures.add(f.name);
+          } else {
+            if (state.activeFeatures.size <= 1) {
+              e.target.checked = true;
+              return;
+            }
+            state.activeFeatures.delete(f.name);
+          }
+          renderLofoChartAndCards();
+        });
+        container.appendChild(row);
+      });
+    }
+
+    function renderLofoChartAndCards() {
+      const ds = LOFO_DATASETS[state.datasetKey];
+      const features = getComputedLofoFeatures();
+      const isDiff = state.mode === "diff";
+
+      document.getElementById("lofoChartTitle").textContent =
+        (state.datasetKey === "bike" && state.includeTempCopy)
+          ? ds.titleCorrelated
+          : ds.title;
+      document.getElementById("lofoRetrainBadge").textContent =
+        `p = ${features.length} kez yeniden eğitildi`;
+      document.getElementById("lofoFormulaDisplay").innerHTML = isDiff
+        ? "LOFO<sub>j</sub> = e<sub>−j</sub> − e<sub>orig</sub> (Hata Farkı)"
+        : "LOFO<sub>j</sub> = e<sub>−j</sub> / e<sub>orig</sub> (Hata Oranı)";
+
+      const labels = features.map(f => f.label);
+      const values = features.map(f => Number(f.val.toFixed(3)));
+      const colors = features.map(f => {
+        if (f.diffError < 0) return "rgba(225, 29, 72, 0.85)";
+        if (f.name === "temp_copy" || (state.includeTempCopy && f.name === "temp")) {
+          return "rgba(245, 158, 11, 0.9)";
+        }
+        return "rgba(16, 185, 129, 0.85)";
+      });
+
+      const ctx = document.getElementById("lofoChartCanvas").getContext("2d");
+      if (lofoChart) {
+        lofoChart.destroy();
+      }
+
+      lofoChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: isDiff ? `LOFO Hata Farkı (${ds.unit})` : "LOFO Hata Oranı (e_-j / e_orig)",
+              data: values,
+              backgroundColor: colors,
+              borderRadius: 6,
+              barThickness: 22
+            }
+          ]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const item = features[context.dataIndex];
+                  return isDiff
+                    ? ` LOFO Farkı: ${item.val >= 0 ? "+" : ""}${item.val.toFixed(3)} ${ds.unit} (e_-j = ${item.errWithout.toFixed(2)})`
+                    : ` LOFO Oranı: ${item.val.toFixed(3)}x (e_-j = ${item.errWithout.toFixed(2)})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: isDiff
+                  ? `Özellik Çıkarıldığında Model Hatasındaki Değişim (${ds.unit})`
+                  : "Hata Oranı (1.0 = Değişim Yok)",
+                font: { size: 12, weight: "600" }
+              },
+              grid: { color: "rgba(148, 163, 184, 0.2)" }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { font: { size: 11, weight: "600" } }
+            }
+          }
+        }
+      });
+
+      let currentErr = ds.origError;
+      const removedNames = [];
+      features.forEach(f => {
+        if (!state.activeFeatures.has(f.name)) {
+          removedNames.push(f.name);
+          currentErr += f.diffError;
+        }
+      });
+
+      if (
+        state.datasetKey === "bike" &&
+        state.includeTempCopy &&
+        !state.activeFeatures.has("temp") &&
+        !state.activeFeatures.has("temp_copy")
+      ) {
+        currentErr += 255.0;
+      }
+
+      const delta = currentErr - ds.origError;
+      document.getElementById("lofoOrigErrCard").textContent = `${ds.origError} ${ds.unit}`;
+      document.getElementById("lofoCurrentErrCard").textContent = `${currentErr.toFixed(2)} ${ds.unit}`;
+      document.getElementById("lofoActiveCountText").textContent =
+        `${state.activeFeatures.size} / ${features.length} özellik aktif`;
+
+      const deltaCard = document.getElementById("lofoPerfDeltaCard");
+      const recText = document.getElementById("lofoRecommendationText");
+
+      if (removedNames.length === 0) {
+        deltaCard.textContent = `0.00 ${ds.unit} (Değişim Yok)`;
+        deltaCard.className = "text-lg font-bold text-amber-300 mono mt-0.5";
+        recText.textContent = "Sol listeden bir özelliğin işaretini kaldırarak test edin.";
+      } else if (delta < 0) {
+        deltaCard.textContent = `${delta.toFixed(2)} ${ds.unit} (Performans Arttı!)`;
+        deltaCard.className = "text-lg font-bold text-emerald-400 mono mt-0.5";
+        recText.textContent = `Çıkarılan [${removedNames.join(", ")}] modelin genelleme başarısını artırdı.`;
+      } else {
+        deltaCard.textContent = `+${delta.toFixed(2)} ${ds.unit} (Hata Arttı)`;
+        deltaCard.className = "text-lg font-bold text-rose-400 mono mt-0.5";
+        recText.textContent = `Çıkarılan [${removedNames.join(", ")}] model için önemli bilgi taşıyordu.`;
+      }
+
+      // 1) LOFO Grafik Yorum Kutusu Güncellemesi
+      const topF = features[0];
+      const bottomF = features[features.length - 1];
+      const tagEl = document.getElementById("lofoInterpTag");
+      const bodyEl = document.getElementById("lofoInterpBody");
+
+      tagEl.textContent = state.datasetKey === "bike"
+        ? (state.includeTempCopy ? `Bisiklet • temp_copy (%${state.corrPercent} Kor.)` : "Bisiklet • Standart LOFO")
+        : "Penguenler • LOFO (Doğruluk)";
+
+      let mainExplanation = "";
+      if (state.datasetKey === "bike") {
+        if (!state.includeTempCopy) {
+          mainExplanation = `
+            <p>• <strong>Gözlenen Sonuç (Şekil 24.2):</strong> Model her seferinde 1 özellik eksik olarak 9 kez yeniden eğitildiğinde, çıkarılması hatayı en çok artıran özellikler <span class="mono font-bold text-emerald-800">cnt_2d_bfr (+318.4 MAE)</span> ve <span class="mono font-bold text-emerald-800">temp (+264.0 MAE)</span> olmuştur.</p>
+            <p>• <strong>Negatif LOFO Yorumu (<span class="mono">holiday = -14.8 MAE</span>):</strong> <span class="mono font-semibold text-rose-700">holiday</span> özelliğinin LOFO önemi <strong>negatiftir</strong>. Bunun anlamı şudur: <span class="mono">holiday</span> sütununu eğitim verisinden silip Random Forest modelini yeniden eğittiğimizde test hatası 462.5'ten 447.7 MAE'ye düşmektedir (model performansı artmaktadır)!</p>
+          `;
+        } else {
+          const tempItem = features.find(f => f.name === "temp");
+          const copyItem = features.find(f => f.name === "temp_copy");
+          if (state.corrPercent >= 85) {
+            mainExplanation = `
+              <div class="p-2.5 rounded-lg bg-amber-100/90 border border-amber-300 text-amber-950">
+                <strong>⚠️ Şekil 24.1 / 24.2 Korelasyon Tuzağı Yorumu (%${state.corrPercent} Korelasyon):</strong> Veri setine <span class="mono">temp</span> ile %${state.corrPercent} korelasyonlu <span class="mono">temp_copy</span> eklendiğinde, normalde +264.0 MAE olan sıcaklık önemi <span class="mono font-bold">temp (${tempItem.diffError} MAE)</span> ve <span class="mono font-bold">temp_copy (${copyItem.diffError} MAE)</span> için neredeyse <strong>sıfıra çakılmıştır!</strong>
+              </div>
+              <p>• <strong>Neden Sıfıra Düştü? (Koşullu Yorumlama):</strong> LOFO'da <span class="mono">temp</span> özelliğini çıkardığımızda hiçbir sıcaklık bilgisi kaybetmeyiz; çünkü yeniden eğitilen Random Forest modeli kalan <span class="mono">temp_copy</span> sütununu kullanarak aynı tahmini telafi eder. Bu durum modelin sıcaklığa dayanmadığı anlamına gelmez; yalnızca diğer özellikler verili olduğunda kopyanın <em>ek bilgi sağlamadığını</em> gösterir.</p>
+            `;
+          } else {
+            mainExplanation = `
+              <p>• <strong>Kısmi Korelasyon Yorumu (%${state.corrPercent} Korelasyon):</strong> <span class="mono">temp</span> ve <span class="mono">temp_copy</span> arasındaki korelasyon %${state.corrPercent} düzeyinde olduğu için her iki özellik de birbirinin bilgisini kısmen telafi etmekte ve LOFO önemleri (<span class="mono">+${tempItem.diffError}</span> ve <span class="mono">+${copyItem.diffError} MAE</span>) orijinal +264.0 MAE değerinin altında kalmaktadır. Korelasyon kaydırıcısını %100'e yaklaştırdıkça önemlerin sıfıra indiğini görebilirsiniz.</p>
+            `;
+          }
+        }
+      } else {
+        mainExplanation = `
+          <p>• <strong>Penguen Veri Seti Yorumu (Şekil 24.3):</strong> Doğruluk (accuracy) daha büyük olduğunda daha iyi bir metrik olduğu için farklar <span class="mono">-1</span> ile çarpılmıştır. LOFO'ya göre penguen cinsiyetini tahmin etmede en önemli özellik <span class="mono font-bold text-emerald-800">bill_depth_mm (+0.068 hata artışı)</span> olmuştur.</p>
+          <p>• <strong>Özellik Seçimi vs. Alan Bilgisi (<span class="mono">species</span> ve <span class="mono">flipper_length_mm</span>):</strong> Grafik bize <span class="mono font-semibold text-rose-700">flipper_length_mm (-0.008)</span> ve <span class="mono font-semibold">species (0.000)</span> özelliklerini modelden çıkarabileceğimizi söylüyor. Ancak Molnar'ın vurguladığı gibi, modelin penguen türlerini birbirinden ayırt edebilmesi için <span class="mono">species</span> özelliğini alan bilgisi gereği modelde tutmak isteriz!</p>
+        `;
+      }
+
+      const modeExplanation = isDiff
+        ? `<p>• <strong>Formül Yorumu (Fark - e<sub>−j</sub> − e<sub>orig</sub>):</strong> Değerler özellik çıkarıldığında test hatasının kaç birim (${ds.unit}) arttığını veya azaldığını doğrudan gösterir; sıfır çizgisinin solu modeli iyileştiren (çıkarılması gereken) özellikleri işaret eder.</p>`
+        : `<p>• <strong>Formül Yorumu (Oran - e<sub>−j</sub> / e<sub>orig</sub>):</strong> 1.00x sınırı değişim olmadığını, 1.00x'in altındaki değerler (ör. <span class="mono">${bottomF.name}: ${bottomF.val.toFixed(3)}x</span>) ise özellik çıkarıldığında hatanın düştüğünü gösterir.</p>`;
+
+      bodyEl.innerHTML = mainExplanation + modeExplanation;
+
+      // 2) Canlı Özellik Seçimi (Checkbox) Yorum Kutusu Güncellemesi
+      const selBox = document.getElementById("lofoSelectionLiveCommentary");
+      const bothTempsRemoved = (
+        state.datasetKey === "bike" &&
+        state.includeTempCopy &&
+        !state.activeFeatures.has("temp") &&
+        !state.activeFeatures.has("temp_copy")
+      );
+      const oneTempRemoved = (
+        state.datasetKey === "bike" &&
+        state.includeTempCopy &&
+        (state.activeFeatures.has("temp") !== state.activeFeatures.has("temp_copy"))
+      );
+
+      if (removedNames.length === 0) {
+        selBox.innerHTML = `
+          <div class="font-bold text-indigo-950">🔍 Özellik Seçimi Durumu (Tüm Özellikler Modelde):</div>
+          <p>Şu anda hiçbir özellik çıkarılmadı (<span class="mono">e<sub>orig</sub> = ${ds.origError} ${ds.unit}</span>). Sol taraftaki listeden negatif LOFO değerine sahip <span class="mono font-semibold">${state.datasetKey === "bike" ? "holiday" : "flipper_length_mm"}</span> özelliğinin işaretini kaldırarak modeli yeniden eğitin ve hatanın nasıl düştüğünü görün!</p>
+        `;
+      } else if (bothTempsRemoved) {
+        selBox.innerHTML = `
+          <div class="font-bold text-rose-900 text-sm">🚨 Kritik Deney Sonucu: İki Korelasyonlu Özelliği Aynı Anda Çıkarmak!</div>
+          <p>Grafikte hem <span class="mono font-bold">temp</span> hem de <span class="mono font-bold">temp_copy</span> neredeyse <strong>sıfır LOFO önemine</strong> sahip görünüyordu. Ancak ikisini aynı anda çıkardığınızda model sıcaklık bilgisini tamamen kaybetti ve test hatası <strong>+${delta.toFixed(1)} ${ds.unit}</strong> fırladı! <strong>Kitaptaki Kural:</strong> LOFO sonuçlarına bakarak asla iki özelliği aynı anda çıkarmayın; özellik çıkarmayı her zaman <em>tek seferde bir özellik (sıralı / sequential)</em> olarak uygulayın.</p>
+        `;
+      } else if (oneTempRemoved) {
+        const removedT = !state.activeFeatures.has("temp") ? "temp" : "temp_copy";
+        const keptT = state.activeFeatures.has("temp") ? "temp" : "temp_copy";
+        selBox.innerHTML = `
+          <div class="font-bold text-emerald-950">✅ Sıralı (Sequential) Çıkarma Yorumu:</div>
+          <p><span class="mono font-bold">${removedT}</span> özelliğini çıkardınız ancak <span class="mono font-bold">${keptT}</span> hala modelde olduğu için model sıcaklık bilgisini kaybetmedi (hata değişimi yalnızca <span class="mono">+${delta.toFixed(1)} ${ds.unit}</span>). Şimdi LOFO yeniden hesaplanırsa, kalan <span class="mono">${keptT}</span> özelliğinin önemi tekrar +264 MAE seviyesine çıkacaktır! İsterseniz şimdi diğer sıcaklık özelliğinin de işaretini kaldırarak hatanın nasıl patladığını görün.</p>
+        `;
+      } else if (delta < 0) {
+        selBox.innerHTML = `
+          <div class="font-bold text-emerald-900">🎯 Başarılı Özellik Seçimi (Model Performansı İyileşti!):</div>
+          <p>Çıkardığınız <span class="mono font-bold">[${removedNames.join(", ")}]</span> özelliği negatif LOFO önemine sahipti (modelde aşırı öğrenmeye/gürültüye yol açıyordu). Bu özellik olmadan model yeniden eğitildiğinde test hatası <span class="mono font-bold">${ds.origError} → ${currentErr.toFixed(2)} ${ds.unit}</span> seviyesine düştü (<strong>${delta.toFixed(2)} ${ds.unit} iyileşme</strong>). PFI veya SHAP bu şekilde doğrudan "şu özelliği silersen model iyileşir" bilgisi veremezken LOFO bunu doğrudan sağlar.</p>
+        `;
+      } else {
+        selBox.innerHTML = `
+          <div class="font-bold text-rose-950">📉 Önemli Özellik Kaybı Yorumu:</div>
+          <p>Çıkardığınız <span class="mono font-bold">[${removedNames.join(", ")}]</span> özelliği diğer özelliklerde bulunmayan benzersiz tahmin bilgisi taşıyordu. Model bu özellik(ler) olmadan yeniden eğitildiğinde tahmin hatası <strong>+${delta.toFixed(2)} ${ds.unit}</strong> artarak <span class="mono font-bold">${currentErr.toFixed(2)} ${ds.unit}</span> seviyesine kötüleşti; dolayısıyla bu özellik(ler) modelde tutulmalıdır.</p>
+        `;
+      }
+    }
+
+    function renderComparisonChart() {
+      const r = state.cmpCorr;
+      const overfit = state.cmpOverfit;
+
+      const lofoX1 = Number((50 * (1 - r * 0.98)).toFixed(1));
+      const lofoX2 = Number((46 * (1 - r * 0.98)).toFixed(1));
+      const lofoIndep = 42.0;
+      const lofoNoise = Number((-20 * overfit).toFixed(1));
+
+      const condPfiX1 = Number((50 * (1 - r * 0.92)).toFixed(1));
+      const condPfiX2 = Number((46 * (1 - r * 0.92)).toFixed(1));
+      const condPfiIndep = 42.0;
+      const condPfiNoise = Number((1.5 * overfit).toFixed(1));
+
+      const margPfiX1 = Number((50 * (1 - 0.35 * r)).toFixed(1));
+      const margPfiX2 = Number((46 * (1 - 0.35 * r)).toFixed(1));
+      const margPfiIndep = 42.0;
+      const margPfiNoise = Number((2.5 * overfit).toFixed(1));
+
+      const ctx = document.getElementById("cmpChartCanvas").getContext("2d");
+      if (cmpChart) {
+        cmpChart.destroy();
+      }
+
+      const cmpInterpEl = document.getElementById("cmpDynamicInterpretation");
+      let corrInsight = "";
+      if (r >= 0.85) {
+        corrInsight = `<strong>Yüksek Korelasyon Durumu (r = ${r.toFixed(2)}):</strong> <span class="mono text-emerald-300">temp</span> ve <span class="mono text-emerald-300">temp_copy</span> birbirine çok yakın olduğu için <strong>LOFO (${lofoX1})</strong> ve <strong>Koşullu PFI (${condPfiX1})</strong> her iki özelliğe de çok düşük önem verir (çünkü biri çıkarıldığında diğeri aynı bilgiyi sağlar). Buna karşılık <strong>Marjinal PFI (${margPfiX1})</strong> korelasyonu görmezden gelerek önemi iki özellik arasında böler ancak gerçekçi olmayan veri noktaları üretir.`;
+      } else if (r >= 0.40) {
+        corrInsight = `<strong>Orta Korelasyon Durumu (r = ${r.toFixed(2)}):</strong> Özellikler kısmen bağımlı olduğu için LOFO (${lofoX1}) ve Koşullu PFI (${condPfiX1}), yalnızca o özelliğe özgü ek bilgiyi ölçerek Marjinal PFI'dan (${margPfiX1}) daha düşük fakat sıfırdan belirgin biçimde yüksek bir önem atar.`;
+      } else {
+        corrInsight = `<strong>Düşük / Sıfır Korelasyon Durumu (r = ${r.toFixed(2)}):</strong> Özellikler birbirinden neredeyse bağımsız olduğunda <strong>LOFO (${lofoX1})</strong>, <strong>Koşullu PFI (${condPfiX1})</strong> ve <strong>Marjinal PFI (${margPfiX1})</strong> birbirine çok yakın sonuçlar üretir!`;
+      }
+
+      let overfitInsight = "";
+      if (overfit >= 0.25) {
+        overfitInsight = `<strong>Aşırı Öğrenme (Overfitting = ${overfit.toFixed(2)}) Yorumu:</strong> <span class="mono text-rose-300">holiday</span> gibi gürültülü bir özellikte <strong>LOFO (${lofoNoise})</strong> belirgin biçimde <em>negatif</em> değer alarak bu özelliğin silinmesiyle yeni eğitilen modelin iyileşeceğini doğrudan gösterir. PFI ise modeli yeniden eğitmediği için yalnızca mevcut modelin bu gürültüyü ne kadar kullandığını (${margPfiNoise}) gösterir.`;
+      } else {
+        overfitInsight = `<strong>Düşük Aşırı Öğrenme (Overfitting = ${overfit.toFixed(2)}) Yorumu:</strong> Gürültü etkisi düşük olduğunda üç yöntem de <span class="mono">holiday</span> özelliğine sıfıra yakın önem atar.`;
+      }
+
+      cmpInterpEl.innerHTML = `
+        <div class="font-bold text-amber-300 text-sm">💡 LOFO vs. PFI Karşılaştırma Yorumu (Bölüm 24 Sentezi):</div>
+        <p>• ${corrInsight}</p>
+        <p>• ${overfitInsight}</p>
+        <p class="text-slate-300 pt-1 border-t border-slate-800"><strong>Özet Karar Kuralı:</strong> Amacınız mevcut tekil bir modeli denetlemekse (audit) ve yeniden eğitim maliyetliyse <strong>PFI</strong>; amacınız <strong>özellik seçimi (feature selection)</strong> yapmak, gerçekçi olmayan veri noktalarından kaçınmak ve öğrenici algoritmanın davranışını anlamaksa <strong>LOFO</strong> kullanmalısınız.</p>
+      `;
+
+      cmpChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [
+            `temp (Korelasyon r=${r.toFixed(2)})`,
+            `temp_copy (Korelasyon r=${r.toFixed(2)})`,
+            "cnt_2d_bfr (Bağımsız Güçlü Özellik)",
+            "holiday (Gürültü / Negatif LOFO)"
+          ],
+          datasets: [
+            {
+              label: "LOFO Önemi (Bölüm 24)",
+              data: [lofoX1, lofoX2, lofoIndep, lofoNoise],
+              backgroundColor: "rgba(16, 185, 129, 0.9)",
+              borderRadius: 5
+            },
+            {
+              label: "Koşullu PFI (Conditional PFI)",
+              data: [condPfiX1, condPfiX2, condPfiIndep, condPfiNoise],
+              backgroundColor: "rgba(147, 51, 234, 0.85)",
+              borderRadius: 5
+            },
+            {
+              label: "Marjinal PFI (Bölüm 23)",
+              data: [margPfiX1, margPfiX2, margPfiIndep, margPfiNoise],
+              backgroundColor: "rgba(79, 70, 229, 0.85)",
+              borderRadius: 5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: { font: { size: 12, weight: "600" } }
+            }
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: "Önem Skoru (Test Hatasındaki Değişim)",
+                font: { size: 12, weight: "600" }
+              },
+              grid: { color: "rgba(148, 163, 184, 0.2)" }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 11, weight: "600" } }
+            }
+          }
+        }
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("tabBtnMainLofo").addEventListener("click", () => {
+        document.getElementById("viewMainLofo").classList.remove("hidden");
+        document.getElementById("viewLofoVsPfi").classList.add("hidden");
+        document.getElementById("tabBtnMainLofo").className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-emerald-600 text-white shadow";
+        document.getElementById("tabBtnLofoVsPfi").className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/60";
+        renderLofoChartAndCards();
+      });
+
+      document.getElementById("tabBtnLofoVsPfi").addEventListener("click", () => {
+        document.getElementById("viewMainLofo").classList.add("hidden");
+        document.getElementById("viewLofoVsPfi").classList.remove("hidden");
+        document.getElementById("tabBtnLofoVsPfi").className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-emerald-600 text-white shadow";
+        document.getElementById("tabBtnMainLofo").className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/60";
+        renderComparisonChart();
+      });
+
+      document.getElementById("lofoDatasetSelect").addEventListener("change", (e) => {
+        state.datasetKey = e.target.value;
+        initLofoActiveFeatures();
+      });
+
+      document.getElementById("lofoTempCopyToggle").addEventListener("change", (e) => {
+        state.includeTempCopy = e.target.checked;
+        initLofoActiveFeatures();
+      });
+
+      document.getElementById("lofoCorrSlider").addEventListener("input", (e) => {
+        state.corrPercent = Number(e.target.value);
+        document.getElementById("lofoCorrVal").textContent = `${state.corrPercent}%`;
+        if (!state.includeTempCopy) {
+          state.includeTempCopy = true;
+          document.getElementById("lofoTempCopyToggle").checked = true;
+          initLofoActiveFeatures();
+        } else {
+          renderLofoCheckboxes();
+          renderLofoChartAndCards();
+        }
+      });
+
+      document.getElementById("lofoModeDiffBtn").addEventListener("click", () => {
+        state.mode = "diff";
+        document.getElementById("lofoModeDiffBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-emerald-50 border-emerald-600 text-emerald-700 transition";
+        document.getElementById("lofoModeRatioBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition";
+        renderLofoChartAndCards();
+      });
+
+      document.getElementById("lofoModeRatioBtn").addEventListener("click", () => {
+        state.mode = "ratio";
+        document.getElementById("lofoModeRatioBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-emerald-50 border-emerald-600 text-emerald-700 transition";
+        document.getElementById("lofoModeDiffBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition";
+        renderLofoChartAndCards();
+      });
+
+      document.getElementById("lofoResetFeaturesBtn").addEventListener("click", () => {
+        initLofoActiveFeatures();
+      });
+
+      document.getElementById("cmpCorrSlider").addEventListener("input", (e) => {
+        state.cmpCorr = Number(e.target.value) / 100;
+        document.getElementById("cmpCorrVal").textContent = `r = ${state.cmpCorr.toFixed(2)}`;
+        renderComparisonChart();
+      });
+
+      document.getElementById("cmpOverfitSlider").addEventListener("input", (e) => {
+        state.cmpOverfit = Number(e.target.value) / 100;
+        document.getElementById("cmpOverfitVal").textContent = state.cmpOverfit.toFixed(2);
+        renderComparisonChart();
+      });
+
+      document.getElementById("cmpPresetZeroBtn").addEventListener("click", () => {
+        state.cmpCorr = 0.99;
+        document.getElementById("cmpCorrSlider").value = 99;
+        document.getElementById("cmpCorrVal").textContent = "r = 0.99";
+        renderComparisonChart();
+      });
+
+      initLofoActiveFeatures();
+    });
+  </script>
+</body>
+</html>
