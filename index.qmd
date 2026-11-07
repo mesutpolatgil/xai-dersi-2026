@@ -20,4 +20,5 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 16 · Kapsamı Belirli Kurallar (Anchors) | [Halil İbrahim Akyüz](2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html) |
 | 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |
 | 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
-| 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
+| 25 · Vekil Modeller (Surrogate Models) | [Melise Kocabaş](2026-guz/25_Surrogate_Models/çeviri/vekil-modeller.html) |
+| 26 · Prototipler ve Eleştiriler (Prototypes and Criticisms) | [Melise Kocabaş](2026-guz/26_Prototypes_and_Criticisms/çeviri/prototipler-ve-elestiriler.html) |
