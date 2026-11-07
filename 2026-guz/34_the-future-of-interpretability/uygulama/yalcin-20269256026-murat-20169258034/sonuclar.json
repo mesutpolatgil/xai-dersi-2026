@@ -1,0 +1,281 @@
+{
+  "seed": 42,
+  "rows_train": 1358,
+  "rows_test": 583,
+  "dataset_sha256": "08994f5b0185a8e6cc22afe9910fd36834990fb1ca30852ed79012a832fbff55",
+  "versions": {
+    "numpy": "2.5.4",
+    "sklearn": "1.9.1",
+    "matplotlib": "3.11.2"
+  },
+  "synthetic_feature": "Yapay_istasyon_kodu",
+  "models": {
+    "istasyon_dahil": {
+      "ayni_korelasyon": {
+        "accuracy": 0.9828473413379074,
+        "balanced_accuracy": 0.9608444190596629,
+        "macro_f1": 0.9565310092867149
+      },
+      "istasyon_bagimsiz": {
+        "accuracy": 0.22469982847341338,
+        "balanced_accuracy": 0.20815995594134762,
+        "macro_f1": 0.1958824871477061
+      }
+    },
+    "istasyon_haric": {
+      "ayni_korelasyon": {
+        "accuracy": 0.7341337907375644,
+        "balanced_accuracy": 0.702869529515935,
+        "macro_f1": 0.7294186204119297
+      },
+      "istasyon_bagimsiz": {
+        "accuracy": 0.7341337907375644,
+        "balanced_accuracy": 0.702869529515935,
+        "macro_f1": 0.7294186204119297
+      }
+    }
+  },
+  "permutation_importance": {
+    "ayni_korelasyon": {
+      "X_Minimum": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "X_Maximum": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Y_Minimum": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Y_Maximum": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Pixels_Areas": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "X_Perimeter": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Y_Perimeter": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Sum_of_Luminosity": {
+        "mean": -0.013655462184874012,
+        "std": 0.004068259817444751
+      },
+      "Minimum_of_Luminosity": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Maximum_of_Luminosity": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Length_of_Conveyer": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "TypeOfSteel_A300": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "TypeOfSteel_A400": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Steel_Plate_Thickness": {
+        "mean": 0.006302521008403339,
+        "std": 0.0036387622007749395
+      },
+      "Edges_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Empty_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Square_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Outside_X_Index": {
+        "mean": 0.0021008403361344463,
+        "std": 0.0036387622007749395
+      },
+      "Edges_X_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Edges_Y_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Outside_Global_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "LogOfAreas": {
+        "mean": 0.0010504201680672232,
+        "std": 0.0027791505368325435
+      },
+      "Log_X_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Log_Y_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Orientation_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Luminosity_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "SigmoidOfAreas": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Yapay_istasyon_kodu": {
+        "mean": 0.8081276053794367,
+        "std": 0.015345114009145679
+      }
+    },
+    "istasyon_bagimsiz": {
+      "X_Minimum": {
+        "mean": 0.0038156288156288264,
+        "std": 0.0018754892746404908
+      },
+      "X_Maximum": {
+        "mean": 0.002442002442002454,
+        "std": 0.0008633782432070244
+      },
+      "Y_Minimum": {
+        "mean": 0.00030525030525030417,
+        "std": 0.0005287090377194356
+      },
+      "Y_Maximum": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Pixels_Areas": {
+        "mean": 0.00335775335775337,
+        "std": 0.0011822293486591648
+      },
+      "X_Perimeter": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Y_Perimeter": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Sum_of_Luminosity": {
+        "mean": 0.019837188954836053,
+        "std": 0.003241611957643627
+      },
+      "Minimum_of_Luminosity": {
+        "mean": 0.0013736263736263792,
+        "std": 0.0012860423951734444
+      },
+      "Maximum_of_Luminosity": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Length_of_Conveyer": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "TypeOfSteel_A300": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "TypeOfSteel_A400": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Steel_Plate_Thickness": {
+        "mean": 0.00747863247863248,
+        "std": 0.0016649438514401214
+      },
+      "Edges_Index": {
+        "mean": 0.00030525030525030417,
+        "std": 0.0005287090377194356
+      },
+      "Empty_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Square_Index": {
+        "mean": -0.0009081952151259037,
+        "std": 0.00042445287317162747
+      },
+      "Outside_X_Index": {
+        "mean": 0.016025641025641028,
+        "std": 0.0018754892746404924
+      },
+      "Edges_X_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "Edges_Y_Index": {
+        "mean": 0.013125763125763135,
+        "std": 0.0014639290364202389
+      },
+      "Outside_Global_Index": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "LogOfAreas": {
+        "mean": 0.0022893772893772986,
+        "std": 0.0014235926515703378
+      },
+      "Log_X_Index": {
+        "mean": 0.011752136752136762,
+        "std": 0.0014876059744824447
+      },
+      "Log_Y_Index": {
+        "mean": 0.00015262515262515208,
+        "std": 0.0004038081976594293
+      },
+      "Orientation_Index": {
+        "mean": 0.0013736263736263757,
+        "std": 0.0011318984259914078
+      },
+      "Luminosity_Index": {
+        "mean": 0.00030525030525030417,
+        "std": 0.0005287090377194356
+      },
+      "SigmoidOfAreas": {
+        "mean": 0.004426129426129438,
+        "std": 0.001211424592978288
+      },
+      "Yapay_istasyon_kodu": {
+        "mean": -0.015914694148798612,
+        "std": 0.02455818660022352
+      }
+    }
+  },
+  "single_instance": {
+    "original_row": 1496,
+    "true_class": "Other_Faults",
+    "predictions_by_station": [
+      "Pastry",
+      "Z_Scratch",
+      "K_Scatch",
+      "Dirtiness",
+      "Dirtiness",
+      "Bumps",
+      "Other_Faults"
+    ]
+  }
+}
