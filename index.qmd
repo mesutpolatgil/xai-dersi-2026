@@ -23,3 +23,13 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
 | 33 · Hikâye Zamanı | [Yalçın Kavaklı ve Murat Şahin](2026-guz/33_story-time/ceviri/yalcin-20269256026-murat-20169258034.html) |
 | 34 · Yorumlanabilirliğin Geleceği | [Yalçın Kavaklı ve Murat Şahin](2026-guz/34_the-future-of-interpretability/ceviri/yalcin-20269256026-murat-20169258034.html) |
+
+## Bölüm 33 ve 34 ortak materyalleri
+
+Yalçın Kavaklı ve Murat Şahin tarafından sunulan ortak çalışma:
+
+- [PowerPoint sunumu](2026-guz/33_story-time/sunum/yalcin-20269256026-murat-20169258034.pptx)
+- [Jupyter ve Colab uygulaması](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.ipynb)
+- [Uygulama açıklaması ve çalıştırma adımları](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/README.md)
+
+Uygulama, gerçek UCI çelik levha verisine eklenen yapay bir istasyon kodu üzerinden kısayol öğrenmesini ve permütasyon özellik önemini gösterir. Makale yeniden üretimi ayrı bir görevdir.
