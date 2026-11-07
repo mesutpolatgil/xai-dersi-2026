@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>15. Karşı-Olgusal Açıklamalar</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="15-Counterfactual Explanations_files/libs/clipboard/clipboard.min.js"></script>
+<script src="15-Counterfactual Explanations_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="15-Counterfactual Explanations_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="15-Counterfactual Explanations_files/libs/quarto-html/popper.min.js"></script>
+<script src="15-Counterfactual Explanations_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="15-Counterfactual Explanations_files/libs/quarto-html/anchor.min.js"></script>
+<link href="15-Counterfactual Explanations_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="15-Counterfactual Explanations_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="15-Counterfactual Explanations_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="15-Counterfactual Explanations_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="15-Counterfactual Explanations_files/libs/bootstrap/bootstrap-c2e55264ed47ce3b2e0326a2269f9400.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#karşı-olgusal-açıklamaların-üretilmesi" id="toc-karşı-olgusal-açıklamaların-üretilmesi" class="nav-link active" data-scroll-target="#karşı-olgusal-açıklamaların-üretilmesi"><span class="header-section-number">1</span> Karşı-olgusal açıklamaların üretilmesi</a>
+  <ul class="collapse">
+  <li><a href="#wachter-ve-diğerlerinin-yöntemi" id="toc-wachter-ve-diğerlerinin-yöntemi" class="nav-link" data-scroll-target="#wachter-ve-diğerlerinin-yöntemi"><span class="header-section-number">1.1</span> Wachter ve diğerlerinin yöntemi</a></li>
+  <li><a href="#dandl-ve-diğerlerinin-yöntemi" id="toc-dandl-ve-diğerlerinin-yöntemi" class="nav-link" data-scroll-target="#dandl-ve-diğerlerinin-yöntemi"><span class="header-section-number">1.2</span> Dandl ve diğerlerinin yöntemi</a></li>
+  </ul></li>
+  <li><a href="#örnek" id="toc-örnek" class="nav-link" data-scroll-target="#örnek"><span class="header-section-number">2</span> Örnek</a></li>
+  <li><a href="#güçlü-yönler" id="toc-güçlü-yönler" class="nav-link" data-scroll-target="#güçlü-yönler"><span class="header-section-number">3</span> Güçlü yönler</a></li>
+  <li><a href="#sınırlılıklar" id="toc-sınırlılıklar" class="nav-link" data-scroll-target="#sınırlılıklar"><span class="header-section-number">4</span> Sınırlılıklar</a></li>
+  <li><a href="#yazılım-ve-alternatifler" id="toc-yazılım-ve-alternatifler" class="nav-link" data-scroll-target="#yazılım-ve-alternatifler"><span class="header-section-number">5</span> Yazılım ve alternatifler</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">15. Karşı-Olgusal Açıklamalar</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazarlar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Susanne Dandl </p>
+             <p>Christoph Molnar </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Karşı-olgusal bir açıklama, nedensel bir durumu şu biçimde tanımlar: “Eğer X gerçekleşmemiş olsaydı, Y gerçekleşmemiş olurdu.” Örneğin: “Eğer bu sıcak kahveden bir yudum almamış olsaydım, dilimi yakmazdım.” Y olayı, dilimi yakmış olmamdır; X nedeni ise sıcak bir kahve içmiş olmamdır. Karşı-olgusal düşünmek, gözlemlenen gerçeklerle çelişen varsayımsal bir gerçekliği hayal etmeyi gerektirir (örneğin, sıcak kahveyi içmediğim bir dünya); “karşı-olgusal” adı da buradan gelir. Karşı-olgusal düşünebilme yeteneği, biz insanları diğer hayvanlarla karşılaştırıldığında bu kadar zeki yapan şeydir.</p>
+<p>Yorumlanabilir makine öğrenmesinde, karşı-olgusal açıklamalar, tekil örneklerin tahminlerini açıklamak için kullanılabilir.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Bir grafik olarak gösterildiğinde <a href="#fig-ml-graph-cf" class="quarto-xref">Şekil&nbsp;1</a>, girdiler ile tahmin arasındaki ilişki oldukça basittir: Özellik değerleri tahmine neden olur. Gerçekte girdiler ile tahmin edilecek sonuç arasındaki ilişki nedensel olmasa bile, bir modelin girdilerini tahminin nedeni olarak görebiliriz.</p>
+<div id="fig-ml-graph-cf" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ml-graph-cf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/figure-15-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ml-graph-cf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: Bir makine öğrenmesi modeli yalnızca kara kutu olarak ele alındığında girdiler tahmini üretir. Bu ok, verinin gerçek dünyadaki nedensel yapısını göstermek zorunda değildir.
+</figcaption>
+</figure>
+</div>
+<p>Bu basit grafik göz önüne alındığında, makine öğrenmesi modellerinin tahminleri için karşı-olgusal durumları nasıl simüle edebileceğimizi görmek kolaydır: Tahminleri yapmadan önce bir örneğin özellik değerlerini değiştirir ve tahminin nasıl değiştiğini analiz ederiz. Tahmin edilen sınıfın değişmesi (örneğin, kredi başvurusunun kabul edilmesi veya reddedilmesi) veya tahminin belirli bir eşiğe ulaşması (örneğin, kanser olasılığının %10’a ulaşması) gibi, tahminin anlamlı bir şekilde değiştiği senaryolarla ilgileniriz. <strong>Bir tahminin karşı-olgusal açıklaması, tahmini önceden tanımlanmış bir çıktıya değiştiren özellik değerlerindeki en küçük değişikliği tanımlar.</strong></p>
+<p>Hem modelden bağımsız hem de modele özgü karşı-olgusal açıklama yöntemleri bulunmaktadır, ancak bu bölümde yalnızca model girdileri ve çıktılarıyla çalışan (belirli modellerin iç yapısıyla çalışmayan) modelden bağımsız yöntemlere odaklanıyoruz.</p>
+<p>Karşı-olgusalların nasıl oluşturulacağını tartışmadan önce, karşı-olgusalların bazı kullanım alanlarını ve iyi bir karşı-olgusal açıklamanın nasıl göründüğünü ele almak istiyorum.</p>
+<p>Bu ilk örnekte Peter bir krediye başvurur ve (makine öğrenmesi destekli) bankacılık yazılımı tarafından başvurusu reddedilir. Başvurusunun neden reddedildiğini ve kredi alma şansını nasıl artırabileceğini merak eder. “Neden” sorusu bir karşı-olgusal olarak formüle edilebilir: Tahmini reddedilmeden onaylanmaya değiştirecek özelliklerdeki (gelir, kredi kartı sayısı, yaş, …) en küçük değişiklik nedir? Olası bir cevap şu olabilir: Eğer Peter yılda 10.000 daha fazla kazansaydı, krediyi alabilirdi. Ya da Peter’ın daha az kredi kartı olsaydı ve beş yıl önce bir krediyi ödeyememiş olmasaydı, krediyi alabilirdi. Bankanın şeffaflık konusunda bir çıkarı olmadığı için Peter reddedilme nedenlerini hiçbir zaman bilemeyecektir, ancak bu başka bir hikâyedir.</p>
+<p>İkinci örneğimizde, sürekli bir sonuç tahmin eden bir modeli karşı-olgusal açıklamalarla açıklamak istiyoruz. Anna dairesini kiraya vermek istiyor, ancak ne kadar kira talep edeceğinden emin değil, bu nedenle kirayı tahmin etmek için bir makine öğrenmesi modeli eğitmeye karar veriyor. Elbette Anna bir veri bilimci olduğu için sorunlarını bu şekilde çözüyor. Dairenin büyüklüğü, konumu, evcil hayvanlara izin verilip verilmediği ve benzeri tüm ayrıntıları girdikten sonra model, daire için 900 EUR kira talep edebileceğini söylüyor. Anna 1000 EUR veya daha fazlasını bekliyordu, ancak modeline güveniyor ve dairenin değerini nasıl artırabileceğini görmek için dairenin özellik değerleriyle oynamaya karar veriyor. Dairenin 15 m² daha büyük olması durumunda 1000 EUR’nun üzerinde bir fiyata kiralanabileceğini öğreniyor. Bu ilginç, ancak uygulanabilir olmayan bir bilgidir; çünkü dairesini büyütemez. Son olarak, yalnızca kendi kontrolü altındaki özellik değerlerini (ankastre mutfak var/yok, evcil hayvanlara izin veriliyor/verilmiyor, zemin türü vb.) değiştirerek, evcil hayvanlara izin vermesi ve daha iyi yalıtıma sahip pencereler taktırması durumunda 1000 EUR kira talep edebileceğini öğreniyor. Anna, sonucu değiştirmek için sezgisel olarak karşı-olgusallarla çalışmıştır. Anna’nın kira tahmin modeliyle çalıştığını ve bu faktörlerin “gerçek dünyada” daha yüksek kira için gerçekten nedensel olup olmadığıyla ilgilenmek zorunda olmadığını unutmayın.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Nedensellik uyarısı">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Uyarı</span>Nedensellik uyarısı
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Varsayılan olarak, karşı-olgusallar (IML yöntemi) tek başına gerçek dünya hakkında <strong>nedensel</strong> iddiaları desteklemez. Bunun için nedensel bir model gereklidir.</p>
+</div>
+</div>
+<p>Karşı-olgusallar, mevcut örnekle karşılaştırmalı olmaları ve seçici olmaları, yani genellikle az sayıda özellik değişikliğine odaklanmaları nedeniyle <a href="https://christophm.github.io/interpretable-ml-book/interpretability.html#good-explanation">insan dostu açıklamalardır</a>. Ancak karşı-olgusallar, <strong>“Rashomon etkisi”</strong> sorunundan etkilenir. Rashomon, bir Samurayın öldürülmesinin farklı kişiler tarafından anlatıldığı bir Japon filmidir. Hikâyelerin her biri sonucu eşit derecede iyi açıklar, ancak hikâyeler birbiriyle çelişir. Aynı durum karşı-olgusallarda da ortaya çıkabilir, çünkü genellikle birden fazla farklı karşı-olgusal açıklama vardır. Her karşı-olgusal, belirli bir sonuca nasıl ulaşıldığına ilişkin farklı bir “hikâye” anlatır. Bir karşı-olgusal A özelliğinin değiştirilmesi gerektiğini söylerken, başka bir karşı-olgusal A özelliğinin aynı bırakılıp B özelliğinin değiştirilmesi gerektiğini söyleyebilir; bu da bir çelişki oluşturur. Birden fazla doğrunun bulunması sorunu, ya tüm karşı-olgusal açıklamaların raporlanmasıyla ya da karşı-olgusalları değerlendirmek ve en iyisini seçmek için bir kriter belirlenmesiyle ele alınabilir.</p>
+<p>Kriterlerden bahsetmişken, iyi bir karşı-olgusal açıklamayı nasıl tanımlarız? İlk olarak, karşı-olgusal açıklamanın kullanıcısı, bir örneğin tahmininde ilgili bir değişiklik (alternatif gerçeklik) tanımlar. İlk ve açık bir gereklilik, <strong>karşı-olgusal bir örneğin önceden tanımlanmış tahmini mümkün olduğunca yakın bir şekilde üretmesidir</strong>. Önceden tanımlanmış tahmine sahip bir karşı-olgusal bulmak her zaman mümkün değildir. Örneğin, biri nadir diğeri sık görülen iki sınıfa sahip bir sınıflandırma durumunda, model bir örneği her zaman sık görülen sınıf olarak sınıflandırabilir. Tahmin edilen etiketin sık görülen sınıftan nadir sınıfa değişmesini sağlayacak şekilde özellik değerlerini değiştirmek mümkün olmayabilir. Bu nedenle, karşı-olgusalın tahmininin önceden tanımlanmış sonuçla tam olarak eşleşmesi gerekliliğini esnetmek isteriz. Sınıflandırma örneğinde, nadir sınıfın tahmin edilen olasılığının mevcut %2 değerinden %10’a yükseltildiği bir karşı-olgusal arayabiliriz. Bu durumda soru şudur: Tahmin edilen olasılığın %2’den %10’a (veya %10’a yakın bir değere) değişmesi için özelliklerde yapılması gereken minimum değişiklikler nelerdir?</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Sınıflandırmada olasılık kullanın">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Sınıflandırmada olasılık kullanın
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sınıflandırma görevleri için karşı-olgusalı sınıf sonuçları yerine tahmin edilen olasılıklar açısından tanımlamak daha iyidir.</p>
+</div>
+</div>
+<p>Bir diğer kalite kriteri, <strong>karşı-olgusalın özellik değerleri açısından örneğe mümkün olduğunca benzer olması gerektiğidir</strong>. İki örnek arasındaki uzaklık, örneğin Manhattan uzaklığıyla veya hem ayrık hem de sürekli özelliklere sahipsek Gower uzaklığıyla ölçülebilir. Karşı-olgusal yalnızca orijinal örneğe yakın olmakla kalmamalı, aynı zamanda <strong>mümkün olduğunca az sayıda özelliği değiştirmelidir</strong>. Bir karşı-olgusal açıklamanın bu metriğe göre ne kadar iyi olduğunu ölçmek için değiştirilen özelliklerin sayısını basitçe sayabilir veya daha matematiksel bir ifadeyle, karşı-olgusal örnek ile gerçek örnek arasındaki normu ölçebiliriz.</p>
+<p>Üçüncü olarak, kararın öznesinin farklı bir sonuç elde etmek için birden fazla uygulanabilir yönteme erişebilmesi amacıyla <strong>birden fazla ve çeşitli karşı-olgusal açıklama</strong> oluşturmak genellikle tercih edilir. Örneğin, kredi örneğimize devam edersek, bir karşı-olgusal açıklama kredi alabilmek için yalnızca gelirin iki katına çıkarılmasını önerebilirken, başka bir karşı-olgusal açıklama yakın bir şehre taşınmayı ve geliri küçük bir miktar artırmayı önerebilir. İlk karşı-olgusal bazı kişiler için mümkün olabilirken, ikincisinin diğer kişiler için daha uygulanabilir olabileceği belirtilebilir. Dolayısıyla çeşitlilik, kararın öznesine istenen sonucu elde etmek için farklı yollar sunmanın yanı sıra, “farklı” bireylerin kendileri için uygun olan özellikleri değiştirmelerine de olanak tanır.</p>
+<p>Son gereklilik, <strong>karşı-olgusal bir örneğin olası özellik değerlerine sahip olması gerektiğidir</strong>. Kira örneğinde, bir dairenin büyüklüğünün negatif olduğu veya oda sayısının 200 olarak belirlendiği bir karşı-olgusal açıklama oluşturmak anlamlı olmazdı. Karşı-olgusalın verilerin ortak dağılımına göre olası olması daha da iyidir; örneğin, 10 odalı ve 20 m² büyüklüğündeki bir daire karşı-olgusal bir açıklama olarak değerlendirilmemelidir. İdeal olarak, metrekare sayısı artırıldığında oda sayısında da bir artış önerilmelidir.</p>
+<section id="karşı-olgusal-açıklamaların-üretilmesi" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="karşı-olgusal-açıklamaların-üretilmesi"><span class="header-section-number">1</span> Karşı-olgusal açıklamaların üretilmesi</h2>
+<p>Karşı-olgusal açıklamalar oluşturmak için basit ve naif bir yaklaşım, deneme yanılma yoluyla arama yapmaktır. Bu yaklaşım, ilgilenilen örneğin özellik değerlerini rastgele değiştirmeyi ve istenen çıktı tahmin edildiğinde durmayı içerir. Bu, Anna’nın daha yüksek kira talep edebileceği bir daire versiyonu bulmaya çalıştığı örneğe benzer. Ancak deneme yanılmadan daha iyi yaklaşımlar vardır.</p>
+<p>İlk olarak, yukarıda belirtilen kriterlere dayalı bir kayıp fonksiyonu tanımlarız. Bu kayıp fonksiyonu girdi olarak ilgilenilen örneği, bir karşı-olgusalı ve istenen (karşı-olgusal) sonucu alır. Daha sonra, bir optimizasyon algoritması kullanarak bu kaybı en aza indiren karşı-olgusal açıklamayı bulabiliriz. Birçok yöntem bu şekilde ilerler, ancak kayıp fonksiyonunun tanımlanması ve optimizasyon yöntemi açısından birbirlerinden farklılık gösterir.</p>
+<p>Aşağıda bunlardan ikisine odaklanıyoruz: İlk olarak, karşı-olgusal açıklamayı bir yorumlama yöntemi olarak tanıtan Wachter, Mittelstadt ve Russell’ın (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-wachter2018counterfactual">2018</a>) yöntemine ve ikinci olarak, yukarıda belirtilen dört kriterin tümünü dikkate alan Dandl ve diğerlerinin (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-dandl2020multiobjective">2020</a>) yöntemine odaklanıyoruz.</p>
+<section id="wachter-ve-diğerlerinin-yöntemi" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="wachter-ve-diğerlerinin-yöntemi"><span class="header-section-number">1.1</span> Wachter ve diğerlerinin yöntemi</h3>
+<p>Wachter ve diğerleri, aşağıdaki kayıp fonksiyonunun en aza indirilmesini önermektedir:</p>
+<p><span class="math display">\[
+L(\mathbf{x}, \mathbf{x}', y', \lambda)
+= \lambda\bigl(\hat{f}(\mathbf{x}')-y'\bigr)^2
++ d(\mathbf{x},\mathbf{x}').
+\]</span></p>
+<p>İlk terim, karşı-olgusal <span class="math inline">\(x'\)</span> için model tahmini ile kullanıcının önceden tanımlaması gereken istenen sonuç <span class="math inline">\(y'\)</span> arasındaki karesel uzaklıktır. İkinci terim, açıklanacak örnek <span class="math inline">\(x\)</span> ile karşı-olgusal <span class="math inline">\(x'\)</span> arasındaki <span class="math inline">\(d\)</span> uzaklığıdır. Kayıp, karşı-olgusalın tahmin edilen sonucunun önceden tanımlanmış sonuçtan ne kadar uzak olduğunu ve karşı-olgusalın ilgilenilen örnekten ne kadar uzak olduğunu ölçer. <span class="math inline">\(d\)</span> uzaklık fonksiyonu, her bir özelliğin medyan mutlak sapmasının (MAD) tersi ile ağırlıklandırılmış Manhattan uzaklığı olarak tanımlanır.</p>
+<p><span class="math display">\[
+d(\mathbf{x},\mathbf{x}')
+=\sum_{j=1}^{p}\frac{|x_j-x'_j|}{MAD_j}.
+\]</span></p>
+<p>Toplam uzaklık, tüm <span class="math inline">\(p\)</span> özellik bazındaki uzaklıkların toplamıdır; yani, <span class="math inline">\(x\)</span> örneği ile karşı-olgusal <span class="math inline">\(x'\)</span> arasındaki özellik değerlerinin mutlak farklarının toplamıdır. Özellik bazındaki uzaklıklar, veri kümesi üzerindeki <span class="math inline">\(j\)</span> özelliğinin medyan mutlak sapmasının tersi ile ölçeklendirilir ve şu şekilde tanımlanır:</p>
+<p><span class="math display">\[
+MAD_j=
+\operatorname{median}_{i\in\{1,\ldots,n\}}
+\left(
+\left|x_j^{(i)}-
+\operatorname{median}_{l\in\{1,\ldots,n\}}(x_j^{(l)})
+\right|
+\right).
+\]</span></p>
+<p>Bir vektörün medyanı, vektördeki değerlerin yarısının kendisinden büyük, diğer yarısının ise kendisinden küçük olduğu değerdir. MAD, bir özelliğin varyansının eşdeğeridir; ancak merkez olarak ortalamayı kullanmak ve karesel uzaklıkları toplamak yerine, merkez olarak medyanı kullanır ve mutlak uzaklıkları toplarız. Önerilen uzaklık fonksiyonunun Öklid uzaklığına göre avantajı, aykırı değerlere karşı daha dayanıklı olmasıdır. MAD ile ölçeklendirme, tüm özellikleri aynı ölçeğe getirmek için gereklidir – bir dairenin büyüklüğünü metrekare veya fit kare cinsinden ölçmeniz fark etmemelidir.</p>
+<p><span class="math inline">\(\lambda\)</span> parametresi, tahmindeki uzaklık (birinci terim) ile özellik değerlerindeki uzaklık (ikinci terim) arasındaki dengeyi sağlar. Kayıp, belirli bir <span class="math inline">\(\lambda\)</span> değeri için çözülür ve bir karşı-olgusal <span class="math inline">\(x'\)</span> döndürür. Daha yüksek bir <span class="math inline">\(\lambda\)</span> değeri, istenen sonuç <span class="math inline">\(y'\)</span> değerine yakın tahminlere sahip karşı-olgusalları tercih ettiğimiz anlamına gelirken, daha düşük bir değer, özellik değerleri açısından <span class="math inline">\(x\)</span>’e çok benzeyen karşı-olgusal <span class="math inline">\(x'\)</span> değerlerini tercih ettiğimiz anlamına gelir. Eğer <span class="math inline">\(\lambda\)</span> çok büyükse, <span class="math inline">\(x\)</span>’ten ne kadar uzakta olduğuna bakılmaksızın, tahmini <span class="math inline">\(y'\)</span> değerine en yakın olan örnek seçilecektir.</p>
+<p>Sonuç olarak kullanıcı, karşı-olgusalın tahmininin istenen sonuçla eşleşmesi gerekliliği ile karşı-olgusalın <span class="math inline">\(x\)</span>’e benzer olması gerekliliği arasında nasıl bir denge kurulacağına karar vermelidir. Yöntemin yazarları, <span class="math inline">\(\lambda\)</span> için bir değer seçmek yerine, karşı-olgusal örneğin tahmininin <span class="math inline">\(y'\)</span> değerinden ne kadar uzakta olmasına izin verileceğini belirleyen bir tolerans <span class="math inline">\(\epsilon\)</span> seçilmesini önermektedir. Bu kısıt şu şekilde yazılabilir:</p>
+<p><span class="math display">\[
+|\hat f(\mathbf{x}')-y'|\leq\epsilon.
+\]</span></p>
+<p>Bu kayıp fonksiyonunu en aza indirmek için Nelder-Mead gibi uygun herhangi bir optimizasyon algoritması kullanılabilir. Makine öğrenmesi modelinin gradyanlarına erişiminiz varsa, ADAM gibi gradyan tabanlı yöntemleri kullanabilirsiniz. Açıklanacak örnek <span class="math inline">\(x\)</span>, istenen çıktı <span class="math inline">\(y'\)</span> ve tolerans parametresi <span class="math inline">\(\epsilon\)</span> önceden belirlenmelidir. Kayıp fonksiyonu <span class="math inline">\(x'\)</span> için en aza indirilir ve yeterince yakın bir çözüm bulunana kadar <span class="math inline">\(\lambda\)</span> artırılarak (yerel olarak) optimal karşı-olgusal <span class="math inline">\(x'\)</span> döndürülür (= tolerans parametresi dahilinde):</p>
+<p><span class="math display">\[
+\arg\min_{\mathbf{x}'}\max_{\lambda}
+L(\mathbf{x},\mathbf{x}',y',\lambda).
+\]</span></p>
+<section id="algoritma-adımları" class="level4" data-number="1.1.1">
+<h4 data-number="1.1.1" class="anchored" data-anchor-id="algoritma-adımları"><span class="header-section-number">1.1.1</span> Algoritma adımları</h4>
+<ol type="1">
+<li>Açıklanacak bir <span class="math inline">\(x\)</span> örneği, istenen sonuç <span class="math inline">\(y'\)</span>, bir tolerans <span class="math inline">\(\epsilon\)</span> ve <span class="math inline">\(\lambda\)</span> için (düşük) bir başlangıç değeri seçin.</li>
+<li>Başlangıç karşı-olgusalı olarak rastgele bir örnek seçin.</li>
+<li>Başlangıç noktası olarak ilk seçilen karşı-olgusalı kullanarak kaybı optimize edin.</li>
+<li><span class="math inline">\(|\hat{f}(x') - y'| &gt; \epsilon\)</span> olduğu sürece:
+<ul>
+<li><span class="math inline">\(\lambda\)</span> değerini artırın.</li>
+<li>Mevcut karşı-olgusalı başlangıç noktası olarak kullanarak kaybı optimize edin.</li>
+<li>Kaybı en aza indiren karşı-olgusalı döndürün.</li>
+</ul></li>
+<li>2-4. adımları tekrarlayın ve karşı-olgusalların listesini veya kaybı en aza indiren karşı-olgusalı döndürün.</li>
+</ol>
+<p>Önerilen yöntemin bazı dezavantajları vardır. <strong>Yalnızca birinci ve ikinci kriterleri dikkate alır</strong>, son iki kriteri (“yalnızca birkaç özellik değişikliği ve olası özellik değerleri içeren karşı-olgusallar üretme”) dikkate almaz. <span class="math inline">\(d\)</span>, seyrek çözümleri tercih etmez; çünkü 10 özelliği 1 artırmak, <span class="math inline">\(x\)</span>’e olan uzaklık açısından bir özelliği 10 artırmakla aynı sonucu verir. Gerçekçi olmayan özellik kombinasyonları cezalandırılmaz.</p>
+<p>Yöntem, çok sayıda farklı seviyeye sahip <strong>kategorik özellikleri iyi bir şekilde ele alamaz</strong>. Yöntemin yazarları, yöntemin kategorik özelliklerin her bir özellik değeri kombinasyonu için ayrı ayrı çalıştırılmasını önermiştir; ancak çok sayıda değere sahip birden fazla kategorik özellik olduğunda bu durum kombinatoryal bir patlamaya yol açacaktır. Örneğin, her biri on benzersiz seviyeye sahip altı kategorik özellik, yöntemin bir milyon kez çalıştırılması anlamına gelir.</p>
+<p>Şimdi bu sorunların üstesinden gelen başka bir yaklaşıma bakalım.</p>
+</section>
+</section>
+<section id="dandl-ve-diğerlerinin-yöntemi" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="dandl-ve-diğerlerinin-yöntemi"><span class="header-section-number">1.2</span> Dandl ve diğerlerinin yöntemi</h3>
+<p>Dandl ve diğerleri, dört amaçlı bir kayıp fonksiyonunun eş zamanlı olarak en aza indirilmesini önermektedir:</p>
+<p><span class="math display">\[
+L(\mathbf{x},\mathbf{x}',y',\mathbf{X}^{\mathrm{obs}})
+=\Bigl(
+o_1(\hat f(\mathbf{x}'),y'),
+o_2(\mathbf{x},\mathbf{x}'),
+o_3(\mathbf{x},\mathbf{x}'),
+o_4(\mathbf{x}',\mathbf{X}^{\mathrm{obs}})
+\Bigr).
+\]</span></p>
+<p>Dört amaçtan <span class="math inline">\(o_1\)</span> ile <span class="math inline">\(o_4\)</span> arasındaki her biri, yukarıda belirtilen dört kriterden birine karşılık gelir. İlk amaç <span class="math inline">\(o_1\)</span>, karşı-olgusalımız <span class="math inline">\(x'\)</span> için tahminin, istenen tahminimiz <span class="math inline">\(y'\)</span> değerine mümkün olduğunca yakın olması gerektiğini ifade eder. Bu nedenle, <span class="math inline">\(\hat{f}(x')\)</span> ile <span class="math inline">\(y'\)</span> arasındaki uzaklığı en aza indirmek isteriz; burada bu uzaklık Manhattan metriği (<span class="math inline">\(L_1\)</span> normu) ile hesaplanır:</p>
+<p><span class="math display">\[
+o_1(\hat f(\mathbf{x}'),y')=
+\begin{cases}
+0, &amp; \hat f(\mathbf{x}')\in y',\\
+\displaystyle\inf_{z\in y'}|\hat f(\mathbf{x}')-z|, &amp; \text{aksi hâlde}.
+\end{cases}
+\]</span></p>
+<p>İkinci amaç <span class="math inline">\(o_2\)</span>, karşı-olgusalımızın <span class="math inline">\(x\)</span> örneğimize mümkün olduğunca benzer olması gerektiğini ifade eder. <span class="math inline">\(x'\)</span> ile <span class="math inline">\(x\)</span> arasındaki uzaklığı Gower uzaklığı olarak ölçer: <span class="math display">\[
+o_2(\mathbf{x},\mathbf{x}')
+=\frac{1}{p}\sum_{j=1}^{p}\delta_G(x_j,x'_j),
+\]</span></p>
+<p>burada <span class="math inline">\(p\)</span> özellik sayısıdır. <span class="math inline">\(\delta_G\)</span> değeriyse <span class="math inline">\(x_j\)</span>’nin özellik türüne bağlıdır: <span class="math display">\[
+\delta_G(x_j,x'_j)=
+\begin{cases}
+\dfrac{|x_j-x'_j|}{\widehat R_j}, &amp; x_j \text{ sayısal ise},\\
+\mathbb{I}_{x_j\neq x'_j}, &amp; x_j \text{ kategorik ise}.
+\end{cases}
+\]</span></p>
+<p>Sayısal bir <span class="math inline">\(j\)</span> özelliğinin uzaklığının gözlemlenen değer aralığı olan <span class="math inline">\(\widehat{R}_j\)</span>’ye bölünmesi, tüm özellikler için <span class="math inline">\(\delta_G\)</span> değerini 0 ile 1 arasında ölçeklendirir.</p>
+<p>Gower uzaklığı hem sayısal hem de kategorik özellikleri ele alabilir, ancak kaç özelliğin değiştirildiğini hesaba katmaz. Bu nedenle, üçüncü amaç <span class="math inline">\(o_3\)</span>’te değiştirilen özelliklerin sayısını <span class="math inline">\(L_0\)</span> normunu kullanarak sayarız:</p>
+<p><span class="math display">\[
+o_3(\mathbf{x},\mathbf{x}')
+=\|\mathbf{x}-\mathbf{x}'\|_0
+=\sum_{j=1}^{p}\mathbb{I}_{x'_j\neq x_j}.
+\]</span></p>
+<p><span class="math inline">\(o_3\)</span>’ü en aza indirerek üçüncü kriterimiz olan seyrek özellik değişikliklerini hedefleriz.</p>
+<p>Dördüncü amaç <span class="math inline">\(o_4\)</span>, karşı-olgusallarımızın olası özellik değeri kombinasyonlarına sahip olması gerektiğini ifade eder. Bir veri noktasının ne kadar “olası” olduğunu eğitim verilerini veya başka bir veri kümesini kullanarak çıkarabiliriz. Bu veri kümesini <span class="math inline">\(\mathbf{X}^{\mathrm{obs}}\)</span> olarak gösteririz. Olasılığın bir yaklaşımı olarak <span class="math inline">\(o_4\)</span>, <span class="math inline">\(x'\)</span> ile gözlemlenen en yakın veri noktası <span class="math inline">\(x^{[1]} \in \mathbf{X}^{\mathrm{obs}}\)</span> arasındaki ortalama Gower uzaklığını ölçer:</p>
+<p><span class="math display">\[
+o_4(\mathbf{x}',\mathbf{X}^{\mathrm{obs}})
+=\frac{1}{p}\sum_{j=1}^{p}\delta_G(x'_j,x_j^{[1]}).
+\]</span></p>
+<p>Wachter ve diğerlerinin yöntemine kıyasla, <span class="math inline">\(L(\mathbf{x}, \mathbf{x}', y', \mathbf{X}^{\mathrm{obs}})\)</span>, <span class="math inline">\(\lambda\)</span> gibi dengeleme/ağırlıklandırma terimlerine sahip değildir. Dört amaç olan <span class="math inline">\(o_1\)</span>, <span class="math inline">\(o_2\)</span>, <span class="math inline">\(o_3\)</span> ve <span class="math inline">\(o_4\)</span>’ü toplayıp ağırlıklandırarak tek bir amaç altında birleştirmek istemiyoruz; bunun yerine dört terimin tamamını eş zamanlı olarak optimize etmek istiyoruz.</p>
+<section id="nsga-ii-ile-çok-amaçlı-arama" class="level4" data-number="1.2.1">
+<h4 data-number="1.2.1" class="anchored" data-anchor-id="nsga-ii-ile-çok-amaçlı-arama"><span class="header-section-number">1.2.1</span> NSGA-II ile çok amaçlı arama</h4>
+<p>Bunu nasıl yapabiliriz? <strong>Nondominated Sorting Genetic Algorithm</strong> (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-deb2002fast">Deb ve diğerleri, 2002</a>) veya kısaca NSGA-II’yi kullanırız. NSGA-II, Darwin’in “en uygun olanın hayatta kalması” ilkesini uygulayan, doğadan esinlenen bir algoritmadır. Bir karşı-olgusalın uygunluğunu, amaç değerlerinin vektörü <span class="math inline">\((o_1, o_2, o_3, o_4)\)</span> ile gösteririz. Bir karşı-olgusal için amaçların değerleri ne kadar düşükse, o kadar “uygun”dur.</p>
+<p>Algoritma, bir durdurma kriteri karşılanana kadar tekrarlanan dört adımdan oluşur; örneğin, maksimum iterasyon/nesil sayısına ulaşılması. <a href="#fig-nsgaii-cf" class="quarto-xref">Şekil&nbsp;2</a>, bir neslin dört adımını görselleştirmektedir.</p>
+<div id="fig-nsgaii-cf" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nsgaii-cf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/figure-15-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nsgaii-cf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: NSGA-II algoritmasının bir nesli: seçim, yeniden birleştirme, mutasyon ve baskın olmayan sıralama/çeşitlilik temelli yeni nesil seçimi.
+</figcaption>
+</figure>
+</div>
+<p>İlk nesilde, açıklanacak <span class="math inline">\(x\)</span> örneğimize kıyasla bazı özellikler rastgele değiştirilerek bir grup karşı-olgusal aday başlatılır. Yukarıdaki kredi örneğine devam edersek, bir karşı-olgusal gelirin €30.000 artırılmasını önerebilirken, başka bir karşı-olgusal son beş yıl içinde temerrüde düşülmemesini ve yaşın on yıl azaltılmasını önerebilir. Diğer tüm özellik değerleri <span class="math inline">\(x\)</span>’in değerlerine eşittir.</p>
+<p>Daha sonra her aday, yukarıdaki dört amaç fonksiyonu kullanılarak değerlendirilir. Bunlar arasından bazı adayları rastgele seçeriz; daha uygun adayların seçilme olasılığı daha yüksektir. Adaylar, sayısal özellik değerlerinin ortalaması alınarak veya kategorik özellikleri çaprazlanarak kendilerine benzer çocuklar üretmek üzere ikili olarak yeniden birleştirilir. Ayrıca, tüm özellik uzayını keşfetmek için çocukların özellik değerlerini küçük ölçüde mutasyona uğratırız.</p>
+<p>Ortaya çıkan iki gruptan, biri ebeveynlerden diğeri çocuklardan oluşan gruplardan, iki sıralama algoritması kullanarak yalnızca en iyi yarısını seçmek isteriz. Baskılanmayan sıralama (nondominated sorting) algoritması, adayları amaç değerlerine göre sıralar. Adaylar eşit derecede iyiyse, yığılma uzaklığı sıralama (crowding distance sorting) algoritması adayları çeşitliliklerine göre sıralar.</p>
+<p>İki sıralama algoritmasının oluşturduğu sıralamaya göre, en umut verici ve/veya en çeşitli adayların yarısını seçeriz. Bu kümeyi bir sonraki nesil için kullanır ve seçim, yeniden birleştirme ve mutasyon sürecine tekrar başlarız. Adımları tekrar tekrar uygulayarak, düşük amaç değerlerine sahip çeşitli ve umut verici adaylardan oluşan bir kümeye yaklaşmayı umarız. Bu kümeden en çok memnun olduğumuz adayları seçebilir veya hangi özelliklerin ne sıklıkta değiştirildiğini vurgulayarak tüm karşı-olgusalların bir özetini sunabiliriz.</p>
+</section>
+</section>
+</section>
+<section id="örnek" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="örnek"><span class="header-section-number">2</span> Örnek</h2>
+<p>Aşağıdaki örnek, Dandl ve diğerlerinin (2020) çalışmasındaki kredi veri kümesi örneğine dayanmaktadır. German Credit Risk veri kümesi, makine öğrenmesi yarışmaları platformu olan <a href="https://www.kaggle.com/uciml/german-credit">kaggle.com</a> üzerinde bulunabilir. Yazarlar, bir müşterinin iyi bir kredi riskine sahip olma olasılığını tahmin etmek için bir destek vektör makinesi (radyal tabanlı çekirdek ile) eğitmiştir. İlgili veri kümesi, 522 eksiksiz gözlemden ve kredi ile müşteri bilgilerini içeren dokuz özellikten oluşmaktadır.</p>
+<p>Amaç, <a href="#tbl-customer" class="quarto-xref">Tablo&nbsp;1</a> ’deki özellik değerlerine sahip bir müşteri için karşı-olgusal açıklamalar bulmaktır.</p>
+<div id="tbl-customer" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-customer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;1: Belirli bir müşterinin özellik değerleri
+</figcaption>
+<div aria-describedby="tbl-customer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">yaş</th>
+<th style="text-align: center;">cinsiyet</th>
+<th style="text-align: left;">iş</th>
+<th style="text-align: left;">konut</th>
+<th style="text-align: left;">birikim</th>
+<th style="text-align: right;">tutar</th>
+<th style="text-align: right;">süre</th>
+<th style="text-align: left;">amaç</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">58</td>
+<td style="text-align: center;">kadın</td>
+<td style="text-align: left;">vasıfsız</td>
+<td style="text-align: left;">bedelsiz</td>
+<td style="text-align: left;">az</td>
+<td style="text-align: right;">6143</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: left;">otomobil</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>SVM, kişinin iyi bir kredi riskine sahip olma olasılığını %24,2 olarak tahmin etmektedir. Karşı-olgusallar, %50’den daha yüksek bir tahmin olasılığı elde etmek için girdi özelliklerinin nasıl değiştirilmesi gerektiği sorusuna yanıt vermelidir. <a href="#tbl-best-counterfactuals" class="quarto-xref">Tablo&nbsp;2</a> en iyi on karşı-olgusalı göstermektedir. İlk beş sütun önerilen özellik değişikliklerini içerir (yalnızca değiştirilen özellikler gösterilmektedir), sonraki üç sütun amaç değerlerini gösterir (<span class="math inline">\(o_1\)</span> tüm durumlarda 0’a eşittir) ve son sütun tahmin edilen olasılığı gösterir.</p>
+<div id="tbl-best-counterfactuals" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-best-counterfactuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;2: Müşteri için bulunan en iyi on karşı-olgusal
+</figcaption>
+<div aria-describedby="tbl-best-counterfactuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">yaş</th>
+<th style="text-align: center;">cinsiyet</th>
+<th style="text-align: left;">iş</th>
+<th style="text-align: right;">tutar</th>
+<th style="text-align: right;">süre</th>
+<th style="text-align: right;"><span class="math inline">\(o_2\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(o_3\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(o_4\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(f(x')\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-20</td>
+<td style="text-align: right;">0.108</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.036</td>
+<td style="text-align: right;">0.501</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.029</td>
+<td style="text-align: right;">0.525</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-22</td>
+<td style="text-align: right;">0.111</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">0.513</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-6</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.126</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">0.505</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-3</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.120</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.515</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-1</td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.116</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">0.522</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-3</td>
+<td style="text-align: center;">erkek</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.195</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.012</td>
+<td style="text-align: right;">0.501</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-6</td>
+<td style="text-align: center;">erkek</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-25</td>
+<td style="text-align: right;">0.202</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">0.501</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-30</td>
+<td style="text-align: center;">erkek</td>
+<td style="text-align: left;">vasıflı</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.285</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.590</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-4</td>
+<td style="text-align: center;">erkek</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;">-1254</td>
+<td style="text-align: right;">-24</td>
+<td style="text-align: right;">0.204</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.506</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Tüm karşı-olgusalların tahmin edilen olasılıkları %50’den büyüktür ve hiçbiri diğerine baskın değildir. Baskın olmama (nondominated), karşı-olgusalların hiçbirinin tüm amaçlarda diğer karşı-olgusallardan daha küçük değerlere sahip olmadığı anlamına gelir. Karşı-olgusallarımızı bir ödünleşim (trade-off) çözümleri kümesi olarak düşünebiliriz.</p>
+<p>Tüm karşı-olgusallar, sürenin 48 aydan en az 23 aya düşürülmesini önermektedir ve bazıları kadının vasıfsız yerine vasıflı hale gelmesini önermektedir. Bazı karşı-olgusallar, cinsiyetin kadından erkeğe değiştirilmesini bile önermektedir; bu da modeldeki cinsiyet yanlılığını göstermektedir. Bu değişikliğe her zaman yaşın bir ile 30 yıl arasında azaltılması eşlik etmektedir. Ayrıca, bazı karşı-olgusallar dört özellikte değişiklik önermesine rağmen, bu karşı-olgusalların eğitim verilerine en yakın olanlar olduğunu da görebiliriz.</p>
+</section>
+<section id="güçlü-yönler" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="güçlü-yönler"><span class="header-section-number">3</span> Güçlü yönler</h2>
+<p><strong>Karşı-olgusal açıklamaların yorumlanması oldukça açıktır</strong>. Bir örneğin özellik değerleri karşı-olgusala göre değiştirilirse, tahmin önceden tanımlanmış tahmine dönüşür. Ek varsayımlar veya arka planda herhangi bir sihir yoktur. Bu aynı zamanda karşı-olgusalların, yorumlama için yerel modeli ne kadar uzağa ekstrapole edebileceğimizin belirsiz olduğu <a href="https://christophm.github.io/interpretable-ml-book/lime.html">LIME</a> gibi yöntemler kadar tehlikeli olmadığı anlamına gelir.</p>
+<p>Karşı-olgusal yöntem yeni bir örnek oluşturur, ancak hangi özellik değerlerinin değiştiğini bildirerek bir karşı-olgusalı özetleyebiliriz. Bu, <strong>sonuçlarımızı raporlamak için bize iki seçenek sunar</strong>. Karşı-olgusal örneği raporlayabilir veya ilgilenilen örnek ile karşı-olgusal örnek arasında hangi özelliklerin değiştirildiğini vurgulayabilirsiniz.</p>
+<p><strong>Karşı-olgusal yöntem, verilere veya modele erişim gerektirmez</strong>. Yalnızca modelin tahmin fonksiyonuna erişim gerektirir; bu, örneğin bir web API’si aracılığıyla da çalışabilir. Bu özellik, üçüncü taraflarca denetlenen veya modeli ya da verileri açıklamadan kullanıcılara açıklamalar sunan şirketler için caziptir. Bir şirket, ticari sırlar veya veri koruma nedenleriyle modelini ve verilerini korumak ister. Karşı-olgusal açıklamalar, model tahminlerini açıklamak ile model sahibinin çıkarlarını korumak arasında bir denge sunar.</p>
+<p>Yöntem, <strong>makine öğrenmesi kullanmayan sistemlerle de çalışır</strong>. Girdileri alan ve çıktıları döndüren herhangi bir sistem için karşı-olgusallar oluşturabiliriz. Daire kiralarını tahmin eden sistem, elle yazılmış kurallardan da oluşabilir ve karşı-olgusal açıklamalar yine de çalışır.</p>
+<p><strong>Karşı-olgusal açıklama yönteminin uygulanması nispeten kolaydır</strong>, çünkü esas olarak standart optimizasyon kütüphaneleriyle optimize edilebilen bir kayıp fonksiyonudur (tek veya birden fazla amaç içeren). Özellik değerlerinin anlamlı aralıklarla sınırlandırılması (örneğin, daire büyüklüklerinin yalnızca pozitif olması) gibi bazı ek ayrıntıların dikkate alınması gerekir.</p>
+<p>Karşı-olgusallar, doğru ve basit oldukları için <strong>gerekçelendirme amacı, özellikle de telafi (recourse) açısından kullanışlıdır</strong>. Diğer yorumlama yöntemleriyle karşılaştırıldığında, Shapley değerleri gibi yalnızca bir şeyin tahmini değildirler. Karşı-olgusallar, modelin ne tahmin ettiğini raporlayabileceğimiz, yeni oluşturulmuş veri örnekleridir.</p>
+</section>
+<section id="sınırlılıklar" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sınırlılıklar"><span class="header-section-number">4</span> Sınırlılıklar</h2>
+<p><strong>Her bir örnek için genellikle birden fazla karşı-olgusal açıklama bulursunuz (Rashomon etkisi).</strong> Bu durum elverişsizdir; çoğu insan gerçek dünyanın karmaşıklığı yerine basit açıklamaları tercih eder. Aynı zamanda pratik bir zorluktur. Bir örnek için 23 karşı-olgusal açıklama oluşturduğumuzu varsayalım. Bunların hepsini mi raporlayacağız? Yalnızca en iyisini mi? Ya hepsi nispeten “iyi”, ancak birbirlerinden çok farklıysa? Bu soruların her proje için yeniden yanıtlanması gerekir. Birden fazla karşı-olgusal açıklamaya sahip olmak avantajlı da olabilir, çünkü insanlar bu durumda önceki bilgileriyle örtüşen açıklamaları seçebilirler.</p>
+<p>Karşı-olgusallar, <strong>model ve veri hakkında içgörü elde etmek için o kadar kullanışlı değildir</strong>, çünkü karşı-olgusallardan elde edilen içgörüler tek bir örneğe ve tek bir karşı-olgusal tahmine özgüdür. Bu, diğer yerel yöntemlerle karşılaştırıldığında bile oldukça sınırlı bir içgörüdür.</p>
+</section>
+<section id="yazılım-ve-alternatifler" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="yazılım-ve-alternatifler"><span class="header-section-number">5</span> Yazılım ve alternatifler</h2>
+<p>Dandl ve diğerleri tarafından geliştirilen çok amaçlı karşı-olgusal açıklama yöntemi bir <a href="https://github.com/susanne-207/moc/tree/master/counterfactuals">GitHub deposunda</a> uygulanmıştır.</p>
+<p>Python paketi <a href="https://github.com/SeldonIO/alibi">Alibi</a> içerisinde yazarlar, <a href="https://docs.seldon.io/projects/alibi/en/stable/methods/CF.html">basit bir karşı-olgusal yöntemin</a> yanı sıra, algoritma çıktılarının yorumlanabilirliğini ve yakınsamasını iyileştirmek için sınıf prototiplerini kullanan <a href="https://docs.seldon.io/projects/alibi/en/stable/methods/CFProto.html">genişletilmiş bir yöntem</a> de uygulamıştır (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-vanlooveren2021interpretable">Van Looveren ve Klaise, 2021</a>).</p>
+<p>Karimi ve diğerleri (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-karimi2020modelagnostic">2020</a>) de MACE algoritmalarının Python uygulamasını bir <a href="https://github.com/amirhk/mace">GitHub deposunda</a> sunmuştur. Uygun karşı-olgusallar için gerekli kriterleri mantıksal formüllere dönüştürmüş ve bu kriterleri karşılayan karşı-olgusalları bulmak için tatmin edilebilirlik çözücüleri (satisfiability solvers) kullanmışlardır.</p>
+<p>Mothilal, Sharma ve Tan (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-mothilal2020explaining">2020</a>), determinantal nokta süreçlerine dayalı çeşitli karşı-olgusal açıklamalar kümesi oluşturmak için <a href="https://github.com/interpretml/DiCE">DiCE (Diverse Counterfactual Explanation)</a> yöntemini geliştirmiştir. DiCE, hem modelden bağımsız hem de gradyan tabanlı bir yöntem uygular.</p>
+<p>Karşı-olgusalları aramanın bir başka yolu, Laugel ve diğerleri (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-laugel2017inverse">2017</a>) tarafından geliştirilen Growing Spheres algoritmasıdır. Makalelerinde karşı-olgusal terimini kullanmasalar da yöntem oldukça benzerdir. Onlar da özellik değerlerinde mümkün olduğunca az değişiklik içeren karşı-olgusalları tercih eden bir kayıp fonksiyonu tanımlarlar. Fonksiyonu doğrudan optimize etmek yerine, önce ilgilenilen noktanın etrafında bir küre oluşturmayı, bu küre içerisinden noktalar örneklemeyi ve örneklenen noktalardan birinin istenen tahmini üretip üretmediğini kontrol etmeyi önerirler. Daha sonra, (seyrek) bir karşı-olgusal bulunana kadar küreyi buna göre daraltır veya genişletir ve son olarak bulunan karşı-olgusalı döndürürler.</p>
+<p>Ribeiro, Singh ve Guestrin (<a href="https://christophm.github.io/interpretable-ml-book/references.html#ref-ribeiro2018anchors">2018</a>) tarafından geliştirilen Anchors, karşı-olgusalların tersidir; <a href="https://christophm.github.io/interpretable-ml-book/anchors.html">Kapsamlı Kurallar (Anchors)</a> bölümüne bakınız.</p>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Dipnotlar</h2>
+
+<ol>
+<li id="fn1"><p>“Karşı-olgusal” terimi birden fazla alanda kullanılır. Nedensel çıkarımda varsayımsal nedensel müdahalelerle ilişkili, daha özel bir anlam taşır.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

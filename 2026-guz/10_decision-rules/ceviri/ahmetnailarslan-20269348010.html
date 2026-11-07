@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ahmet Nail Arslan (20269348010)">
+
+<title>Karar Kuralları</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="ahmetnailarslan-20269348010_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ahmetnailarslan-20269348010_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="ahmetnailarslan-20269348010_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="ahmetnailarslan-20269348010_files/libs/quarto-html/popper.min.js"></script>
+<script src="ahmetnailarslan-20269348010_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ahmetnailarslan-20269348010_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ahmetnailarslan-20269348010_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ahmetnailarslan-20269348010_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ahmetnailarslan-20269348010_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ahmetnailarslan-20269348010_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ahmetnailarslan-20269348010_files/libs/bootstrap/bootstrap-62e2d20df198e8a01bb734742f2e28cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#tek-bir-öznitelikten-kural-öğrenme-oner" id="toc-tek-bir-öznitelikten-kural-öğrenme-oner" class="nav-link active" data-scroll-target="#tek-bir-öznitelikten-kural-öğrenme-oner"><span class="header-section-number">1</span> Tek bir öznitelikten kural öğrenme (OneR)</a></li>
+  <li><a href="#sıralı-kapsama" id="toc-sıralı-kapsama" class="nav-link" data-scroll-target="#sıralı-kapsama"><span class="header-section-number">2</span> Sıralı kapsama</a></li>
+  <li><a href="#bayesçi-kural-listeleri" id="toc-bayesçi-kural-listeleri" class="nav-link" data-scroll-target="#bayesçi-kural-listeleri"><span class="header-section-number">3</span> Bayesçi Kural Listeleri</a></li>
+  <li><a href="#güçlü-yönler" id="toc-güçlü-yönler" class="nav-link" data-scroll-target="#güçlü-yönler"><span class="header-section-number">4</span> Güçlü yönler</a></li>
+  <li><a href="#sınırlılıklar" id="toc-sınırlılıklar" class="nav-link" data-scroll-target="#sınırlılıklar"><span class="header-section-number">5</span> Sınırlılıklar</a></li>
+  <li><a href="#yazılım-ve-alternatifler" id="toc-yazılım-ve-alternatifler" class="nav-link" data-scroll-target="#yazılım-ve-alternatifler"><span class="header-section-number">6</span> Yazılım ve alternatifler</a></li>
+  <li><a href="#kaynaklar" id="toc-kaynaklar" class="nav-link" data-scroll-target="#kaynaklar">Kaynaklar</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Karar Kuralları</h1>
+<p class="subtitle lead">Bölüm 10</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ahmet Nail Arslan (20269348010) </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Çeviri kaynağı:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, 3. baskı (2025), <a href="https://christophm.github.io/interpretable-ml-book/rules.html">Bölüm 10: Decision Rules</a>. Özgün eser CC BY-NC-SA 4.0 lisanslıdır. Teknik terimler, gerekli olduğu yerlerde İngilizce karşılıklarıyla birlikte verilmiştir. Özgün bölümdeki R kodlarının (<code>OneR</code>, <code>RWeka</code>, <code>sbrl</code> paketleri) ürettiği şekil ve tablolar, kitabın yayımlanmış sürümünden alınmıştır. Tablolardaki öznitelik adları, değerler ve kurallar kodla tutarlılık için özgün hâliyle bırakılmıştır.</p>
+</blockquote>
+<p>Bir karar kuralı (<em>decision rule</em>), bir koşul (öncül, <em>antecedent</em> olarak da adlandırılır) ve bir tahminden oluşan basit bir EĞER-İSE (<em>IF-THEN</em>) ifadesidir. Örneğin: EĞER bugün yağmur yağıyorsa VE aylardan Nisan ise (koşul), İSE yarın yağmur yağacaktır (tahmin). Tahmin yapmak için tek bir karar kuralı ya da birkaç kuralın birleşimi kullanılabilir.</p>
+<p>Karar kuralları genel bir yapıyı izler: EĞER koşullar sağlanıyorsa İSE belirli bir tahmin yap. Karar kuralları muhtemelen en yorumlanabilir tahmin modelleridir: EĞER-İSE yapıları anlamsal olarak doğal dile ve düşünme biçimimize benzer; tabii koşulun anlaşılır özniteliklerden oluşturulması, koşulun kısa olması (VE ile birleştirilmiş az sayıda <code>öznitelik=değer</code> çifti) ve çok fazla kural olmaması şartıyla. Programlamada EĞER-İSE kuralları yazmak son derece doğaldır. Makine öğrenmesindeki yenilik, karar kurallarının bir algoritma aracılığıyla öğrenilmesidir.</p>
+<p>Bir evin değerini (<code>low</code> [düşük], <code>ok</code> [orta] ya da <code>high</code> [yüksek]) tahmin etmek için karar kuralları öğrenen bir algoritma kullandığınızı düşünün. Bu modelin öğrendiği karar kurallarından biri şu olabilir: Bir ev 100 metrekareden büyükse ve bahçesi varsa değeri yüksektir. Daha biçimsel olarak: EĞER <code>size&gt;100 AND garden=1</code> İSE <code>value=high</code>.</p>
+<p>Bu karar kuralını parçalarına ayıralım:</p>
+<ul>
+<li><code>size&gt;100</code>, EĞER kısmındaki birinci koşuldur.</li>
+<li><code>garden=1</code>, EĞER kısmındaki ikinci koşuldur.</li>
+<li>İki koşul, yeni bir koşul oluşturmak için ‘VE’ ile birbirine bağlanır. Kuralın uygulanması için her ikisinin de doğru olması gerekir.</li>
+<li>Tahmin edilen çıktı (İSE kısmı) <code>value=high</code>’dır.</li>
+</ul>
+<p>Bir karar kuralı, koşulda en az bir <code>öznitelik=değer</code> ifadesi kullanır; ‘VE’ ile eklenebilecek ifadelerin sayısı için bir üst sınır yoktur. Bunun bir istisnası, açık bir EĞER kısmı bulunmayan ve başka hiçbir kural uygulanmadığında devreye giren varsayılan kuraldır (<em>default rule</em>); ancak buna daha sonra değineceğiz.</p>
+<p>Bir karar kuralının yararlılığı genellikle iki sayıyla özetlenir: destek (<em>support</em>) ve doğruluk (<em>accuracy</em>).</p>
+<p><strong>Bir kuralın desteği ya da kapsaması</strong> (<em>coverage</em>): Bir kuralın koşulunun uygulandığı örneklerin yüzdesine destek denir. Ev değerlerini tahmin etmek için örneğin <code>size=big AND location=good THEN value=high</code> kuralını ele alalım. 1.000 evden 100’ünün büyük ve iyi konumda olduğunu varsayalım; bu durumda kuralın desteği %10’dur. Desteğin hesaplanmasında tahmin (İSE kısmı) önemli değildir.</p>
+<p><strong>Bir kuralın doğruluğu ya da güveni</strong> (<em>confidence</em>): Bir kuralın doğruluğu, kuralın koşulunun uygulandığı örnekler için kuralın doğru sınıfı ne kadar isabetli tahmin ettiğinin bir ölçüsüdür. Örneğin: <code>size=big AND location=good THEN value=high</code> kuralının uygulandığı 100 evden 85’inin <code>value=high</code>, 14’ünün <code>value=ok</code> ve 1’inin <code>value=low</code> olduğunu varsayalım; bu durumda kuralın doğruluğu %85’tir.</p>
+<p>Genellikle doğruluk ile destek arasında bir ödünleşim (<em>trade-off</em>) vardır: Koşula daha fazla öznitelik ekleyerek daha yüksek doğruluk elde edebiliriz, ancak destek kaybederiz.</p>
+<p>Bir evin değerini tahmin etmek için iyi bir sınıflandırıcı oluşturmak istiyorsanız yalnızca bir kural değil, belki 10 ya da 20 kural öğrenmeniz gerekebilir. O zaman işler daha karmaşık hâle gelebilir ve aşağıdaki sorunlardan biriyle karşılaşabilirsiniz:</p>
+<ul>
+<li>Kurallar örtüşebilir: Bir evin değerini tahmin etmek istediğimde iki ya da daha fazla kural uygulanıyor ve bana çelişkili tahminler veriyorsa ne olacak?</li>
+<li>Hiçbir kural uygulanmayabilir: Bir evin değerini tahmin etmek istediğimde kuralların hiçbiri uygulanmıyorsa ne olacak?</li>
+</ul>
+<p>Birden çok kuralı birleştirmek için iki ana strateji vardır: Karar listeleri (<em>decision lists</em>, sıralı) ve karar kümeleri (<em>decision sets</em>, sırasız). Her iki strateji de örtüşen kurallar sorununa farklı çözümler getirir.</p>
+<p>Bir <strong>karar listesi</strong>, karar kurallarına bir sıra getirir. Bir örnek için ilk kuralın koşulu doğruysa, ilk kuralın tahminini kullanırız. Değilse, bir sonraki kurala geçer ve uygulanıp uygulanmadığını kontrol ederiz; bu böyle devam eder. Karar listeleri, örtüşen kurallar sorununu yalnızca listede uygulanan ilk kuralın tahminini döndürerek çözer.</p>
+<p>Bir <strong>karar kümesi</strong>, kuralların bir demokrasisine benzer; ancak bazı kuralların oy gücü daha yüksek olabilir. Bir kümede kurallar ya birbirini dışlar ya da çatışmaları çözmek için bir strateji vardır; örneğin tekil kural doğruluklarına ya da başka kalite ölçülerine göre ağırlıklandırılabilen çoğunluk oylaması gibi. Birden fazla kural uygulandığında yorumlanabilirlik potansiyel olarak zarar görür.</p>
+<p>Hem karar listeleri hem de karar kümeleri, bir örneğe hiçbir kuralın uygulanmaması sorunundan muzdarip olabilir. Bu sorun, varsayılan bir kural getirilerek çözülebilir. Varsayılan kural, başka hiçbir kural uygulanmadığında devreye giren kuraldır. Varsayılan kuralın tahmini çoğu zaman, diğer kuralların kapsamadığı veri noktalarının en sık görülen sınıfıdır. Bir kural kümesi ya da listesi tüm öznitelik uzayını kapsıyorsa ona kapsayıcı (<em>exhaustive</em>) deriz. Varsayılan bir kural eklendiğinde küme ya da liste kendiliğinden kapsayıcı hâle gelir.</p>
+<p>Veriden kural öğrenmenin pek çok yolu vardır ve bu kitap bunların hepsini kapsamaktan çok uzaktır. Bu bölüm size bunlardan üçünü göstermektedir. Algoritmalar, kural öğrenmeye ilişkin geniş bir genel fikir yelpazesini kapsayacak şekilde seçilmiştir; dolayısıyla üçü de birbirinden çok farklı yaklaşımları temsil eder.</p>
+<ol type="1">
+<li><strong>OneR</strong>, kuralları tek bir öznitelikten öğrenir. OneR; sadeliği, yorumlanabilirliği ve bir karşılaştırma ölçütü (<em>benchmark</em>) olarak kullanılmasıyla öne çıkar.</li>
+<li><strong>Sıralı kapsama</strong> (<em>sequential covering</em>), kuralları yinelemeli olarak öğrenen ve yeni kuralın kapsadığı veri noktalarını çıkaran genel bir yöntemdir. Bu yöntem birçok kural öğrenme algoritması tarafından kullanılır.</li>
+<li><strong>Bayesçi Kural Listeleri</strong> (<em>Bayesian Rule Lists</em>), önceden madenlenmiş (<em>pre-mined</em>) sık örüntüleri Bayesçi istatistik kullanarak bir karar listesinde birleştirir. Önceden madenlenmiş örüntülerin kullanılması, birçok kural öğrenme algoritmasının başvurduğu yaygın bir yaklaşımdır.</li>
+</ol>
+<p>En basit yaklaşımla başlayalım: Kuralları öğrenmek için en iyi tek özniteliği kullanmak.</p>
+<section id="tek-bir-öznitelikten-kural-öğrenme-oner" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="tek-bir-öznitelikten-kural-öğrenme-oner"><span class="header-section-number">1</span> Tek bir öznitelikten kural öğrenme (OneR)</h2>
+<p>OneR algoritması <span class="citation" data-cites="holte1993very">(<a href="#ref-holte1993very" role="doc-biblioref">Holte 1993</a>)</span>, en basit kural çıkarım (<em>rule induction</em>) algoritmalarından biridir. OneR, tüm öznitelikler arasından ilgilenilen çıktı hakkında en fazla bilgiyi taşıyanı seçer ve bu öznitelikten karar kuralları oluşturur.</p>
+<p>“Tek Kural” (<em>One Rule</em>) anlamına gelen OneR adına rağmen algoritma birden fazla kural üretir: Aslında seçilen en iyi özniteliğin her benzersiz değeri için bir kural üretir. Daha uygun bir ad OneFeatureRule (Tek Öznitelik Kuralı) olurdu.</p>
+<p>Algoritma basit ve hızlıdır:</p>
+<ol type="1">
+<li>Uygun aralıklar seçerek sürekli öznitelikleri kesikli hâle getirin (<em>discretize</em>).</li>
+<li>Her öznitelik için:
+<ul>
+<li>Öznitelik değerleri ile (kategorik) çıktı arasında bir çapraz tablo (<em>cross table</em>) oluşturun.</li>
+<li>Özniteliğin her değeri için, o öznitelik değerine sahip örneklerin en sık görülen sınıfını tahmin eden bir kural oluşturun (bu, çapraz tablodan okunabilir).</li>
+<li>Öznitelik için kuralların toplam hatasını hesaplayın.</li>
+</ul></li>
+<li>Toplam hatası en küçük olan özniteliği seçin.</li>
+</ol>
+<p>OneR, seçilen özniteliğin tüm düzeylerini kullandığı için veri kümesindeki tüm örnekleri her zaman kapsar. Eksik değerler ya ek bir öznitelik değeri olarak ele alınabilir ya da önceden doldurulabilir (<em>imputation</em>).</p>
+<p>Bir OneR modeli, yalnızca tek bir bölünmesi olan bir karar ağacıdır. Bölünme, CART’taki gibi ikili olmak zorunda değildir; benzersiz öznitelik değerlerinin sayısına bağlıdır.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>OneR’ı temel model olarak kullanın
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>OneR, daha karmaşık modelleri karşılaştırmak için mükemmel bir temel model (<em>baseline</em>) oluşturur.</p>
+</div>
+</div>
+<p>OneR’ın en iyi özniteliği nasıl seçtiğine dair bir örneğe bakalım. <a href="#tbl-oner-freq-table1" class="quarto-xref">Tablo&nbsp;1</a>, evlerin değeri, konumu, büyüklüğü ve evcil hayvanlara izin verilip verilmediği bilgilerini içeren yapay bir veri kümesini göstermektedir. Bir evin değerini tahmin etmek için basit bir model öğrenmek istiyoruz.</p>
+<div id="tbl-oner-freq-table1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-oner-freq-table1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;1: Ev değeri için yapay veri kümesi (location: konum, size: büyüklük, pets: evcil hayvan, value: değer).
+</figcaption>
+<div aria-describedby="tbl-oner-freq-table1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">location</th>
+<th style="text-align: left;">size</th>
+<th style="text-align: left;">pets</th>
+<th style="text-align: left;">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">good</td>
+<td style="text-align: left;">small</td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">high</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">good</td>
+<td style="text-align: left;">big</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">high</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">good</td>
+<td style="text-align: left;">big</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">high</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bad</td>
+<td style="text-align: left;">medium</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">ok</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">good</td>
+<td style="text-align: left;">medium</td>
+<td style="text-align: left;">only cats</td>
+<td style="text-align: left;">ok</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">good</td>
+<td style="text-align: left;">small</td>
+<td style="text-align: left;">only cats</td>
+<td style="text-align: left;">ok</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bad</td>
+<td style="text-align: left;">medium</td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">ok</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bad</td>
+<td style="text-align: left;">small</td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">low</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bad</td>
+<td style="text-align: left;">medium</td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: left;">low</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bad</td>
+<td style="text-align: left;">small</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">low</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>OneR, her öznitelik ile çıktı arasındaki çapraz tablolara dayanarak kurallar oluşturur. <a href="#tbl-cross-tables" class="quarto-xref">Tablo&nbsp;2</a> üç çapraz tabloyu göstermektedir.</p>
+<div id="tbl-cross-tables" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cross-tables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;2: Her bir öznitelik ile hedef arasındaki çapraz tablolar.
+</figcaption>
+<div aria-describedby="tbl-cross-tables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">value=low</th>
+<th style="text-align: right;">value=ok</th>
+<th style="text-align: right;">value=high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">size=big</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">size=medium</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">size=small</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pets=no</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">pets=only cats</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pets=yes</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">location=bad</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">location=good</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Her öznitelik için tabloyu satır satır dolaşırız: Her öznitelik değeri bir kuralın EĞER kısmıdır; bu öznitelik değerine sahip örnekler için en yaygın sınıf ise tahmindir, yani kuralın İSE kısmıdır. Örneğin <code>small</code>, <code>medium</code> ve <code>big</code> düzeylerine sahip büyüklük özniteliği üç kurala yol açar. Her öznitelik için, üretilen kuralların toplam hata oranını, yani hataların toplamını hesaplarız. Konum özniteliğinin olası değerleri <code>bad</code> (kötü) ve <code>good</code>’dur (iyi). Kötü konumdaki evler için en sık değer <code>low</code>’dur ve tahmin olarak <code>low</code> kullandığımızda iki hata yaparız, çünkü iki evin değeri <code>ok</code>’tur. İyi konumdaki evlerin tahmin edilen değeri <code>high</code>’dır ve yine iki hata yaparız, çünkü iki evin değeri <code>ok</code>’tur. Konum özniteliğini kullanarak yaptığımız hata <span class="math inline">\(\frac{4}{10}\)</span>, büyüklük özniteliği için <span class="math inline">\(\frac{3}{10}\)</span> ve evcil hayvan özniteliği için <span class="math inline">\(\frac{4}{10}\)</span>’dur. Büyüklük özniteliği en düşük hatalı kuralları üretir ve nihai OneR modeli için kullanılır:</p>
+<p>EĞER <code>size=small</code> İSE <code>value=low</code> EĞER <code>size=medium</code> İSE <code>value=ok</code> EĞER <code>size=big</code> İSE <code>value=high</code></p>
+<p>Uygun biçimde doğrulanmazsa OneR, olası düzey sayısı çok olan özniteliklerde aşırı öğrenmeye (<em>overfitting</em>) düşebilir. Yalnızca gürültü içeren ve hiç sinyal içermeyen bir veri kümesi düşünün; yani tüm öznitelikler rastgele değerler alıyor ve hedef için hiçbir tahmin değeri taşımıyor. Bazı özniteliklerin diğerlerinden daha fazla düzeyi vardır. Daha fazla düzeyi olan öznitelikler bu durumda daha kolay aşırı öğrenebilir. Verideki her örnek için ayrı bir düzeye sahip bir öznitelik, tüm eğitim veri kümesini kusursuz biçimde tahmin ederdi. Bir çözüm, veriyi eğitim ve doğrulama kümelerine ayırmak, kuralları eğitim verisi üzerinde öğrenmek ve özniteliği seçmek için toplam hatayı doğrulama kümesi üzerinde değerlendirmek olacaktır.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Uyarı</span>Doğrulama verisi kullanın
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Görülmemiş veride iyi performans gösterdiğinden emin olmak için, basit bir “tek kural” modeli bile olsa seçtiğiniz modeli her zaman ayrı bir doğrulama kümesiyle doğrulayın.</p>
+</div>
+</div>
+<p>Eşitlikler (<em>ties</em>), yani iki özniteliğin aynı toplam hatayı vermesi de bir başka sorundur. OneR eşitlikleri, ya en düşük hatalı ilk özniteliği ya da ki-kare testinin p-değeri en düşük olan özniteliği alarak çözer.</p>
+<p><strong>Örnek</strong></p>
+<p>OneR’ı gerçek veriyle deneyelim. OneR algoritmasını sınamak için <a href="https://christophm.github.io/interpretable-ml-book/data.html#penguins">Palmer penguenleri verisini</a> kullanıyoruz. Tüm sürekli girdi öznitelikleri 5 niceliğe (<em>quantile</em>) göre kesikli hâle getirilmiştir. OneR öğrenme algoritmasının oluşturduğu kurallar <a href="#tbl-oner-penguins" class="quarto-xref">Tablo&nbsp;3</a>’te gösterilmiştir.</p>
+<div id="tbl-oner-penguins" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-oner-penguins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;3: Penguen sınıflandırması için OneR’ın öğrendiği kural (prediction: tahmin; female: dişi, male: erkek).
+</figcaption>
+<div aria-describedby="tbl-oner-penguins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">bill_depth_mm</th>
+<th style="text-align: left;">prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(13.1,14.7]</td>
+<td style="text-align: left;">female</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(14.7,16.3]</td>
+<td style="text-align: left;">male</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(16.3,18]</td>
+<td style="text-align: left;">female</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(18,19.6]</td>
+<td style="text-align: left;">male</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(19.6,21.2]</td>
+<td style="text-align: left;">male</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>OneR, en iyi tahmin edici öznitelik olarak <code>bill_depth_mm</code> (gaga derinliği) özniteliğini seçmiştir. Bu tek kuralın nasıl performans gösterdiğini daha iyi kavramak için (kesikli hâle getirilmiş) <code>bill_depth_mm</code> özniteliği ile penguen türü arasındaki çapraz tabloya bakalım; bkz. <a href="#tbl-oner-penguin-confusion" class="quarto-xref">Tablo&nbsp;4</a>.</p>
+<div id="tbl-oner-penguin-confusion" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-oner-penguin-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;4: OneR’ın bulduğu penguen cinsiyeti sınıflandırma kuralı için karışıklık matrisi (<em>confusion matrix</em>).
+</figcaption>
+<div aria-describedby="tbl-oner-penguin-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">bill_depth_mm</th>
+<th style="text-align: center;">female</th>
+<th style="text-align: center;">male</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">[13.1,14.7)</td>
+<td style="text-align: center;">%86,7 (13)</td>
+<td style="text-align: center;">%13,3 (2)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">[14.7,16.3)</td>
+<td style="text-align: center;">%38,5 (10)</td>
+<td style="text-align: center;">%61,5 (16)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">[16.3,18)</td>
+<td style="text-align: center;">%72,0 (18)</td>
+<td style="text-align: center;">%28,0 (7)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">[18,19.6)</td>
+<td style="text-align: center;">%34,4 (11)</td>
+<td style="text-align: center;">%65,6 (21)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">[19.6,21.2)</td>
+<td style="text-align: center;">%0 (0)</td>
+<td style="text-align: center;">%100,0 (12)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Bu özniteliğin özellikle derin gagalı penguenleri sınıflandırmakta yararlı olduğunu görebiliriz. Gaga derinliği 1,98 cm’nin üzerinde olan penguenlerin büyük olasılıkla erkek olduğu görülmektedir. Çok kısa gagalar, dişi bir penguenle karşı karşıya olma olasılığımızı artırır. Uyarı: Bu model türü göz ardı eder ya da daha doğrusu tüm türleri bir araya toplar. Bunu düzeltmek için her tür için ayrı bir model eğitebiliriz.</p>
+<p>OneR, doğası gereği regresyon görevlerini desteklemez. Ancak sürekli çıktıyı aralıklara bölerek bir regresyon görevini sınıflandırma görevine dönüştürebiliriz. Bu hileyi, bisiklet sayısını dört çeyreğine (%0-25, %25-50, %50-75 ve %75-100) bölerek <a href="https://christophm.github.io/interpretable-ml-book/data.html#bike-data">kiralanan bisiklet</a> sayısını OneR ile tahmin etmek için kullanıyoruz. <a href="#tbl-oner-bike" class="quarto-xref">Tablo&nbsp;5</a>, OneR modeli uyarlandıktan sonra seçilen özniteliği göstermektedir: Seçilen öznitelik, önceki bisiklet kiralama sayısıdır.</p>
+<div id="tbl-oner-bike" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-oner-bike-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;5: Bisiklet verisi için OneR sınıflandırma kuralı.
+</figcaption>
+<div aria-describedby="tbl-oner-bike-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">cnt_2d_bfr</th>
+<th style="text-align: left;">prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(13.3,1.76e+03]</td>
+<td style="text-align: left;">[22,3193]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(1.76e+03,3.5e+03]</td>
+<td style="text-align: left;">[22,3193]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(3.5e+03,5.24e+03]</td>
+<td style="text-align: left;">(4551,5978.5]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(5.24e+03,6.98e+03]</td>
+<td style="text-align: left;">(5978.5,8714]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(6.98e+03,8.72e+03]</td>
+<td style="text-align: left;">(5978.5,8714]</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Şimdi basit OneR algoritmasından, birkaç öznitelikten oluşan daha karmaşık koşullara sahip kurallar kullanan daha karmaşık bir yönteme geçiyoruz: Sıralı Kapsama.</p>
+</section>
+<section id="sıralı-kapsama" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="sıralı-kapsama"><span class="header-section-number">2</span> Sıralı kapsama</h2>
+<p>Sıralı kapsama (<em>sequential covering</em>), tüm veri kümesini kural kural kapsayan bir karar listesi (ya da kümesi) oluşturmak için tekrar tekrar tek bir kural öğrenen genel bir yöntemdir. Birçok kural öğrenme algoritması sıralı kapsama ailesine aittir. Bu bölüm temel tarifi tanıtmakta ve örnekler için sıralı kapsama algoritmasının bir çeşidi olan RIPPER’ı kullanmaktadır.</p>
+<p>Fikir basittir: Önce veri noktalarının bir kısmına uygulanan iyi bir kural bulun. Kuralın kapsadığı tüm veri noktalarını çıkarın. Bir veri noktası, noktaların doğru sınıflandırılıp sınıflandırılmadığından bağımsız olarak, koşullar ona uygulandığında kapsanmış olur. Kural öğrenmeyi ve kapsanan noktaların çıkarılmasını, hiç nokta kalmayana ya da başka bir durdurma koşulu sağlanana kadar kalan noktalarla tekrarlayın. Sonuç bir karar listesidir. Tekrarlanan kural öğrenme ve kapsanan veri noktalarını çıkarma yaklaşımına “ayır ve fethet” (<em>separate-and-conquer</em>) denir.</p>
+<p>Verinin bir kısmını kapsayan tek bir kural oluşturabilen bir algoritmamız zaten olduğunu varsayalım. İki sınıf (bir pozitif, bir negatif) için sıralı kapsama algoritması şöyle çalışır:</p>
+<ul>
+<li>Boş bir kural listesiyle (rlist) başlayın.</li>
+<li>Bir <span class="math inline">\(r\)</span> kuralı öğrenin.</li>
+<li>Kural listesi belirli bir kalite eşiğinin altında olduğu sürece (ya da pozitif örneklerin hepsi henüz kapsanmadığı sürece):
+<ul>
+<li><span class="math inline">\(r\)</span> kuralını rlist’e ekleyin.</li>
+<li><span class="math inline">\(r\)</span> kuralının kapsadığı tüm veri noktalarını çıkarın.</li>
+<li>Kalan veri üzerinde başka bir kural öğrenin.</li>
+</ul></li>
+<li>Karar listesini döndürün.</li>
+</ul>
+<div id="fig-covering-algo" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-covering-algo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/covering-algo-1.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-covering-algo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: Kapsama algoritmasının adımları (Data: veri; Step 1: kural bul; Step 2: örnekleri çıkar; Step 3: sonraki kuralı bul).
+</figcaption>
+</figure>
+</div>
+<p>Örneğin: Evlerin değerlerini büyüklük, konum ve evcil hayvanlara izin verilip verilmediği bilgisinden tahmin etmeye yönelik bir görevimiz ve veri kümemiz var. İlk kuralı öğreniriz ve bu kural şu çıkar: Eğer <code>size=big</code> ve <code>location=good</code> ise <code>value=high</code>. Ardından iyi konumdaki tüm büyük evleri veri kümesinden çıkarırız. Kalan veriyle bir sonraki kuralı öğreniriz. Belki de şu: Eğer <code>location=good</code> ise <code>value=ok</code>. Bu kuralın, iyi konumdaki büyük evlerin bulunmadığı, yani iyi konumda yalnızca orta ve küçük evlerin kaldığı veri üzerinde öğrenildiğine dikkat edin.</p>
+<p>Çok sınıflı durumlarda yaklaşımın değiştirilmesi gerekir. Önce sınıflar artan yaygınlığa (<em>prevalence</em>) göre sıralanır. Sıralı kapsama algoritması en az yaygın sınıfla başlar, onun için bir kural öğrenir, kapsanan tüm örnekleri çıkarır, ardından en az yaygın ikinci sınıfa geçer ve bu böyle sürer. O anki sınıf her zaman pozitif sınıf olarak ele alınır ve yaygınlığı daha yüksek olan tüm sınıflar negatif sınıfta birleştirilir. Son sınıf varsayılan kuraldır. Sınıflandırmada buna bire karşı hepsi (<em>one-versus-all</em>) stratejisi de denir.</p>
+<p>Tek bir kuralı nasıl öğreniriz? OneR algoritması burada işe yaramaz, çünkü her zaman tüm öznitelik uzayını kapsar. Ancak başka birçok olasılık vardır. Olasılıklardan biri, ışın araması (<em>beam search</em>) ile bir karar ağacından tek bir kural öğrenmektir:</p>
+<ul>
+<li>Bir karar ağacı öğrenin (CART ya da başka bir ağaç öğrenme algoritmasıyla).</li>
+<li>Kök düğümden başlayın ve özyinelemeli olarak en saf düğümü seçin (örneğin yanlış sınıflandırma oranı en düşük olanı).</li>
+<li>Uç düğümün çoğunluk sınıfı kuralın tahmini olarak kullanılır; o düğüme giden yol ise kuralın koşulu olarak kullanılır.</li>
+</ul>
+<p><a href="#fig-learn-one-rule" class="quarto-xref">Şekil&nbsp;2</a> bir ağaçtaki ışın aramasını göstermektedir:</p>
+<div id="fig-learn-one-rule" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-learn-one-rule-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/learn-one-rule.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-learn-one-rule-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: Bir karar ağacında bir yol aranarak öğrenilen kural. Sonuçta şu kurala ulaşırız: Eğer <code>location=good</code> ve <code>size=big</code> ise <code>value=high</code>.
+</figcaption>
+</figure>
+</div>
+<p>Tek bir kural öğrenmek, arama uzayı olası tüm kuralların uzayı olan bir arama problemidir. Aramanın amacı, belirli ölçütlere göre en iyi kuralı bulmaktır. Birçok farklı arama stratejisi vardır: tepe tırmanma (<em>hill-climbing</em>), ışın araması, kapsamlı arama (<em>exhaustive search</em>), en iyi öncelikli arama (<em>best-first search</em>), sıralı arama (<em>ordered search</em>), stokastik arama, yukarıdan aşağı arama (<em>top-down search</em>), aşağıdan yukarı arama (<em>bottom-up search</em>), …</p>
+<p>RIPPER (<em>Repeated Incremental Pruning to Produce Error Reduction</em>, Hata Azaltımı Sağlamak için Yinelemeli Artımlı Budama) <span class="citation" data-cites="cohen1995fast">(<a href="#ref-cohen1995fast" role="doc-biblioref">Cohen 1995</a>)</span>, Sıralı Kapsama algoritmasının bir çeşididir. RIPPER biraz daha gelişmiştir ve karar listesini (ya da kümesini) optimize etmek için bir son işleme aşaması (kural budama, <em>rule pruning</em>) kullanır. RIPPER sıralı ya da sırasız modda çalışabilir ve bir karar listesi ya da karar kümesi üretebilir.</p>
+<p><strong>Örnekler</strong></p>
+<p>Önce <a href="https://christophm.github.io/interpretable-ml-book/data.html#penguins">penguen cinsiyeti sınıflandırma görevi</a> için kuralları çıkarıyoruz. Kurallar ve varsayılan kural <a href="#tbl-jrip-penguins" class="quarto-xref">Tablo&nbsp;6</a>’te verilmiştir. Yorumlama basittir: Yeni bir örneği tahmin etmek için listenin en üstünden başlayın ve bir kuralın uygulanıp uygulanmadığını kontrol edin. Koşullar uygulanıyorsa, kuralın sağ tarafındaki sınıfı tahmin edin. Uygulanmıyorsa, bir sınıflandırmaya ulaşana kadar bir sonraki kurala geçin. Varsayılan kural, her zaman bir tahmin bulunmasını güvence altına alır.</p>
+<div id="tbl-jrip-penguins" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-jrip-penguins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;6: Penguen sınıflandırma görevi için öğrenilen JRip kuralları (F: dişi, M: erkek).
+</figcaption>
+<div aria-describedby="tbl-jrip-penguins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Kurallar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>(body_mass_g &lt;= 3700) and (bill_depth_mm &lt;= 18.5) =&gt; sex=F</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>(bill_depth_mm &lt;= 14.8) and (body_mass_g &lt;= 5200) =&gt; sex=F</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>(body_mass_g &lt;= 3850) and (bill_length_mm &lt;= 36.9) =&gt; sex=F</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=&gt; sex=M</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Not
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>RIPPER’ın kurallar arasındaki çatışmaları çözmenin kendine özgü bir yolu vardır: Kuralları sırayla uygular. Bu, en özgül EĞER cümleciğine sahip kurallardan en yüksek kesinliğe (<em>precision</em>) sahip kuralı kullanmaya kadar uzanan birçok genel stratejiden yalnızca biridir.</p>
+</div>
+</div>
+<p>RIPPER’ı <a href="https://christophm.github.io/interpretable-ml-book/data.html#bike-data">bisiklet sayılarını</a> tahmin etmeye yönelik regresyon görevinde kullandığımızda bazı kurallar bulunur. RIPPER yalnızca sınıflandırma için çalıştığından bisiklet sayılarının kategorik bir çıktıya dönüştürülmesi gerekir. Bunu, bisiklet sayılarını çeyreklere bölerek yaptım. Örneğin <span class="math inline">\([4548, 5956]\)</span> aralığı, 4548 ile 5956 arasındaki tahmin edilen bisiklet sayılarını kapsar. <a href="#tbl-jrip-bike" class="quarto-xref">Tablo&nbsp;7</a>, öğrenilen kuralların karar listesini göstermektedir. Yorum yine aynıdır: Koşullar uygulanıyorsa, bisiklet sayısı için sağ taraftaki aralığı tahmin ederiz. Bu örnekteki karar kurallarını beğenmiyorum. <code>cnt_2d_bfr</code> özniteliğinin doğası, bisiklet kiralamalarındaki genel bir eğilimi düzeltmektir. <code>cnt</code> ile <code>cnt_2d_bfr</code> arasında, karar kurallarının yansıtmakta zorlandığı doğrusal bir ilişki vardır.</p>
+<div id="tbl-jrip-bike" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-jrip-bike-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;7: Bisiklet görevi için JRip kuralları.
+</figcaption>
+<div aria-describedby="tbl-jrip-bike-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Kurallar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>(cnt_2d_bfr &lt;= 5729) and (cnt_2d_bfr &gt;= 4780) and (temp &lt;= 26) =&gt; cnt=(4551,5978.5]</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>(temp &gt;= 14) and (cnt_2d_bfr &lt;= 5515) and (hum &lt;= 63) and (cnt_2d_bfr &gt;= 3574) and (temp &lt;= 27) =&gt; cnt=(4551,5978.5]</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>(cnt_2d_bfr &gt;= 3544) and (cnt_2d_bfr &lt;= 3915) and (temp &gt;= 17) and (temp &lt;= 28) =&gt; cnt=(4551,5978.5]</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>(cnt_2d_bfr &lt;= 5336) and (cnt_2d_bfr &gt;= 2914) and (weather = GOOD) and (temp &gt;= 7) =&gt; cnt=(3193,4551]</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>(cnt_2d_bfr &lt;= 4833) and (cnt_2d_bfr &gt;= 2169) and (hum &lt;= 72) and (workday = Y) =&gt; cnt=(3193,4551]</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>(cnt_2d_bfr &lt;= 4097) and (season = WINTER) =&gt; cnt=[22,3193]</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>(cnt_2d_bfr &lt;= 4570) and (temp &lt;= 13) =&gt; cnt=[22,3193]</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>(hum &gt;= 88) and (season = FALL) =&gt; cnt=[22,3193]</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>(cnt_2d_bfr &lt;= 3351) and (cnt_2d_bfr &gt;= 2710) =&gt; cnt=[22,3193]</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=&gt; cnt=(5978.5,8714]</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="bayesçi-kural-listeleri" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="bayesçi-kural-listeleri"><span class="header-section-number">3</span> Bayesçi Kural Listeleri</h2>
+<p>Bu kısımda size, kabaca aşağıdaki tarifi izleyen, karar listesi öğrenmeye yönelik başka bir yaklaşım göstereceğim:</p>
+<ol type="1">
+<li>Veriden, karar kuralları için koşul olarak kullanılabilecek sık örüntüleri önceden madenleyin.</li>
+<li>Önceden madenlenmiş kurallardan bir seçki kullanarak bir karar listesi öğrenin.</li>
+</ol>
+<p>Bu tarifi kullanan belirli bir yaklaşıma Bayesçi Kural Listeleri (<em>Bayesian Rule Lists</em>) <span class="citation" data-cites="letham2015interpretable">(<a href="#ref-letham2015interpretable" role="doc-biblioref">Letham vd. 2015</a>)</span> ya da kısaca BRL denir. BRL, FP-ağacı (<em>FP-tree</em>) algoritmasıyla <span class="citation" data-cites="borgelt2005implementation">(<a href="#ref-borgelt2005implementation" role="doc-biblioref">Borgelt 2005</a>)</span> önceden madenlenmiş sık örüntülerden karar listeleri öğrenmek için Bayesçi istatistiği kullanır.</p>
+<p>Ancak BRL’nin ilk adımıyla yavaş yavaş başlayalım.</p>
+<p><strong>Sık örüntülerin önceden madenlenmesi</strong></p>
+<p>Sık örüntü (<em>frequent pattern</em>), öznitelik değerlerinin sık (birlikte) görülmesidir. BRL algoritması için bir ön işleme adımı olarak öznitelikleri kullanırız (bu adımda hedef çıktıya ihtiyacımız yoktur) ve bunlardan sık görülen örüntüleri çıkarırız. Bir örüntü, <code>size=medium</code> gibi tek bir öznitelik değeri ya da <code>size=medium AND location=bad</code> gibi öznitelik değerlerinin bir birleşimi olabilir.</p>
+<p>Bir örüntünün sıklığı, veri kümesindeki desteğiyle ölçülür:</p>
+<p><span class="math display">\[Support(\mathbf{x}_j=A)=\frac{1}{n}\sum_{i=1}^nI(x^{(i)}_{j}=A)\]</span></p>
+<p>Burada A öznitelik değeri, n veri kümesindeki veri noktası sayısı, I ise i örneğinin <span class="math inline">\(x_j\)</span> özniteliği A düzeyine sahipse 1, değilse 0 döndüren gösterge fonksiyonudur. Ev değerlerinden oluşan bir veri kümesinde evlerin %20’sinin balkonu yoksa ve %80’inin bir ya da daha fazla balkonu varsa, <code>balcony=0</code> örüntüsünün desteği %20’dir. Destek, örneğin <code>balcony=0 AND pets=allowed</code> gibi öznitelik değerlerinin birleşimleri için de ölçülebilir.</p>
+<p>Bu tür sık örüntüleri bulmak için Apriori ya da FP-Growth gibi birçok algoritma vardır. Hangisini kullandığınızın pek önemi yoktur; yalnızca örüntülerin bulunma hızı farklıdır, ortaya çıkan örüntüler ise her zaman aynıdır.</p>
+<p>Apriori algoritmasının sık örüntüleri bulmak için nasıl çalıştığına dair size kaba bir fikir vereceğim. Aslında Apriori algoritması iki kısımdan oluşur; birinci kısım sık örüntüleri bulur, ikinci kısım ise bunlardan birliktelik kuralları (<em>association rules</em>) oluşturur. BRL algoritması için yalnızca Apriori’nin birinci kısmında üretilen sık örüntülerle ilgileniyoruz.</p>
+<p>İlk adımda Apriori algoritması, desteği kullanıcının tanımladığı en düşük destekten büyük olan tüm öznitelik değerleriyle başlar. Kullanıcı en düşük desteğin %10 olması gerektiğini söylerse ve evlerin yalnızca %5’i <code>size=big</code> ise, bu öznitelik değerini çıkarır ve örüntü olarak yalnızca <code>size=medium</code> ve <code>size=small</code>’u tutarız. Bu, evlerin veriden çıkarıldığı anlamına gelmez; yalnızca <code>size=big</code>’in sık örüntü olarak döndürülmediği anlamına gelir. Apriori algoritması, tek öznitelik değerli sık örüntülerden yola çıkarak giderek daha yüksek mertebeden öznitelik değeri birleşimlerini yinelemeli olarak bulmaya çalışır. Örüntüler, <code>öznitelik=değer</code> ifadelerinin mantıksal VE ile birleştirilmesiyle oluşturulur; örneğin <code>size=medium AND location=bad</code>. Desteği en düşük desteğin altında kalan üretilmiş örüntüler çıkarılır. Sonunda tüm sık örüntülere sahip oluruz. Bir sık örüntünün cümleciklerinin herhangi bir alt kümesi de yine sıktır; buna Apriori özelliği denir. Bu sezgisel olarak da anlamlıdır: Bir örüntüden bir koşul çıkarıldığında, indirgenmiş örüntü yalnızca daha fazla ya da aynı sayıda veri noktasını kapsayabilir, daha azını değil. Örneğin evlerin %20’si <code>size=medium AND location=good</code> ise, yalnızca <code>size=medium</code> olan evlerin desteği %20 ya da daha fazladır. Apriori özelliği, incelenmesi gereken örüntü sayısını azaltmak için kullanılır. Yalnızca sık örüntüler söz konusu olduğunda daha yüksek mertebeden örüntüleri kontrol etmemiz gerekir.</p>
+<p>Böylece Bayesçi Kural Listesi algoritması için koşulların önceden madenlenmesini tamamlamış olduk. Ancak BRL’nin ikinci adımına geçmeden önce, önceden madenlenmiş örüntülere dayalı kural öğrenmenin başka bir yoluna değinmek istiyorum. Diğer yaklaşımlar, ilgilenilen çıktının da sık örüntü madenciliği sürecine dahil edilmesini ve Apriori algoritmasının EĞER-İSE kuralları oluşturan ikinci kısmının da çalıştırılmasını önerir. Algoritma denetimsiz (<em>unsupervised</em>) olduğundan İSE kısmı ilgilenmediğimiz öznitelik değerlerini de içerir. Ancak İSE kısmında yalnızca ilgilenilen çıktıyı barındıran kurallara göre filtreleme yapabiliriz. Bu kurallar zaten bir karar kümesi oluşturur; ancak kuralları düzenlemek, budamak, silmek ya da yeniden birleştirmek de mümkündür.</p>
+<p>BRL yaklaşımında ise sık örüntülerle çalışırız ve İSE kısmını ve örüntülerin bir karar listesinde nasıl düzenleneceğini Bayesçi istatistik kullanarak öğreniriz.</p>
+<p><strong>Bayesçi Kural Listelerinin öğrenilmesi</strong></p>
+<p>BRL algoritmasının amacı, önceden madenlenmiş koşullardan bir seçki kullanarak, az kurallı ve kısa koşullu listelere öncelik veren isabetli bir karar listesi öğrenmektir. BRL bu amaca, koşulların uzunluğu (tercihen daha kısa kurallar) ve kural sayısı (tercihen daha kısa bir liste) için önsel dağılımlarla (<em>prior distributions</em>) karar listelerinin bir dağılımını tanımlayarak ulaşır.</p>
+<p>Listelerin sonsal olasılık dağılımı (<em>posterior probability distribution</em>), kısalık varsayımları ve listenin veriye ne kadar iyi uyduğu göz önüne alındığında bir karar listesinin ne kadar olası olduğunu söylemeyi mümkün kılar. Amacımız, bu sonsal olasılığı en büyükleyen listeyi bulmaktır. Tam olarak en iyi listeyi doğrudan liste dağılımlarından bulmak mümkün olmadığından BRL şu tarifi önerir: 1) Önsel dağılımdan rastgele çekilen bir başlangıç karar listesi üretin. 2) Ortaya çıkan listelerin, listelerin sonsal dağılımını izlemesini sağlayarak kurallar ekleyip yer değiştirerek ya da çıkararak listeyi yinelemeli olarak değiştirin. 3) Örneklenen listeler arasından sonsal dağılıma göre olasılığı en yüksek olan karar listesini seçin.</p>
+<p>Algoritmayı daha yakından inceleyelim: Algoritma, öznitelik değeri örüntülerini FP-Growth algoritmasıyla önceden madenleyerek başlar. BRL, hedefin dağılımı ve hedefin dağılımını tanımlayan parametrelerin dağılımı hakkında bir dizi varsayımda bulunur. (Bayesçi istatistik budur.) Bayesçi istatistiğe aşina değilseniz aşağıdaki açıklamalara fazla takılmayın. Önemli olan, Bayesçi yaklaşımın mevcut bilgiyi ya da gereksinimleri (önsel dağılımlar, <em>priori distributions</em>) birleştirirken aynı zamanda veriye uyum sağlamanın bir yolu olduğunu bilmektir. Karar listeleri söz konusu olduğunda Bayesçi yaklaşım anlamlıdır; çünkü önsel varsayımlar karar listelerini kısa kurallara sahip kısa listeler olmaya doğru iter.</p>
+<p>Amaç, sonsal dağılımdan d karar listeleri örneklemektir:</p>
+<p><span class="math display">\[\underbrace{p(d|\mathbf{x},\mathbf{y},A,\alpha,\lambda,\eta)}_{sonsal}\propto\underbrace{p(\mathbf{y}|\mathbf{x},d,\alpha)}_{olabilirlik}\cdot\underbrace{p(d|A,\lambda,\eta)}_{önsel}\]</span></p>
+<p>Burada d bir karar listesi, x öznitelikler, y hedef, A önceden madenlenmiş koşullar kümesi, <span class="math inline">\(\lambda\)</span> karar listelerinin önsel beklenen uzunluğu, <span class="math inline">\(\eta\)</span> bir kuraldaki koşulların önsel beklenen sayısı, <span class="math inline">\(\alpha\)</span> ise pozitif ve negatif sınıflar için en iyisi (1,1) olarak sabitlenen önsel sözde sayımdır (<em>pseudo-count</em>).</p>
+<p><span class="math display">\[p(d|\mathbf{x},\mathbf{y},A,\alpha,\lambda,\eta)\]</span></p>
+<p>ifadesi, gözlenen veri ve önsel varsayımlar göz önüne alındığında bir karar listesinin ne kadar olası olduğunu nicel olarak ifade eder. Bu, karar listesi ve veri verildiğinde <span class="math inline">\(Y\)</span> çıktısının olabilirliği (<em>likelihood</em>) ile önsel varsayımlar ve önceden madenlenmiş koşullar verildiğinde listenin olasılığının çarpımıyla orantılıdır.</p>
+<p><span class="math display">\[p(\mathbf{y}|\mathbf{x},d,\alpha)\]</span></p>
+<p>ifadesi, karar listesi ve veri verildiğinde gözlenen <span class="math inline">\(y\)</span>’nin olabilirliğidir. BRL, y’nin bir Dirichlet-Multinom dağılımından üretildiğini varsayar. d karar listesi veriyi ne kadar iyi açıklarsa olabilirlik o kadar yüksek olur.</p>
+<p><span class="math display">\[p(d|A,\lambda,\eta)\]</span></p>
+<p>ifadesi, karar listelerinin önsel dağılımıdır. Listedeki kural sayısı için kesilmiş (<em>truncated</em>) bir Poisson dağılımını (<span class="math inline">\(\lambda\)</span> parametresi) ve kuralların koşullarındaki öznitelik değeri sayısı için kesilmiş bir Poisson dağılımını (<span class="math inline">\(\eta\)</span> parametresi) çarpımsal olarak birleştirir.</p>
+<p>Bir karar listesi, y çıktısını iyi açıklıyorsa ve önsel varsayımlara göre de olasıysa yüksek bir sonsal olasılığa sahip olur.</p>
+<p>Bayesçi istatistikte kestirimler her zaman biraz çetrefillidir; çünkü genellikle doğru cevabı doğrudan hesaplayamayız, bunun yerine adaylar çekmemiz, onları değerlendirmemiz ve Markov zinciri Monte Carlo (<em>Markov chain Monte Carlo</em>) yöntemiyle sonsal kestirimlerimizi güncellememiz gerekir. Karar listeleri için bu daha da çetrefillidir, çünkü karar listelerinin dağılımından çekim yapmamız gerekir. BRL yazarları, önce bir başlangıç karar listesi çekmeyi ve ardından listelerin sonsal dağılımından karar listesi örnekleri (karar listelerinden oluşan bir Markov zinciri) üretmek için onu yinelemeli olarak değiştirmeyi önerir. Sonuçlar potansiyel olarak başlangıç karar listesine bağlıdır; bu yüzden geniş bir liste çeşitliliği sağlamak için bu yöntemin tekrarlanması tavsiye edilir. Yazılım uygulamasındaki varsayılan değer 10 tekrardır. Aşağıdaki tarif, bir başlangıç karar listesinin nasıl çekileceğini anlatır:</p>
+<ul>
+<li>Örüntüleri FP-Growth ile önceden madenleyin.</li>
+<li>Liste uzunluğu parametresi <span class="math inline">\(m\)</span>’yi kesilmiş bir Poisson dağılımından örnekleyin.</li>
+<li>Varsayılan kural için: Hedef değerin Dirichlet-Multinom dağılımı parametresi <span class="math inline">\(\theta_0\)</span>’ı örnekleyin (yani başka hiçbir şey uygulanmadığında devreye giren kural).</li>
+<li><span class="math inline">\(j=1,...,m\)</span> karar listesi kuralları için şunları yapın:
+<ul>
+<li><span class="math inline">\(j\)</span> kuralı için kural uzunluğu parametresi <span class="math inline">\(l\)</span>’yi (koşul sayısı) örnekleyin.</li>
+<li>Önceden madenlenmiş koşullardan <span class="math inline">\(l_j\)</span> uzunluğunda bir koşul örnekleyin.</li>
+<li>İSE kısmı için Dirichlet-Multinom dağılımı parametresini örnekleyin (yani kural verildiğinde hedef çıktının dağılımı için).</li>
+</ul></li>
+<li>Veri kümesindeki her gözlem için:
+<ul>
+<li>Karar listesinden ilk uygulanan kuralı bulun (yukarıdan aşağıya).</li>
+<li>Tahmin edilen çıktıyı, uygulanan kuralın önerdiği olasılık dağılımından (Binom) çekin.</li>
+</ul></li>
+</ul>
+<p>Sonraki adım, karar listelerinin sonsal dağılımından çok sayıda örnek elde etmek için bu başlangıç örneğinden yola çıkarak çok sayıda yeni liste üretmektir.</p>
+<p>Yeni karar listeleri, başlangıç listesinden yola çıkılıp ardından rastgele olarak ya bir kuralı listede farklı bir konuma taşıyarak, ya önceden madenlenmiş koşullardan mevcut karar listesine bir kural ekleyerek ya da karar listesinden bir kural çıkararak örneklenir. Hangi kuralın yer değiştireceği, ekleneceği ya da silineceği rastgele seçilir. Her adımda algoritma, karar listesinin sonsal olasılığını (doğruluk ve kısalığın bir karışımı) değerlendirir. Metropolis-Hastings algoritması, sonsal olasılığı yüksek olan karar listelerini örneklememizi sağlar. Bu yöntem bize karar listelerinin dağılımından çok sayıda örnek sağlar. BRL algoritması, örnekler arasından sonsal olasılığı en yüksek olan karar listesini seçer.</p>
+<p><strong>Örnekler</strong></p>
+<p>Teori bu kadar; şimdi BRL yönteminin iş başında nasıl göründüğüne bakalım. Örneklerde BRL’nin Ölçeklenebilir Bayesçi Kural Listeleri (<em>Scalable Bayesian Rule Lists</em>, SBRL) <span class="citation" data-cites="yang2017scalable">(<a href="#ref-yang2017scalable" role="doc-biblioref">Yang vd. 2017</a>)</span> adı verilen daha hızlı bir çeşidi kullanılmaktadır. SBRL algoritmasını <a href="https://christophm.github.io/interpretable-ml-book/data.html#penguins">penguenlerin türünü</a> tahmin etmek için kullanıyoruz. SBRL algoritmasının çalışması için tüm girdi özniteliklerini kesikli hâle getirmem gerekti. Bunun için sürekli öznitelikleri, değerlerin sıklığına göre nicelikler üzerinden gruplara (<em>bin</em>) ayırdım. <a href="#tbl-sbrl-penguins-show" class="quarto-xref">Tablo&nbsp;8</a>’da gösterilen kuralları elde ederiz.</p>
+<div id="tbl-sbrl-penguins-show" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sbrl-penguins-show-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;8: SBRL modelinden elde edilen kurallar.
+</figcaption>
+<div aria-describedby="tbl-sbrl-penguins-show-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Kurallar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>If {body_mass_g=[5.1e+03,6.3e+03]} (rule[41]) then p = 0.083</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>else if {species=Gentoo} (rule[76]) then p = 0.873</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>else if {body_mass_g=[3.9e+03,5.1e+03)} (rule[40]) then p = 0.066</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>else if {bill_depth_mm=[15.9,18.7)} (rule[15]) then p = 0.876</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>else (default rule) then p = 0.333</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Koşullar, FP-Growth algoritmasıyla önceden madenlenmiş örüntüler arasından seçilmiştir. Aşağıdaki tablo, SBRL algoritmasının bir karar listesi oluştururken seçim yapabileceği koşul havuzunu göstermektedir. Kullanıcı olarak bir koşulda izin verdiğim en fazla öznitelik değeri sayısı ikiydi. <a href="#tbl-sbrl-penguins-premined" class="quarto-xref">Tablo&nbsp;9</a>, on örüntüden oluşan bir örneklem göstermektedir.</p>
+<div id="tbl-sbrl-penguins-premined" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sbrl-penguins-premined-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;9: Penguen sınıflandırma görevi için önceden madenlenmiş kurallar.
+</figcaption>
+<div aria-describedby="tbl-sbrl-penguins-premined-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Önceden madenlenmiş koşullar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>species=Gentoo, bill_depth_mm=[13.1, 15.9)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>body_mass_g=[2.7e+03, 3.9e+03)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bill_depth_mm=[13.1, 15.9), bill_length_mm=[41.3, 50.4)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bill_length_mm=[41.3, 50.4)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>flipper_length_mm=[172, 192), body_mass_g=[3.9e+03, 5.1e+03)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bill_depth_mm=[15.9, 18.7), flipper_length_mm=[211, 231]</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>species=Adelie</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>species=Adelie, bill_depth_mm=[15.9, 18.7)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bill_depth_mm=[18.7, 21.5], flipper_length_mm=[172, 192)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>species=Adelie, bill_length_mm=[41.3, 50.4)</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Seyreklik her şeydir
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Daha az ve daha kısa kurallar daha iyi bir model yorumu sağlar. Ancak karmaşıklıkla, dolayısıyla da tahmin performansıyla bir ödünleşim söz konusudur.</p>
+</div>
+</div>
+</section>
+<section id="güçlü-yönler" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="güçlü-yönler"><span class="header-section-number">4</span> Güçlü yönler</h2>
+<p>Bu kısım, genel olarak EĞER-İSE kurallarının faydalarını ele almaktadır.</p>
+<p>EĞER-İSE kurallarının <strong>yorumlanması kolaydır</strong>. Muhtemelen yorumlanabilir modeller içinde en yorumlanabilir olanlardır. Bu ifade yalnızca kural sayısı az, kuralların koşulları kısa (bana sorarsanız en fazla 3) ve kurallar bir karar listesi ya da örtüşmeyen bir karar kümesi içinde düzenlenmişse geçerlidir.</p>
+<p>Karar kuralları <strong>karar ağaçları kadar ifade gücüne sahip olup onlardan daha derli topludur</strong>. Karar ağaçları çoğu zaman yinelenen alt ağaçlar sorunundan da muzdariptir; yani sol ve sağ alt düğümlerdeki bölünmelerin aynı yapıya sahip olması durumu.</p>
+<p><strong>EĞER-İSE kurallarıyla tahmin yapmak hızlıdır</strong>, çünkü hangi kuralların uygulandığını belirlemek için yalnızca birkaç ikili ifadenin kontrol edilmesi gerekir.</p>
+<p>Karar kuralları, girdi özniteliklerinin monoton dönüşümlerine karşı <strong>dayanıklıdır</strong> (<em>robust</em>), çünkü yalnızca koşullardaki eşik değişir. Ayrıca aykırı değerlere karşı da dayanıklıdırlar, çünkü önemli olan yalnızca bir koşulun uygulanıp uygulanmadığıdır.</p>
+<p>EĞER-İSE kuralları genellikle seyrek modeller üretir; yani modele çok fazla öznitelik dahil edilmez. Model için <strong>yalnızca ilgili öznitelikleri seçerler</strong>. Örneğin doğrusal bir model varsayılan olarak her girdi özniteliğine bir ağırlık atar. İlgisiz öznitelikler ise EĞER-İSE kuralları tarafından kolayca göz ardı edilebilir.</p>
+<p>OneR’dakiler gibi basit kurallar, daha karmaşık algoritmalar için <strong>temel model olarak kullanılabilir</strong>.</p>
+</section>
+<section id="sınırlılıklar" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sınırlılıklar"><span class="header-section-number">5</span> Sınırlılıklar</h2>
+<p>Bu kısım, genel olarak EĞER-İSE kurallarının dezavantajlarını ele almaktadır.</p>
+<p>EĞER-İSE kurallarına ilişkin araştırmalar ve literatür sınıflandırmaya odaklanır ve <strong>regresyonu neredeyse tamamen ihmal eder</strong>. Sürekli bir hedefi her zaman aralıklara bölüp bir sınıflandırma problemine dönüştürebilirsiniz; ancak bunu yaparken her zaman bilgi kaybedersiniz. Genel olarak, hem regresyon hem de sınıflandırma için kullanılabilen yaklaşımlar daha caziptir.</p>
+<p>Çoğu zaman <strong>özniteliklerin de kategorik olması gerekir</strong>. Bu, sayısal öznitelikleri kullanmak istiyorsanız onları kategorilere ayırmanız gerektiği anlamına gelir. Sürekli bir özniteliği aralıklara bölmenin birçok yolu vardır; ancak bu önemsiz bir iş değildir ve net cevabı olmayan birçok soruyu beraberinde getirir. Öznitelik kaç aralığa bölünmelidir? Bölme ölçütü nedir: Sabit aralık uzunlukları mı, nicelikler mi, yoksa başka bir şey mi? Sürekli özniteliklerin kategorilere ayrılması çoğu zaman ihmal edilen önemsiz olmayan bir konudur ve insanlar (benim örneklerde yaptığım gibi) akla gelen ilk yöntemi kullanır.</p>
+<p>Eski kural öğrenme algoritmalarının çoğu <strong>aşırı öğrenmeye yatkındır</strong>. Burada sunulan algoritmaların hepsinde aşırı öğrenmeyi önlemek için en azından bazı güvenceler vardır: OneR yalnızca tek bir öznitelik kullanabildiği için sınırlıdır (bu ancak özniteliğin çok fazla düzeyi varsa ya da çok sayıda öznitelik varsa sorun olur; bu da çoklu test sorununa denk düşer), RIPPER budama yapar ve Bayesçi Kural Listeleri karar listelerine bir önsel dağılım dayatır.</p>
+<p>Karar kuralları, öznitelikler ile çıktı arasındaki <strong>doğrusal ilişkileri tanımlamakta kötüdür</strong>. Bu, karar ağaçlarıyla paylaştıkları bir sorundur. Karar ağaçları ve kurallar yalnızca basamak benzeri tahmin fonksiyonları üretebilir; bu fonksiyonlarda tahmindeki değişimler her zaman kesikli basamaklardır, asla pürüzsüz eğriler değildir. Bu, girdilerin kategorik olması gerektiği sorunuyla ilişkilidir. Karar ağaçlarında girdiler, bölünerek örtük biçimde kategorilere ayrılır.</p>
+</section>
+<section id="yazılım-ve-alternatifler" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="yazılım-ve-alternatifler"><span class="header-section-number">6</span> Yazılım ve alternatifler</h2>
+<p>OneR, bu kitaptaki örnekler için kullanılan <a href="https://cran.r-project.org/web/packages/OneR/">OneR R paketinde</a> uygulanmıştır. OneR ayrıca <a href="https://www.eecs.yorku.ca/tdb/_doc.php/userg/sw/weka/doc/weka/classifiers/rules/package-summary.html">Weka makine öğrenmesi kütüphanesinde</a> de uygulanmıştır ve bu sayede Java, R ve Python’da kullanılabilir. RIPPER da Weka’da uygulanmıştır. Örnekler için JRIP’in <a href="https://cran.r-project.org/web/packages/RWeka/index.html">RWeka paketindeki</a> R uygulamasını kullandım. SBRL; bir <a href="https://cran.r-project.org/web/packages/sbrl/index.html">R paketi</a> (örnekler için bunu kullandım) olarak, <a href="https://github.com/datascienceinc/Skater">Python’da</a> ya da bir <a href="https://github.com/Hongyuy/sbrlmod">C uygulaması</a> olarak mevcuttur. Ayrıca Bayesçi kural listeleri, CORELS, OneR, açgözlü kural listeleri (<em>greedy rule lists</em>) ve daha fazlası gibi kural tabanlı modelleri birleşik bir scikit-learn arayüzüne sahip bir Python paketinde uygulayan <a href="https://github.com/csinva/imodels">imodels paketini</a> öneririm.</p>
+<p>Karar kuralı kümeleri ve listeleri öğrenmeye yönelik tüm alternatifleri listelemeye kalkışmayacağım; bunun yerine bazı derleyici çalışmalara işaret edeceğim. <span class="citation" data-cites="furnkranz2012foundations">Fürnkranz vd. (<a href="#ref-furnkranz2012foundations" role="doc-biblioref">2012</a>)</span>’ın “Foundations of Rule Learning” kitabını öneririm. Konuya daha derinlemesine dalmak isteyenler için kural öğrenme üzerine kapsamlı bir eserdir. Kural öğrenme hakkında düşünmek için bütüncül bir çerçeve sunar ve birçok kural öğrenme algoritmasını tanıtır. RIPPER, M5Rules, OneR, PART ve daha birçoğunu uygulayan <a href="http://weka.sourceforge.net/doc.dev/weka/classifiers/rules/package-summary.html">Weka kural öğrenicilerine</a> de göz atmanızı tavsiye ederim. EĞER-İSE kuralları, bu kitapta <a href="../../11_rulefit/ceviri/ahmetnailarslan-20269348010.html">RuleFit algoritması</a> bölümünde anlatıldığı gibi doğrusal modellerde kullanılabilir.</p>
+</section>
+<section id="kaynaklar" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="kaynaklar">Kaynaklar</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-borgelt2005implementation" class="csl-entry" role="listitem">
+Borgelt, Christian. 2005. <span>“An implementation of the <span>FP</span>-growth algorithm”</span>. <em>Proceedings of the 1st international workshop on open source data mining: frequent pattern mining implementations</em> (New York, NY, USA), <span>OSDM</span> ’05, Ağustos, 1-5. <a href="https://doi.org/10.1145/1133905.1133907">https://doi.org/10.1145/1133905.1133907</a>.
+</div>
+<div id="ref-cohen1995fast" class="csl-entry" role="listitem">
+Cohen, William W. 1995. <span>“Fast <span>Effective</span> <span>Rule</span> <span>Induction</span>”</span>. Içinde <em>Machine <span>Learning</span> <span>Proceedings</span> 1995</em>, editör Armand Prieditis ve Stuart Russell. Morgan Kaufmann. <a href="https://doi.org/10.1016/B978-1-55860-377-6.50023-2">https://doi.org/10.1016/B978-1-55860-377-6.50023-2</a>.
+</div>
+<div id="ref-furnkranz2012foundations" class="csl-entry" role="listitem">
+Fürnkranz, Johannes, Dragan Gamberger, ve Nada Lavrač. 2012. <em>Foundations of <span>Rule</span> <span>Learning</span></em>. Cognitive <span>Technologies</span>. Springer. <a href="https://doi.org/10.1007/978-3-540-75197-7">https://doi.org/10.1007/978-3-540-75197-7</a>.
+</div>
+<div id="ref-holte1993very" class="csl-entry" role="listitem">
+Holte, Robert C. 1993. <span>“Very <span>Simple</span> <span>Classification</span> <span>Rules</span> <span>Perform</span> <span>Well</span> on <span>Most</span> <span>Commonly</span> <span>Used</span> <span>Datasets</span>”</span>. <em>Machine Learning</em> 11 (1): 63-90. <a href="https://doi.org/10.1023/A:1022631118932">https://doi.org/10.1023/A:1022631118932</a>.
+</div>
+<div id="ref-letham2015interpretable" class="csl-entry" role="listitem">
+Letham, Benjamin, Cynthia Rudin, Tyler H. McCormick, ve David Madigan. 2015. <span>“Interpretable classifiers using rules and <span>Bayesian</span> analysis: <span>Building</span> a better stroke prediction model”</span>. <em>The Annals of Applied Statistics</em> 9 (3): 1350-71. <a href="https://doi.org/10.1214/15-AOAS848">https://doi.org/10.1214/15-AOAS848</a>.
+</div>
+<div id="ref-yang2017scalable" class="csl-entry" role="listitem">
+Yang, Hongyu, Cynthia Rudin, ve Margo Seltzer. 2017. <span>“Scalable Bayesian rule lists”</span>. <em>International conference on machine learning</em>, 3921-30.
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

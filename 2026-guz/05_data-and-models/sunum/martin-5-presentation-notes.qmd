@@ -1,0 +1,157 @@
+---
+title: "Bölüm 5 — Sunum Notları"
+author: "Asasira Martin"
+lang: tr
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+> Bu belge, [martin-5.pptx](martin-5.pptx) sunusunun her slaydına eklenen konuşmacı notlarının GitHub ve tarayıcıda okunabilir sürümüdür. Sununun PDF sürümü: [martin-5.pdf](martin-5.pdf).
+
+
+## Slayt 1
+
+Herkese merhaba. Bu sunumda kitabın 5. bölümünü, "Data and Models" - Veri ve Modeller bölümünü anlatacağım. 
+Bu bölüm kısa ama çok önemli, çünkü kitap boyunca karşılaşacağımız iki veri kümesini ve bu veriler üzerinde 
+eğitilen modelleri tanıtıyor: Washington'daki bisiklet kiralama verisi ve Antarktika'daki Palmer penguenleri. 
+Sonraki bölümlerdeki bütün yorumlama yöntemleri bu modeller üzerinde gösteriliyor. Yani bu bölümü iyi 
+anlarsak, kitabın geri kalanını takip etmek çok daha kolay olacak.
+
+## Slayt 2
+
+Kitap iki veri kümesi kullanıyor ve her biri farklı bir görev türünü temsil ediyor. Soldaki bisiklet kiralama 
+verisi bir regresyon görevi: Sürekli bir sayıyı, yani günde kaç bisiklet kiralandığını tahmin ediyoruz. 
+İşlendikten sonra 728 gün kalıyor. Veri Capital Bikeshare şirketinden geliyor, Fanaee-T ve Gama da hava 
+durumu ve mevsim bilgisini eklemiş. Sağdaki Palmer penguenleri ise bir sınıflandırma görevi: Penguenin 
+cinsiyetini, yani erkek mi dişi mi olduğunu tahmin ediyoruz. Veride 333 penguen var. Böylece kitap hem 
+regresyon hem sınıflandırma için yöntemleri gösterebiliyor.
+
+## Slayt 3
+
+İlk veri kümesiyle başlayalım: bisiklet kiralama. Burada bir regresyon problemi var, günlük kiralama sayısını 
+tahmin edeceğiz.
+
+## Slayt 4
+
+Bu slaytta veri kümesinin sütunlarını görüyoruz. Turuncu kutu hedef değişkenimiz: cnt, yani hem sıradan hem 
+de kayıtlı kullanıcıların kiraladığı toplam bisiklet sayısı. Geri kalan sekiz kutu özellikler. Mevsim, tatil 
+olup olmadığı, iş günü mü hafta sonu mu olduğu ve hava durumu kategorik özellikler. Sıcaklık, nem ve rüzgâr 
+hızı sayısal özellikler. Son olarak cnt_2d_bfr var, yani iki gün önce kiralanan bisiklet sayısı. Bu özellik 
+geçmişteki talebi modele taşıyor. Alttaki notta ön işlemeyi görüyorsunuz: Nemin 0 ölçüldüğü bir gün 
+çıkarılmış, çünkü bu büyük ihtimalle ölçüm hatası. İlk iki gün de çıkarılmış, çünkü o günler için iki gün 
+önceki sayı yok. Böylece elimizde 728 gün kalıyor.
+
+## Slayt 5
+
+Kitap bu veriyi sadece yorumlama yöntemlerini göstermek için kullanıyor, bu yüzden bazı basitleştirmeler 
+yapılmış. En önemlisi şu: Hava durumu özelliklerini sanki tahminmiş gibi kabul ediyoruz. Gerçekte bunlar o 
+gün ölçülmüş değerler. Bu varsayımla görev şöyle oluyor: Hava tahmini, mevsim bilgisi ve dünkü kiralama 
+sayısıyla yarın kaç bisiklet kiralanacağını tahmin etmek. Modeller basit bir holdout yöntemiyle eğitilmiş: 
+Verinin üçte ikisi eğitim, üçte biri test için kullanılmış. Dört algoritma denenmiş: rastgele orman, CART 
+karar ağacı, destek vektör makinesi yani SVM ve doğrusal regresyon.
+
+## Slayt 6
+
+Test verisindeki sonuçlara bakalım. İki metrik var: RMSE, yani kök ortalama kare hata, ve MAE, yani ortalama 
+mutlak hata. İkisinde de düşük değer daha iyi. RMSE büyük hataları daha çok cezalandırıyor. En iyi model SVM: 
+RMSE'si 852, MAE'si 628. Yani SVM'nin tahminleri gerçek değerden ortalama 628 bisiklet sapıyor. Rastgele 
+orman biraz daha kötü, doğrusal regresyon daha da kötü. Karar ağacı ise 1056 RMSE ile belirgin biçimde geride 
+kalıyor. Bu sonuçlar ileride önemli olacak, çünkü yorumladığımız modelin iyi performans göstermesi gerekiyor. 
+Kötü bir modeli yorumlarsak veri hakkında yanlış sonuçlar çıkarabiliriz.
+
+## Slayt 7
+
+Birçok yorumlama yöntemi için özelliklerin birbiriyle nasıl ilişkili olduğunu bilmemiz gerekiyor. Özellikle 
+PDP gibi yöntemler, özellikler ilişkiliyse yanıltıcı sonuçlar verebiliyor. Önce sayısal özellikler arasındaki 
+Pearson korelasyonuna bakalım. Belirgin tek korelasyon, turuncu çubuk: sıcaklık ile iki gün önceki kiralama 
+sayısı arasında, 0.60. Bu mantıklı, çünkü sıcak dönemlerde daha çok bisiklet kiralanıyor. Diğer 
+korelasyonların hepsi küçük. Ama Pearson korelasyonunun iki eksiği var: Kategorik özelliklerle çalışmıyor ve 
+sadece doğrusal ilişkileri ölçüyor. Bu yüzden iki araç daha kullanıyoruz: ikili saçılım grafikleri ve 
+normalize edilmiş karşılıklı bilgi, yani NMI.
+
+## Slayt 8
+
+NMI'ın formüllerine kısaca bakalım, ama asıl önemli olan sağdaki yorum kısmı. Karşılıklı bilgi, iki 
+değişkenin ortak olasılığını, bağımsız olsalardı beklenecek olasılıkla karşılaştırıyor. Bunu iki değişkenin 
+entropilerinin toplamına bölünce 0 ile 1 arasında bir değer elde ediyoruz. Nasıl okunuyor? 0, iki özellik hiç 
+bilgi paylaşmıyor demek. 1 ise bütün değişimin bu bağımlılıktan geldiği anlamına geliyor. Sayısal özellikler 
+için önce değerleri eşit genişlikte kutulara bölüyoruz. Kutu sayısını Freedman-Diaconis kuralı belirliyor. 
+Bir uyarı var: Kutu ya da kategori sayısı çok fazlaysa NMI yukarı yönlü yanlı olabiliyor, yani olduğundan 
+yüksek çıkabiliyor. Bu yüzden NMI'a tek başına güvenmiyoruz, grafiklerle ve korelasyonla birlikte okuyoruz.
+
+## Slayt 9
+
+Bu şekil kitaptan alınmış. Köşegenin altında ikili grafikler, üstünde de NMI değerleri var. Üç şey görüyoruz. 
+Birincisi, NMI korelasyon analizinden edindiğimiz izlenimi genel olarak doğruluyor. İkincisi, kategorik 
+özellikler hakkında da bilgi veriyor: Mesela mevsim, sıcaklıkla 0.31, iki gün önceki kiralama sayısıyla da 
+0.12 bilgi paylaşıyor. Bu şaşırtıcı değil, yazın hava sıcak ve kiralama fazla. Üçüncüsü, ikili grafiklerde 
+sıra dışı bir örüntü yok, ilişkiler çoğunlukla doğrusal. Bu da bu veri kümesi için korelasyonun iyi bir ölçü 
+olduğunu gösteriyor. Okunabilirlik için holiday ve workday şekilden çıkarılmış. Bir sonraki veri kümesinde, 
+penguenlerde, işler bu kadar basit olmayacak.
+
+## Slayt 10
+
+İkinci veri kümesine geçiyoruz: Palmer penguenleri. Burada bir sınıflandırma problemi var, penguenin 
+cinsiyetini vücut ölçülerinden tahmin edeceğiz.
+
+## Slayt 11
+
+Palmer penguenleri veri kümesi Antarktika'daki Palmer Takımadaları'ndan 333 penguenin ölçümlerini içeriyor. 
+Veriyi Gorman, Williams ve Fraser, Palmer İstasyonu ile birlikte toplamış. Soldaki sevimli çizimler Allison 
+Horst'a ait ve üç türü gösteriyor: Chinstrap, Gentoo ve Adelie. Çalışma diğer konuların yanında dişi ve erkek 
+penguenlerin görünüş farklarını incelediği için biz de cinsiyeti sınıflandırıyoruz. Turuncu satır hedefimiz: 
+sex. Özellikler tür, vücut kütlesi, gaga uzunluğu, gaga derinliği ve palet uzunluğu. Sağ alttaki çizim gaga 
+ölçümlerinin nasıl yapıldığını gösteriyor: Uzunluk gaganın boyu, derinlik ise yüksekliği. On bir penguende 
+eksik veri olduğu için bu kayıtlar çıkarılmış. Veri palmerpenguins R paketiyle yükleniyor.
+
+## Slayt 12
+
+Penguen modelleri de üçte iki eğitim, üçte bir test olacak şekilde eğitilmiş. Bu sefer metrikler log kaybı ve 
+doğruluk. Log kaybında düşük, doğrulukta yüksek değer iyi. En iyi yaklaşım lojistik regresyon: log kaybı 
+0.16, doğruluk 0.93. Ama burada bir detay var: Bu aslında üç ayrı model. Veri önce türe göre bölünmüş ve her 
+tür için ayrı bir lojistik regresyon eğitilmiş. Veri kümesini oluşturanlar da makalelerinde böyle yapmış. 
+Rastgele orman ve karar ağacında ise tür bir özellik olarak kullanılmış. Karar ağacı için bu iyi çalışmamış, 
+log kaybı 1.23. Rastgele orman ise doğrulukta 0.92 ile lojistik regresyona çok yakın.
+
+## Slayt 13
+
+Şimdi penguenlerde özellik bağımlılığına bakalım. Soldaki grafikte en güçlü korelasyon turuncu çubuk: palet 
+uzunluğu ile vücut kütlesi arasında, 0.87. Bu çok mantıklı, büyük penguenlerin paletleri de büyük. Palet 
+uzunluğu gaga uzunluğu ve gaga derinliğiyle de ilişkili. Ama Pearson korelasyonu sadece doğrusal bağımlılığı 
+ölçtüğü için hikâyenin yarısını anlatıyor. Sağdaki NMI şekline bakınca garip bir şey görüyoruz: Vücut kütlesi 
+ile gaga derinliği arasındaki NMI 0.29, yani kütle ile palet arasındaki 0.3'e çok yakın. Oysa korelasyonları 
+çok farklı: biri 0.87, diğeri eksi 0.47. Neden böyle? Cevap bir sonraki slaytta.
+
+## Slayt 14
+
+Cevap Simpson paradoksu. Simpson paradoksunda, verinin gruplarında görülen bir eğilim, gruplar 
+birleştirilince kayboluyor ya da tersine dönüyor. Grafiğe bakın: Her türün içinde gaga derinliği ile vücut 
+kütlesi arasında pozitif bir ilişki var. Adelie'de 0.58, Chinstrap'te 0.60, Gentoo'da 0.72. Gagası derin olan 
+penguen daha ağır. Ama bütün penguenleri birleştirince turuncu çizgi aşağı iniyor ve korelasyon eksi 0.47 
+oluyor. Bunun nedeni yeşil noktalar, yani Gentoo penguenleri. Gentoo'lar diğer türlerden çok daha ağır ama 
+gagaları daha sığ. Gruplar birleşince bu fark eğilimi tersine çeviriyor. Karşılıklı bilgi doğrusal bir ilişki 
+varsaymadığı için bu sorundan etkilenmiyor. Bu grafiği palmerpenguins verisinden kendim yeniden çizdim; 
+çizgiler her tür için doğrusal eğilim çizgileri.
+
+## Slayt 15
+
+Bölüm bir modelleme kararıyla bitiyor. Kitap boyunca varsayılan olarak bütün penguenler tek bir veri kümesi 
+kabul ediliyor ve tür bir özellik olarak kullanılıyor. Alternatif, her tür için ayrı modelleme ve analiz 
+yapmak. Kitap bunun tartışmaya açık olsa da daha iyi olabileceğini söylüyor. Zaten performans tablosunda türe 
+göre ayrılmış lojistik regresyon en iyi sonucu vermişti, Simpson paradoksu da gruplar arasındaki farkların ne 
+kadar önemli olduğunu gösterdi. Bu aslında makine öğrenmesinde çok yaygın bir gerilim. Veri noktaları çoğu 
+zaman bir gruba ya da varlığa ait oluyor. Mesela farklı mağazaların satışlarını tahmin ederken ya da aynı 
+partilerden gelen laboratuvar örneklerini sınıflandırırken, ayrı modeller mi kuracağımıza yoksa grup 
+kimliğini bir özellik olarak mı kullanacağımıza karar vermemiz gerekiyor.
+
+## Slayt 16
+
+Özetlersek: Bisiklet verisi bir regresyon görevi, 728 gün var ve en iyi model SVM, RMSE'si 852. Penguen 
+verisi bir sınıflandırma görevi, 333 penguen var ve en iyi yaklaşım türe göre lojistik regresyon, doğruluğu 
+0.93. Bu bölümden çıkarmamız gereken en önemli ders şu: Bir modeli yorumlamadan önce veriyi tanımalıyız. 
+Özellikler arasındaki bağımlılık, yorumlama yöntemlerinin sonuçlarını doğrudan etkiliyor. Bu yüzden 
+korelasyonu, NMI'ı ve grafikleri birlikte kullanmalı, Simpson paradoksu gibi tuzaklara dikkat etmeliyiz. 
+Dinlediğiniz için teşekkür ederim. Sorularınızı alabilirim.
+

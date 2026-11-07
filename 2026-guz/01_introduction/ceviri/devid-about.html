@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kitap Hakkında</title>
+  <style>
+    body { max-width: 72rem; margin: 2rem auto; padding: 0 1rem; color: #242424; font: 1rem/1.65 system-ui, sans-serif; }
+    nav { float: right; max-width: 18rem; margin: 0 0 1.5rem 2rem; }
+    img { max-width: 100%; height: auto; }
+    section { margin: 2rem 0; }
+  </style>
+</head>
+<body>
+  <nav aria-label="İçindekiler">
+    <strong>İçindekiler</strong>
+    <ol>
+      <li><a href="#ozet">Özet</a></li>
+      <li><a href="#neden">Bu kitabı neden yazdım?</a></li>
+      <li><a href="#kimin-icin">Bu kitap kimin için?</a></li>
+      <li><a href="#yeni">Üçüncü baskıda neler yeni?</a></li>
+      <li><a href="#yazar">Yazar hakkında</a></li>
+    </ol>
+  </nav>
+  <main>
+    <header><h1>Kitap Hakkında</h1><p><strong>Ön Söz</strong></p><p>Yazar: Devid</p></header>
+    <blockquote><strong>Çeviri kaynağı:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, 3. baskı (2025), <a href="https://christophm.github.io/interpretable-ml-book/">About the Book</a>. Özgün eser CC BY-NC-SA 4.0 lisanslıdır.</blockquote>
+    <figure><img src="https://christophm.github.io/interpretable-ml-book/images/cover.jpg" alt="Interpretable Machine Learning kitap kapağı" style="width:35%"></figure>
+    <section id="ozet"><h2>Özet</h2>
+      <p>Makine öğrenmesi ürünlerimizin, süreçlerimizin ve araştırmalarımızın bir parçasıdır. Ancak <strong>bilgisayarlar genellikle tahminlerini açıklamaz</strong>; bu durum güven sorunlarından fark edilmemiş hatalara kadar birçok probleme yol açabilir. Bu kitap, makine öğrenmesi modellerini ve onların kararlarını yorumlanabilir hâle getirmek üzerinedir.</p>
+      <p>Yorumlanabilirlik kavramlarını inceledikten sonra, karar ağaçları ve doğrusal regresyon gibi basit, <strong>yorumlanabilir modeller</strong> hakkında bilgi edineceksiniz. Kitabın odağı, <strong>kara kutu modelleri yorumlamak</strong> için modelden bağımsız yöntemlerdir. LIME ve Shapley değerleri gibi bazı modelden bağımsız yöntemler tek tek tahminleri açıklamak için kullanılabilirken; permütasyon özellik önemi ve birikimli yerel etkiler gibi diğer yöntemler, özellikler ile tahminler arasındaki daha genel ilişkiler hakkında içgörü elde etmek için kullanılabilir. Kitap ayrıca derin sinir ağlarına özgü yöntemleri de sunar.</p>
+      <p>Tüm yorumlama yöntemleri ayrıntılı biçimde açıklanır ve eleştirel olarak tartışılır. Nasıl çalışırlar? Güçlü ve zayıf yönleri nelerdir? Nasıl yorumlanırlar? Bu kitap, makine öğrenmesi uygulamanız için en uygun yorumlama yöntemini seçmenizi ve doğru biçimde uygulamanızı sağlar. Kitabın; makine öğrenmesi uygulayıcılarına, veri bilimcilerine, istatistikçilere ve makine öğrenmesi modellerini yorumlanabilir hâle getirmekle ilgilenen herkese okunması önerilir.</p>
+    </section>
+    <section id="neden"><h2>Bu kitabı neden yazdım?</h2>
+      <p>Bu kitap, klinik araştırmalarda istatistikçi olarak çalışırken yan proje olarak başladı. Boş günlerimde ilgimi çeken konuları araştırıyordum; yorumlanabilir makine öğrenmesi zamanla dikkatimi çekti. Makine öğrenmesi modellerini yorumlamaya dair bol miktarda kaynak bulmayı beklerken, kapsamlı bir rehber olmaksızın yalnızca dağınık araştırma makaleleri ve blog yazılarıyla karşılaşınca şaşırdım. Bu durum, var olmasını istediğim kaynağı oluşturmam için beni motive etti: Kendi anlayışımı derinleştirecek ve içgörüleri başkalarıyla paylaşacak bir kitap.</p>
+      <p>Bugün bu kitap, makine öğrenmesi modellerini yorumlamak için başvurulan bir kaynak hâline gelmiştir. Araştırmacılar kitaba binlerce kez atıf yaptı; öğrenciler tezleri için temel olduğunu belirten mesajlar gönderdi; öğretim elemanları derslerinde kullanıyor; sektördeki veri bilimcileri ise günlük çalışmalarında kitaptan yararlanıp meslektaşlarına öneriyor. Kitap, kendi kariyerimin de temelini oluşturdu: önce beni yorumlanabilir makine öğrenmesi alanında doktora yapmaya teşvik etti, daha sonra serbest yazar, eğitmen ve danışman olmamı sağladı.</p>
+    </section>
+    <section id="kimin-icin"><h2>Bu kitap kimin için?</h2>
+      <p>Bu kitap, makine öğrenmesi modellerini daha yorumlanabilir hâle getirmeye yönelik tekniklere genel bakış arayan uygulayıcılar içindir. Öğrenciler, öğretmenler, araştırmacılar ve konuyla ilgilenen herkes için de değerlidir. Makine öğrenmesine ve üniversite düzeyinde temel matematiğe ilişkin temel bir anlayış, kuramı takip etmeye yardımcı olur; ancak her bölümün başındaki sezgisel açıklamalar matematik bilgisi olmadan da erişilebilir olmalıdır.</p>
+    </section>
+    <section id="yeni"><h2>Üçüncü baskıda neler yeni?</h2>
+      <p>Üçüncü baskı hem küçük hem de büyük bir güncellemedir. Küçük bir güncellemedir; çünkü yalnızca iki yeni yöntem bölümü—LOFO ve Ceteris Paribus—ile iki giriş bölümü—Yöntemlere Genel Bakış ve Yorumlanabilirliğin Hedefleri—eklenmiştir. Bununla birlikte, kitabı iyileştirdiğine inanılan daha incelikli ama önemli değişiklikler de yapılmıştır.</p>
+      <p>Giriş bölümü daha yalın, ancak daha içgörülü olacak şekilde yeniden düzenlenmiştir. Veri örnekleri daha derinleştirilmiş; örneğin korelasyonlar incelenmiş ve daha ayrıntılı analizler eklenmiştir. Kanser veri kümesinin yerine daha erişilebilir Palmer penguenleri veri kümesi kullanılmıştır. Kitabı daha uygulamalı hâle getirmek için makine öğrenmesi modellerini doğru yorumlamaya yardımcı olan ipucu ve uyarı kutuları eklenmiştir.</p>
+      <p>Üçüncü baskıdaki büyük bir değişiklik de kitap deposunun düzenlenmesi ve kitabın bookdown yerine Quarto ile işlenmesidir. Okur açısından bu çoğunlukla web sürümünün görünümünde fark edilir; ancak kitabın bakımını büyük ölçüde kolaylaştırır ve uzun vadede <em>Interpretable Machine Learning</em> kitabına yarar sağlar. Ayrıca birçok küçük düzeltme yapılmıştır; bunlar kitap deposunun README dosyasındaki “Changelog” bölümünde görülebilir.</p>
+    </section>
+    <section id="yazar"><h2>Yazar hakkında</h2>
+      <p>Merhaba! Benim adım Christoph Molnar. Makine öğrenmesi hakkında, özellikle yalnızca tahmin performansının ötesine geçen konularda yazıyor ve eğitim veriyorum. İstatistik eğitimi aldım, birkaç yıl veri bilimci olarak çalıştım, yorumlanabilir makine öğrenmesi alanında doktora yaptım; şimdi ise yazarım ve atölye çalışmaları ile danışmanlık hizmetleri sunuyorum. Makine öğrenmesi üzerine çalışmalarımı takip etmek için <em>Mindful Modeler</em> bültenine abone olabilirsiniz.</p>
+      <figure><img src="https://christophm.github.io/interpretable-ml-book/images/by-nc-sa.jpg" alt="CC BY-NC-SA 4.0 lisans simgesi" style="width:30%"></figure>
+      <p>Bu kitap <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> lisansı altında yayımlanmıştır.</p>
+    </section>
+  </main>
+</body>
+</html>

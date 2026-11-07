@@ -1,0 +1,269 @@
+---
+lang: tr
+bibliography: references.bib
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+# Bireysel Koşullu Beklenti (ICE) {#ice}
+
+```{r}
+#| label: setup
+#| include: false
+library("dplyr")
+library("ggplot2")
+library("iml")
+library("palmerpenguins")
+library("patchwork")
+library("randomForest")
+library("viridis")
+set.seed(2)
+penguins = na.omit(penguins)
+penguins_col_selection = c('species', 'bill_depth_mm', 'bill_length_mm', 'flipper_length_mm', 'sex', 'body_mass_g')
+penguins = penguins[penguins_col_selection]
+penguin_train_index <- sample(1:nrow(penguins), 2/3 * nrow(penguins))
+penguins_train <- penguins[penguin_train_index, ]
+penguins_test <- penguins[-penguin_train_index, ]
+pengu_rf = randomForest(sex ~ ., data = penguins_train)
+set.seed(42)
+load("data/bike.RData")
+bike = na.omit(bike)
+bike_features = c('season','holiday', 'workday', 'weather', 'temp', 'hum', 'windspeed', "cnt_2d_bfr")
+bike = bike[c(bike_features, "cnt")]
+bike_train_index <- sample(1:nrow(bike), 2/3 * nrow(bike))
+bike_train <- bike[bike_train_index, ]
+bike_test <- bike[-bike_train_index, ]
+bike_rf = randomForest(cnt ~ ., data = bike_train)
+my_theme = function(legend.position='right'){
+  theme_bw() %+replace%
+    theme(legend.position=legend.position)
+}
+theme_set(my_theme())
+```
+
+Bireysel Koşullu Beklenti (ICE) grafikleri, bir öznitelik değiştiğinde her örneğin tahmininin nasıl değiştiğini gösteren, örnek başına bir çizgi çizer.
+
+Bir ICE grafiği [@goldstein2015peeking], tahminin bir özniteliğe bağımlılığını **her** örnek için ayrı ayrı görselleştirir; sonuç, veri kümesindeki her örnek için bir çizgidir.
+
+Bir çizginin (ve bir örneğin) değerleri şöyle hesaplanır: diğer tüm öznitelikler sabit tutulur, ilgili özniteliğin değeri bir ızgaradaki değerlerle değiştirilerek bu örneğin varyantları oluşturulur ve kara kutu model bu yeni örnekler için tahmin üretir.
+
+Sonuç, bir örnek için ızgaradaki öznitelik değeri ile karşılık gelen tahminlerden oluşan bir nokta kümesidir.
+
+Başka bir deyişle ICE grafikleri, bir veri kümesindeki tüm [ceteris paribus eğrilerinin](#ceteris-paribus) tek bir grafikte toplanmış halidir.
+
+## Örnekler
+
+@fig-ice-bike, [bisiklet kiralama tahmini](#bike-data) için ICE grafiklerini gösterir.
+
+Altta yatan tahmin modeli bir rastgele ormandır.
+
+Tüm eğriler aynı güzergâhı izliyor gibi görünür; dolayısıyla bariz etkileşim yoktur.
+
+::: {layout-ncol=1}
+
+```{r}
+#| label: fig-ice-bike
+#| fig-cap: "Sıcaklık, nem ve rüzgâr hızına göre tahmin edilen bisiklet kiralamalarının ICE grafikleri."
+#| fig-asp: 0.4
+#| out-width: 95%
+pred.bike = Predictor$new(bike_rf, data = bike_test[bike_features], y = bike_test$cnt)
+p1 = FeatureEffect$new(pred.bike, "temp", method = "ice")$plot() +
+  scale_x_continuous("Sıcaklık") +
+  scale_y_continuous("Tahmin edilen bisiklet kiralama sayısı")
+p2 = FeatureEffect$new(pred.bike, "hum", method = "ice")$plot() +
+  scale_x_continuous("Bağıl nem") +
+  scale_y_continuous("") +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+p3 = FeatureEffect$new(pred.bike, "windspeed", method = "ice")$plot() +
+  scale_x_continuous("Rüzgâr hızı") +
+  scale_y_continuous("") +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+(p1 | p2 | p3) + plot_layout(guides = "collect", widths = c(1, 1, 1))
+```
+
+```{r}
+#| label: fig-ice-bike-colored
+#| fig-cap: "Bisiklet kiralamalarını tahmin eden rastgele orman için ICE eğrileri. Çizgiler mevsime göre renklendirilmiştir."
+#| out-width: 85%
+dat = FeatureEffect$new(pred.bike, "hum", method = "ice")$results
+bike2 = bike_test
+bike2$.id = seq_len(nrow(bike_test))
+dat = merge(bike2[c(".id", "season")], dat, by = ".id")
+
+iceplot = ggplot(dat) +
+  geom_line(aes(group = .id, x = hum, y = .value, color = season),
+            alpha = 0.3) +
+  scale_y_continuous("Tahmin edilen bisiklet kiralama sayısı", limits = c(0, NA)) +
+  scale_color_viridis(
+  discrete = TRUE,
+  name = "Mevsim",
+  labels = c(
+    "WINTER" = "Kış",
+    "SPRING" = "İlkbahar",
+    "SUMMER" = "Yaz",
+    "FALL" = "Sonbahar"
+  )
+) +
+  scale_x_continuous("Bağıl nem")
+iceplot
+```
+
+:::
+
+Ama ICE grafiğini değiştirerek olası etkileşimleri de keşfedebiliriz.
+
+@fig-ice-bike-colored yine nem için ICE grafiğini gösterir; fark, çizgilerin artık mevsime göre renklendirilmiş olmasıdır.
+
+Bu birkaç şey gösterir:
+
+İlk olarak — ve bu şaşırtıcı değildir — farklı mevsimlerin farklı “başlangıç düzeyleri” (*intercept*) vardır.
+
+Yani örneğin kış günlerinin tahmini daha düşüktür, yazın ise en yüksektir; nemden bağımsız olarak.
+
+Ama @fig-ice-bike-colored, nem etkisinin mevsimlere göre de değiştiğini gösterir:
+
+Kışın nem artışı, tahmin edilen bisiklet kiralama sayısını yalnızca hafifçe azaltır.
+
+Yazın, bağıl nem %20 ile %60 arasında tahmin edilen kiralamalar kabaca yatay kalır; %60'ın üzerinde ise oldukça düşer.
+
+İlkbahar ve sonbahar için nem etkileri, “kışın yataylığı” ile “yazın sıçraması”nın bir karışımı gibi görünür.
+
+Ancak yaz ve sonbahar için çok düşük nem değerlerindeki etkileri aşırı yorumlamamalıyız.[^ice-boxplot-note]
+
+::: {.callout-tip}
+
+# Saydamlık ve renk kullan
+
+Çizgiler bir grafikte yoğun biçimde örtüşüyorsa onları biraz saydam yapmayı dene.
+
+Bu yetmezse [kısmi bağımlılık grafiği](#pdp) daha uygun olabilir.
+
+Çizgileri başka bir özniteliğin değerine göre renklendirerek etkileşimleri inceleyebilirsin.
+
+:::
+
+[Penguen sınıflandırma görevine](#penguins) dönüp her örneğin tahmininin `bill_length_mm` özniteliğiyle nasıl ilişkili olduğuna bakalım.
+
+Vücut ölçülerine bakarak bir penguenin cinsiyetini tahmin eden bir rastgele ormanı çözümleyeceğiz.[^ice-class-note]
+
+@fig-ice-penguins oldukça çirkin bir ICE grafiğidir.
+
+Ama bazen gerçeklik budur.
+
+Bu grafikte sınıf tahminleri gösterilir: 0 erkek, 1 dişi sınıfını belirtir. Bu nedenle çizgiler 0 ile 1 arasında sıçrar.
+
+```{r}
+#| label: fig-ice-penguins
+#| fig-cap: "Gaga uzunluğuna göre dişi sınıfı göstergesinin ICE grafiği (0: erkek, 1: dişi). Her çizgi bir pengueni temsil eder."
+#| out-width: 80%
+pred.penguins = Predictor$new(
+  pengu_rf,
+  data = penguins_test[setdiff(names(penguins_test), "sex")],
+  y = penguins_test$sex,
+  class = "female"
+)
+ice = FeatureEffect$new(pred.penguins, "bill_length_mm", method = "ice")$plot() +
+  scale_color_discrete(guide='none') +
+  scale_y_continuous('Tahmin edilen dişi sınıfı (0/1)') +
+  scale_x_continuous("Gaga uzunluğu (mm)")
+ice
+```
+
+## Merkezlenmiş ICE grafiği
+
+ICE grafiklerinde bir sorun vardır:
+
+Bazen ICE eğrilerinin veri noktaları arasında farklılaşıp farklılaşmadığını söylemek zordur; çünkü farklı tahminlerden başlarlar.
+
+Basit bir çözüm, her eğriden özniteliğin seçilen referans noktasındaki kendi tahmin değerini çıkarmaktır. Böylece tüm eğriler bu noktada sıfıra hizalanır ve yalnızca referans noktasına göre tahmin farkı gösterilir.
+
+Ortaya çıkan grafiğe merkezlenmiş ICE grafiği (c-ICE) denir.
+
+Eğrileri özniteliğin alt ucuna sabitlemek iyi bir seçimdir.
+
+Her eğri şöyle tanımlanır:
+
+$$ICE^{(i)}_j(x_j) = \hat{f}(x_j, \mathbf{x}^{(i)}_{-j}) - \hat{f}(a, \mathbf{x}_{-j}^{(i)})$$
+
+Burada $\hat{f}$ eğitilmiş model, $a$ ise referans (*anchor*) noktasıdır.
+
+Bisiklet kiralama tahmini için sıcaklığa ait merkezlenmiş ICE grafiğine bakalım:
+
+```{r}
+#| label: fig-ice-bike-centered
+#| fig-cap: "Sıcaklığa göre tahmin edilen bisiklet sayısı için merkezlenmiş ICE grafikleri. Çizgiler, sıcaklık gözlenen minimumunda sabitken elde edilen tahmine göre farkı gösterir."
+#| out-width: 80%
+predictor = pred.bike
+ytext1 = sprintf("Sıcaklık = %.1f noktasındaki tahmine göre fark", min(bike$temp))
+ice1 = FeatureEffect$new(predictor, feature = "temp", center.at = min(bike$temp), method = "ice")$plot() +
+  scale_y_continuous(ytext1) +
+  scale_x_continuous("Sıcaklık")
+ice1
+```
+
+Merkezlenmiş ICE grafikleri, bireysel örneklerin eğrilerini karşılaştırmayı kolaylaştırır.
+
+Bu, bir tahmini değerin mutlak değişimini değil, öznitelik aralığındaki sabit bir noktaya göre tahmin farkını görmek istediğimizde yararlıdır.
+
+## Türev ICE grafiği
+
+Heterojenliği görsel olarak fark etmeyi kolaylaştırmanın başka bir yolu, tahmin işlevinin bir özniteliğe göre bireysel türevlerine bakmaktır.
+
+Ortaya çıkan grafiğe türev ICE grafiği (d-ICE) denir.
+
+Bir işlevin (veya eğrinin) türevleri, değişim olup olmadığını ve hangi yönde olduğunu söyler.
+
+Türev ICE grafiğiyle, kara kutu tahminlerinin (en azından bazı) örnekler için değiştiği öznitelik değeri aralıklarını kolayca görürüz.
+
+İncelenen öznitelik $X_j$ ile diğer öznitelikler $X_{-j}$ arasında etkileşim yoksa tahmin işlevi şöyle yazılabilir:
+
+$$\hat{f}(\mathbf{x}) = \hat{f}(x_j, \mathbf{x}_C) = g(x_j) + h(\mathbf{x}_{-j}), \quad\text{ve}\quad\frac{\partial \hat{f}(\mathbf{x})}{\partial x_j} = g'(x_j)$$
+
+Etkileşim yokken bireysel kısmi türevler tüm örnekler için aynı olmalıdır.
+
+Farklılaşıyorlarsa nedeni etkileşimlerdir ve bu d-ICE grafiğinde görünür hale gelir.
+
+$j$ özniteliğine göre tahmin işlevinin türevi için bireysel eğrileri göstermenin yanı sıra, türevin standart sapmasını göstermek, öznitelik $j$ içinde tahmini türevlerin heterojen olduğu bölgeleri vurgulamaya yardımcı olur.
+
+Türev ICE grafiğinin hesabı uzun sürer ve oldukça pratik değildir.
+
+## Güçlü yönler
+
+Bireysel koşullu beklenti eğrilerini **sezgisel olarak anlamak kolaydır**.
+
+Bir çizgi, ilgili özniteliği değiştirdiğimizde bir örnek için tahminleri temsil eder.
+
+ICE eğrileri **heterojen ilişkileri ortaya çıkarabilir**.
+
+## Sınırlılıklar
+
+ICE eğrileri **anlamlı biçimde yalnızca bir özniteliği** gösterebilir; çünkü iki öznitelik, üst üste binen birçok yüzey çizmeyi gerektirir ve grafikte hiçbir şey görülmez.
+
+ICE eğrileri korelasyondan zarar görür: İlgilenilen öznitelik diğer özniteliklerle ilişkiliyse, **çizgilerdeki bazı noktalar ortak öznitelik dağılımına göre geçersiz veri noktaları** olabilir.
+
+Çok sayıda ICE eğrisi çizilirse **grafik kalabalıklaşır** ve hiçbir şey görülmez.
+
+Çözüm: Çizgilere biraz saydamlık ekle ya da yalnızca bir örneklem çiz.
+
+ICE grafiklerinde **ortalamayı görmek** kolay olmayabilir.
+
+Bunun yalın bir çözümü vardır:
+
+Bireysel koşullu beklenti eğrilerini [kısmi bağımlılık grafiğiyle](#pdp) birleştir.
+
+## Yazılım ve alternatifler
+
+ICE grafikleri R paketlerinde `iml` [@molnar2018iml] (bu örneklerde kullanılan), `ICEbox` ve `pdp` içinde uygulanmıştır.
+
+ICE'ye çok benzer bir şey yapan başka bir R paketi `condvis`'tir.
+
+Python'da [PiML](https://selfexplainml.github.io/PiML-Toolbox/_build/html/index.html) kullanabilirsin [@sudjianto2023piml].
+
+[^ice-boxplot-note]: Çevirmen notu: Kaynak metinde kutu grafiklerine atıf yapılmasına rağmen kitabın yayımlanan nem görselinde ve ilgili çizim kodunda kutu grafikleri bulunmamaktadır. Burada yayımlanan görselin düzeni korunmuştur.
+
+[^ice-class-note]: Çevirmen notu: Kaynak metin bu grafiği olasılık grafiği olarak açıklasa da kaynak kodda olasılık türü seçilmemiştir. Kitaptaki görünümü korumak için burada da 0/1 sınıf göstergeleri çizilmiştir. Gerçek olasılık eğrileri için Predictor çağrısına type = "prob" eklenebilir; bu durumda eğriler kitaptakinden farklı görünür.

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>shap</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="shap_files/libs/clipboard/clipboard.min.js"></script>
+<script src="shap_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="shap_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="shap_files/libs/quarto-html/popper.min.js"></script>
+<script src="shap_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="shap_files/libs/quarto-html/anchor.min.js"></script>
+<link href="shap_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="shap_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="shap_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="shap_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="shap_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<p><strong>SHAP</strong></p>
+<p>Lundberg ve Lee (2017) tarafından geliştirilen SHAP (SHapley Additive exPlanations), bireysel tahminleri açıklamak için kullanılan bir yöntemdir. SHAP, oyun teorisi açısından optimal olan Shapley değerlerine dayanır. Öncelikle <a href="https://www.google.com/search?q=%23shapley&amp;utm_source=gemini"><u>Shapley değerleri</u></a> bölümünü okumanızı tavsiye ederim.</p>
+<p>SHAP'in neden sadece <a href="https://www.google.com/search?q=%23shapley&amp;utm_source=gemini"><u>Shapley değerleri bölümünün</u></a> bir uzantısı olmadığını ve kendi başına önemli bir konu olduğunu anlamak için biraz tarihçe: 1953 yılında Lloyd Shapley, oyun teorisi için Shapley değerleri kavramını tanıttı. Makine öğrenmesi tahminlerini açıklamak için Shapley değerleri ilk kez Štrumbelj ve Kononenko (2011) ile Štrumbelj ve Kononenko (2014) tarafından önerildi. Ancak bu yaklaşım o dönem pek popüler olmadı. Nihayetinde birkaç yıl sonra Lundberg ve Lee (2017), makine öğrenmesi tahminlerini yorumlamak amacıyla Shapley değerlerini tahmin etmede temel olarak yeni bir yol sunan SHAP'i önerdi. Bu çalışma, Shapley değerlerini <a href="https://www.google.com/search?q=%23lime&amp;utm_source=gemini"><u>LIME</u></a> ve diğer post-hoc (model sonrası) öznitelik atama yöntemleriyle bağlayan bir teori ve Shapley değerlerine dair ilave teorik katkılar içeriyordu.</p>
+<p>SHAP'in yalnızca Shapley değerlerinin yeniden markalanmış bir hali olduğunu söyleyebilirsiniz (ki bu doğrudur); ancak bu durum, SHAP'in Shapley değerlerinin popülaritesinde ve kullanımında büyük bir dönüşümü tetiklediğini, bu değerleri hesaplamak ve yeni yollarla bir araya getirmek için yeni yöntemler sunduğunu görmezden gelmek olur. Ayrıca SHAP, Shapley değerlerini metin ve görüntü modellerine de taşımıştır.</p>
+<p>Bu bölüm tamamen <a href="https://www.google.com/search?q=%23shapley&amp;utm_source=gemini"><u>Shapley değeri bölümünün</u></a> bir alt bölümü olabilecekken, onu makine öğrenmesi modellerini yorumlamaya yönelik "Shapley değerleri 2.0" olarak da görebilirsiniz. Bu bölüm, Shapley değerlerini tahmin etmenin yeni yollarını ve yeni grafik türlerini vurgulamaktadır. Ancak önce biraz teori.</p>
+<p><strong>SHAP Teorisi</strong></p>
+<p>SHAP'in amacı, her bir özniteliğin tahmine olan katkısını hesaplayarak bir <span class="math inline">\(x\)</span> gözleminin tahminini açıklamaktır. SHAP, tıpkı <a href="https://www.google.com/search?q=%23shapley&amp;utm_source=gemini"><u>Shapley değeri bölümünde</u></a> tartıştığımız gibi, koalisyonel oyun teorisinden Shapley değerlerini hesaplar. Bir veri gözleminin öznitelik değerleri, bir koalisyondaki oyuncular gibi davranır. Shapley değerleri, "kazancın" (= tahminin) öznitelikler arasında adil bir şekilde nasıl dağıtılacağını söyler. Bir oyuncu, örneğin tablosal veriler için bireysel bir öznitelik değeri olabilir. Bir oyuncu aynı zamanda bir öznitelik değerleri grubu da olabilir. Örneğin bir görseli açıklamak için pikseller süper pikseller halinde gruplanabilir ve tahmin bunlar arasında dağıtılabilir. SHAP'in sunduğu yeniliklerden biri, Shapley değeri açıklamasının toplanabilir bir öznitelik atama yöntemi (toplanabilir bir lineer model) olarak temsil edilmesidir. Bu bakış açısı LIME ile Shapley değerlerini birbirine bağlar. SHAP açıklamayı şu şekilde tanımlar:</p>
+<p><span class="math inline">\(g(z') = \phi_{0} + \sum_{j = 1}^{M}\phi_{j}z'_{j}\)</span></p>
+<p>burada <span class="math inline">\(g\)</span> açıklama modelini, <span class="math inline">\(z' = (z_{1}',\ldots,z_{M}')^{T} \in \{ 0,1\}^{M}\)</span> koalisyon vektörünü, <span class="math inline">\(M\)</span> maksimum koalisyon boyutunu ve <span class="math inline">\(\phi_{j} \in R\)</span> ise <span class="math inline">\(j\)</span> özniteliği için öznitelik atamasını (Shapley değerlerini) temsil eder. Benim "koalisyon vektörü" olarak adlandırdığım şey, SHAP makalesinde "basitleştirilmiş öznitelikler" (simplified features) olarak adlandırılır. Sanırım bu isim tercih edildi çünkü örneğin görüntü verilerinde görüntüler piksel düzeyinde temsil edilmez, süper pikseller halinde birleştirilir. <span class="math inline">\(z'\)</span> vektörünü koalisyonları tanımlayan bir yapı olarak düşünmek faydalıdır: Koalisyon vektöründe 1 değeri karşılık gelen öznitelik değerinin "mevcut" (var) olduğunu, 0 değeri ise "eksik" (yok) olduğunu gösterir. Ancak yine de buradaki bir öznitelik, pikseller yerine süper pikseller gibi modelin kullandığı özniteliklerden farklı olabilir. Önemli olan bu iki temsil arasında dönüşüm yapabilmemizdir. Shapley değerlerini hesaplamak için, yalnızca bazı öznitelik değerlerinin oynadığını ("var olduğunu") ve bazılarının oynamadığını ("yok olduğunu") simüle ederiz. Koalisyonların lineer bir model olarak temsil edilmesi, <span class="math inline">\(\phi_{j}\)</span>'lerin hesaplanması için bir yöntemdir. Açıklanmak istenen <span class="math inline">\(x\)</span> gözlemi için, koalisyon vektörü <span class="math inline">\(x'\)</span> tamamen 1'lerden oluşan bir vektördür; yani tüm öznitelik değerleri "mevcut" durumdadır. Formül şu şekilde sadeleşir:</p>
+<p><span class="math inline">\(g(x') = \phi_{0} + \sum_{j = 1}^{M}\phi_{j}\)</span></p>
+<p>Bu formülü benzer bir gösterimle <a href="https://www.google.com/search?q=%23shapley&amp;utm_source=gemini"><u>Shapley değeri</u></a> bölümünde de bulabilirsiniz.</p>
+<p>Gerçek tahminleme süreçleri hakkında daha fazla ayrıntı bu bölümün ilerleyen kısımlarında yer almaktadır.</p>
+<p>Hesaplama ayrıntılarına girmeden önce <span class="math inline">\(\phi\)</span>'lerin özelliklerinden bahsedelim.</p>
+<p>Shapley değerleri; Etkinlik (Efficiency), Simetri (Symmetry), Kukla (Dummy) ve Toplanabilirlik (Additivity) özelliklerini sağlayan tek çözümdür.</p>
+<p>SHAP da Shapley değerlerini hesapladığı için bu özellikleri sağlar.</p>
+<p>Lundberg ve Lee (2017) tarafından yazılan SHAP makalesinde, SHAP özellikleri ile standart Shapley özellikleri arasında bazı isim farkları göreceksiniz.</p>
+<p>SHAP şu üç arzu edilen özelliği tanımlar:</p>
+<p><strong>1) Yerel Doğruluk (Local accuracy)</strong></p>
+<p><span class="math inline">\(\widehat{f}(x) = g(x') = \phi_{0} + \sum_{j = 1}^{M}\phi_{j}x'_{j}\)</span></p>
+<p>Eğer <span class="math inline">\(\phi_{0} = E\lbrack\widehat{f}(X)\rbrack\)</span> olarak tanımlar ve tüm <span class="math inline">\(x_{j}'\)</span> değerlerini 1 yaparsanız, bu Shapley etkinlik (efficiency) özelliğidir. Sadece farklı bir isimle ve koalisyon vektörü kullanılarak ifade edilmiştir.</p>
+<p><span class="math inline">\(\widehat{f}(x) = \phi_{0} + \sum_{j = 1}^{M}\phi_{j}x'_{j} = E\lbrack\widehat{f}(X)\rbrack + \sum_{j = 1}^{M}\phi_{j}\)</span></p>
+<p><strong>2) Eksiklik (Missingness)</strong></p>
+<p><span class="math inline">\(x'_{j} = 0 \Rightarrow \phi_{j} = 0\)</span></p>
+<p>Eksiklik özelliği, eksik olan bir özniteliğin sıfır katkı payı alacağını söyler. <span class="math inline">\(x_{j}'\)</span> ifadesinin, 0 değerinin bir öznitelik değerinin yokluğunu temsil ettiği koalisyonlara atıfta bulunduğunu unutmayın. Koalisyon gösteriminde, açıklanacak gözlemin tüm <span class="math inline">\(x_{j}'\)</span> öznitelik değerleri '1' olmalıdır. Bu özellik "normal" Shapley değerlerinin özellikleri arasında yer almaz. Peki SHAP için buna neden ihtiyaç duyarız? Lundberg bunu bir <a href="https://github.com/slundberg/shap/issues/175?utm_source=gemini#issuecomment-407134438"><u>"küçük muhasebe kuralı"</u></a> olarak adlandırır. Eksik bir öznitelik — teorik olarak — yerel doğruluk özelliğine zarar vermeden rastgele bir Shapley değerine sahip olabilir, çünkü <span class="math inline">\(x_{j}' = 0\)</span> ile çarpılır. Eksiklik özelliği, eksik özniteliklerin 0 Shapley değeri almasını zorunlu kılar. Uygulamada bu yalnızca sabit olan öznitelikler için geçerlidir.</p>
+<p><strong>3) Tutarlılık (Consistency)</strong></p>
+<p><span class="math inline">\({\widehat{f}}_{x}(z') = \widehat{f}(h_{x}(z'))\)</span> olsun ve <span class="math inline">\(z_{- j}'\)</span> ifadesi <span class="math inline">\(z_{j}' = 0\)</span> durumunu göstersin.</p>
+<p>Aşağıdaki koşulu sağlayan herhangi iki <span class="math inline">\(\widehat{f}\)</span> ve <span class="math inline">\(\widehat{f}'\)</span> modeli için:</p>
+<p><span class="math inline">\(\widehat{f}'_{x}(z') - \widehat{f}'_{x}(z'_{- j}) \geq {\widehat{f}}_{x}(z') - {\widehat{f}}_{x}(z'_{- j})\)</span></p>
+<p>tüm <span class="math inline">\(z' \in \{ 0,1\}^{M}\)</span> girdilerinde,daha sonra:</p>
+<p><span class="math inline">\(\phi_{j}(\widehat{f}',x) \geq \phi_{j}(\widehat{f},x)\)</span></p>
+<p>olur.</p>
+<p><span class="math inline">\(\phi_{j}(\widehat{f},x)\)</span> gösterimi, Shapley değerlerinin hangi modele ve veri noktasına bağlı olduğunu vurgular. Tutarlılık özelliği, eğer bir model bir öznitelik değerinin marjinal katkısı artacak veya aynı kalacak şekilde değişirse (diğer özniteliklerden bağımsız olarak), Shapley değerinin de artacağını veya aynı kalacağını söyler. Lundberg ve Lee (2017) makalesinin <a href="https://papers.nips.cc/paper_files/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html?utm_source=gemini"><u>Ek Belgeler (Supplemental)</u></a> kısmında açıklandığı gibi Doğrusallık (Linearity), Kukla (Dummy) ve Simetri (Symmetry) Shapley özellikleri Tutarlılık ilkelerinden türetilir.</p>
+<section id="shap-tahmini-estimation" class="level2">
+<h2 class="anchored" data-anchor-id="shap-tahmini-estimation"><strong>SHAP Tahmini (Estimation)</strong></h2>
+<p>Bu bölüm, tahminleri açıklamak amacıyla Shapley değerlerini hesaplamaya yönelik üç yöntemi incelemektedir: KernelSHAP, Permütasyon Yöntemi ve TreeSHAP.</p>
+<section id="kernelshap" class="level3">
+<h3 class="anchored" data-anchor-id="kernelshap"><strong>KernelSHAP</strong></h3>
+<p>KernelSHAP ile ilgili durum biraz kafa karıştırıcıdır: SHAP'in arkasındaki ana motivasyonu oluşturmuş, onu <a href="https://www.google.com/search?q=%23lime&amp;utm_source=gemini"><u>LIME</u></a> ve diğer katkı payı yöntemleriyle bağlamış ve orijinal Lundberg ve Lee (2017) makalesinde tanıtılmıştır.</p>
+<p>Ayrıca SHAP hakkındaki birçok blog yazısı KernelSHAP'ten bahseder.</p>
+<p>Ancak KernelSHAP, TreeSHAP ve Permütasyon Yöntemine kıyasla yavaştır ve bu nedenle shap Python paketi artık onu varsayılan olarak kullanmamaktadır.</p>
+<p>Artık varsayılan olmasa bile KernelSHAP, Shapley değerlerini anlamaya yardımcı olur ve Shapley değerleri ile <a href="https://www.google.com/search?q=%23lime&amp;utm_source=gemini"><u>LIME</u></a> arasındaki bağı gösterir; bazı uygulamalar halen bunu kullanmaktadır.</p>
+<p>KernelSHAP tahmini beş adımdan oluşur:</p>
+<ul>
+<li><p>Koalisyon vektörlerini örnekleyin: <span class="math inline">\(z_{k}' \in \{ 0,1\}^{M},k \in \{ 1,\ldots,K\}\)</span> (1 = öznitelik koalisyonda var, 0 = öznitelik yok).</p></li>
+<li><p>Her bir <span class="math inline">\(z_{k}'\)</span> için önce <span class="math inline">\(z_{k}'\)</span> vektörünü orijinal öznitelik alanına dönüştürerek ve ardından <span class="math inline">\(\widehat{f}\)</span> modelini uygulayarak tahmini elde edin: <span class="math inline">\(\widehat{f}(h_{x}(z_{k}'))\)</span>.</p></li>
+<li><p>SHAP çekirdeği (kernel) ile her bir <span class="math inline">\(z_{k}'\)</span> koalisyonu için ağırlığı hesaplayın.</p></li>
+<li><p>Ağırlıklı lineer modeli kurun (fit).</p></li>
+<li><p>Lineer modelin katsayıları olan Shapley değerlerini (<span class="math inline">\(\phi_{k}\)</span>) döndürün.</p></li>
+</ul>
+<p>0 ve 1 dizisi elde edene kadar ardışık yazı-tura atışlarıyla rastgele bir koalisyon oluşturabiliriz.</p>
+<p>Örneğin <span class="math inline">\((1,0,1,0)^{T}\)</span> vektörü, birinci ve üçüncü özniteliklerden oluşan bir koalisyona sahip olduğumuz anlamına gelir.</p>
+<p>Örneklenen <span class="math inline">\(K\)</span> sayıdaki koalisyon, regresyon modeli için veri seti haline gelir.</p>
+<p>Regresyon modelinin hedef değişkeni, bir koalisyona ait tahmindir.</p>
+<p>("Bir dakika!" diyebilirsiniz.</p>
+<p>"Model bu ikili koalisyon verileri üzerinde eğitilmedi ve bunlar için tahmin yapamaz.")</p>
+<p>Öznitelik değerlerinin koalisyonlarından geçerli veri gözlemlerine ulaşmak için <span class="math inline">\(h_{x}(z') = z\)</span> şeklinde bir fonksiyona ihtiyacımız vardır; burada $h_\mathbf{x}: \{0,1\}^M\rightarrow\mathbb{R}^p$ şeklindedir.</p>
+<p><span class="math inline">\(h_{x}\)</span> fonksiyonu, 1 değerlerini açıklamak istediğimiz <span class="math inline">\(x\)</span> gözlemindeki karşılık gelen değerle eşleştirir.</p>
+<p>Tablosal veriler için 0 değerlerini, veriden örneklediğimiz başka bir gözlemin değerleriyle eşleştirir.</p>
+<p>Bu, "öznitelik değeri yok" ifadesini "öznitelik değeri veriden alınan rastgele bir öznitelik değeriyle değiştirildi" şeklinde ele aldığımız anlamına gelir.</p>
+<p>Tablosal veriler için @fig-shap-simplified-feature, koalisyonlardan öznitelik değerlerine yapılan eşlemeyi görselleştirmektedir.</p>
+<p><img src="../images/1-shap-simplified-features.jpg" style="width:5.31771in;height:2.29668in"></p>
+<p>Tablosal veriler için <span class="math inline">\(h_{x}\)</span>, <span class="math inline">\(X_{j}\)</span> özniteliği ile <span class="math inline">\(X_{- j}\)</span> (diğer öznitelikler) özniteliklerini bağımsız olarak ele alır ve marjinal dağılım üzerinden entegre eder:</p>
+<p><span class="math inline">\(\widehat{f}(h_{x}(z')) = E_{X_{- j}}\lbrack\widehat{f}(x_{j},X_{- j})\rbrack\)</span></p>
+<p>Marjinal dağılımdan örnekleme yapmak, mevcut ve eksik öznitelikler arasındaki bağımlılık yapısını göz ardı etmek anlamına gelir.</p>
+<p>Bu nedenle KernelSHAP, permütasyona dayalı tüm yorumlama yöntemleriyle aynı sorundan muzdariptir.</p>
+<p>Tahminleme süreci, düşük olasılıklı gözlemlere ağırlık verme potansiyeline sahiptir.</p>
+<p>Sonuçlar güvenilmez hale gelebilir.</p>
+<p>Koşullu dağılımdan örnekleme yapsaydık, değer fonksiyonu değişirdi ve dolayısıyla çözümü Shapley değerleri olan oyun da değişirdi.</p>
+<p>Sonuç olarak, Shapley değerleri farklı bir yoruma sahip olurdu: Örneğin, model tarafından hiç kullanılmamış olabilecek bir öznitelik, koşullu örnekleme kullanıldığında sıfırdan farklı bir Shapley değerine sahip olabilir.</p>
+<p>Marjinal oyun için bu öznitelik değeri her zaman 0 Shapley değeri alırdı, aksi takdirde Kukla (Dummy) aksiyomunu ihlal ederdi. SHAP'in bu koşullu örnekleme versiyonu mevcuttur ve Aas ve arkadaşları (2021) tarafından önerilmiştir.</p>
+</section>
+</section>
+<section id="koşullu-shapley-değerleri-kullanılmayan-özniteliklere-sıfırdan-farklı-shapley-değerleri-verebilir" class="level1">
+<h1><strong>Koşullu Shapley değerleri, kullanılmayan özniteliklere sıfırdan farklı Shapley değerleri verebilir</strong></h1>
+<p>Koşullu beklentiyle ilgili sorun, <span class="math inline">\(\widehat{f}\)</span> tahmin fonksiyonu üzerinde hiçbir etkisi olmayan özniteliklerin, Sundararajan ve Najmi (2020) ile Janzing ve arkadaşları (2020) tarafından gösterildiği gibi, TreeSHAP tahmininde sıfırdan farklı bir değer alabilmesidir.</p>
+<p>Sıfırdan farklı bu tahmin, özniteliğin tahmin üzerinde gerçekten etkisi olan başka bir öznitelikle korelasyonu olduğunda gerçekleşebilir.</p>
+<p><img src="../images/2-shap-superpixel.jpg" style="width:3.29688in;height:2.74452in"></p>
+<p>SHAP ile LIME arasındaki en büyük fark, regresyon modelindeki gözlemlerin ağırlıklandırılmasıdır. LIME, gözlemleri orijinal gözleme ne kadar yakın olduklarına göre ağırlıklandırır. Koalisyon vektöründe ne kadar çok 0 varsa LIME'daki ağırlık o kadar küçük olur. SHAP, örneklenen gözlemleri, koalisyonun Shapley değeri tahmininde alacağı ağırlığa göre ağırlıklandırır. Küçük koalisyonlar (az sayıda 1 içeren) ve büyük koalisyonlar (yani çok sayıda 1 içeren) en büyük ağırlıkları alır. Arkasındaki sezgisel mantık şudur: Özniteliklerin etkilerini tek başlarına inceleyebilirsek, bireysel öznitelikler hakkında en çok bilgiyi ediniriz. Bir koalisyon tek bir öznitelikten oluşuyorsa, bu özniteliğin tahmin üzerindeki izole edilmiş ana etkisini öğrenebiliriz. Bir koalisyon biri hariç tüm özniteliklerden oluşuyorsa, bu özniteliğin toplam etkisini (ana etki artı öznitelik etkileşimleri) öğrenebiliriz. Eğer bir koalisyon özniteliklerin yarısından oluşuyorsa, özniteliklerin yarısını içeren çok sayıda olası koalisyon olduğu için, bireysel bir özniteliğin katkısı hakkında pek az şey öğreniriz. Shapley uyumlu ağırlıklandırmayı elde etmek için Lundberg ve Lee (2017) SHAP çekirdeğini (kernel) önermiştir:</p>
+<p><span class="math inline">\(\pi_{x}(z') = \frac{M - 1}{\frac{M}{|z'|}|z'|(M - |z'|)}\)</span></p>
+<p>$$</p>
+<p>Burada <span class="math inline">\(M\)</span> maksimum koalisyon boyutunu, <span class="math inline">\(z'\)</span> gözlemindeki mevcut özniteliklerin sayısını gösterir.</p>
+<p>Lundberg ve Lee (2017), bu çekirdek ağırlığıyla yapılan lineer regresyonun Shapley değerlerini verdiğini göstermektedir.</p>
+<p>LIME ile koalisyon verileri üzerinde SHAP çekirdeğini kullanacak olsaydınız, LIME da Shapley değerlerini tahmin ederdi!</p>
+<p>Koalisyonların örneklenmesi konusunda biraz daha zekice davranabiliriz: En küçük ve en büyük koalisyonlar ağırlığın çoğunu kapsar.</p>
+<p>Körlemesine örnekleme yapmak yerine, bu yüksek ağırlıklı koalisyonları dahil etmek için <span class="math inline">\(K\)</span> örnekleme bütçesinin bir kısmını kullanarak daha iyi Shapley değeri tahminleri elde ederiz.</p>
+<p>İşe 1 ve <span class="math inline">\(M - 1\)</span> özniteliğe sahip tüm olası koalisyonlarla başlarız; bu da toplamda <span class="math inline">\(2M\)</span> koalisyon yapar.</p>
+<p>Yeterince bütçemiz kaldığında (mevcut bütçe <span class="math inline">\(K - 2M\)</span>), 2 öznitelikli ve <span class="math inline">\(M - 2\)</span> öznitelikli koalisyonları vb. dahil edebiliriz.</p>
+<p>Kalan koalisyon boyutlarından ise yeniden ayarlanmış ağırlıklarla örneklem yaparız.</p>
+<p>Elimizde veri, hedef değişken ve ağırlıklar var; Ağırlıklı lineer regresyon modelimizi kurmak için ihtiyacımız olan her şeye sahibiz:</p>
+<p><span class="math inline">\(g(z') = \phi_{0} + \sum_{j = 1}^{M}\phi_{j}z'_{j}\)</span></p>
+<p>Lineer <span class="math inline">\(g\)</span> modelini aşağıdaki kayıp fonksiyonunu (<span class="math inline">\(L\)</span>) minimize ederek eğitiriz:</p>
+<p><span class="math inline">\(L(\widehat{f},g,\pi_{x}) = \sum_{z' \in Z}^{}\lbrack\widehat{f}(h_{x}(z')) - g(z')\rbrack^{2}\pi_{x}(z')\)</span></p>
+<p>burada <span class="math inline">\(Z\)</span> eğitim verisidir.</p>
+<p>Bu, lineer modeller için genellikle optimize ettiğimiz o bildiğimiz klasik karesel hatalar toplamıdır.</p>
+<p>Modelin tahmin edilen katsayıları olan <span class="math inline">\(\phi_{j}\)</span>'ler Shapley değerleridir.</p>
+<p>Lineer regresyon ortamında olduğumuz için standart regresyon araçlarından da yararlanabiliriz.</p>
+<p>Örneğin, modeli seyrek (sparse) hale getirmek için düzenlileştirme (regularization) terimleri ekleyebiliriz.</p>
+<p>Kayıp <span class="math inline">\(L\)</span>'ye bir L1 cezası eklersek, seyrek açıklamalar oluşturabiliriz.</p>
+<p>(Yine de elde edilen katsayıların halen geçerli Shapley değerleri olup olmayacağından pek emin değilim.)</p>
+<p><strong>AĞAÇ ŞEKLİ</strong></p>
+<p>Lundberg ve arkadaşları (2019), karar ağaçları, rastgele ormanlar (random forests) ve gradyan artırma ağaçları (gradient-boosted trees) gibi ağaç tabanlı makine öğrenmesi modelleri için SHAP'in bir varyantı olan TreeSHAP'i önermiştir. TreeSHAP, KernelSHAP'e hızlı ve modele özgü bir alternatif olarak sunulmuştur. TreeSHAP ne kadar daha hızlıdır? Kesin KernelSHAP ile karşılaştırıldığında, hesaplama karmaşıklığını <span class="math inline">\(O(TL2^{M})\)</span> değerinden <span class="math inline">\(O(TLD^{2})\)</span> değerine düşürür; burada T ağaç sayısını, L herhangi bir ağaçtaki maksimum yaprak sayısını ve D herhangi bir ağaçtaki maksimum derinliği temsil eder.</p>
+<p>TreeSHAP iki versiyonla gelir:</p>
+<ul>
+<li><p>"Interventional" (Müdahaleli) klasik Shapley değerlerini hesaplar.</p></li>
+<li><p>"Tree-path dependent" (Ağaç yoluna bağımlı) koşullu SHAP değerlerine benzer bir şey hesaplar.</p></li>
+</ul>
+<p>Python paketindeki orijinal uygulama eskiden shap ağaç yoluna bağımlı versiyondu, ancak şimdi müdahaleli (interventional) olanıdır.</p>
+<p>Hem müdahaleli hem de ağaç yoluna bağımlı tahmin yöntemleri oldukça karmaşıktır, bu yüzden sadece genel fikri vereceğim (okunuşu: tam versiyonu ben de tam olarak kavrayamadım). Esas itibarıyla TreeSHAP, Shapley değerlerini daha verimli hesaplamak için ağaç yapısından yararlanır.</p>
+<p>Müdahaleli (Interventional) TreeSHAP alışılagelmiş SHAP değerlerini hesaplar.</p>
+<p>Aşağıdaki açıklama, tek bir ağaç için, açıklanacak bir <span class="math inline">\(x\)</span> veri noktası için ve basitlik açısından yalnızca tek bir <span class="math inline">\(z\)</span> veri noktası içeren arka plan veri seti için Shapley değerlerinin tahmin edilmesini anlatmaktadır:</p>
+<p>Bildiğimiz gibi Shapley değeri; mevcut oyuncuları (<span class="math inline">\(x\)</span>'ten gelen öznitelik değerleri) ve eksik oyuncuları (<span class="math inline">\(z\)</span>'den gelen öznitelik değerleri) içeren koalisyonların tekrar tekrar oluşturulmasıyla hesaplanır.</p>
+<p>Ancak bu koalisyonların birçoğu için <span class="math inline">\(x\)</span>'ten bir öznitelik eklemek tahmini değiştirmez, çünkü bir karar ağacı karar yapısı nedeniyle yalnızca sınırlı sayıda farklı tahmine sahiptir.</p>
+<p>Örneğin, 5 derinliğindeki ikili bir ağaç maksimum 32 olası tahmine sahiptir.</p>
+<p>Bu nedenle tüm koalisyonları tek tek gezmek yerine, Müdahaleli TreeSHAP tahmincisi yalnızca tahminleri gerçekten değiştirecek koalisyonlarla çalışmak üzere ağaç yollarını keşfeder.</p>
+<p>Zor olan kısım, bu marjinal katkıları doğru bir şekilde ağırlıklandırmak ve birleştirmektir; bu da müdahaleli TreeSHAP algoritmasının anlaşılmasını daha zor hale getirir.</p>
+<p>Ve elbette lanet özyineleme (recursion). Bir ağaç topluluğunun (örneğin bir rastgele ormanın) Shapley değerlerini elde etmek için, topluluk tahminlerinin birleştirildiği şekilde Shapley değerlerini birleştirmeniz yeterlidir. Rastgele orman durumunda bu, değerlerin ortalamasını almak olacaktır.</p>
+<p>Yola bağımlı (Path-dependent) TreeSHAP, ağaç yapısından yararlanarak benzer bir şekilde çalışır. Temel fikir, S koalisyonunun tüm alt kümelerini aynı anda ağaçta aşağı doğru itmektir. Ve her ayrımda (split), alt kümeler için gözlem sayısını takip ederiz.</p>
+<section id="permütasyon-yöntemi-permutation-method" class="level3">
+<h3 class="anchored" data-anchor-id="permütasyon-yöntemi-permutation-method"><strong>Permütasyon Yöntemi (Permutation Method)</strong></h3>
+<p>Modelden bağımsız en verimli tahminci Permütasyon Yöntemidir.</p>
+<p>Fikir, özniteliklerin permütasyonlarını oluşturarak koalisyonlardan zekice örnekleme yapmaktır.</p>
+<p>Dört öznitelik değerine sahip bir örneğe bakalım (<a href="https://christophmolnar.com/books/shap/?utm_source=gemini"><u>Interpreting Machine Learning Models with SHAP</u></a> kitabından alınmıştır): <span class="math inline">\(x_{park},x_{cat},x_{area}\)</span> ve <span class="math inline">\(x_{floor}\)</span>.</p>
+<p>Sadeleştirmek adına <span class="math inline">\(x_{park}^{(i)}\)</span> ifadesini <span class="math inline">\(x_{park}\)</span> olarak kısaltacağım.</p>
+<p>Bu özniteliklerin rastgele bir permütasyonu şöyle olurdu:</p>
+<p><span class="math inline">\((x_{cat},x_{area},x_{park},x_{floor})\)</span></p>
+<p>Bu permütasyona dayanarak, soldan sağa doğru koalisyonlar oluşturmaya başlayarak marjinal katkıları hesaplayabiliriz:</p>
+<ul>
+<li><p>xcat özniteliğini ∅ kümesine ekle</p></li>
+<li><p><span class="math inline">\(x_{area}\)</span> özniteliğini <span class="math inline">\(\{ x_{cat}\}\)</span> kümesine ekle</p></li>
+<li><p><span class="math inline">\(x_{park}\)</span> özniteliğini <span class="math inline">\(\{ x_{cat},x_{area}\}\)</span> kümesine ekle</p></li>
+<li><p><span class="math inline">\(x_{floor}\)</span> özniteliğini <span class="math inline">\(\{ x_{cat},x_{area},x_{park}\}\)</span> kümesine ekle</p></li>
+</ul>
+<p>Ve aynısını geriye doğru da yapabiliriz:</p>
+<ul>
+<li><p><span class="math inline">\(x_{floor}\)</span> özniteliğini ∅ kümesine ekle</p></li>
+<li><p><span class="math inline">\(x_{park}\)</span> özniteliğini <span class="math inline">\(\{ x_{floor}\}\)</span> kümesine ekle</p></li>
+<li><p><span class="math inline">\(x_{area}\)</span> özniteliğini <span class="math inline">\(\{ x_{park},x_{floor}\}\)</span> kümesine ekle</p></li>
+<li><p><span class="math inline">\(x_{cat}\)</span> özniteliğini <span class="math inline">\(\{ x_{area},x_{park},x_{floor}\}\)</span> kümesine ekle</p></li>
+</ul>
+<p>Permütasyon her seferinde tek bir özniteliği değiştirir. Bu durum model çağrılarının sayısını azaltır, çünkü bir marjinal katkının ikinci terimi (bir model tahmini), bir sonraki marjinal katkıyı hesaplamak için de gereklidir. Örneğin <span class="math inline">\(\{ x_{cat},x_{area}\}\)</span> koalisyonu, hem <span class="math inline">\(x_{park}\)</span>'ın <span class="math inline">\(\{ x_{cat},x_{area}\}\)</span>'ya olan marjinal katkısını hem de <span class="math inline">\(x_{area}\)</span>'nın <span class="math inline">\(\{ x_{cat}\}\)</span>'ya olan marjinal katkısını hesaplamak için kullanılır. Her ileri ve geri permütasyon bize öznitelik başına iki marjinal katkı verir. Bu şekilde birkaç permütasyon yaparak Shapley değerlerinin oldukça iyi bir tahminini elde ederiz. Shapley değerlerini gerçekten hesaplamak için, Shapley değerlerini koalisyonlar yerine permütasyonlar cinsinden tanımlamamız gerekir: Özniteliklerin olası <span class="math inline">\(p!\)</span> sayıda permütasyonu ve k-ncı permütasyon olan <span class="math inline">\(o(k)\)</span> varsa, bu durumda <span class="math inline">\(j\)</span> özniteliği için Shapley değeri şöyle hesaplanabilir:</p>
+<p><span class="math inline">\({\widehat{\phi}}_{j}^{(i)} = \frac{1}{m}\sum_{k = 1}^{m}{\widehat{\Delta}}_{o(k),j}\)</span></p>
+<p>Buradaki <span class="math inline">\({\widehat{\Delta}}_{o(k),j}\)</span> terimi <span class="math inline">\(k\)</span>-ncı marjinal katkıdır. Bu, Shapley değerini tüm katkıların basit bir ortalaması olarak hesaplayabileceğimiz anlamına gelir. Ancak permütasyon tahmininin temel motivasyonu, tüm olası koalisyonları veya permütasyonları hesaplamaktan kaçınmaktı. Güzel haber şu ki, permütasyonları örnekleyebilir ve yine de ortalamasını alabiliriz. İleri ve geri yinelemeler gerçekleştirdiğimiz için Shapley değerini şu şekilde hesaplarız:</p>
+<p><span class="math inline">\({\widehat{\phi}}_{j}^{(i)} = \frac{1}{2m}\sum_{k = 1}^{m}({\widehat{\Delta}}_{o(k),j} + {\widehat{\Delta}}_{- o(k),j})\)</span></p>
+<p><span class="math inline">\(- o(k)\)</span> permütasyonu, permütasyonun tersine çevrilmiş halidir. Antitetik örnekleme (antithetic sampling) olarak da bilinen ileri ve geri yinelemeli permütasyon prosedürü, diğer SHAP değeri örnekleme tahmincilerine kıyasla oldukça iyi performans gösterir (Mitchell ve arkadaşları, 2022). Permütasyon yöntemi ek olarak etkinlik (efficiency) aksiyomunun her zaman sağlanmasını garanti eder; yani SHAP değerlerini topladığınızda, bu toplam tahmin eksi ortalama tahmine eşit olur. Kaç permütasyona ihtiyacınız olabileceğine dair genel bir fikir vermek gerekirse: shap paketi varsayılan olarak 10 değerini kullanır.</p>
+</section>
+<section id="örnek" class="level2">
+<h2 class="anchored" data-anchor-id="örnek"><strong>Örnek</strong></h2>
+<p><a href="https://www.google.com/search?q=%23penguins&amp;utm_source=gemini"><u>Penguen cinsiyetini</u></a> tahmin etmek için 100 ağaçlı bir rastgele orman (random forest) sınıflandırıcısı eğittim. Bireysel tahminleri açıklamak için SHAP kullanacağız. Rastgele orman bir ağaç topluluğu olduğundan, daha yavaş olan KernelSHAP yöntemi yerine hızlı olan Müdahaleli (Interventional) TreeSHAP tahmin yöntemini kullanabiliriz. Ancak bu örnek koşullu dağılıma dayanmak yerine marjinal dağılımı kullanmaktadır. Bu durum pakette açıklanmıştır ancak orijinal makalede yer almaz. Python TreeSHAP fonksiyonu marjinal dağılımla daha yavaştır, ancak verideki satır sayısı ile lineer olarak ölçeklendiğinden KernelSHAP'ten yine de daha hızlıdır.</p>
+<p>Burada marjinal dağılımı kullandığımız için yapılan yorumlama <a href="https://www.google.com/search?q=%23shapley&amp;utm_source=gemini"><u>Shapley değeri bölümündeki</u></a> ile aynıdır. Ancak Python shap paketi farklı bir görselleştirme ile gelir: Shapley değerleri gibi öznitelik katkılarını "kuvvetler (forces)" olarak görselleştirebilirsiniz. Her bir öznitelik değeri, tahmini artıran ya da azaltan bir kuvvettir. Tahmin temel çizgiden (baseline) başlar. Shapley değerleri için temel çizgi, tüm tahminlerin ortalamasıdır. Grafikte her bir Shapley değeri, tahmini artırmak (pozitif değer) veya azaltmak (negatif değer) için iten bir oktur. Bu kuvvetler, veri gözleminin gerçek tahmininde birbirini dengeler.</p>
+<p>Palmer penguenleri veri setindeki iki penguen için SHAP açıklama kuvvet grafiklerini (force plots) göstermektedir: Birinci penguenin, küçük gaga uzunluğu nedeniyle Adelie pengueni olma olasılığı yüksektir. İkinci penguenin ise büyük gaga uzunluğu ve yüzgeç uzunluğu nedeniyle Adelie olma olasılığı düşüktür.</p>
+<p><img src="../images/3-shap%20fig-force-plots-1.png" style="width:6.26772in;height:4.5in"></p>
+<p>İki penguen için SHAP değerleri. Temel değer – ortalama tahmin edilen olasılık – 0,47'dir. Her özellik, tahmini temel değerden yukarı veya aşağı doğru iten bir kuvvet olarak görülebilir.</p>
+</section>
+<section id="shap-toplulaştırma-grafikleri" class="level2">
+<h2 class="anchored" data-anchor-id="shap-toplulaştırma-grafikleri"><strong>SHAP Toplulaştırma Grafikleri</strong></h2>
+<p>Önceki bölüm bireysel tahminler için yapılan açıklamaları gösteriyordu.</p>
+<p>Shapley değerleri küresel açıklamalara dönüştürülebilir. Her bir gözlem için SHAP çalıştırırsak, bir Shapley değerleri matrisi elde ederiz. Bu matris veri gözlemi başına bir satıra ve öznitelik başına bir sütuna sahiptir. Bu matristeki Shapley değerlerini analiz ederek tüm modeli yorumlayabiliriz.</p>
+<p>SHAP öznitelik önemi ile başlıyoruz.</p>
+<section id="shap-öznitelik-önemi-feature-importance" class="level3">
+<h3 class="anchored" data-anchor-id="shap-öznitelik-önemi-feature-importance"><strong>SHAP Öznitelik Önemi (Feature Importance)</strong></h3>
+<p>SHAP öznitelik öneminin arkasındaki fikir basittir: Büyük mutlak Shapley değerlerine sahip öznitelikler önemlidir. Küresel önemi istediğimiz için, veri genelinde öznitelik başına <strong>mutlak</strong> Shapley değerlerinin ortalamasını alırız:</p>
+<p><span class="math inline">\(I_{j} = \frac{1}{n}\sum_{i = 1}^{n}\left| \phi_{j}^{(i)} \right|\)</span></p>
+<p>Ardından öznitelikleri azalan öneme göre sıralar ve grafiklerini çizeriz. penguenleri sınıflandırmak için daha önce eğitilen rastgele orman modeli için SHAP öznitelik önemini göstermektedir. Vücut kütlesi en önemli öznitelikti ve Adelie için tahmin edilen olasılığı 25 yüzde puanı değiştirdi (x ekseninde 0.25).</p>
+<p><img src="../images/4-shap-importance.jpg" style="width:5.28646in;height:2.7047in"></p>
+<p>Ortalama mutlak Shapley değerleri olarak ölçülen SHAP özelliği önemi.</p>
+<p>SHAP öznitelik önemi, <a href="https://www.google.com/search?q=%23feature-importance&amp;utm_source=gemini"><u>permütasyon öznitelik önemine</u></a> bir alternatiftir. Her iki önem ölçütü arasında büyük bir fark vardır: Permütasyon öznitelik önemi, model performansındaki düşüşe dayanır. SHAP ise öznitelik katkılarının büyüklüğüne dayanır.</p>
+<p>Öznitelik önemi grafiği kullanışlıdır ancak önem derecelerinin ötesinde hiçbir bilgi içermez. Daha bilgilendirici bir grafik için sırada özet grafiğe (summary plot) bakacağız.</p>
+</section>
+<section id="section" class="level3">
+<h3 class="anchored" data-anchor-id="section"></h3>
+</section>
+<section id="shap-özet-grafiği-summary-plot" class="level3">
+<h3 class="anchored" data-anchor-id="shap-özet-grafiği-summary-plot"><strong>SHAP Özet Grafiği (Summary Plot)</strong></h3>
+<p>Özet grafik, öznitelik önemini öznitelik etkileriyle birleştirir. Özet grafikteki her nokta, bir öznitelik ve bir gözlem için bir Shapley değeridir. Y eksenindeki konum öznitelik tarafından, x eksenindeki konum ise Shapley değeri tarafından belirlenir. Renk, özniteliğin düşükten yükseğe değerini temsil eder. Üst üste binen noktalar y ekseni yönünde rastgele dağıtılır (jitter), böylece öznitelik başına Shapley değerlerinin dağılımı hakkında bir fikir ediniriz. Öznitelikler önemlerine göre sıralanır. Özet grafikte (<strong>?@fig-shap-summary-plot</strong>), bir özniteliğin değeri ile tahmin üzerindeki etkisi arasındaki ilişkinin ilk belirtilerini görürüz. Daha yüksek bir vücut kütlesi, P(dişi) olasılığına negatif katkıda bulunur. Özet grafik ayrıca vücut kütlesinin farklı penguenler için en geniş etki aralığına sahip olduğunu gösterir.</p>
+<p><img src="../images/5-shap-importance-extended.jpg" style="width:5.30656in;height:2.68854in"></p>
+<p>SHAP özet grafiği.</p>
+<p>Ancak ilişkinin tam şeklini görmek için SHAP bağımlılık grafiklerine bakmamız gerekir.</p>
+</section>
+<section id="shap-bağımlılık-grafiği-dependence-plot" class="level3">
+<h3 class="anchored" data-anchor-id="shap-bağımlılık-grafiği-dependence-plot"><strong>SHAP Bağımlılık Grafiği (Dependence Plot)</strong></h3>
+<p>SHAP öznitelik bağımlılığı belki de en basit küresel yorumlama grafiğidir:</p>
+<ol type="1">
+<li><p>Bir öznitelik seçin.</p></li>
+<li><p>Her bir veri gözlemi için, x ekseninde öznitelik değeri ve y ekseninde karşılık gelen Shapley değeri olacak şekilde bir nokta çizin.</p></li>
+<li><p>Tamamlandı.</p></li>
+</ol>
+<p>Matematiksel olarak grafik şu noktaları içerir: <span class="math inline">\(\{(x_{j}^{(i)},\phi_{j}^{(i)})\}_{i = 1}^{n}\)</span></p>
+<p>@fig-shap-dependence, vücut kütlesi için SHAP öznitelik bağımlılığını göstermektedir.</p>
+<p>Penguen ne kadar ağırsa dişi olma olasılığı o kadar düşüktür.</p>
+<p><img src="../images/6-shap-dependence.jpg" style="width:4.19447in;height:3.27604in"></p>
+<p>Vücut kütlesi için SHAP bağımlılık grafiği. X ekseni özelliği, Y ekseni ise SHAP değerlerini göstermektedir. Her nokta bir veri noktasını temsil eder.</p>
+<p>SHAP bağımlılık grafikleri, <a href="https://www.google.com/search?q=%23pdp&amp;utm_source=gemini"><u>kısmi bağımlılık grafikleri (PDP)</u></a> ve <a href="https://www.google.com/search?q=%23ale&amp;utm_source=gemini"><u>birikimli yerel etkiler (ALE)</u></a> gibi küresel öznitelik etkisi yöntemlerine bir alternatiftir. PDP ve ALE grafikleri ortalama etkileri gösterirken, SHAP bağımlılığı y eksenindeki varyansı da gösterir. Özellikle etkileşimlerin olduğu durumlarda, SHAP bağımlılık grafiği y ekseninde çok daha dağılmış olacaktır. Bağımlılık grafiği, bu öznitelik etkileşimleri vurgulanarak geliştirilebilir.</p>
+</section>
+<section id="shap-etkileşim-değerleri-interaction-values" class="level3">
+<h3 class="anchored" data-anchor-id="shap-etkileşim-değerleri-interaction-values"><strong>SHAP Etkileşim Değerleri (Interaction Values)</strong></h3>
+<p>Etkileşim etkisi, bireysel öznitelik etkileri hesaba katıldıktan sonraki ilave birleşik öznitelik etkisidir. Oyun teorisindeki Shapley etkileşim indeksi şu şekilde tanımlanır:</p>
+<p>(φᵢ,ⱼ = ∑₍S ⊆ F∖₎ (|S|!(M − |S| − 2)!)/(2(M − 1)!) δᵢ,ⱼ(S))</p>
+<p><span class="math inline">\(i \neq j\)</span> olduğunda ve <span class="math inline">\(\delta_{ij}(S) = {\widehat{f}}_{x}(S \cup \{ i,j\}) - {\widehat{f}}_{x}(S \cup \{ i\}) - {\widehat{f}}_{x}(S \cup \{ j\}) + {\widehat{f}}_{x}(S)\)</span>.</p>
+<p>Bu formül, bireysel etkiler hesaba katıldıktan sonra saf etkileşim etkisini elde etmemiz için özniteliklerin ana etkisini çıkarır. Shapley değeri hesaplamasında olduğu gibi, değerlerin tüm olası öznitelik koalisyonları <span class="math inline">\(S\)</span> üzerinden ortalamasını alırız. Tüm öznitelikler için SHAP etkileşim değerlerini hesapladığımızda, gözlem başına <span class="math inline">\(M \times M\)</span> boyutlarında bir matris elde ederiz; burada <span class="math inline">\(M\)</span> öznitelik sayısıdır. Etkileşim indeksini nasıl kullanabiliriz? Örneğin, @fig-shap-interaction grafiğinde olduğu gibi SHAP öznitelik bağımlılık grafiğini en güçlü etkileşime sahip öznitelikle otomatik olarak renklendirmek için. Burada vücut kütlesi, gaga derinliği ile etkileşime girmektedir.</p>
+<p><img src="../images/7-shap-dependence-interaction.jpg" style="width:4.50521in;height:3.09067in"></p>
+<p>Etkileşim görselleştirmeli SHAP özellik bağımlılık grafiği. Burada gaga uzunluğunun vücut kütlesiyle etkileşim halindeki bağımlılık grafiğini görüyoruz. Özellikle daha uzun gagalar için, gaga uzunluğunun P(Adelie)'ye katkısı vücut kütlesine bağlı olarak farklılık gösterir.</p>
+</section>
+</section>
+</section>
+<section id="section-1" class="level1">
+<h1></h1>
+</section>
+<section id="etkileşimleri-derinlemesine-analiz-edin" class="level1">
+<h1><strong>Etkileşimleri derinlemesine analiz edin</strong></h1>
+<p>SHAP ve etkileşimler konusu çok daha derinlere gitmektedir. SHAP etkileşimlerinin daha gelişmiş analizine ihtiyaç duyuyorsanız, <a href="https://github.com/mmschlk/shapiq?utm_source=gemini"><u>shapiq paketini</u></a> incelemenizi öneririm (Muschalik ve arkadaşları, 2024).</p>
+<section id="shapley-değerlerini-kümeleme-clustering" class="level3">
+<h3 class="anchored" data-anchor-id="shapley-değerlerini-kümeleme-clustering"><strong>Shapley Değerlerini Kümeleme (Clustering)</strong></h3>
+<p>Shapley değerlerinin yardımıyla verilerinizi kümeleyebilirsiniz. Kümelemenin amacı benzer gözlem gruplarını bulmaktır. Normalde kümeleme özniteliklere dayanır. Öznitelikler genellikle farklı ölçeklerdedir. Örneğin, boy metre cinsinden, renk yoğunluğu 0 ile 100 arasında ve bir sensör çıktısı -1 ile 1 arasında ölçülebilir. Zorluk, bu tür farklı ve karşılaştırılamaz özniteliklere sahip gözlemler arasındaki uzaklıkları hesaplamaktır.</p>
+<p>SHAP kümelemesi, her bir gözlemin Shapley değerlerini kümeleyerek çalışır. Bu, gözlemleri açıklama benzerliğine göre kümelediğiniz anlamına gelir. Tüm SHAP değerleri aynı birime sahiptir -- tahmin alanının birimi. Herhangi bir kümeleme yöntemini kullanabilirsiniz.</p>
+<p>Gözlemleri sıralamak için hiyerarşik kümeleme yöntemini kullanır. Grafik, her biri bir gözlemin tahminini açıklayan birçok kuvvet grafiğinden (force plot) oluşur. Kuvvet grafiklerini dikey olarak döndürür ve kümeleme benzerliklerine göre yan yana yerleştiririz.</p>
+<p><img src="../images/8-shap-clustering.jpg" style="width:5.80729in;height:2.42131in"></p>
+<p>Açıklama benzerliğine göre kümelenmiş yığılmış SHAP açıklamaları. X eksenindeki her konum, verinin bir örneğini temsil eder. Kırmızı SHAP değerleri tahmini artırırken, mavi değerler azaltır.</p>
+</section>
+<section id="güçlü-yönleri" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönleri"><strong>Güçlü Yönleri</strong></h2>
+<p>SHAP, Shapley değerlerini hesapladığı için Shapley değerlerinin tüm avantajları geçerlidir: SHAP, oyun teorisinde <strong>sağlam bir teorik temele</strong> sahiptir. Tahmin, öznitelik değerleri arasında <strong>adil bir şekilde dağıtılır</strong>. Tahmini ortalama tahminle karşılaştıran <strong>zıt açıklamalar (contrastive explanations)</strong> elde ederiz.</p>
+<p>SHAP, <strong>LIME ve Shapley değerlerini birbirine bağlar</strong>. Bu, her iki yöntemi de daha iyi anlamak için çok kullanışlıdır. Ayrıca açıklanabilir makine öğrenmesi alanını birleştirmeye de yardımcı olur.</p>
+<p>SHAP, <strong>ağaç tabanlı modeller için hızlı bir uygulamaya</strong> sahiptir. Bunun SHAP'in popülaritesinin anahtarı olduğuna inanıyorum, çünkü Shapley değerlerinin benimsenmesinin önündeki en büyük engel yavaş hesaplamadır.</p>
+<p>Hızlı hesaplama, <strong>küresel model yorumlamaları</strong> için gerekli olan birçok Shapley değerini hesaplamayı mümkün kılar. Küresel yorumlama yöntemleri öznitelik önemini, öznitelik bağımlılığını, etkileşimleri, kümelemeyi ve özet grafikleri içerir. SHAP ile küresel yorumlamalar yerel açıklamalarla tutarlıdır, çünkü Shapley değerleri küresel yorumlamaların "atomik birimidir". Yerel açıklamalar için LIME ve küresel açıklamalar için kısmi bağımlılık grafikleri artı permütasyon öznitelik önemi kullanırsanız, ortak bir temelden yoksun kalırsınız.</p>
+</section>
+<section id="sınırlılıkları" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlılıkları"><strong>Sınırlılıkları</strong></h2>
+<p><strong>KernelSHAP yavaştır</strong>. Bu durum, birçok gözlem için Shapley değerlerini hesaplamak istediğinizde KernelSHAP'i kullanışsız hale getirir. Ayrıca SHAP öznitelik önemi gibi tüm küresel SHAP yöntemleri çok sayıda gözlem için Shapley değerlerinin hesaplanmasını gerektirir.</p>
+<p><strong>KernelSHAP öznitelik bağımlılığını göz ardı eder</strong>. Permütasyona dayalı diğer çoğu yorumlama yöntemi de bu soruna sahiptir. Öznitelik değerlerini rastgele gözlemlerden alınan değerlerle değiştirerek marjinal dağılımdan rastgele örneklemek genellikle daha kolaydır. Ancak, öznitelikler bağımlıysa (örneğin korelasyonluysa), bu durum olası olmayan veri noktalarına çok fazla ağırlık verilmesine yol açar.</p>
+<p><strong>Yola bağımlı (Path-dependent) TreeSHAP sezgisel olmayan öznitelik katkıları üretebilir</strong>. TreeSHAP, olası olmayan veri noktalarına ekstrapolasyon yapma sorununu çözerken, bunu değer fonksiyonunu değiştirerek yapar ve bu nedenle oyunu hafifçe değiştirir. TreeSHAP değer fonksiyonunu koşullu beklenen tahmine dayanarak değiştirir. Değer fonksiyonundaki bu değişiklikle, tahmin üzerinde hiçbir etkisi olmayan öznitelikler sıfırdan farklı bir TreeSHAP değeri alabilir.</p>
+<p>Shapley değerlerinin dezavantajları SHAP için de geçerlidir: Shapley değerleri <strong>yanlış yorumlanabilir</strong>.</p>
+<p>SHAP ile <strong>kasıtlı olarak yanıltıcı açıklamalar oluşturmak mümkündür</strong> ve bu durum önyargıları gizleyebilir (Slack ve arkadaşları, 2020). Açıklamaları oluşturan veri bilimci sizseniz bu gerçek bir sorun değildir (yanıltıcı açıklamalar oluşturmak isteyen kötü niyetli bir veri bilimci iseniz bu bir avantaj bile olurdu). Bir SHAP açıklamasını alan kişiler için ise bu bir dezavantajdır: açıklamanın doğruluğundan emin olamazlar.</p>
+</section>
+<section id="yazılım" class="level2">
+<h2 class="anchored" data-anchor-id="yazılım"><strong>Yazılım</strong></h2>
+<p>Lundberg, SHAP'i Python'daki <a href="https://github.com/slundberg/shap?utm_source=gemini"><u>shap</u></a> paketinde uygulamıştır; bu paket şu anda çok daha büyük bir ekip tarafından sürdürülmektedir.</p>
+<p>Bu uygulama, Python için <a href="https://scikit-learn.org/stable/?utm_source=gemini"><u>scikit-learn</u></a> makine öğrenmesi kütüphanesi ile eğitilmiş modeller için çalışır. shap paketi bu bölümdeki örnekler için de kullanılmıştır. SHAP, ağaç artırma (tree boosting) çatıları olan <a href="https://github.com/dmlc/xgboost/tree/master/python-package?utm_source=gemini"><u>xgboost</u></a> ve <a href="https://github.com/microsoft/LightGBM?utm_source=gemini"><u>LightGBM</u></a> kütüphanelerine entegre edilmiştir ve bunu daha genel bir yorumlanabilirlik kütüphanesi olan <a href="https://selfexplainml.github.io/PiML-Toolbox/_build/html/index.html?utm_source=gemini"><u>PiML</u></a> içinde de bulabilirsiniz. R dilinde <a href="https://modeloriented.github.io/shapper/?utm_source=gemini"><u>shapper</u></a> ve <a href="https://github.com/bgreenwell/fastshap?utm_source=gemini"><u>fastshap</u></a> paketleri mevcuttur. SHAP ayrıca R <a href="https://rdrr.io/cran/xgboost/man/xgb.plot.shap.html?utm_source=gemini"><u>xgboost</u></a> paketine de dahil edilmiştir. Özellikle SHAP etkileşimleri için Python <a href="https://github.com/mmschlk/shapiq?utm_source=gemini"><u>shapiq</u></a> paketi bulunmaktadır.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

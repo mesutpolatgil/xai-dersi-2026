@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giriş</title>
+  <style>
+    body { max-width: 72rem; margin: 2rem auto; padding: 0 1rem; color: #242424; font: 1rem/1.65 system-ui, sans-serif; }
+    nav { float: right; max-width: 20rem; margin: 0 0 1.5rem 2rem; }
+    section { margin: 2rem 0; }
+    li { margin: .4rem 0; }
+  </style>
+</head>
+<body>
+  <nav aria-label="İçindekiler">
+    <strong>İçindekiler</strong>
+    <ol>
+      <li><a href="#performans">Model performansına körü körüne güvenmeyin</a></li>
+      <li><a href="#alan">Eski köklere sahip genç bir alan</a></li>
+      <li><a href="#okuma">Kitap nasıl okunmalı?</a></li>
+      <li><a href="#kaynakca">Kaynakça</a></li>
+      <li><a href="#kaynakca-bilgisi">Kaynakça bilgisi</a></li>
+    </ol>
+  </nav>
+  <main>
+    <header><h1>Giriş</h1><p><strong>Bölüm 1</strong></p><p>Yazar: Devid</p></header>
+    <blockquote><strong>Çeviri kaynağı:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, 3. baskı (2025), <a href="https://christophm.github.io/interpretable-ml-book/intro.html">Bölüm 1: Introduction</a>. Özgün eser CC BY-NC-SA 4.0 lisanslıdır.</blockquote>
+    <p>“2 + 5 kaç eder?” diye sordu öğretmen Wilhelm van Osten. Cevap elbette 7'ydi. Bu gösteriye tanık olmak için toplanan kalabalık hayrete düşmüştü. Çünkü cevabı veren bir insan değil, “Akıllı Hans” adlı bir attı. Görünüşe göre Akıllı Hans matematik yapabiliyordu. 2 + 5 mi? Atın ayağıyla yaptığı yedi vuruş; ne bir eksik ne bir fazla. Bir at için oldukça etkileyici.</p>
+    <p>Nitekim sonraki araştırmaların gösterdiği üzere Akıllı Hans gerçekten çok akıllıydı. Ancak yeteneği matematik değil, sosyal ipuçlarını okumaktı. Hans'a soruyu soran insanın cevabı bilmesi, başarısındaki önemli etkenlerden biriydi. Hans, insanın beden dilindeki ve yüz ifadelerindeki en küçük değişikliklere dayanarak doğru zamanda ayağını vurmayı bırakıyordu.</p>
+    <section id="performans"><h2>Model performansına körü körüne güvenmeyin</h2>
+      <p>Makine öğrenmesinde bu akıllı atın kendi karşılıkları vardır: Lapuschkin ve arkadaşlarının (2019) adlandırdığı <strong>Akıllı Hans tahmin edicileri</strong> (<em>Clever Hans Predictors</em>). Bazı örnekler şunlardır:</p>
+      <ul>
+        <li>Balinaları tespit etmek için eğitilen bir makine öğrenmesi modeli, sınıflandırmasını ses içeriğine dayandırmak yerine ses dosyalarındaki yapay izlere dayanmayı öğrendi (DeLMA ve Cukierski, 2013).</li>
+        <li>Bir görüntü sınıflandırıcısı, görsel özellikler yerine görüntülerin üzerindeki metni kullanmayı öğrendi (Lapuschkin vd., 2019).</li>
+        <li>Kurt ile köpeği ayıran bir sınıflandırıcı, hayvanları gösteren görüntü bölgeleri yerine arka plandaki kara dayandı (Ribeiro vd., 2016).</li>
+      </ul>
+      <p>Bu örneklerin hiçbirinde kusurlar, test kümesindeki tahmin performansını düşürmedi. Bu nedenle insanlar, iyi performans gösteren modeller için bile temkinlidir. Modellerin kestirme yollara başvurmadığından emin olmak için içlerine bakmak isterler. Modelleri yorumlanabilir kılmak için başka birçok neden de vardır. Örneğin bilim insanları çalışmalarında makine öğrenmesini kullanmaktadır. Bilim insanlarına makine öğrenmesini kullanırken en büyük kaygıları sorulan bir ankette, en sık verilen yanıt “anlamadan örüntü tanımaya daha fazla dayanılmasına yol açması” olmuştur (Van Noorden ve Perkel, 2023).</p>
+      <p>Bu anlayış eksikliği yalnızca bilime özgü değildir. Pazarlama alanında çalışıyor ve müşteri kaybı (<em>churn</em>) modeli geliştiriyorsanız, yalnızca ayrılma olasılığı yüksek müşterileri tahmin etmek değil, bunun nedenini de anlamak istersiniz. Aksi hâlde pazarlama ekibi doğru müdahalenin ne olduğunu nasıl bilebilir? Ekip herkese kupon gönderebilir; ancak yüksek müşteri kaybı olasılığının nedeni çok sayıdaki e-postadan rahatsız olmalarıysa ne olur? Müşteri kaybı modelinden tam olarak yararlanmak için iyi tahmin performansı tek başına yeterli değildir.</p>
+      <p>Ayrıca birçok veri bilimci ve istatistikçi, “daha basit modeller” kullanmalarının nedenlerinden birinin yöneticilerini “kara kutu model” kullanmaya ikna edememeleri olduğunu belirtmiştir. Peki ya karmaşık modeller daha iyi tahminler yapıyorsa? Hem iyi performansa <strong>hem de</strong> yorumlanabilirliğe sahip olmak harika olmaz mıydı?</p>
+      <p>Güven sorunlarını çözmek, modeller hakkında içgörü sağlamak ve modellerde daha iyi hata ayıklamak için doğru kitabı okuyorsunuz. <em>Interpretable Machine Learning</em>, modelden içgörü çıkarmaya yönelik araçlar sunar.</p>
+    </section>
+    <section id="alan"><h2>Eski köklere sahip genç bir alan</h2>
+      <p>Doğrusal regresyon modelleri 19. yüzyılın başında zaten kullanılıyordu (Legendre, 1806; Gauss, 1877). İstatistiksel modelleme bu doğrusal regresyon modelinin etrafında gelişti; bugün genelleştirilmiş toplamsal modeller ve LASSO gibi daha fazla seçeneğimiz vardır. Klasik istatistikte genellikle dağılımları modeller, dünya hakkında sonuçlar çıkarmamızı sağlayan ek varsayımlara dayanırız. Bunu yapmak için yorumlanabilirlik temel önemdedir. Örneğin alkol tüketiminin kardiyovasküler sorun riski üzerindeki etkisini modelliyorsanız, istatistikçilerin bu içgörüyü modelden çıkarabilmesi gerekir. Bu, tipik olarak modeli yorumlanabilir tutarak ve bir özelliğin sonuç üzerindeki etkisi olarak yorumlanabilecek bir katsayıya sahip olarak yapılır.</p>
+      <p>Makine öğrenmesi farklı bir modelleme yaklaşımına sahiptir. Daha çok görev odaklı ve tahmin merkezlidir; vurgu dağılımlar yerine algoritmalardadır. Makine öğrenmesi genellikle daha karmaşık modeller üretir. Alandaki temel çalışmalar 20. yüzyılın ortasında başlamış, sonraki gelişmeler yüzyılın ikinci yarısında alanı daha da genişletmiştir. Bununla birlikte sinir ağları 1960'lara kadar uzanır (Schmidhuber, 2015); yorumlanabilir makine öğrenmesinin bir parçası olan kural tabanlı makine öğrenmesi ise 20. yüzyılın ortasından beri etkin bir araştırma alanıdır. Yorumlanabilirlik ana odak olmasa da makine öğrenmesinde her zaman bir kaygı olmuştur ve araştırmacılar yorumlanabilirliği geliştirmek için yollar önermiştir. Örneğin rastgele ormanlar (Breiman, 2001), yerleşik bir özellik önemi ölçüsüyle birlikte sunulmuştur.</p>
+      <p>Yorumlanabilir Makine Öğrenmesi ya da Açıklanabilir Yapay Zekâ, yaklaşık 2015'ten itibaren bir alan olarak gerçekten hızla büyümüştür (Molnar vd., 2020). Özellikle herhangi bir modelle çalışabilen yöntemler sunan modelden bağımsız yorumlanabilirlik alt alanı büyük ilgi görmüştür. Makine öğrenmesi modellerini yorumlamaya yönelik yeni yöntemler hâlâ baş döndürücü bir hızla yayımlanmaktadır. Yayımlanan her şeyi takip etmeye çalışmak çılgınlık olurdu ve basitçe imkânsızdır. Bu yüzden bu kitapta en yeni ve en gösterişli yöntemleri değil, yerleşik yöntemleri ve makine öğrenmesi yorumlanabilirliğinin temel kavramlarını bulacaksınız. Bu temeller, makine öğrenmesi modellerini yorumlanabilir kılmaya hazırlanmanızı sağlar. Temel kavramları özümsemek, kitabı okumaya başlamanızdan sonraki son beş dakika içinde arxiv.org ön baskı sunucusunda yayımlanan herhangi bir yorumlanabilirlik makalesini daha iyi anlamanıza ve değerlendirmenize de yardımcı olur (yayın hızını biraz abartıyor olabilirim).</p>
+    </section>
+    <section id="okuma"><h2>Kitap nasıl okunmalı?</h2>
+      <p><em>Interpretable Machine Learning</em> kitabını baştan sona okumak zorunda değilsiniz; çünkü bölümlerin çoğu tek bir yöntemi açıklayan bir başvuru kitabı niteliğindedir. Yorumlanabilirlik konusunda yeniyseniz, yorumlanabilirliğin ne olduğunu anlamak ve her yöntemi yerleştirebileceğiniz bir “haritaya” sahip olmak için önce yalnızca <strong>Yorumlanabilirlik</strong>, <strong>Hedefler</strong> ve <strong>Yöntemlere Genel Bakış</strong> bölümlerini okumanızı öneririm.</p>
+      <p>Kitap şu bölümlerden oluşur:</p>
+      <ul>
+        <li>Yorumlanabilirlik tanımları ve yöntemlere genel bakışı içeren giriş bölümleri,</li>
+        <li>Yorumlanabilir modeller,</li>
+        <li>Yerel modelden bağımsız yöntemler,</li>
+        <li>Genel modelden bağımsız yöntemler,</li>
+        <li>Sinir ağlarına yönelik yöntemler,</li>
+        <li>Geleceğe bakış,</li>
+        <li>Makine öğrenmesi terminolojisi.</li>
+      </ul>
+      <p>Her yöntem bölümü benzer bir yapı izler: İlk paragraf yöntemi özetler; ardından matematiğe dayanmayan sezgisel bir açıklama gelir. Daha sonra yöntemin nasıl çalıştığını, matematik ve algoritmalar dâhil olmak üzere daha derinlemesine anlamak için kuramını inceleriz. Yeni bir yöntemin en iyi örneklerle anlaşılacağına inanıyorum. Bu nedenle her yöntem gerçek verilere uygulanır. Bazı insanlar istatistikçilerin çok eleştirel kişiler olduğunu söyler. Benim için bu doğrudur; çünkü her bölüm ilgili yorumlama yönteminin artılarını ve eksilerini eleştirel biçimde tartışır. Bu kitap yöntemlerin reklamı değildir; bir yöntemin projeniz için uygun olup olmadığına karar vermenize yardımcı olmalıdır. Her bölümün son kısmında mevcut yazılım uygulamaları listelenmiştir.</p>
+      <p>Umarım okumaktan keyif alırsınız!</p>
+    </section>
+    <section id="kaynakca"><h2>Kaynakça</h2>
+      <ul>
+        <li>Breiman, Leo. 2001. “Random Forests.” <em>Machine Learning</em> 45 (1): 5-32. <a href="https://doi.org/10.1023/A:1010933404324">doi:10.1023/A:1010933404324</a>.</li>
+        <li>DeLMA ve Will Cukierski. 2013. <em>The ICML 2013 Whale Challenge – Right Whale Redux</em>. <a href="https://kaggle.com/competitions/the-icml-2013-whale-challenge-right-whale-redux">Kaggle</a>.</li>
+        <li>Gauss, Carl Friedrich. 1877. <em>Theoria Motus Corporum Coelestium in Sectionibus Conicis Solem Ambientium</em>. C. 7. FA Perthes.</li>
+        <li>Lapuschkin, Sebastian, Stephan Wäldchen, Alexander Binder, Grégoire Montavon, Wojciech Samek ve Klaus-Robert Müller. 2019. “Unmasking Clever Hans Predictors and Assessing What Machines Really Learn.” <em>Nature Communications</em> 10: 1096. <a href="https://doi.org/10.1038/s41467-019-08987-4">doi:10.1038/s41467-019-08987-4</a>.</li>
+        <li>Legendre, Adrien Marie. 1806. <em>Nouvelles méthodes pour la détermination des orbites des comètes</em>. Courcier.</li>
+        <li>Molnar, Christoph, Giuseppe Casalicchio ve Bernd Bischl. 2020. “Interpretable Machine Learning – A Brief History, State-of-the-Art and Challenges.” <em>ECML PKDD 2020 Workshops</em>. Springer. <a href="https://doi.org/10.1007/978-3-030-65965-3_28">doi:10.1007/978-3-030-65965-3_28</a>.</li>
+        <li>Ribeiro, Marco Tulio, Sameer Singh ve Carlos Guestrin. 2016. “‘Why Should I Trust You?’: Explaining the Predictions of Any Classifier.” <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 1135-44. <a href="https://doi.org/10.1145/2939672.2939778">doi:10.1145/2939672.2939778</a>.</li>
+        <li>Schmidhuber, Jürgen. 2015. “Deep Learning in Neural Networks: An Overview.” <em>Neural Networks</em> 61: 85-117. <a href="https://doi.org/10.1016/j.neunet.2014.09.003">doi:10.1016/j.neunet.2014.09.003</a>.</li>
+        <li>Van Noorden, Richard ve Jeffrey M. Perkel. 2023. “AI and Science: What 1,600 Researchers Think.” <em>Nature</em> 621 (7980): 672-75. <a href="https://doi.org/10.1038/d41586-023-02980-0">doi:10.1038/d41586-023-02980-0</a>.</li>
+      </ul>
+    </section>
+    <section id="kaynakca-bilgisi"><h2>Kaynakça bilgisi</h2>
+      <p>Bu çeviri aşağıdaki özgün bölüm esas alınarak hazırlanmıştır: Molnar, C. (2025). “Introduction.” <em>Interpretable Machine Learning</em>, 3. baskı. <a href="https://christophm.github.io/interpretable-ml-book/intro.html">https://christophm.github.io/interpretable-ml-book/intro.html</a></p>
+    </section>
+  </main>
+</body>
+</html>

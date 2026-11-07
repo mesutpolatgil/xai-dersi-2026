@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ahmetbatuhankaya-20269348005</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="ahmetbatuhankaya-20269348005_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/popper.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ahmetbatuhankaya-20269348005_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="ahmetbatuhankaya-20269348005_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="ahmetbatuhankaya-20269348005_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="extend-lm" class="level1">
+<h1>GLM, GAM ve ötesi</h1>
+<p><a href="#limo">Doğrusal regresyon modelinin</a> en büyük gücü ama aynı zamanda en büyük zayıflığı, tahminin özniteliklerin ağırlıklı toplamı olarak modellenmesidir. Buna ek olarak doğrusal model başka pek çok varsayımla birlikte gelir. Kötü haber (aslında pek de haber sayılmaz) şu ki bu varsayımların hepsi gerçekte sıklıkla ihlal edilir: Özniteliklere koşullu sonuç Gauss dışı bir dağılıma sahip olabilir, öznitelikler etkileşimde olabilir ve öznitelikler ile sonuç arasındaki ilişki doğrusal olmayabilir. İyi haber ise istatistik topluluğunun doğrusal regresyon modelini basit bir bıçaktan bir İsviçre çakısına dönüştüren çeşitli değişiklikler geliştirmiş olmasıdır.</p>
+<p>Bu bölüm kesinlikle doğrusal modelleri genişletme konusunda kesin bir kılavuz değildir. Bunun yerine Genelleştirilmiş Doğrusal Modeller (GLM’ler) ve Genelleştirilmiş Toplamsal Modeller (GAM’ler) gibi uzantılara genel bir bakış sunar ve size biraz sezgi kazandırır. Okuduktan sonra doğrusal modellerin nasıl genişletileceğine dair sağlam bir genel bakışa sahip olmalısınız. Önce doğrusal regresyon modeli hakkında daha fazla bilgi edinmek istiyorsanız, henüz okumadıysanız <a href="#limo">doğrusal regresyon modelleri bölümünü</a> okumanızı öneririm.</p>
+<p>Doğrusal regresyon modelinin formülünü hatırlayalım:</p>
+<p><span class="math display">\[\hat{f}(\mathbf{x}) = \beta_{0} + \beta_{1} x_{1} + \ldots + \beta_{p} x_{p} + \epsilon\]</span></p>
+<p>Doğrusal regresyon modeli, bir örneğin tahmininin <span class="math inline">\(p\)</span> özniteliğinin ağırlıklı toplamı ve Gauss dağılımına uyan bir <span class="math inline">\(\epsilon^{(i)}\)</span> rastgele değişkeniyle ifade edilebileceğini varsayar. Veriyi bu formülün korsesine zorlayarak çok fazla model yorumlanabilirliği elde ederiz. Öznitelik etkileri toplamsaldır, yani etkileşim yoktur; ilişki de doğrusaldır. Bu da bir öznitelik ile beklenen sonuç arasındaki ilişkiyi tek bir sayıya, yani kestirilen ağırlığa sıkıştırmamızı sağlar.</p>
+<p>Ancak basit bir ağırlıklı toplam, gerçek dünyadaki pek çok tahmin problemi için fazla kısıtlayıcıdır. Bu bölümde klasik doğrusal regresyon modelinin üç sorununu ve bunların nasıl çözüleceğini öğreneceğiz. İhlal edilebilecek varsayımlarla ilgili çok daha fazla sorun vardır, ancak biz <a href="#fig-three-lm-problems" class="quarto-xref">Şekil&nbsp;1</a> içinde gösterilen üç soruna odaklanacağız.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-three-lm-problems" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-three-lm-problems-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-three-lm-problems-1.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-three-lm-problems-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: Doğrusal modelin üç varsayımı (sol taraf): özniteliklere koşullu sonucun Gauss dağılımı, toplamsallık (= etkileşim yok) ve doğrusal ilişki. Gerçeklik genellikle bu varsayımlara uymaz (sağ taraf): Sonuçlar Gauss dışı dağılımlara sahip olabilir, öznitelikler etkileşimde olabilir ve ilişki doğrusal olmayabilir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Sorun</strong>: Özniteliklere koşullu y hedef sonucu Gauss dağılımına uymuyor.<br>
+<strong>Örnek</strong>: Belirli bir günde kaç dakika bisiklet süreceğimi tahmin etmek istediğimi düşünelim. Öznitelik olarak günün türü, hava durumu vb. bilgilerim var. Doğrusal bir model kullanırsam, 0 dakikada durmayan bir Gauss dağılımını varsaydığı için negatif dakikalar tahmin edebilir. Ayrıca doğrusal bir modelle olasılık tahmin etseydim, negatif ya da 1’den büyük olasılıklar elde edebilirdim.<br>
+<strong>Çözüm</strong>: <a href="#glm">Genelleştirilmiş Doğrusal Modeller (GLM’ler)</a>.</p>
+<p><strong>Sorun</strong>: Öznitelikler etkileşimde.<br>
+<strong>Örnek</strong>: Ortalamada hafif yağmurun bisiklet sürme isteğim üzerinde hafif bir negatif etkisi vardır. Ancak yazın, iş çıkış saatlerinde yağmuru memnuniyetle karşılarım; çünkü o zaman yalnızca güzel havada bisiklete binenlerin hepsi evde kalır ve bisiklet yolları bana kalır! Bu, zaman ile hava durumu arasında, tamamen toplamsal bir modelin yakalayamayacağı bir etkileşimdir.<br>
+<strong>Çözüm</strong>: <a href="#lm-interact">Etkileşim eklemek</a>.</p>
+<p><strong>Sorun</strong>: Öznitelikler ile y arasındaki gerçek ilişki doğrusal değil.<br>
+<strong>Örnek</strong>: 0 ile 25 santigrat derece arasında sıcaklığın bisiklet sürme isteğim üzerindeki etkisi doğrusal olabilir; bu da 0’dan 1 dereceye artışın, bisiklet sürme isteğinde 20’den 21 dereceye artışla aynı artışa neden olduğu anlamına gelir. Ancak daha yüksek sıcaklıklarda bisiklet sürme motivasyonum sabitlenir, hatta azalır; hava çok sıcakken bisiklete binmeyi sevmem.<br>
+<strong>Çözümler</strong>: <a href="#gam">Genelleştirilmiş Toplamsal Modeller (GAM’ler); özniteliklerin dönüştürülmesi</a>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Doğrusal model ihlallerini kontrol edin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Öznitelik etkileşimleri gibi bu sorunları, çözümleri sade doğrusal regresyonla karşılaştırarak ampirik olarak kontrol edebilirsiniz: Bir etkileşim terimi kullanıldığında doğrusal modeliniz doğrulama verisinde daha iyi performans gösteriyor mu?</p>
+</div>
+</div>
+<p>Bu üç sorunun çözümleri bu bölümde sunulmaktadır. Doğrusal modelin diğer pek çok uzantısı dışarıda bırakılmıştır. Burada her şeyi ele almaya çalışsaydım, bölüm kısa sürede zaten pek çok başka kitapta ele alınmış bir konu hakkında kitap içinde bir kitaba dönüşürdü. Ama madem buradasınız, doğrusal model uzantıları için küçük bir sorun ve çözüm özeti hazırladım; bunu <a href="#more-lm-extension">bölümün sonunda</a> bulabilirsiniz.</p>
+<section id="glm" class="level2">
+<h2 class="anchored" data-anchor-id="glm">Gauss dışı sonuçlar - GLM’ler</h2>
+<p>Doğrusal regresyon modeli, girdi özniteliklerine koşullu sonucun Gauss dağılımına uyduğunu varsayar. Bu varsayım pek çok durumu dışarıda bırakır: Sonuç bir kategori (kanser ya da sağlıklı), bir sayım (çocuk sayısı), bir olayın gerçekleşmesine kadar geçen süre (bir makinenin arızalanmasına kadar geçen süre) ya da birkaç çok yüksek değere sahip, oldukça çarpık bir sonuç (hane geliri) da olabilir. Doğrusal regresyon modeli, tüm bu sonuç türlerini modelleyecek şekilde genişletilebilir. Bu uzantıya <strong>Genelleştirilmiş Doğrusal Modeller</strong> ya da kısaca <strong>GLM’ler</strong> denir. Bu bölüm boyunca GLM adını hem genel çerçeve hem de bu çerçevedeki belirli modeller için kullanacağım. Her GLM’in temel fikri şudur: Özniteliklerin ağırlıklı toplamını koruyun, ancak Gauss dışı sonuç dağılımlarına izin verin ve bu dağılımın beklenen ortalaması ile ağırlıklı toplamı doğrusal olmayan bir fonksiyon aracılığıyla bağlayın. Örneğin lojistik regresyon modeli, sonuç için Bernoulli dağılımını varsayar ve beklenen ortalama ile ağırlıklı toplamı lojistik fonksiyon aracılığıyla bağlar.</p>
+<p>GLM, özniteliklerin ağırlıklı toplamını varsayılan dağılımın ortalama değerine, sonuç türüne göre esnek biçimde seçilebilen <span class="math inline">\(g\)</span> bağlantı fonksiyonu (link function) aracılığıyla matematiksel olarak bağlar.</p>
+<p><span class="math display">\[g(\mathbb{E}[Y|\mathbf{x}])=\beta_0+\beta_1 x_{1}+\ldots+\beta_p x_{p} = \mathbf{x}^T \boldsymbol{\beta}\]</span></p>
+<p>GLM’ler üç bileşenden oluşur: <span class="math inline">\(g\)</span> bağlantı fonksiyonu, <span class="math inline">\(\mathbf{x}^T \boldsymbol{\beta}\)</span> ağırlıklı toplamı (bazen doğrusal yordayıcı olarak da adlandırılır) ve <span class="math inline">\(\mathbb{E}_Y\)</span>’yi tanımlayan, üstel aileden bir olasılık dağılımı.</p>
+<p>Üstel aile, bir üs, dağılımın ortalaması ve varyansı ile bazı başka parametreleri içeren aynı (parametrelendirilmiş) formülle yazılabilen dağılımlar kümesidir. Matematiksel ayrıntılara girmeyeceğim, çünkü bu başlı başına çok büyük ve girmek istemediğim bir evren. Wikipedia’da <a href="https://en.wikipedia.org/wiki/Exponential_family#Table_of_distributions">üstel aileden dağılımların</a> derli toplu bir listesi bulunmaktadır. Bu listedeki herhangi bir dağılım GLM’iniz için seçilebilir. Tahmin etmek istediğiniz sonucun türüne göre uygun bir dağılım seçin. Sonuç bir şeyin sayımı mı (örneğin bir hanede yaşayan çocuk sayısı)? O zaman Poisson dağılımı iyi bir seçim olabilir. Sonuç her zaman pozitif mi (örneğin iki olay arasındaki süre)? O zaman üstel dağılım iyi bir seçim olabilir.</p>
+<p>Klasik doğrusal modeli bir GLM’in özel bir durumu olarak ele alalım. Klasik doğrusal modelde Gauss dağılımı için bağlantı fonksiyonu basitçe birim (özdeşlik) fonksiyonudur. Gauss dağılımı ortalama ve varyans parametreleriyle parametrelendirilir. Ortalama, ortalamada beklediğimiz değeri; varyans ise değerlerin bu ortalama etrafında ne kadar değiştiğini betimler. Doğrusal modelde bağlantı fonksiyonu, özniteliklerin ağırlıklı toplamını Gauss dağılımının ortalamasına bağlar.</p>
+<p>GLM çerçevesinde bu kavram herhangi bir dağılıma (üstel aileden) ve herhangi bir bağlantı fonksiyonuna genelleşir. <span class="math inline">\(y\)</span> bir şeyin sayımıysa, örneğin birinin belirli bir günde içtiği kahve sayısıysa, bunu Poisson dağılımlı ve bağlantı fonksiyonu olarak doğal logaritmayı kullanan bir GLM ile modelleyebiliriz:</p>
+<p><span class="math display">\[\ln(\mathbb{E}[Y|\mathbf{x}])=\mathbf{x}^{T}\boldsymbol{\beta}\]</span></p>
+<p>Lojistik regresyon modeli de Bernoulli dağılımını varsayan ve bağlantı fonksiyonu olarak logit fonksiyonunu kullanan bir GLM’dir. Lojistik regresyonda kullanılan binom dağılımının ortalaması, <span class="math inline">\(y\)</span>’nin bir olma olasılığıdır.</p>
+<p><span class="math display">\[\mathbf{x}^{T}\boldsymbol{\beta}=\ln\left(\frac{\mathbb{E}[Y|\mathbf{x}]}{1-\mathbb{E}[Y|\mathbf{x}]}\right)=\ln\left(\frac{\mathbb{P}(Y=1|\mathbf{x})}{1-\mathbb{P}(Y=1|\mathbf{x})}\right)\]</span></p>
+<p>Bu denklemi bir tarafta <span class="math inline">\(\mathbb{P}(Y=1)\)</span> kalacak şekilde çözersek, lojistik regresyon formülünü elde ederiz:</p>
+<p><span class="math display">\[\mathbb{P}(Y=1)=\frac{1}{1+\exp(-\mathbf{x}^{T}\boldsymbol{\beta})}\]</span></p>
+<p>Üstel ailedeki her dağılımın, dağılımdan matematiksel olarak türetilebilen bir kanonik bağlantı fonksiyonu vardır. GLM çerçevesi, bağlantı fonksiyonunu dağılımdan bağımsız olarak seçmeyi mümkün kılar. Doğru bağlantı fonksiyonu nasıl seçilir? Kusursuz bir tarifi yoktur. Hedefinizin dağılımına ilişkin bilgiyi, ama aynı zamanda kuramsal değerlendirmeleri ve modelin gerçek verinize ne kadar iyi uyduğunu hesaba katarsınız. Bazı dağılımlar için kanonik bağlantı fonksiyonu, o dağılım için geçersiz olan değerlere yol açabilir. Üstel dağılım durumunda kanonik bağlantı fonksiyonu negatif terstir; bu da üstel dağılımın tanım kümesinin dışında kalan negatif tahminlere yol açabilir. Herhangi bir bağlantı fonksiyonu seçebildiğiniz için basit çözüm, dağılımın tanım kümesine uyan başka bir fonksiyon seçmektir.</p>
+<p><strong>Örnekler</strong></p>
+<p>GLM’lere olan ihtiyacı vurgulamak için kahve içme davranışına ilişkin bir veri seti simüle ettim. Günlük kahve içme davranışınız hakkında veri topladığınızı varsayın. Kahveyi sevmiyorsanız çay ya da başka bir şey olduğunu düşünün. Fincan sayısının yanı sıra 1 ile 10 arasında bir ölçekte o anki stres düzeyinizi, yine 1 ile 10 arasında bir ölçekte önceki gece ne kadar iyi uyuduğunuzu ve o gün çalışmanız gerekip gerekmediğini kaydediyorsunuz. Amaç, stres, uyku ve iş öznitelikleri verildiğinde kahve sayısını tahmin etmektir. 200 gün için veri simüle ettim. Stres ve uyku 1 ile 10 arasında düzgün dağılımdan çekildi, iş evet/hayır ise 50/50 olasılıkla çekildi (ne hayat ama!). Ardından her gün için kahve sayısı bir Poisson dağılımından çekildi; yoğunluk <span class="math inline">\(\lambda\)</span> (bu aynı zamanda Poisson dağılımının beklenen değeridir) uyku, stres ve iş özniteliklerinin bir fonksiyonu olarak modellendi. Bu hikâyenin nereye varacağını tahmin edebilirsiniz: <em>“Hey, bu veriyi doğrusal bir modelle modelleyelim … Ah, çalışmıyor … Poisson dağılımlı bir GLM deneyelim … SÜRPRİZ! Şimdi çalışıyor!”.</em> Umarım hikâyenin sonunu size fazla ele vermemişimdir.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-poisson-data" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-poisson-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-poisson-data-1.png" class="img-fluid figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-poisson-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: 200 gün için günlük kahve sayısının simüle edilmiş dağılımı.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-poisson-data" class="quarto-xref">Şekil&nbsp;2</a>, hedef değişkenin, yani belirli bir gündeki kahve sayısının dağılımını göstermektedir. 200 günün 79 gününde hiç kahve içmediniz; en uç günde ise 7 kahve içtiniz. Uyku düzeyi, stres düzeyi ve iş evet/hayır özniteliklerini kullanarak kahve sayısını tahmin etmek için safça bir doğrusal model kullanalım. Yanlış bir şekilde Gauss dağılımını varsaydığımızda ne ters gidebilir? Yanlış bir varsayım kestirimleri, özellikle de ağırlıkların güven aralıklarını geçersiz kılabilir. Daha belirgin bir sorun ise, aşağıdaki şekilde görüldüğü gibi tahminlerin gerçek sonucun “izin verilen” tanım kümesiyle uyuşmamasıdır (bkz. <a href="#fig-failing-linear-model" class="quarto-xref">Şekil&nbsp;3</a>). Doğrusal model negatif sayıda kahve tahmin ettiği için anlamsızdır. Test verisinde de basitçe kötü performans gösterebilir.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-failing-linear-model" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-failing-linear-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-failing-linear-model-1.png" class="img-fluid figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-failing-linear-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: Stres, uyku ve işe bağlı olarak tahmin edilen kahve sayısı. Doğrusal model negatif değerler tahmin etmektedir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Dağılımların uyuşmaması sorunu Genelleştirilmiş Doğrusal Modeller (GLM’ler) ile çözülebilir. Bağlantı fonksiyonunu ve varsayılan dağılımı değiştirebiliriz. Bir olasılık, Gauss dağılımını koruyup birim fonksiyon yerine her zaman pozitif tahminlere yol açan bir bağlantı fonksiyonu, örneğin log bağlantısını (tersi exp fonksiyonudur) kullanmaktır. Daha da iyisi: Veri üretme sürecine karşılık gelen bir dağılım ve uygun bir bağlantı fonksiyonu seçeriz. Sonuç bir sayım olduğundan, bağlantı fonksiyonu olarak logaritmayla birlikte Poisson dağılımı doğal bir seçimdir. Bu durumda veri zaten Poisson dağılımıyla üretildiği için Poisson GLM kusursuz bir seçimdir. Uydurulan Poisson GLM, tahmin edilen değerlerin aşağıdaki şekilde gösterilen dağılımına yol açar (bkz. <a href="#fig-linear-model-positive" class="quarto-xref">Şekil&nbsp;4</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-linear-model-positive" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-model-positive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-linear-model-positive-1.png" class="img-fluid figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-model-positive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: Stres, uyku ve işe bağlı olarak tahmin edilen kahve sayısı. Poisson varsayımlı ve log bağlantılı GLM bu veri seti için uygun bir modeldir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Negatif miktarda kahve yok; şimdi çok daha iyi görünüyor.</p>
+<p><strong>GLM ağırlıklarının yorumu</strong></p>
+<p>Varsayılan dağılım, bağlantı fonksiyonuyla birlikte kestirilen öznitelik ağırlıklarının nasıl yorumlanacağını belirler. Kahve sayısı örneğinde Poisson dağılımlı ve log bağlantılı bir GLM kullandım; bu da beklenen sonuç ile <span class="math inline">\(\text{str}\)</span> (stres), <span class="math inline">\(\text{slp}\)</span> (uyku) ve <span class="math inline">\(\text{wrk}\)</span> (iş) öznitelikleri arasında şu ilişkiyi ifade eder. Aşağıdaki örnekte matematiksel gösterim konusunda biraz serbest davranmama izin verin:</p>
+<p><span class="math display">\[\ln(\mathbb{E}[\text{coffee}|\text{str},\text{slp},\text{wrk}])=\beta_0+\beta_{\text{str}}x_{\text{str}} + \beta_{\text{slp}}x_{\text{slp}} +\beta_{\text{wrk}}x_{\text{wrk}}\]</span></p>
+<p>Ağırlıkları yorumlamak için bağlantı fonksiyonunun tersini alırız; böylece özniteliklerin beklenen sonucun logaritması üzerindeki değil, beklenen sonuç üzerindeki etkisini yorumlayabiliriz.</p>
+<p><span class="math display">\[\mathbb{E}[\text{coffee}|\text{str},\text{slp},\text{wrk}]=\exp\left(\beta_0+\beta_{\text{str}}x_{\text{str}}+\beta_{\text{slp}}x_{\text{slp}} +\beta_{\text{wrk}}x_{\text{wrk}}\right)\]</span></p>
+<p>Tüm ağırlıklar üstel fonksiyonun içinde olduğundan etki yorumu toplamsal değil çarpımsaldır, çünkü <span class="math inline">\(\exp(a + b)\)</span>, <span class="math inline">\(\exp(a)\)</span> çarpı <span class="math inline">\(\exp(b)\)</span>’ye eşittir. Yorum için son bileşen, bu oyuncak örneğin gerçek ağırlıklarıdır. <a href="#tbl-poisson-model-params" class="quarto-xref">Tablo&nbsp;1</a>, kestirilen ağırlıkları ve <span class="math inline">\(\exp(\text{ağırlıklar})\)</span> değerlerini %95 güven aralığıyla birlikte listelemektedir:</p>
+<div class="cell">
+<div id="tbl-poisson-model-params" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-poisson-model-params-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;1: Poisson modelinin sonuçları: ağırlık, exp(ağırlık) ve %95 güven aralıkları.
+</figcaption>
+<div aria-describedby="tbl-poisson-model-params-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">weight</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">exp(weight) [2.5%, 97.5%]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-0.11</td>
+<td style="text-align: left;">0.90 [0.57, 1.39]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">stress</td>
+<td style="text-align: right;">0.11</td>
+<td style="text-align: left;">1.11 [1.06, 1.17]</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sleep</td>
+<td style="text-align: right;">-0.20</td>
+<td style="text-align: left;">0.81 [0.77, 0.86]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">workYES</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: left;">2.99 [2.27, 3.98]</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Stres düzeyini bir puan artırmak, beklenen kahve sayısını 1.11 çarpanıyla çarpar. Uyku kalitesini bir puan artırmak, beklenen kahve sayısını 0.81 çarpanıyla çarpar. Bir iş gününde tahmin edilen kahve sayısı, ortalamada izin günündeki kahve sayısının 2.99 katıdır. Özetle, stres ne kadar fazla, uyku ne kadar az ve iş ne kadar fazlaysa, o kadar çok kahve tüketilir.</p>
+<p>Bu kısımda, hedef Gauss dağılımına uymadığında faydalı olan Genelleştirilmiş Doğrusal Modeller hakkında biraz bilgi edindiniz. Şimdi de iki öznitelik arasındaki etkileşimlerin doğrusal regresyon modeline nasıl dahil edileceğine bakalım.</p>
+</section>
+<section id="lm-interact" class="level2">
+<h2 class="anchored" data-anchor-id="lm-interact">Etkileşimler</h2>
+<p>Doğrusal regresyon modeli, bir özniteliğin etkisinin diğer özniteliklerin değerlerinden bağımsız olarak aynı olduğunu (= etkileşim olmadığını) varsayar. Ancak veride çoğu zaman etkileşimler vardır. Kiralanan <a href="#bike-data">bisiklet sayısını</a> tahmin ederken, sıcaklık ile günün iş günü olup olmadığı arasında bir etkileşim olabilir. Belki de insanlar çalışmak zorunda olduğunda sıcaklık kiralanan bisiklet sayısını pek etkilemez, çünkü insanlar ne olursa olsun kiralık bisikletle işe gidecektir. İzin günlerinde ise pek çok kişi keyif için bisiklete biner, ama yalnızca hava yeterince sıcaksa. Kiralık bisikletler söz konusu olduğunda sıcaklık ile iş günü arasında bir etkileşim bekleyebilirsiniz.</p>
+<p>Doğrusal modelin etkileşimleri içermesini nasıl sağlayabiliriz? Doğrusal modeli uydurmadan önce, öznitelik matrisi <span class="math inline">\(\mathbf{X}\)</span>’e öznitelikler arasındaki etkileşimi temsil eden bir sütun ekleyin ve modeli her zamanki gibi uydurun. Çözüm bir bakıma zariftir, çünkü doğrusal modelde herhangi bir değişiklik gerektirmez, yalnızca veride ek sütunlar gerektirir. İş günü ve sıcaklık örneğinde, iş günü referans kategori olarak alındığında, çalışılmayan günler için sıfır, aksi hâlde sıcaklık özniteliğinin değerini alan yeni bir öznitelik eklerdik. Verimizin <a href="#tbl-data-frame" class="quarto-xref">Tablo&nbsp;2</a> içindeki gibi göründüğünü varsayalım.</p>
+<div class="cell">
+<div id="tbl-data-frame" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-frame-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;2: 4 gün için iş günü ve sıcaklık öznitelikleri.
+</figcaption>
+<div aria-describedby="tbl-data-frame-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table cell caption-top table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">work</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Y</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Y</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Doğrusal modelin kullandığı veri matrisi biraz farklı görünür. <a href="#tbl-data-frame-lm-no-interaction" class="quarto-xref">Tablo&nbsp;3</a>, herhangi bir etkileşim belirtmediğimizde model için hazırlanan verinin nasıl göründüğünü göstermektedir. Normalde bu dönüşüm herhangi bir istatistik yazılımı tarafından otomatik olarak yapılır.</p>
+<div class="cell">
+<div id="tbl-data-frame-lm-no-interaction" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-frame-lm-no-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;3: Doğrusal regresyon modeli için <a href="#tbl-data-frame" class="quarto-xref">Tablo&nbsp;2</a> verisinin karşılığı.
+</figcaption>
+<div aria-describedby="tbl-data-frame-lm-no-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table cell caption-top table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">Intercept</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">workY</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>İlk sütun sabit terimdir. İkinci sütun, referans kategori için 0, diğeri için 1 olmak üzere kategorik özniteliği kodlar. Üçüncü sütun sıcaklığı içerir.</p>
+<p>Doğrusal modelin sıcaklık ile iş günü özniteliği arasındaki etkileşimi dikkate almasını istiyorsak, etkileşim için bir sütun eklememiz gerekir (bkz. <a href="#tbl-data-frame-lm" class="quarto-xref">Tablo&nbsp;4</a>).</p>
+<div class="cell">
+<div id="tbl-data-frame-lm" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-frame-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;4: Sıcaklık ve iş günü öznitelikleri arasında etkileşim eklendiğinde doğrusal regresyon modelinin model matrisi.
+</figcaption>
+<div aria-describedby="tbl-data-frame-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table cell caption-top table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">Intercept</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">workY</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temp</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">workY.temp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Yeni “workY.temp” sütunu, iş günü (work) ve sıcaklık (temp) öznitelikleri arasındaki etkileşimi yakalar. Bu yeni öznitelik sütunu, iş özniteliği referans kategorideyse (“N”, iş günü değil) bir örnek için sıfırdır; aksi hâlde örneğin sıcaklık özniteliğinin değerini alır. Bu tür bir kodlamayla doğrusal model, iki gün türü için sıcaklığın farklı bir doğrusal etkisini öğrenebilir. Bu, iki öznitelik arasındaki etkileşim etkisidir. Etkileşim terimi olmadan, kategorik bir öznitelik ile sayısal bir özniteliğin ortak etkisi, farklı kategoriler için dikey olarak kaydırılmış bir doğruyla betimlenebilir. Etkileşimi dahil edersek, sayısal özniteliğin etkisinin (eğimin) her kategoride farklı bir değer almasına izin vermiş oluruz.</p>
+<p>İki kategorik özniteliğin etkileşimi de benzer şekilde çalışır. Kategorilerin birleşimlerini temsil eden ek öznitelikler oluştururuz. <a href="#tbl-data-frame-lm-cat" class="quarto-xref">Tablo&nbsp;5</a>, iş günü (work) ve kategorik bir hava durumu özniteliği (wthr) içeren yapay bir veri göstermektedir. Tabloyu biraz daraltmak için hava durumu kategorilerini burada kısaltıyorum: G=GOOD (iyi), B=BAD (kötü) ve M=MISTY (sisli).</p>
+<div class="cell">
+<div id="tbl-data-frame-lm-cat" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-frame-lm-cat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;5: 4 gün için iş günü ve hava durumu özniteliklerini içeren bisiklet verisi örneği.
+</figcaption>
+<div aria-describedby="tbl-data-frame-lm-cat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">work</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">wthr</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">B</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">N</td>
+<td style="text-align: left;">G</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N</td>
+<td style="text-align: left;">M</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">B</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Ardından etkileşim terimlerini ekleyerek aşağıdaki tabloyu elde ederiz (bkz. <a href="#tbl-data-frame-lm-cat2" class="quarto-xref">Tablo&nbsp;6</a>). İlk sütun sabit terimi kestirmeye yarar. İkinci sütun kodlanmış iş özniteliğidir. Üçüncü ve dördüncü sütunlar hava durumu özniteliği içindir; bu öznitelik iki sütun gerektirir, çünkü biri referans kategori olan üç kategorinin etkisini yakalamak için iki ağırlığa ihtiyacınız vardır. Geri kalan sütunlar etkileşimleri yakalar. Her iki özniteliğin her kategorisi için (referans kategoriler hariç), her iki özniteliğin de belirli bir kategoriye sahip olması durumunda 1, aksi hâlde 0 olan yeni bir öznitelik sütunu oluştururuz.</p>
+<div class="cell">
+<div id="tbl-data-frame-lm-cat2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-frame-lm-cat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;6: <a href="#tbl-data-frame-lm-cat" class="quarto-xref">Tablo&nbsp;5</a> için karşılık gelen model matrisi.
+</figcaption>
+<div aria-describedby="tbl-data-frame-lm-cat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table cell caption-top table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">Intercept</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">workY</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">wthrG</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">wthrM</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">workY.wthrG</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">workY.wthrM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>İki sayısal öznitelik için etkileşim sütununu oluşturmak daha da kolaydır: Her iki sayısal özniteliği basitçe çarparız.</p>
+<p>Etkileşim terimlerini otomatik olarak tespit edip ekleyen yaklaşımlar vardır. Bunlardan biri <a href="#rulefit">RuleFit bölümünde</a> bulunabilir. RuleFit algoritması önce etkileşim terimlerini çıkarır, ardından etkileşimleri içeren bir doğrusal regresyon modeli kestirir. Bir diğer seçenek GA2M’dir <span class="citation" data-cites="caruana2015intelligible">(<a href="#ref-caruana2015intelligible" role="doc-biblioref">Caruana vd. 2015</a>)</span>.</p>
+<p><strong>Örnek</strong></p>
+<p><a href="#limo">Doğrusal model bölümünde</a> zaten modellediğimiz <a href="#bike-data">bisiklet kiralama tahmin görevine</a> geri dönelim. Bu kez ek olarak sıcaklık ile iş günü özniteliği arasındaki bir etkileşimi de dikkate alıyoruz. Bu, <a href="#tbl-example-lm-interaction" class="quarto-xref">Tablo&nbsp;7</a> içinde gösterilen kestirilen ağırlıklar ve güven aralıklarıyla sonuçlanır.</p>
+<div class="cell">
+<div id="tbl-example-lm-interaction" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-example-lm-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;7: İş günü ile sıcaklık arasındaki etkileşimi içeren, bisiklet verisi için doğrusal regresyon kestirimleri.
+</figcaption>
+<div aria-describedby="tbl-example-lm-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Weight</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Std. Error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">2.5%</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">97.5%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">2385.1</td>
+<td style="text-align: right;">355.4</td>
+<td style="text-align: right;">1686.8</td>
+<td style="text-align: right;">3083.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonSPRING</td>
+<td style="text-align: right;">433.2</td>
+<td style="text-align: right;">168.5</td>
+<td style="text-align: right;">102.1</td>
+<td style="text-align: right;">764.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">seasonSUMMER</td>
+<td style="text-align: right;">239.3</td>
+<td style="text-align: right;">216.9</td>
+<td style="text-align: right;">-186.9</td>
+<td style="text-align: right;">665.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seasonFALL</td>
+<td style="text-align: right;">618.0</td>
+<td style="text-align: right;">151.5</td>
+<td style="text-align: right;">320.4</td>
+<td style="text-align: right;">915.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">holidayY</td>
+<td style="text-align: right;">-434.7</td>
+<td style="text-align: right;">236.9</td>
+<td style="text-align: right;">-900.1</td>
+<td style="text-align: right;">30.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">workdayY</td>
+<td style="text-align: right;">776.7</td>
+<td style="text-align: right;">200.6</td>
+<td style="text-align: right;">382.5</td>
+<td style="text-align: right;">1171.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weatherMISTY</td>
+<td style="text-align: right;">-374.9</td>
+<td style="text-align: right;">119.5</td>
+<td style="text-align: right;">-609.8</td>
+<td style="text-align: right;">-140.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weatherBAD</td>
+<td style="text-align: right;">-1802.3</td>
+<td style="text-align: right;">303.2</td>
+<td style="text-align: right;">-2398.2</td>
+<td style="text-align: right;">-1206.4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">temp</td>
+<td style="text-align: right;">74.5</td>
+<td style="text-align: right;">12.7</td>
+<td style="text-align: right;">49.5</td>
+<td style="text-align: right;">99.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hum</td>
+<td style="text-align: right;">-21.7</td>
+<td style="text-align: right;">4.5</td>
+<td style="text-align: right;">-30.6</td>
+<td style="text-align: right;">-12.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">windspeed</td>
+<td style="text-align: right;">-45.5</td>
+<td style="text-align: right;">9.4</td>
+<td style="text-align: right;">-64.0</td>
+<td style="text-align: right;">-27.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cnt_2d_bfr</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">workdayY:temp</td>
+<td style="text-align: right;">-34.4</td>
+<td style="text-align: right;">11.2</td>
+<td style="text-align: right;">-56.4</td>
+<td style="text-align: right;">-12.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Ek etkileşim etkisi negatiftir (-34.4) ve sıfırı içermeyen %95 güven aralığının gösterdiği gibi sıfırdan anlamlı biçimde farklıdır. Bu arada, verinin IID (bağımsız ve özdeş dağılımlı) olup olmadığı tartışmalıdır, çünkü birbirine yakın günler birbirinden bağımsız değildir. Önceki sayımlara koşullandırmak ise sorunu en azından bir ölçüde hafifletmelidir. Güven aralıkları yanıltıcı olabilir; bunu ihtiyatla karşılayın. Etkileşim terimi, dahil olan özniteliklerin ağırlıklarının yorumunu değiştirir. İş günü olduğunda sıcaklığın negatif bir etkisi var mıdır? Tablo eğitimsiz bir kullanıcıya bunu düşündürse bile yanıt hayırdır.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Ana etkileri dahil edin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Bir modelde hem ana etkileri hem de etkileşim etkisini dahil ettiğinizden emin olun. Bu, yanıltıcı yorumların önlenmesine yardımcı olur.</p>
+</div>
+</div>
+<p>“workdayY:temp” etkileşim ağırlığını tek başına yorumlayamayız, çünkü yorum şöyle olurdu: “Diğer tüm öznitelik değerleri değişmeden kalırken, iş günü için sıcaklığın etkileşim etkisini artırmak tahmin edilen bisiklet sayısını azaltır.” Ancak etkileşim etkisi yalnızca sıcaklığın ana etkisine eklenir. Bugünün bir iş günü olduğunu ve sıcaklık 1 derece daha yüksek olsaydı ne olacağını bilmek istediğimizi varsayalım. O zaman kestirimin ne kadar arttığını belirlemek için hem “temp” hem de “workdayY:temp” ağırlıklarını toplamamız gerekir.</p>
+<p>Etkileşimi görsel olarak anlamak daha kolaydır (bkz. <a href="#fig-interaction-plot" class="quarto-xref">Şekil&nbsp;5</a>). Kategorik ve sayısal bir öznitelik arasına bir etkileşim terimi ekleyerek sıcaklık için bir yerine iki eğim elde ederiz. İnsanların çalışmak zorunda olmadığı günler (‘N’) için sıcaklık eğimi doğrudan tablodan okunabilir (74.5). İnsanların çalışmak zorunda olduğu günler (‘Y’) için sıcaklık eğimi, her iki sıcaklık ağırlığının toplamıdır (74.5 -34.4 = 40.1). ‘N’ doğrusunun sıcaklık = 0’daki kesişim noktası, doğrusal modelin sabit terimiyle belirlenir (2385.1). ‘Y’ doğrusunun sıcaklık = 0’daki kesişim noktası ise sabit terim + iş günü etkisiyle belirlenir (2385.1 + 776.7 = 3161.8).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-interaction-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-interaction-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-interaction-plot-1.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-interaction-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;5: Sıcaklık, iş günü ve bunların etkileşimine dayanarak bisiklet kiralamalarını tahmin eden doğrusal model. Sıcaklık için, iş günü özniteliğinin her kategorisi için bir tane olmak üzere iki eğim elde ederiz. Sıcaklığın etkisi iş günlerinde daha “düzdür”.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="gam" class="level2">
+<h2 class="anchored" data-anchor-id="gam">Doğrusal olmayan etkiler - GAM’ler</h2>
+<p><strong>Dünya doğrusal değildir.</strong> Doğrusal modellerdeki doğrusallık, bir örneğin belirli bir öznitelikte hangi değere sahip olduğundan bağımsız olarak, değeri bir birim artırmanın tahmin edilen sonuç üzerinde her zaman aynı etkiye sahip olduğu anlamına gelir. Sıcaklığı 10 santigrat derecedeyken bir derece artırmanın, kiralık bisiklet sayısı üzerinde sıcaklık zaten 30 dereceyken artırmakla aynı etkiye sahip olduğunu varsaymak makul müdür? Sezgisel olarak, sıcaklığı 10’dan 11 santigrat dereceye çıkarmanın bisiklet kiralamaları üzerinde pozitif, 30’dan 31’e çıkarmanın ise negatif bir etkisi olması beklenir; kitap boyunca pek çok örnekte göreceğiniz gibi durum gerçekten de budur. Sıcaklık özniteliğinin kiralık bisiklet sayısı üzerinde doğrusal, pozitif bir etkisi vardır; ancak bir noktada düzleşir ve yüksek sıcaklıklarda negatif bir etkiye bile dönüşür. Doğrusal model bunu umursamaz; (Öklid uzaklığını en aza indirerek) görev bilinciyle en iyi doğrusal düzlemi bulur.</p>
+<p>Doğrusal olmayan ilişkileri aşağıdaki tekniklerden birini kullanarak modelleyebilirsiniz:</p>
+<ul>
+<li>Özniteliğin basit bir dönüşümü (örneğin logaritma)</li>
+<li>Özniteliğin kategorize edilmesi</li>
+<li>Genelleştirilmiş Toplamsal Modeller (GAM’ler)</li>
+</ul>
+<p>Her yöntemin ayrıntılarına girmeden önce, üçünü de gösteren bir örnekle başlayalım. <a href="#bike-data">Bisiklet kiralama veri setini</a> aldım ve kiralık bisiklet sayısını tahmin etmek için yalnızca sıcaklık özniteliğini kullanan bir doğrusal model eğittim. <a href="#fig-nonlinear-effects" class="quarto-xref">Şekil&nbsp;6</a>, şu yöntemlerle kestirilen eğimi göstermektedir: standart doğrusal model, sıcaklığı dönüştürülmüş (logaritma) doğrusal model, sıcaklığın kategorik bir öznitelik olarak ele alındığı doğrusal model ve regresyon spline’larının kullanıldığı model (GAM). Doğrusal model (sol üst) veriye iyi uymamaktadır. Bir çözüm, özniteliği örneğin logaritma ile dönüştürmek (sağ üst), kategorize etmek (sol alt; ki bu genellikle kötü bir karardır) ya da sıcaklık için otomatik olarak düzgün bir eğri uydurabilen Genelleştirilmiş Toplamsal Modelleri kullanmaktır (sağ alt).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-nonlinear-effects" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nonlinear-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-nonlinear-effects-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nonlinear-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;6: Yalnızca sıcaklığı kullanarak bisiklet kiralamalarını tahmin eden dört model. Her nokta bir veri noktasıdır; eğriler ise model tahminlerini temsil eder.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Öznitelik dönüşümü</strong></p>
+<p>Dönüşüm olarak çoğunlukla özniteliğin logaritması kullanılır. Logaritma kullanmak, sıcaklıktaki her 10 katlık artışın bisiklet sayısı üzerinde aynı doğrusal etkiye sahip olduğunu ifade eder; yani 1 santigrat dereceden 10 santigrat dereceye geçmek, 0,1’den 1’e geçmekle aynı etkiye sahiptir (kulağa yanlış geliyor). Öznitelik dönüşümlerine diğer örnekler karekök, kare fonksiyonu ve üstel fonksiyondur. Bir öznitelik dönüşümü kullanmak, verideki bu özniteliğin sütununu logaritma gibi özniteliğin bir fonksiyonuyla değiştirmeniz ve doğrusal modeli her zamanki gibi uydurmanız anlamına gelir. Bazı istatistik programları, dönüşümleri doğrusal modelin çağrısı içinde belirtmenize de izin verir. Özniteliği dönüştürürken yaratıcı olabilirsiniz. Özniteliğin yorumu, seçilen dönüşüme göre değişir. Log dönüşümü kullanırsanız, doğrusal modeldeki yorum şu hâle gelir: “Özniteliğin logaritması bir artırılırsa, tahmin ilgili ağırlık kadar artar.” Birim fonksiyon olmayan bir bağlantı fonksiyonuna sahip bir GLM kullandığınızda yorum daha karmaşık hâle gelir, çünkü her iki dönüşümü de yoruma dahil etmeniz gerekir (log ve exp gibi birbirini götürdükleri durumlar hariç; o zaman yorum kolaylaşır).</p>
+<p><strong>Özniteliğin kategorize edilmesi</strong></p>
+<p>Doğrusal olmayan bir etki elde etmenin bir başka yolu özniteliği ayrıklaştırmak, yani kategorik bir özniteliğe dönüştürmektir. Örneğin sıcaklık özniteliğini [-10, -5), [-5, 0), … gibi düzeylere sahip 20 aralığa bölebilirsiniz. Sürekli sıcaklık yerine kategorize edilmiş sıcaklığı kullandığınızda, her düzey kendi kestirimini aldığı için doğrusal model bir basamak fonksiyonu kestirir. Bu yaklaşımın sorunları şunlardır: daha fazla veriye ihtiyaç duyar, aşırı uyuma (overfitting) daha yatkındır ve özniteliğin anlamlı bir şekilde nasıl ayrıklaştırılacağı belirsizdir (eşit aralıklı aralıklar mı, çeyreklikler mi? Kaç aralık?). Ayrıklaştırmayı ancak bunun için çok güçlü bir gerekçe varsa kullanırdım. Örneğin modeli başka bir çalışmayla karşılaştırılabilir kılmak için.</p>
+<p><strong>Genelleştirilmiş Toplamsal Modeller (GAM’ler)</strong></p>
+<p>Neden (genelleştirilmiş) doğrusal modelin doğrusal olmayan ilişkileri öğrenmesine ‘basitçe’ izin vermeyelim? GAM’lerin arkasındaki motivasyon budur. GAM’ler, ilişkinin basit bir ağırlıklı toplam olması gerektiği kısıtlamasını gevşetir ve bunun yerine sonucun her özniteliğin keyfi fonksiyonlarının toplamıyla modellenebileceğini varsayar. Matematiksel olarak bir GAM’deki ilişki şöyle görünür:</p>
+<p><span class="math display">\[g[\mathbb{E}(Y|X = \mathbf{x})] = \beta_0 + f_1(x_1) + f_2(x_2) + \ldots + f_p(x_p)\]</span></p>
+<p>Formül GLM formülüne benzer; farkı, <span class="math inline">\(\beta_j x_j\)</span> doğrusal teriminin daha esnek bir <span class="math inline">\(f_j(x_j)\)</span> fonksiyonuyla değiştirilmiş olmasıdır. Bir GAM’in özü hâlâ öznitelik etkilerinin toplamıdır, ancak bazı öznitelikler ile çıktı arasında doğrusal olmayan ilişkilere izin verme seçeneğiniz vardır. Doğrusal etkiler de çerçevenin kapsamındadır; çünkü doğrusal olarak ele alınacak öznitelikler için <span class="math inline">\(f_j(x_j)\)</span>’yi yalnızca <span class="math inline">\(\beta_j x_j\)</span> biçimini alacak şekilde sınırlayabilirsiniz.</p>
+<p>Asıl soru, doğrusal olmayan fonksiyonların nasıl öğrenileceğidir. Yanıtın adı “spline’lar” ya da “spline fonksiyonları”dır. Spline’lar, daha basit baz fonksiyonlarından oluşturulan fonksiyonlardır. Spline’lar, daha karmaşık başka fonksiyonlara yaklaşmak için kullanılabilir. Biraz daha karmaşık bir şey inşa etmek için Lego parçalarını üst üste koymak gibi. Bu spline baz fonksiyonlarını tanımlamanın kafa karıştırıcı sayıda yolu vardır. Baz fonksiyonlarını tanımlamanın tüm yollarını öğrenmek istiyorsanız, yolculuğunuzda size bol şans dilerim. Burada ayrıntılara girmeyeceğim; yalnızca bir sezgi oluşturacağım. Spline’ları anlamama kişisel olarak en çok yardımcı olan şey, tek tek baz fonksiyonlarını görselleştirmek ve veri matrisinin nasıl değiştirildiğine bakmak oldu. Örneğin sıcaklığı spline’larla modellemek için sıcaklık özniteliğini veriden çıkarır ve yerine, diyelim ki her biri bir spline baz fonksiyonunu temsil eden 4 sütun koyarız. Genellikle daha fazla spline baz fonksiyonunuz olur; ben sayıyı yalnızca gösterim amacıyla azalttım. Bu yeni spline baz özniteliklerinin her örnek için aldığı değer, örneklerin sıcaklık değerlerine bağlıdır. GAM, tüm doğrusal etkilerle birlikte bu spline ağırlıklarını da kestirir. GAM’ler ayrıca ağırlıkları sıfıra yakın tutmak için ağırlıklara bir ceza terimi ekler. Bu, spline’ların esnekliğini fiilen azaltır ve aşırı uyumu azaltır. Eğrinin esnekliğini kontrol etmek için yaygın olarak kullanılan bir düzgünlük (smoothness) parametresi ise çapraz doğrulama ile ayarlanır. Ceza terimiyle yapılan optimizasyonu göz ardı edersek, spline’larla doğrusal olmayan modelleme süslü bir öznitelik mühendisliği gibi görünür.</p>
+<p>Bisiklet sayısını yalnızca sıcaklığı kullanan bir GAM ile tahmin ettiğimiz örnekte, modelin öznitelik matrisi <a href="#tbl-splines" class="quarto-xref">Tablo&nbsp;8</a> içindeki gibi görünür. Her satır veriden tek bir örneği (bir günü) temsil eder. Her spline baz sütunu, belirli sıcaklık değerlerinde spline baz fonksiyonunun değerini içerir.</p>
+<div class="cell">
+<div id="tbl-splines" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-splines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;8: Spline kullanıldığında öznitelik matrisi.
+</figcaption>
+<div aria-describedby="tbl-splines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Intercept)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">-0.70</td>
+<td style="text-align: right;">-0.39</td>
+<td style="text-align: right;">-1.64</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">-0.69</td>
+<td style="text-align: right;">-0.37</td>
+<td style="text-align: right;">-1.62</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.30</td>
+<td style="text-align: right;">-0.57</td>
+<td style="text-align: right;">-0.25</td>
+<td style="text-align: right;">-1.47</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">-0.67</td>
+<td style="text-align: right;">-0.35</td>
+<td style="text-align: right;">-1.59</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">-0.70</td>
+<td style="text-align: right;">-0.39</td>
+<td style="text-align: right;">-1.64</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.35</td>
+<td style="text-align: right;">-0.82</td>
+<td style="text-align: right;">-0.53</td>
+<td style="text-align: right;">-1.81</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Bu spline baz fonksiyonlarının nasıl göründüğü aşağıda gösterilmektedir (bkz. <a href="#fig-splines" class="quarto-xref">Şekil&nbsp;7</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-splines" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-splines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-splines-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-splines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;7: Sıcaklık için dört spline fonksiyonu. Her sıcaklık değeri (burada) 4 spline baz değerine eşlenir. Bir örneğin sıcaklığı 30 °C ise, birinci spline baz özniteliğinin değeri -1, ikincisinin -0,7, üçüncüsünün -0,8 ve dördüncüsünün 1,7’dir.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>GAM, her sıcaklık spline baz özniteliğine ağırlıklar atar:</p>
+<div class="cell">
+<div id="tbl-splines-weights" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-splines-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tablo&nbsp;9: Model eğitilirken spline öznitelikleri için kestirilen ağırlıklar.
+</figcaption>
+<div aria-describedby="tbl-splines-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Intercept)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">s(temp).4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">4519.6</td>
+<td style="text-align: right;">-922.04</td>
+<td style="text-align: right;">-740.59</td>
+<td style="text-align: right;">2333.45</td>
+<td style="text-align: right;">611.39</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Spline baz fonksiyonlarının kestirilen ağırlıklarla ağırlıklandırılmış toplamından ortaya çıkan gerçek spline eğrisi ise aşağıdaki gibi görünür (bkz. <a href="#fig-splines-curve" class="quarto-xref">Şekil&nbsp;8</a>). Düzgün etkilerin yorumlanması, uydurulan eğrinin görsel olarak incelenmesini gerektirir. Spline’lar genellikle ortalama tahmin etrafında merkezlenir, dolayısıyla eğri üzerindeki bir nokta ortalama tahmine olan farktır. Örneğin 0 santigrat derecede tahmin edilen bisiklet sayısı, ortalama tahminden 3.000 daha düşüktür.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-splines-curve" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-splines-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="ahmetbatuhankaya-20269348005_files/figure-html/fig-splines-curve-1.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-splines-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;8: Kiralanan bisiklet sayısını tahmin ederken sıcaklığın GAM öznitelik etkisi (tek öznitelik olarak sıcaklık kullanılmıştır).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="güçlü-yönler" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönler">Güçlü yönler</h2>
+<p>Doğrusal modelin tüm bu uzantıları başlı başına birer evren gibidir. Doğrusal modellerle hangi sorunla karşılaşırsanız karşılaşın, <strong>muhtemelen onu çözen bir uzantı bulursunuz</strong>.</p>
+<p>Yöntemlerin çoğu onlarca yıldır kullanılmaktadır. Örneğin GAM’ler neredeyse 30 yaşındadır. Pek çok araştırmacı ve sektörden uygulayıcı doğrusal modeller konusunda çok <strong>deneyimlidir</strong> ve bu yöntemler <strong>pek çok toplulukta modellemenin statükosu olarak kabul görmektedir</strong>.</p>
+<p>Tahmin yapmanın yanı sıra, modelleri <strong>çıkarım yapmak</strong>, yani veri hakkında sonuçlar çıkarmak için de kullanabilirsiniz; tabii model varsayımlarının ihlal edilmemesi koşuluyla. Ağırlıklar için güven aralıkları, anlamlılık testleri, tahmin aralıkları ve çok daha fazlasını elde edersiniz.</p>
+<p>İstatistik yazılımları genellikle GLM’leri, GAM’leri ve daha özel doğrusal modelleri uydurmak için gerçekten iyi arayüzlere sahiptir.</p>
+<p>Pek çok makine öğrenmesi modelinin opaklığı şunlardan kaynaklanır: 1) seyreklik eksikliği, yani çok sayıda öznitelik kullanılması, 2) özniteliklerin doğrusal olmayan biçimde ele alınması, yani etkiyi betimlemek için tek bir ağırlıktan fazlasına ihtiyaç duyulması ve 3) öznitelikler arasındaki etkileşimlerin modellenmesi. Doğrusal modellerin son derece yorumlanabilir olduğu ama çoğu zaman gerçekliği yeterince yakalayamadığı (underfit) varsayılırsa, bu bölümde anlatılan uzantılar, yorumlanabilirliğin bir kısmını korurken <strong>daha esnek modellere yumuşak bir geçiş</strong> sağlamanın iyi bir yolunu sunar.</p>
+</section>
+<section id="sınırlılıklar" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlılıklar">Sınırlılıklar</h2>
+<p>Bir avantaj olarak doğrusal modellerin kendi evrenlerinde yaşadığını söylemiştim. Basit doğrusal modeli genişletmenin <strong>yollarının sayısı bunaltıcıdır</strong>, üstelik yalnızca yeni başlayanlar için değil. Aslında birden çok paralel evren vardır, çünkü pek çok araştırmacı ve uygulayıcı topluluğu aşağı yukarı aynı şeyi yapan yöntemler için kendi adlarını kullanır; bu da çok kafa karıştırıcı olabilir.</p>
+<p>Doğrusal modeldeki değişikliklerin çoğu modeli <strong>daha az yorumlanabilir</strong> hâle getirir. Birim fonksiyon olmayan her bağlantı fonksiyonu (bir GLM’de) yorumu karmaşıklaştırır; etkileşimler de yorumu karmaşıklaştırır; doğrusal olmayan öznitelik etkileri ya daha az sezgiseldir (log dönüşümü gibi) ya da artık tek bir sayıyla özetlenemez (örneğin spline fonksiyonları).</p>
+<p>GLM’ler, GAM’ler vb. veri üretme süreci hakkındaki <strong>varsayımlara dayanır</strong>. Bunlar ihlal edilirse ağırlıkların yorumu artık geçerli değildir.</p>
+<p>Rastgele orman (random forest) ya da gradyan artırmalı ağaçlar (gradient tree boosting) gibi ağaç tabanlı topluluk modellerinin performansı, pek çok durumda en gelişmiş doğrusal modellerden daha iyidir. Bu kısmen kendi deneyimim, kısmen de makine öğrenmesi yarışmalarına ev sahipliği yapan kaggle.com gibi sitelerdeki kazanan modellere ilişkin gözlemlerimdir.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Modelden bağımsız yöntemler kullanın
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dönüşümler, etkileşimler ve düzgün etkiler kullanarak saf doğrusal regresyondan ne kadar uzaklaşırsanız, modeli analiz etmek için <a href="#pdp">kısmi bağımlılık grafiği</a> gibi modelden bağımsız araçlara o kadar çok ihtiyaç duyabilirsiniz.</p>
+</div>
+</div>
+</section>
+<section id="yazılım" class="level2">
+<h2 class="anchored" data-anchor-id="yazılım">Yazılım</h2>
+<p>Bu bölümdeki tüm örnekler R dili kullanılarak oluşturulmuştur. GAM’ler için <code>gam</code> paketi kullanılmıştır, ancak başka pek çok paket de vardır. R’da doğrusal regresyon modellerini genişletmek için inanılmaz sayıda paket bulunur. Başka hiçbir analiz dilinin geçemeyeceği şekilde R, doğrusal regresyon modelinin akla gelebilecek her uzantısına ev sahipliği yapar. Python’da da örneğin GAM uygulamaları bulabilirsiniz (<a href="https://github.com/dswah/pyGAM">pyGAM</a> gibi), ancak bu uygulamalar o kadar olgun değildir. <a href="https://selfexplainml.github.io/PiML-Toolbox/_build/html/index.html">Python PiML</a> paketi de çeşitli GAM sürümlerini uygulamaktadır.</p>
+</section>
+<section id="more-lm-extension" class="level2">
+<h2 class="anchored" data-anchor-id="more-lm-extension">Diğer uzantılar</h2>
+<p>Söz verdiğim gibi, doğrusal modellerle karşılaşabileceğiniz sorunların bir listesini, bu sorunlar için favori arama motorunuza kopyalayıp yapıştırabileceğiniz çözüm adlarıyla birlikte aşağıda bulabilirsiniz.</p>
+<ul>
+<li>Verim, bağımsız ve özdeş dağılımlı (iid) olma varsayımını ihlal ediyor. Örneğin aynı hasta üzerinde tekrarlı ölçümler. <strong>Mixed models</strong> (karma modeller) ya da <strong>generalized estimating equations</strong> (genelleştirilmiş kestirim denklemleri) araması yapın.</li>
+<li>Modelimin hataları heteroskedastik (değişen varyanslı). Örneğin bir evin değerini tahmin ederken model hataları pahalı evlerde genellikle daha yüksektir; bu da doğrusal modelin eş varyanslılık varsayımını ihlal eder. <strong>Robust regression</strong> (sağlam regresyon) araması yapın.</li>
+<li>Modelimi güçlü biçimde etkileyen aykırı değerlerim var. <strong>Robust regression</strong> (sağlam regresyon) araması yapın.</li>
+<li>Bir olayın gerçekleşmesine kadar geçen süreyi tahmin etmek istiyorum. Olaya kadar geçen süre verileri genellikle sansürlü ölçümler içerir; bu da bazı örnekler için olayı gözlemlemeye yeterli zaman olmadığı anlamına gelir. Örneğin bir şirket buz makinelerinin arızalanmasını tahmin etmek istiyor, ancak yalnızca iki yıllık verisi var. Bazı makineler iki yıl sonra hâlâ sağlam, ancak daha sonra arızalanabilir. <strong>Parametric survival models</strong> (parametrik sağkalım modelleri), <strong>cox regression</strong> (Cox regresyonu), <strong>survival analysis</strong> (sağkalım analizi) araması yapın.</li>
+<li>Tahmin etmek istediğim sonuç bir kategori. Sonucun iki kategorisi varsa, kategorilerin olasılığını modelleyen bir <a href="#logistic">lojistik regresyon modeli</a> kullanın. Daha fazla kategoriniz varsa <strong>multinomial regression</strong> (çok terimli regresyon) araması yapın. Lojistik regresyon ve çok terimli regresyonun ikisi de GLM’dir.</li>
+<li>Sıralı kategorileri tahmin etmek istiyorum.<br>
+Örneğin okul notları. <strong>Proportional odds model</strong> (orantılı odds modeli) araması yapın.</li>
+<li>Sonucum bir sayım (bir ailedeki çocuk sayısı gibi). <strong>Poisson regression</strong> (Poisson regresyonu) araması yapın. Poisson modeli de bir GLM’dir. 0 sayım değerinin çok sık görülmesi sorunuyla da karşılaşabilirsiniz. <strong>Zero-inflated Poisson regression</strong> (sıfır yığılmalı Poisson regresyonu), <strong>hurdle model</strong> (engel modeli) araması yapın.</li>
+<li>Doğru nedensel sonuçlar çıkarmak için modele hangi özniteliklerin dahil edilmesi gerektiğinden emin değilim. Örneğin bir ilacın kan basıncı üzerindeki etkisini bilmek istiyorum. İlacın bir kan değeri üzerinde doğrudan etkisi var ve bu kan değeri de sonucu etkiliyor. Kan değerini regresyon modeline dahil etmeli miyim? <strong>Causal inference</strong> (nedensel çıkarım), <strong>mediation analysis</strong> (aracılık analizi) araması yapın.</li>
+<li>Eksik verim var. <strong>Multiple imputation</strong> (çoklu atama) araması yapın.</li>
+<li>Önsel bilgiyi modellerime dahil etmek istiyorum. <strong>Bayesian inference</strong> (Bayesçi çıkarım) araması yapın.</li>
+<li>Son zamanlarda biraz moralim bozuk. <strong>“Amazon Alexa Gone Wild!!! Full version from beginning to end”</strong> araması yapın.</li>
+</ul>
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referanslar</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-caruana2015intelligible" class="csl-entry" role="listitem">
+Caruana, Rich, Yin Lou, Johannes Gehrke, Paul Koch, Marc Sturm, ve Noemie Elhadad. 2015. <span>“Intelligible <span>Models</span> for <span>HealthCare</span>: <span>Predicting</span> <span>Pneumonia</span> <span>Risk</span> and <span>Hospital</span> 30-day <span>Readmission</span>”</span>. <em>Proceedings of the 21th <span>ACM</span> <span>SIGKDD</span> <span>International</span> <span>Conference</span> on <span>Knowledge</span> <span>Discovery</span> and <span>Data</span> <span>Mining</span></em> (New York, NY, USA), <span>KDD</span> ’15, Ağustos, 1721-30. <a href="https://doi.org/10.1145/2783258.2788613">https://doi.org/10.1145/2783258.2788613</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

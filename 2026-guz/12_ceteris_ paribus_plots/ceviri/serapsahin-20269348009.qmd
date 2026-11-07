@@ -1,0 +1,372 @@
+---
+lang: tr
+bibliography: references.bib
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+# Ceteris Paribus Grafikleri {#ceteris-paribus}
+
+```{r}
+#| label: setup-cp
+#| include: false
+library("ceterisParibus")
+library("dplyr")
+library("DALEX")
+library("ggplot2")
+library("iml")
+library("palmerpenguins")
+library("randomForest")
+library("reshape2")
+library("rpart")
+library("e1071")
+library("viridis")
+library("patchwork")
+# İki paketin aynı adlı çizim yöntemini açıkça ayır.
+plot_cp = getFromNamespace("plot.ceteris_paribus_explainer", "ceterisParibus")
+plot_profile = getFromNamespace("plot.ceteris_paribus_explainer", "ingredients")
+set.seed(2)
+penguins = na.omit(penguins)
+penguins_col_selection = c('species', 'bill_depth_mm', 'bill_length_mm', 'flipper_length_mm', 'sex', 'body_mass_g')
+penguins = penguins[penguins_col_selection]
+penguin_train_index <- sample(1:nrow(penguins), 2/3 * nrow(penguins))
+penguins_train <- penguins[penguin_train_index, ]
+penguins_test <- penguins[-penguin_train_index, ]
+pengu_rf = randomForest(sex ~ ., data = penguins_train)
+set.seed(42)
+load("data/bike.RData")
+bike = na.omit(bike)
+bike_features = c('season','holiday', 'workday', 'weather', 'temp', 'hum', 'windspeed', "cnt_2d_bfr")
+bike = bike[c(bike_features, "cnt")]
+bike_train_index <- sample(1:nrow(bike), 2/3 * nrow(bike))
+bike_train <- bike[bike_train_index, ]
+bike_test <- bike[-bike_train_index, ]
+bike_rf = randomForest(cnt ~ ., data = bike_train)
+bike_tree = rpart(cnt ~ ., data = bike_train)
+bike_svm = svm(cnt ~ ., data = bike_train)
+bike_lm = lm(cnt ~ ., data = bike_train, x = TRUE)
+my_theme = function(legend.position='right'){
+  theme_bw() %+replace%
+    theme(legend.position=legend.position)
+}
+theme_set(my_theme())
+```
+
+Ceteris paribus (CP) grafikleri [@kuzba2019pyceterisparibus], tek bir özniteliğin değişmesinin bir veri noktasının tahminini nasıl değiştirdiğini görselleştirir.
+
+Adı Latince ve kulağa karmaşık gelse de (“diğer her şey eşitken”: bir özniteliği değiştirip diğerlerine dokunmamak), yapılabilecek en yalın çözümlemelerden biridir.[^hate-latin]
+
+Yalnızca bir özniteliğe bakar, değerlerini sistematik olarak değiştirir ve tahminin bu öznitelik aralığında nasıl değiştiğini çizer.
+
+Yine de modelden bağımsız (model-agnostic) yorumlamanın temel ilkelerini öğrettiği için kitaptaki bu yöntem ailesine başlamak için birebirdir.
+
+Yalınlığı da aldatmasın: Birden fazla ceteris paribus eğrisini[^curve-vs-plot] yaratıcı biçimde birleştirerek modelleri, öznitelikleri karşılaştırabilir ve çok sınıflı sınıflandırma modellerini inceleyebilirsin.
+
+CP eğrileri, [Bireysel Koşullu Beklenti (ICE) eğrilerinin](#ice) ve [Kısmi Bağımlılık Grafiklerinin (PDP)](#pdp) yapı taşlarıdır; bkz. @fig-cp-ice-pdp.
+
+- ICE grafikleri, bir veri kümesindeki **tüm** CP eğrilerini içeren CP grafikleridir.
+
+- Kısmi bağımlılık grafiği (PDP), aynı veri kümesindeki tüm CP eğrilerinin **ortalamasıdır**.
+
+![Ceteris Paribus, ICE ve PDP.](https://raw.githubusercontent.com/christophM/interpretable-ml-book/master/manuscript/images/cp-ice-pdp.jpg){#fig-cp-ice-pdp}
+
+## Algoritma
+
+Ceteris paribus algoritmasıyla başlayalım.
+
+Bu aynı zamanda matematiğin işleri olduğundan daha karmaşık gösterebileceğine dair küçük bir örnektir.
+
+Sayısal öznitelikler için algoritma şöyledir:
+
+**Girdi:** Açıklanacak veri noktası $\mathbf{x}^{(i)}$ ve öznitelik $j$
+
+1. Eşit aralıklı bir değer ızgarası oluştur: $z_1, \ldots, z_K$; tipik olarak $z_1 = \min(\mathbf{x}_j)$ ve $z_K = \max(\mathbf{x}_j)$.
+
+2. Her ızgara değeri $z_k \in \{z_1, \ldots, z_K\}$ için:
+
+   1. Yeni veri noktası oluştur: $\mathbf{x}^{(i)}_{x_j := z_k}$
+
+   2. Tahmini al: $\hat{f}(\mathbf{x}^{(i)}_{x_j := z_k})$
+
+3. CP eğrilerini görselleştir:
+
+   - $\left\{\left(z_k, \hat{f}(\mathbf{x}^{(i)}_{x_j := z_k})\right)\right\}_{k=1}^K$ noktaları için çizgi çiz
+
+   - Özgün veri noktası için nokta koy: $\left(x_j^{(i)}, \hat{f}(\mathbf{x}^{(i)})\right)$
+
+Izgara noktalarının sayısı arttıkça CP eğrisi daha ayrıntılı olur; ama modelin `predict` işlevine de o kadar çok çağrı yapılır.
+
+Kategorik öznitelik için:
+
+1. Benzersiz kategorilerin listesini oluştur: $z_1, \ldots, z_K$
+
+2. Her kategori $z_k \in \{z_1, \ldots, z_K\}$ için:
+
+   1. Yeni veri noktası oluştur: $\mathbf{x}^{(i)}_{x_j := z_k}$
+
+   2. Tahmini al: $\hat{f}(\mathbf{x}^{(i)}_{x_j := z_k})$
+
+3. x ekseninde kategoriler, y ekseninde tahminler olacak şekilde çubuk veya nokta grafiği çiz.
+
+Aslında gerektiğinden daha karmaşık duruyordu. Somutlaştırmak için örneklere geçelim.
+
+## Örnekler
+
+```{r}
+#| label: pick-penguin
+penguin_features = setdiff(names(penguins_test), "sex")
+data_point <- penguins_test[1, penguin_features, drop = FALSE]
+data_point_y = penguins_test$sex[1]
+```
+
+İlk örnekte, bir penguenin dişi olma olasılığını tahmin eden rastgele ormana bakıyoruz.
+
+Test kümesindeki ilk pengueni inceliyoruz: gaga derinliği `r data_point$bill_depth_mm` milimetre olan bir `r as.character(data_point$species)` pengueni (gerçek etiket `r ifelse(data_point_y == "male", "erkek", "dişi")`).
+
+@fig-ceteris-penguins, bu penguenin gaga derinliği azaltıldığında tahmin edilen P(dişi) değerinin önce hafifçe azaldığını, ardından belirgin biçimde arttığını gösterir.[^cp-class-note]
+
+```{r}
+#| label: fig-ceteris-penguins
+#| fig-cap: "Tek bir penguen ve gaga derinliği için ceteris paribus grafiği. Çizgi, gaga derinliği değiştirildiğinde belirli bir penguen için tahmin edilen değeri gösterir. Penguenin gerçek gaga derinliği bir noktayla işaretlenmiştir."
+#| out-width: 85%
+pred2 <- function(m, x) predict(m, newdata = x, type = "prob")[, "female"]
+explainer <- DALEX::explain(pengu_rf, data = penguins_test[penguin_features],
+                            y = penguins_test$sex == "female",
+                            predict_function = pred2,
+                            label = "female", verbose=FALSE)
+cp_penguin <- ceterisParibus::ceteris_paribus(
+  explainer, data_point,
+  y = as.numeric(data_point_y == "female")
+)
+plot_cp(cp_penguin, selected_variables = "bill_depth_mm", as.gg = TRUE) +
+  xlab("Gaga derinliği (mm)") +
+  scale_y_continuous("P(dişi)", limits = c(0,1)) +
+  ggtitle("")
+```
+
+Görev ikili sınıflandırma olduğu için $\mathbb{P}(Y = \text{male})$ değerini görselleştirmek gereksizdir; bu, $\mathbb{P}(Y = \text{female})$ grafiğinin tersine çevrilmiş hali olur.
+
+Ama ikiden fazla sınıfımız olsaydı, tüm sınıfların ceteris paribus eğrilerini tek bir grafikte çizebilirdik.
+
+```{r}
+explainer <- DALEX::explain(bike_svm, data = bike_test[bike_features], y = bike_test$cnt, verbose=FALSE)
+observation = bike_test[1, bike_features, drop = FALSE]
+observation_y = bike_test$cnt[1]
+```
+
+Yine akılda tutmalıyız ki bir özniteliği değiştirmek, diğer özniteliklerle olan bağımlılığı bozabilir.
+
+Korelasyona ve diğer bağımlılık ölçülerine bakmak yardımcı olabilir.
+
+Gaga derinliği, vücut kütlesi ve yüzgeç uzunluğu ile ilişkilidir.
+
+Bu yüzden @fig-ceteris-penguins incelenirken, bu ceteris paribus grafiğinde gaga derinliğindeki güçlü azaltmaları aşırı yorumlamamalıyız.
+
+::: {.callout-warning}
+
+# İkili bağımlılıkların ötesine bak
+
+@fig-pairwise-not-enough, en hafif Gentoo pengueninin gaga derinliği özniteliğini yapay olarak değiştirdiğimiz bir örneği gösterir.
+
+Veri noktası, yalnızca vücut kütlesi ile gaga derinliği kombinasyonuna bakıldığında gerçekçidir.
+
+Yalnızca gaga derinliği ve türe bakıldığında da gerçekçidir.
+
+Ancak yeni gaga derinliği, vücut kütlesi ve tür birlikte düşünüldüğünde gerçekçi değildir.
+
+```{r}
+#| label: fig-pairwise-not-enough
+#| fig-cap: "Gaga derinliği ve vücut kütlesinin saçılım grafiği. Bir penguenin gaga derinliğini manipüle etmek gerçekçi olmayan bir veri noktası üretebilir."
+#| out-width: 85%
+dtpt <- penguins %>%
+        filter(species == "Gentoo") %>%
+        filter(body_mass_g == min(body_mass_g))
+ggplot(data = penguins, aes(x = bill_depth_mm, y = body_mass_g, color = species)) +
+  annotate("segment", x = dtpt$bill_depth_mm, xend = dtpt$bill_depth_mm + 3.3,
+                      y = dtpt$body_mass_g, yend=dtpt$body_mass_g, linewidth=1,
+           arrow = grid::arrow(length = grid::unit(0.5, "cm"))) +
+  geom_point(data = dtpt, color="red", fill="red", shape=21, size = 4) +
+  geom_point() +
+  xlab("Gaga derinliği (mm)") +
+  ylab("Vücut kütlesi (g)") +
+  scale_color_viridis_d()
+```
+
+:::
+
+Ardından, hava durumu ve mevsim bilgisine dayanarak kiralanan bisiklet sayısını tahmin eden SVM'i inceliyoruz.
+
+`r tolower(as.character(observation$season))` mevsiminde, `r tolower(as.character(observation$weather))` havada bir gün seçip özniteliklerin değiştirilmesinin tahmini nasıl değiştireceğine bakıyoruz.
+
+Bu kez tüm öznitelikler için görselleştiriyoruz; bkz. @fig-whatif-bike.
+
+Tahmini en çok, 2 gün önceki kiralanan bisiklet sayısındaki değişiklikler etkiler.
+
+Ayrıca daha yüksek sıcaklık, daha fazla bisiklet kiralama için daha iyi olurdu.
+
+Tahmin bir iş günü olmayan gün için olsaydı, SVM daha az bisiklet kiralama tahmin ederdi.
+
+```{r}
+#| label: fig-whatif-bike
+#| fig-cap: "Tekil özniteliklerin değiştirilmesinin tahmin edilen bisiklet kiralama sayısını nasıl değiştirdiği."
+#| fig-width: 8
+#| fig-height: 5
+library(e1071)
+library(patchwork)
+prof = DALEX::predict_profile(explainer, new_observation = observation)
+p1 = plot_profile(prof, variable_type = "categorical", categorical_type = "bars") +
+  ingredients::show_observations(prof, variable_type = "categorical", categorical_type = "bars", size = 3)
+p2 = plot_profile(prof, variable_type = "numerical") +
+  ingredients::show_observations(prof, variable_type = "numerical", size = 3)
+wrap_plots(p1, p2, ncol = 2)
+```
+
+::: {.callout-tip}
+
+## Sparklines ile minimal sürüm
+
+CP grafikleri, @tufte1983visual tarafından popülerleştirilen yalın çizgi grafikleri olan **sparklines** biçiminde paketlenebilir.
+
+```{r}
+#| out-width: 100%
+#| fig-align: center
+#| fig-asp: 0.13
+numeric_features <- names(bike_test)[vapply(bike_test, is.numeric, logical(1))]
+numeric_features <- setdiff(numeric_features, "cnt")
+wi_dat = data.frame(prof, check.names = FALSE)
+plot_data = lapply(numeric_features, function(feat){
+  dat <- wi_dat[wi_dat[["_vname_"]] == feat, , drop = FALSE]
+  data.frame(fvalue = dat[[feat]], yhat = dat[["_yhat_"]], fname = feat)
+})
+plot_data = do.call(rbind, plot_data)
+point_data = melt(observation[numeric_features], variable.name="fname", value.name="fvalue")
+point_data$yhat = as.numeric(predict(bike_svm, newdata = observation))
+ggplot(mapping=aes(x=fvalue, y=yhat)) +
+  geom_line(data=plot_data) +
+  geom_point(data = point_data) +
+  theme_void() +
+  facet_grid(. ~ fname, scales="free_x")
+```
+
+:::
+
+Genel olarak CP grafikleri, öznitelik değişikliklerinin tahmini nasıl etkilediğini gösterir: her yönde küçük değişikliklerden büyük değişikliklere kadar.
+
+Tüm öznitelikleri ortak bir y ekseniyle yan yana karşılaştırarak, bu veri noktasının tahmini üzerinde hangi özniteliğin daha fazla etkisi olduğunu görebiliriz.
+
+Ancak öznitelikler arasındaki korelasyon bir sorundur; özellikle özgün değerden (nokta ile işaretli) uzak kısımları yorumlarken.
+
+Örneğin sıcaklığı 30 derece Celsius'a çıkarıp mevsimi aynı (`r tolower(as.character(observation$season))`) bırakmak oldukça gerçek dışı olurdu.
+
+Ceteris paribus grafikleri son derece esnektir.
+
+Öznitelikleri nasıl farklı ele aldıklarını daha iyi anlamak için farklı modellere ait CP eğrilerini hesaplayabiliriz.
+
+@fig-cp-bike-models içinde farklı modellerin ceteris paribus grafiklerini karşılaştırıyoruz.
+
+```{r}
+#| label: fig-cp-bike-models
+#| fig-cap: "Bisiklet tahmin görevi için farklı modellere ait ceteris paribus eğrileri: doğrusal model, rastgele orman, SVM ve karar ağacı."
+#| out-width: 85%
+explainer_rf <- DALEX::explain(bike_rf, data = bike_test[bike_features], y = bike_test$cnt, verbose=FALSE)
+explainer_cart <- DALEX::explain(bike_tree, data = bike_test[bike_features], y = bike_test$cnt, verbose=FALSE, label="tree")
+explainer_lm <- DALEX::explain(bike_lm, data = bike_test[bike_features], y = bike_test$cnt, verbose=FALSE)
+explainer_svm  <- DALEX::explain(bike_svm, data = bike_test[bike_features], y = bike_test$cnt, verbose=FALSE)
+cp_rf = ceterisParibus::ceteris_paribus(explainer_rf, observation, y = observation_y)
+cp_cart = ceterisParibus::ceteris_paribus(explainer_cart, observation, y = observation_y)
+cp_lm = ceterisParibus::ceteris_paribus(explainer_lm, observation, y = observation_y)
+cp_svm = ceterisParibus::ceteris_paribus(explainer_svm, observation, y = observation_y)
+p = plot_cp(cp_rf, cp_cart, cp_lm, cp_svm,
+            color = "_label_", selected_variables = "temp",
+            show_observations = FALSE,
+            alpha = 1, as.gg = TRUE) +
+  xlab("Sıcaklık (°C)") +
+  ylab("Tahmin edilen bisiklet kiralama sayısı") +
+  scale_color_discrete("Model") +
+  scale_linetype_discrete("Model") +
+  ggtitle("") +
+  aes(linetype=`_label_`)
+p
+```
+
+Modellerin davranışlarının ne kadar farklı olduğunu burada görürüz:
+
+Doğrusal model, sıcaklık ile tahmin edilen bisiklet kiralama sayısı arasındaki ilişkiyi doğrusal olarak modeller.
+
+Ağaç tek bir sıçrama gösterir.
+
+Rastgele orman ve SVM daha yumuşak bir artış gösterir; yüksek sıcaklıkta düzleşir ve SVM söz konusu olduğunda çok yüksek sıcaklıklarda hafifçe düşer.
+
+::: {.callout-tip}
+
+# Karşılaştırmalarda yaratıcı ol
+
+Ceteris paribus grafikleri yalındır; yine de birden fazla CP eğrisini birleştirdiğinde şaşırtıcı derecede öğretici olur:
+
+- Öznitelikleri karşılaştır.
+
+- Farklı makine öğrenmesi algoritmalarından veya farklı hiperparametre ayarlarından gelen modelleri karşılaştır.
+
+- Sınıf olasılıklarını karşılaştır.
+
+- Farklı veri noktalarını karşılaştır (ayrıca [ICE eğrilerine](#ice) bak).
+
+- Veriyi alt kümelere ayır (örneğin ikili bir özniteliğe göre) ve CP eğrilerini karşılaştır.
+
+:::
+
+## Güçlü yönler
+
+**Ceteris paribus grafiklerini uygulamak ve anlamak son derece kolaydır.**
+
+Bu, onları yeni başlayanlar için iyi bir giriş noktası yapar; ayrıca modelden bağımsız açıklanabilirliği özellikle uzman olmayanlara anlatmak için de uygundur.
+
+**CP grafikleri, atıf (attribution) yöntemlerinin sınırlılıklarını gidermeye yardımcı olabilir.**
+
+SHAP veya LIME gibi atıfa dayalı yöntemler, tahmin işlevinin yerel değişikliklere ne kadar duyarlı olduğunu göstermez.
+
+Ceteris paribus grafikleri bu teknikleri tamamlar ve bireysel tahminleri açıklarken daha tam bir tablo sunar.
+
+**Ceteris paribus grafikleri esnek yapı taşlarıdır.**
+
+Başka yorumlama yöntemlerinin yapı taşlarıdır; ayrıca bu çizgileri modeller, sınıflar, hiperparametre ayarları ve öznitelikler boyunca birleştirerek tahminler hakkında nüanslı içgörüler de üretebilirsin.
+
+## Sınırlılıklar
+
+**Ceteris paribus grafikleri aynı anda yalnızca bir öznitelik değişimini gösterir.**
+
+Bu yüzden iki özniteliğin nasıl etkileştiğini görmeyiz.
+
+Elbette iki özniteliği de değiştirebilirsin; özellikle biri sürekli, diğeri ikiliyse, bunları aynı CP grafiğinde çizebilirsin.
+
+Ama bu daha elle yapılan bir süreçtir.
+
+**Öznitelikler ilişkili olduğunda yorum zarar görür.**
+
+Öznitelikler ilişkiliyken eğrinin her parçası olası değildir; bazıları tamamen gerçek dışı bile olabilir.
+
+Bu, örneğin ceteris paribus grafiklerinin aralığını (en azından ilişkili öznitelikler için) kısaltarak hafifletilebilir.
+
+Ama bu da bu aralıkların ne olduğunu söyleyen bir modele veya işleme ihtiyaç duyacağımız anlamına gelir.
+
+Genel olarak **nedensel yorum konusunda dikkatli olmalısın**; ya da nedensel bir yorum istiyorsan modelin kendisinin nedensel olduğundan emin olmalısın.
+
+Bu, tüm yorumlama yöntemlerinin sorunudur; ancak CP grafiklerinde hatalı nedensel yorum riski daha yüksek olabilir çünkü bu grafikleri uzman olmayanlara gösterme eşiği daha düşüktür.
+
+## Yazılım ve alternatifler
+
+Bu bölümdeki tüm grafikleri [ceterisParibus R paketi](https://cran.r-project.org/web/packages/ceterisParibus/index.html) ile oluşturdum.
+
+Ayrıca bir [Python uygulaması](https://github.com/ModelOriented/pyCeterisParibus) da vardır.
+
+ICE grafiği üretebilen herhangi bir araçla da (örneğin ICEBox ve iml) CP grafikleri oluşturabilirsin; yeter ki yalnızca ilgilendiğin tek veri noktasını içeren bir “veri kümesi” veresin.
+
+Yine de ceteris paribus eğrilerini karşılaştırmayı kolaylaştırdığı için ceterisParibus paketi daha uygundur.
+
+[^hate-latin]: Latince ismin hayranı değilim; okulda Latincenin İtalyanca gibi dilleri öğrenmeye yardımcı olacağı söylenirdi. İtalyanca öğrenmek istiyorsan daha iyi yardım eden şey nedir biliyor musun? Doğru. Doğrudan İtalyanca öğrenmek.
+
+[^curve-vs-plot]: “CP eğrisi” derken tek bir çizgiyi, “CP grafiği” derken bir veya daha fazla CP eğrisi gösteren bir şekli kastediyorum.
+
+[^cp-class-note]: Çevirmen notu: Kaynak kitaptaki çizim ile P(female) etiketi arasında sınıf seçimine bağlı bir tutarsızlık vardır. Bu sürümde dişi olasılığı sütun adıyla seçilmiştir; bu nedenle eğri kaynak şekildekinin ters yönündedir.
