@@ -1,0 +1,28 @@
+---
+title: "Yorumlanabilirlik Yöntemlerinin Değerlendirilmesi"
+subtitle: "Bölüm 32"
+author: "Berkay Çongar (20269258007)"
+lang: tr
+bibliography: references.bib
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+> **Çeviri kaynağı:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı (2025), [Bölüm 32: Evaluation of Interpretability Methods](https://christophm.github.io/interpretable-ml-book/evaluation.html). Özgün eser CC BY-NC-SA 4.0 lisanslıdır. Teknik terimler, gerekli olduğu yerlerde İngilizce karşılıklarıyla birlikte verilmiştir. Çeviride kitabın [GitHub deposundaki](https://github.com/christophM/interpretable-ml-book) `manuscript/evaluation.qmd` dosyasının `8f470c8` sürümü (7 Temmuz 2026) esas alınmıştır; bu metin, yayımlanan web sürümüyle aynıdır.
+
+<!-- Giriş paragrafları bir sonraki commit'te eklenecek. -->
+
+## Değerlendirme düzeyleri
+
+<!-- Doshi-Velez ve Kim'in (2017) üç değerlendirme düzeyi bir sonraki commit'te eklenecek. -->
+
+## Açıklamaların özellikleri {#properties}
+
+<!-- Açıklama yöntemlerinin ve tekil açıklamaların özellikleri bir sonraki commit'te eklenecek. -->
+
+## Kaynakça {.unnumbered}
+
+::: {#refs}
+:::
