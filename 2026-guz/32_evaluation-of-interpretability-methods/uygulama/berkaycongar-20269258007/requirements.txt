@@ -1,0 +1,11 @@
+# Test edilen sürümler: Python 3.13, numpy 2.5.3, pandas 3.0.5, scikit-learn 1.9.1,
+# scipy 1.18.1, matplotlib 3.11.2, shap 0.54.1, lime 0.2.0.1
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+scikit-learn>=1.3
+matplotlib>=3.7
+shap>=0.44
+lime>=0.2.0.1
+xlrd>=2.0      # yalnızca veri/ klasörü yoksa, UCI'nin .xls kopyasını okumak için
+jupyter        # defteri çalıştırmak için (main.py tek başına python ile de çalışır)
