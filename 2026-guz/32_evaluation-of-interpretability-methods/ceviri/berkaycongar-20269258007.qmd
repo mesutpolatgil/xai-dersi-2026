@@ -12,17 +12,129 @@ format:
 
 > **Çeviri kaynağı:** Christoph Molnar, *Interpretable Machine Learning*, 3. baskı (2025), [Bölüm 32: Evaluation of Interpretability Methods](https://christophm.github.io/interpretable-ml-book/evaluation.html). Özgün eser CC BY-NC-SA 4.0 lisanslıdır. Teknik terimler, gerekli olduğu yerlerde İngilizce karşılıklarıyla birlikte verilmiştir. Çeviride kitabın [GitHub deposundaki](https://github.com/christophM/interpretable-ml-book) `manuscript/evaluation.qmd` dosyasının `8f470c8` sürümü (7 Temmuz 2026) esas alınmıştır; bu metin, yayımlanan web sürümüyle aynıdır.
 
-<!-- Giriş paragrafları bir sonraki commit'te eklenecek. -->
+Bu bölüm, yorumlanabilirlik yöntemlerinin nasıl değerlendirileceğine ilişkin daha ileri düzey bir konuyu ele almaktadır.
+Değerlendirme konusu, yorumlanabilirliğin biraz daha derinine inen araştırmacılara ve uygulayıcılara yöneliktir.
+Aksi hâlde bu bölümü gönül rahatlığıyla atlayabilirsiniz.
+
+Yorumlanabilir makine öğrenmesi yaklaşımlarını değerlendirmek, genel olarak bir temel gerçekliğin (*ground truth*) bulunmaması nedeniyle zordur.
+Modelden bağımsız (*model-agnostic*) yorumlanabilirlik üzerine doktora yapmış biri olarak söyleyeyim: Denetimli makine öğrenmesinde her şeyin bir karşılaştırma ölçütüne (*benchmark*) sahip olması gerektiği yönünde yerleşik bir zihniyet bulunduğundan bu durum özellikle can sıkıcı olabiliyor.
+Karşılaştırma ölçütü derken, gerçek veri üzerinde bir temel gerçekliğe göre yapılan değerlendirmeyi kastediyorum.
+Temel gerçekliğin mevcut olduğu tahmin modelleri geliştirdiğinizde karşılaştırma ölçütleri anlamlıdır.
+Yorumlanabilir makine öğrenmesinde ise gerçek dünya verisinde bir temel gerçeklik yoktur.
+Temel gerçekliğe benzeyen bir şeyi ancak simüle edilmiş veriyle üretebilirsiniz.
+
+Şimdi değerlendirmeye daha genel bir açıdan bakalım.
 
 ## Değerlendirme düzeyleri
 
-<!-- Doshi-Velez ve Kim'in (2017) üç değerlendirme düzeyi bir sonraki commit'te eklenecek. -->
+@doshi2017towards, yorumlanabilirliğin değerlendirilmesi için üç ana düzey önermektedir:
+
+**Uygulama düzeyinde değerlendirme (gerçek görev; *application level evaluation*)**:
+Açıklamayı ürüne yerleştirin ve son kullanıcıya test ettirin.
+Röntgen görüntülerindeki kırıkları bulup işaretleyen, makine öğrenmesi bileşenine sahip bir kırık tespit yazılımı düşünün.
+Uygulama düzeyinde, modeli değerlendirmek için kırık tespit yazılımını doğrudan radyologlar test eder.
+Bu, iyi bir deney tasarımı ve kalitenin nasıl değerlendirileceğine dair bir anlayış gerektirir.
+Bunun için iyi bir referans noktası (*baseline*) her zaman, bir insanın aynı kararı açıklamakta ne kadar başarılı olacağıdır.
+
+**İnsan düzeyinde değerlendirme (basit görev; *human level evaluation*)**, uygulama düzeyinde değerlendirmenin basitleştirilmiş bir biçimidir.
+Aradaki fark, bu deneylerin alan uzmanlarıyla değil, uzman olmayan kişilerle (*laypersons*) yürütülmesidir.
+Bu, deneyleri daha ucuz hâle getirir (özellikle alan uzmanları radyologlarsa); ayrıca daha fazla test katılımcısı bulmak da kolaylaşır.
+Örneğin bir kullanıcıya farklı açıklamalar gösterilir ve kullanıcı bunlardan en iyisini seçer.
+
+**İşlev düzeyinde değerlendirme (vekil görev; *function level evaluation*)** insan gerektirmez.
+Bu yaklaşım en iyi, kullanılan model sınıfı daha önce başka biri tarafından insan düzeyinde bir değerlendirmeden geçirilmişse işe yarar.
+Örneğin son kullanıcıların karar ağaçlarını anladığı biliniyor olabilir.
+Bu durumda açıklama kalitesi için vekil bir ölçüt (*proxy*), ağacın derinliği olabilir.
+Daha sığ ağaçlar daha iyi bir açıklanabilirlik puanı alır.
+Buna, ağacın tahmin performansının iyi kalması ve daha büyük bir ağaca kıyasla fazla düşmemesi kısıtını eklemek mantıklı olur.
+
+Bir sonraki alt bölüm, tekil tahminlere ait açıklamaların işlev düzeyinde değerlendirilmesine odaklanmaktadır.[^sonraki-alt-bolum]
+Açıklamaları değerlendirirken göz önünde bulundurmamız gereken özellikler nelerdir?
 
 ## Açıklamaların özellikleri {#properties}
 
-<!-- Açıklama yöntemlerinin ve tekil açıklamaların özellikleri bir sonraki commit'te eklenecek. -->
+Açıklamalar için temel gerçeklik yoktur.
+Bunun yerine, açıklamaların daha genel özelliklerine bakabilir ve bir açıklamanın ne kadar başarılı olduğunu nitel olarak (bazen de nicel olarak) değerlendirebiliriz.
+Buradaki odak, tekil tahminlerin açıklamalarıdır.
+**Bir açıklama, bir örneğin (*instance*) öznitelik değerlerini, modelin o örnek için yaptığı tahminle insanın anlayabileceği bir biçimde ilişkilendirir.**
+Diğer açıklama türleri ise bir veri örnekleri kümesinden oluşur (örneğin k-en yakın komşu modelinde olduğu gibi).
+Örneğin kanser riskini bir destek vektör makinesiyle (*support vector machine*) tahmin edebilir ve tahminleri, açıklama olarak karar ağaçları üreten [yerel vekil yöntemle](https://christophm.github.io/interpretable-ml-book/lime.html) açıklayabiliriz.
+Ya da destek vektör makinesi yerine bir doğrusal regresyon modeli kullanabiliriz.
+Doğrusal regresyon modeli zaten bir açıklama yöntemiyle donatılmıştır (ağırlıkların yorumlanması).
+
+Açıklama yöntemlerinin ve açıklamaların özelliklerine daha yakından bakalım [@robniksikonja2018perturbationbased].[^eksik-cumle]
+Bu özellikler, bir açıklama yönteminin ya da bir açıklamanın ne kadar iyi olduğuna karar vermek için kullanılabilir.
+Bu özelliklerin hepsi için nasıl doğru biçimde ölçüleceği açık değildir; dolayısıyla karşılaşılan zorluklardan biri, bunların nasıl hesaplanabileceğini biçimselleştirmektir.
+
+**Açıklama Yöntemlerinin Özellikleri**
+
+- **İfade Gücü** (*Expressive Power*), yöntemin üretebildiği açıklamaların "dili" ya da yapısıdır.
+Bir açıklama yöntemi EĞER-İSE (*IF-THEN*) kuralları, karar ağaçları, ağırlıklı bir toplam, doğal dil ya da başka bir şey üretebilir.
+- **Yarı Saydamlık** (*Translucency*), açıklama yönteminin, makine öğrenmesi modelinin içine (örneğin parametrelerine) bakmaya ne ölçüde dayandığını tanımlar.
+Örneğin doğrusal regresyon modeli gibi içsel olarak yorumlanabilir (*intrinsically interpretable*) modellere dayanan, modele özgü (*model-specific*) açıklama yöntemleri yüksek derecede yarı saydamdır.
+Yalnızca girdileri değiştirip tahminleri gözlemlemeye dayanan yöntemlerin yarı saydamlığı sıfırdır.
+Senaryoya bağlı olarak farklı yarı saydamlık düzeyleri istenebilir.
+Yüksek yarı saydamlığın avantajı, yöntemin açıklama üretirken daha fazla bilgiye dayanabilmesidir.
+Düşük yarı saydamlığın avantajı ise açıklama yönteminin daha taşınabilir olmasıdır.
+- **Taşınabilirlik** (*Portability*), açıklama yönteminin birlikte kullanılabileceği makine öğrenmesi modellerinin yelpazesini tanımlar.
+Düşük yarı saydamlığa sahip yöntemler, makine öğrenmesi modelini bir kara kutu (*black box*) olarak ele aldıkları için daha yüksek taşınabilirliğe sahiptir.
+Vekil modeller (*surrogate models*), taşınabilirliği en yüksek açıklama yöntemi olabilir.
+Örneğin yalnızca tekrarlayan sinir ağları (*recurrent neural networks*) için çalışan yöntemlerin taşınabilirliği düşüktür.
+- **Algoritmik Karmaşıklık** (*Algorithmic Complexity*), açıklamayı üreten yöntemin hesaplama karmaşıklığını tanımlar.
+Açıklama üretiminde hesaplama süresi bir darboğaz oluşturduğunda bu özelliği göz önünde bulundurmak önemlidir.
+
+**Tekil Açıklamaların Özellikleri**
+
+- **Doğruluk** (*Accuracy*): Bir açıklama, daha önce görülmemiş veriyi ne kadar iyi tahmin eder?
+Açıklama, makine öğrenmesi modelinin yerine tahmin yapmak için kullanılıyorsa yüksek doğruluk özellikle önemlidir.
+Makine öğrenmesi modelinin doğruluğu da düşükse ve amaç kara kutu modelin ne yaptığını açıklamaksa düşük doğruluk sorun olmayabilir.
+Bu durumda yalnızca sadakat önemlidir.
+- **Sadakat** (*Fidelity*): Açıklama, kara kutu modelin tahminine ne kadar iyi yaklaşır?
+Yüksek sadakat, bir açıklamanın en önemli özelliklerinden biridir; çünkü sadakati düşük bir açıklama, makine öğrenmesi modelini açıklamak için işe yaramaz.
+Doğruluk ve sadakat birbiriyle yakından ilişkilidir.
+Kara kutu modelin doğruluğu yüksekse ve açıklamanın sadakati de yüksekse açıklamanın doğruluğu da yüksektir.
+Bazı açıklamalar yalnızca yerel sadakat (*local fidelity*) sunar; yani açıklama, model tahminine yalnızca verinin bir alt kümesi için (örneğin [yerel vekil modeller](https://christophm.github.io/interpretable-ml-book/lime.html)) ya da hatta yalnızca tek bir veri örneği için (örneğin [Shapley değerleri](https://christophm.github.io/interpretable-ml-book/shapley.html)) iyi yaklaşır.
+- **Tutarlılık** (*Consistency*): Aynı görev üzerinde eğitilmiş ve benzer tahminler üreten modeller arasında bir açıklama ne kadar farklılık gösterir?
+Örneğin aynı görev üzerinde bir destek vektör makinesi ve bir doğrusal regresyon modeli eğitiyorum ve ikisi de birbirine çok benzer tahminler üretiyor.
+Seçtiğim bir yöntemle açıklamaları hesaplıyor ve açıklamaların birbirinden ne kadar farklı olduğunu inceliyorum.
+Açıklamalar birbirine çok benziyorsa yüksek derecede tutarlıdır.
+Bu özelliği biraz çetrefilli buluyorum; çünkü iki model farklı öznitelikler kullanıp yine de benzer tahminler elde edebilir (bu durum ["Rashomon etkisi"](https://en.wikipedia.org/wiki/Rashomon_effect) olarak da bilinir).
+Bu durumda yüksek tutarlılık arzu edilmez; çünkü açıklamaların birbirinden çok farklı olması gerekir.
+Modeller gerçekten benzer ilişkilere dayanıyorsa yüksek tutarlılık arzu edilir.
+- **Kararlılık** (*Stability*): Benzer örnekler için açıklamalar birbirine ne kadar benzerdir?
+Tutarlılık açıklamaları modeller arasında karşılaştırırken, kararlılık sabit bir model için benzer örneklerin açıklamalarını karşılaştırır.
+Yüksek kararlılık, bir örneğin özniteliklerindeki küçük değişikliklerin açıklamayı önemli ölçüde değiştirmemesi anlamına gelir (bu küçük değişiklikler tahmini de güçlü biçimde değiştirmedikçe).
+Kararlılık eksikliği, açıklama yönteminin yüksek varyansının bir sonucu olabilir.
+Başka bir deyişle açıklama yöntemi, açıklanacak örneğin öznitelik değerlerindeki küçük değişikliklerden güçlü biçimde etkilenir.
+Kararlılık eksikliğine, açıklama yönteminin deterministik olmayan bileşenleri de yol açabilir; örneğin [yerel vekil yöntemin](https://christophm.github.io/interpretable-ml-book/lime.html) kullandığı türden bir veri örnekleme adımı.
+Yüksek kararlılık her zaman arzu edilir.
+- **Anlaşılabilirlik** (*Comprehensibility*): İnsanlar açıklamaları ne kadar iyi anlar?
+Bu, pek çok özellikten yalnızca biri gibi görünür; ama aslında asıl mesele budur, deyim yerindeyse odadaki fildir (*the elephant in the room*).
+Tanımlanması ve ölçülmesi zordur; ama doğru yapılması son derece önemlidir.
+Pek çok kişi, anlaşılabilirliğin hedef kitleye bağlı olduğu konusunda hemfikirdir.
+Anlaşılabilirliği ölçmeye yönelik fikirler arasında açıklamanın boyutunu ölçmek (doğrusal bir modelde ağırlığı sıfırdan farklı olan özniteliklerin sayısı, karar kurallarının sayısı, ...) ya da insanların açıklamalardan yola çıkarak makine öğrenmesi modelinin davranışını ne kadar iyi tahmin edebildiğini test etmek yer alır.
+Açıklamada kullanılan özniteliklerin anlaşılabilirliği de göz önünde bulundurulmalıdır.
+Özniteliklerin karmaşık bir dönüşümü, orijinal özniteliklerden daha az anlaşılır olabilir.
+- **Belirlilik** (*Certainty*): Açıklama, makine öğrenmesi modelinin belirliliğini, yani tahmininden ne kadar emin olduğunu yansıtıyor mu?
+Pek çok makine öğrenmesi modeli, tahminin doğru olduğuna ne kadar güvendiğine (*confidence*) dair bir şey söylemeden yalnızca tahmin verir.
+Model bir hasta için %4 kanser olasılığı tahmin ediyorsa, bu tahminden, farklı öznitelik değerlerine sahip başka bir hastaya verdiği %4 olasılıktan olduğu kadar emin midir?
+Modelin belirliliğini de içeren bir açıklama çok faydalıdır.
+Ayrıca açıklamanın kendisi de bir model ya da veriye dayalı bir kestirim olabilir ve dolayısıyla kendisi de belirsizlik içerir.
+Açıklamanın bu belirsizliği de açıklamanın kendisine ait, dikkate alınması gereken bir özelliktir.
+- **Önem Derecesi** (*Degree of Importance*): Açıklama, özniteliklerin ya da açıklamanın parçalarının önemini ne kadar iyi yansıtıyor?
+Örneğin tekil bir tahmin için açıklama olarak bir karar kuralı üretildiyse, kuralın koşullarından hangisinin en önemli olduğu açık mıdır?
+- **Yenilik** (*Novelty*): Açıklama, açıklanacak veri örneğinin eğitim verisinin dağılımından çok uzak, "yeni" bir bölgeden gelip gelmediğini yansıtıyor mu?
+Bu gibi durumlarda model isabetsiz olabilir ve açıklama işe yaramayabilir.
+Yenilik kavramı, belirlilik kavramıyla ilişkilidir.
+Yenilik ne kadar yüksekse, veri eksikliği nedeniyle modelin belirliliğinin düşük olması o kadar olasıdır.
+- **Temsil Edicilik** (*Representativeness*): Bir açıklama kaç örneği kapsar?
+Açıklamalar modelin tamamını kapsayabilir (örneğin doğrusal regresyon modelinde ağırlıkların yorumlanması) ya da yalnızca tek bir tahmini temsil edebilir (örneğin [Shapley değerleri](https://christophm.github.io/interpretable-ml-book/shapley.html)).
 
 ## Kaynakça {.unnumbered}
 
 ::: {#refs}
 :::
+
+[^sonraki-alt-bolum]: *Çevirmen notu:* Özgün metinde "next chapter" (sonraki bölüm) ifadesi geçmektedir; kastedilen, bu bölümün hemen ardından gelen "Açıklamaların özellikleri" alt başlığıdır.
+
+[^eksik-cumle]: *Çevirmen notu:* 3. baskıda bu cümle "...properties of explanation methods and" ifadesiyle yarım kalmaktadır. Kitabın 2. baskısında aynı cümle "...properties of explanation methods and explanations" biçimindedir; 3. baskıda kaynak gösterimleri dipnottan kaynakça atfına dönüştürülürken "explanations" sözcüğü düşmüş görünmektedir. Çeviride cümlenin 2. baskıdaki tam hâli esas alınmıştır.
