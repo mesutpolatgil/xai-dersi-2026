@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Melise Kocabaş">
 
-<title>Surrogate Models &amp; MMD-Critic</title>
+<title>XAI Dersi</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -40,32 +39,34 @@ ul.task-list li input[type="checkbox"] {
 <link href="index_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="index_files/libs/bootstrap/bootstrap-917079515d91bccb85b543faf8aa8bb6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="index_files/libs/bootstrap/bootstrap-c2e55264ed47ce3b2e0326a2269f9400.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
 
-<body class="fullcontent quarto-light">
+<body class="quarto-light">
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#bölümler" id="toc-bölümler" class="nav-link active" data-scroll-target="#bölümler">Bölümler</a></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Surrogate Models &amp; MMD-Critic</h1>
+<h1 class="title">XAI Dersi</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Melise Kocabaş </p>
-          </div>
-  </div>
     
   
     
@@ -76,49 +77,61 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="surrogate-models-vekil-modeller" class="level2">
-<h2 class="anchored" data-anchor-id="surrogate-models-vekil-modeller">1. Surrogate Models (Vekil Modeller)</h2>
-<p>import numpy as np import pandas as pd import matplotlib.pyplot as plt from sklearn.datasets import fetch_california_housing from sklearn.model_selection import train_test_split from sklearn.ensemble import RandomForestRegressor from sklearn.tree import DecisionTreeRegressor, plot_tree from sklearn.metrics import r2_score</p>
-</section>
-<section id="veri-seti" class="level1">
-<h1>Veri seti</h1>
-<p>data = fetch_california_housing(as_frame=True) X = data.data.iloc[:1000] y = data.target.iloc[:1000]</p>
-<p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)</p>
-</section>
-<section id="black-box-model" class="level1">
-<h1>Black Box Model</h1>
-<p>black_box_model = RandomForestRegressor(n_estimators=100, random_state=42) black_box_model.fit(X_train, y_train)</p>
-<p>black_box_preds_train = black_box_model.predict(X_train) black_box_preds_test = black_box_model.predict(X_test)</p>
-</section>
-<section id="surrogate-model" class="level1">
-<h1>Surrogate Model</h1>
-<p>surrogate_model = DecisionTreeRegressor(max_depth=3, random_state=42) surrogate_model.fit(X_train, black_box_preds_train)</p>
-</section>
-<section id="r2-skoru" class="level1">
-<h1>R^2 Skoru</h1>
-<p>surrogate_preds_test = surrogate_model.predict(X_test) r2_surrogate = r2_score(black_box_preds_test, surrogate_preds_test)</p>
-<p>print(f”Surrogate Model R^2 Skoru: {r2_surrogate:.4f}“)</p>
-</section>
-<section id="ağaç-görseli" class="level1">
-<h1>Ağaç Görseli</h1>
-<p>plt.figure(figsize=(12, 6)) plot_tree(surrogate_model, feature_names=X.columns, filled=True, rounded=True, fontsize=8) plt.title(f”Global Surrogate Decision Tree (R^2 = {r2_surrogate:.2f})“) plt.tight_layout() plt.show()</p>
-<p>import numpy as np import matplotlib.pyplot as plt from sklearn.datasets import make_blobs from sklearn.metrics.pairwise import pairwise_distances from sklearn.cluster import KMeans</p>
-<p>np.random.seed(42) X_blobs, y_blobs = make_blobs(n_samples=300, centers=3, cluster_std=0.8, random_state=42) outliers = np.array([[8, 8], [-4, -4], [4, 10]]) X_all = np.vstack([X_blobs, outliers])</p>
-</section>
-<section id="prototipler-k-means-medoids" class="level1">
-<h1>Prototipler (K-Means Medoids)</h1>
-<p>n_prototypes = 3 kmeans = KMeans(n_clusters=n_prototypes, random_state=42).fit(X_all) prototype_indices = []</p>
-<p>for center in kmeans.cluster_centers_: idx = np.argmin(np.linalg.norm(X_all - center, axis=1)) prototype_indices.append(idx)</p>
-<p>prototypes = X_all[prototype_indices]</p>
-</section>
-<section id="eleştiriler-criticisms" class="level1">
-<h1>Eleştiriler (Criticisms)</h1>
-<p>min_dist_to_prototypes = np.min(pairwise_distances(X_all, prototypes), axis=1) non_proto_indices = [i for i in range(len(X_all)) if i not in prototype_indices] criticism_indices = sorted(non_proto_indices, key=lambda i: min_dist_to_prototypes[i], reverse=True)[:3] criticisms = X_all[criticism_indices]</p>
-</section>
-<section id="görselleştirme" class="level1">
-<h1>Görselleştirme</h1>
-<p>plt.figure(figsize=(9, 5)) plt.scatter(X_all[:, 0], X_all[:, 1], c=‘gray’, alpha=0.5, s=30, label=‘Veri Noktaları’) plt.scatter(prototypes[:, 0], prototypes[:, 1], c=‘blue’, marker=‘s’, s=150, edgecolors=‘black’, label=‘Prototipler’) plt.scatter(criticisms[:, 0], criticisms[:, 1], c=‘red’, marker=‘o’, s=150, edgecolors=‘black’, label=‘Eleştiriler’)</p>
-<p>plt.title(“Prototypes and Criticisms Selection”) plt.xlabel(“Feature x1”) plt.ylabel(“Feature x2”) plt.legend() plt.grid(True, linestyle=‘–’, alpha=0.5) plt.tight_layout() plt.show()</p>
+<p>Bu site, XAI dersi kapsamında hazırlanan çeviri ve dokümantasyonu içerir.</p>
+<p>Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.</p>
+<section id="bölümler" class="level2">
+<h2 class="anchored" data-anchor-id="bölümler">Bölümler</h2>
+<!-- Yeni çeviri ekleyen öğrenci, kendi satırını bölüm numarası sırasına göre bu tabloya ekler ve index.qmd dosyasını yeniden render eder (quarto render index.qmd). Bağlantı, render edilmiş .html dosyasını göstermelidir. -->
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Bölüm</th>
+<th style="text-align: left;">Çeviri</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">6 · Doğrusal Regresyon</td>
+<td style="text-align: left;"><a href="2026-guz/06_linear-regression/ceviri/ahmetbatuhankaya-20269348005.html">Ahmet Batuhan Kaya</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">7 · Lojistik Regresyon</td>
+<td style="text-align: left;"><a href="2026-guz/07_logistic-regression/ceviri/ahmetbatuhankaya-20269348005.html">Ahmet Batuhan Kaya</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">8 · GLM, GAM ve Ötesi</td>
+<td style="text-align: left;"><a href="2026-guz/08_glm-gam-and-more/ceviri/ahmetbatuhankaya-20269348005.html">Ahmet Batuhan Kaya</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">14 · Lime</td>
+<td style="text-align: left;"><a href="2026-guz/14_lime/ceviri/14-lime.html">İlker Uğur Kaya</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">15 · Counterfactual Explanations</td>
+<td style="text-align: left;"><a href="2026-guz/15_counterfactual_explanations/ceviri/15-Counterfactual%20Explanations.html">İlker Uğur Kaya</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">16 · Kapsamı Belirli Kurallar (Anchors)</td>
+<td style="text-align: left;"><a href="2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html">Halil İbrahim Akyüz</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">17 · Shapley Değerleri</td>
+<td style="text-align: left;"><a href="2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html">Halil İbrahim Akyüz</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">18 · Shap</td>
+<td style="text-align: left;"><a href="2026-guz/18_shap/html/shap.html">Edanur Çoşkun</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">25 · Vekil Modeller (Surrogate Models)</td>
+<td style="text-align: left;"><a href="2026-guz/25_Surrogate_Models/çeviri/vekil-modeller.html">Melise Kocabaş</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">26 · Prototipler ve Eleştiriler (Prototypes and Criticisms)</td>
+<td style="text-align: left;"><a href="2026-guz/26_Prototypes_and_Criticisms/çeviri/prototipler-ve-elestiriler.html">Melise Kocabaş</a></td>
+</tr>
+</tbody>
+</table>
 </section>
 
 </main>
