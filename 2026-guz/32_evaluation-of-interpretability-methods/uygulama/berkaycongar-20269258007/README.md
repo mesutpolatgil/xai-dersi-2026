@@ -17,6 +17,7 @@ gerçek veri setinde dört açıklama yöntemine uyguluyor: LIME, KernelSHAP, Tr
 | `main.py` | Defterin aynısı, düz Python betiği olarak ([jupytext](https://jupytext.readthedocs.io) "percent" biçimi; VS Code'da hücre hücre çalışır) |
 | `veri/default_of_credit_card_clients.csv` | UCI'deki özgün `.xls` dosyasının değiştirilmemiş CSV hâli |
 | `sekiller/` | Defterdeki grafiklerin 200 dpi kopyaları (sunumda kullanıldı) |
+| `etkilesimli/veri.json` | Sayfanın kullandığı sonuçlar; defterin son bölümü üretir |
 | `requirements.txt` | Gerekli paketler ve test edilen sürümler |
 
 ## Çalıştırma
@@ -27,9 +28,10 @@ jupyter notebook uygulama.ipynb      # ya da: python main.py
 ```
 
 * **Ders içi canlı gösterim:** İlk kod hücresinde `HIZLI = True` yapın. Aynı analiz daha az örnekle yaklaşık 1 dakikada çalışır.
-* **Tam sonuçlar:** `HIZLI = False` (varsayılan). İki çekirdekli bir makinede yaklaşık 5 dakika sürer.
-* **Google Colab:** Defteri açıp ilk hücreden önce `!pip install shap lime` çalıştırın. `veri/` klasörü yoksa kod veriyi
-  ders deposundan, o da yoksa UCI dosyasının GitHub'daki kopyasından indirir.
+* **Tam sonuçlar:** `HIZLI = False` (varsayılan). İki çekirdekli bir makinede yaklaşık 7 dakika sürer.
+* **Google Colab:** [Colab'da aç](https://colab.research.google.com/github/mesutpolatgil/xai-dersi-2026/blob/main/2026-guz/32_evaluation-of-interpretability-methods/uygulama/berkaycongar-20269258007/uygulama.ipynb) (bağlantı, çalışma ders deposuna eklendikten sonra açılır). İlk kod hücresi
+  eksik kütüphaneleri kendisi kurar. `veri/` klasörü yoksa kod veriyi ders deposundan, o da yoksa UCI dosyasının GitHub'daki
+  kopyasından indirir.
 
 ## Veri
 
@@ -54,9 +56,9 @@ jupyter notebook uygulama.ipynb      # ya da: python main.py
 | Sadakat | Vekil ağacın kara kutuya R²'si; LIME'ın yerel R²'si ve açıklanan örnekteki hatası; SHAP toplamsallığı |
 | Anlaşılabilirlik | Açıklama boyutu (yaprak ya da öznitelik sayısı) ile sadakat arasındaki ödünleşim |
 | Kararlılık | Farklı tohumlarla tekrarda ve çok az değiştirilmiş komşu müşterilerde ilk 5 özniteliğin korunması (Jaccard@5) |
-| Tutarlılık | Benzer başarımlı modellerin açıklamaları arasındaki Spearman sıra korelasyonu (Rashomon etkisi) |
-| Belirlilik | Bootstrap ile ölçülen model belirsizliği ile açıklama belirsizliği arasındaki ilişki |
-| Önem derecesi | Toplam atfın en önemli 3 öznitelikte toplanan payı |
+| Tutarlılık | Benzer başarımlı modellerin açıklamaları arasındaki Spearman sıra korelasyonu; kitabın örneği olarak SVM ile lojistik regresyon (Rashomon etkisi) |
+| Belirlilik | Bootstrap ile ölçülen model belirsizliği ile açıklama belirsizliği arasındaki ilişki; kitabın %4 örneği olarak aynı olasılığı alan iki müşteri |
+| Önem derecesi | Toplam atfın en önemli 3 öznitelikte toplanan payı; vekil ağaç kuralının koşullarını tek tek kaldırma |
 | Yenilik | Isolation Forest'a göre "yeni" müşterilerde model belirsizliği ve LIME'ın kalite göstergeleri |
 | Temsil edicilik | Yerel açıklamanın, müşteriden uzaklaştıkça kara kutudan sapması |
 
@@ -67,7 +69,7 @@ lojistik regresyon 0,715.
 
 | | LIME | KernelSHAP | TreeSHAP | Vekil ağaç (derinlik 3) |
 |---|---|---|---|---|
-| Süre (ms/açıklama, iki çekirdekli makinede) | ≈18 | ≈69 | ≈1 | bir kez eğitilir |
+| Süre (ms/açıklama, iki çekirdekli makinede) | ≈16 | ≈66 | ≈1 | bir kez eğitilir |
 | Sadakat | yerel R² 0,39; açıklanan müşteride medyan hata 0,17 | toplamsal (hata ≈ 0) | toplamsal (hata ≈ 0) | küresel R² 0,85 |
 | Tekrar kararlılığı (Jaccard@5) | 0,84 | 1,00 | 1,00 | 1,00 |
 | Girdi kararlılığı (Jaccard@5) | 0,97 | 0,72 | 0,76 | — |
@@ -91,14 +93,23 @@ lojistik regresyon 0,715.
    düşük sadakatin öbür yüzü.
 5. **Rashomon etkisi.** Modellerin tahminleri arasındaki korelasyon 0,83–0,97 iken, aynı yöntemle (KernelSHAP) hesaplanan
    açıklamaları arasındaki sıra korelasyonu 0,50–0,74. Çoklu bağlantılı öznitelikler, aynı bilginin modeller arasında farklı
-   özniteliklere dağıtılmasına izin veriyor.
+   özniteliklere dağıtılmasına izin veriyor. Kitabın örneğini birebir kurduğumuzda da sonuç aynı: SVM ile lojistik regresyonun
+   tahminleri arasında r = 0,80 iken açıklamaları arasındaki medyan Spearman ρ = 0,34.
 6. **Belirsiz tahminin açıklaması da belirsiz** (Spearman ρ = 0,87). Ama tek bir SHAP grafiği bu belirsizliği göstermiyor.
+   Kitabın %4 örneğinin karşılığı: Ana model iki müşteriye neredeyse aynı olasılığı veriyor (0,072 ve 0,081); bootstrap
+   modelleri birinde hemfikir (standart sapma 0,006), ötekinde dağınık (0,047).
 7. **Açıklamalar yeniliği kendiliğinden bildirmiyor.** Eğitim dağılımından uzak müşterilerde modelin belirsizliği yaklaşık iki
    katına çıkıyor, ama LIME'ın yerel R²'si düşmüyor.
 8. **Temsil edicilik.** Gerçek komşularla kurulmuş yerel bir doğrusal model, müşterinin en yakın %1'lik komşularında en iyi
    yaklaşımı veriyor (hata ≈ 0,02); uzaklaştıkça bozuluyor. Küresel ağaç her yerde aynı orta düzey hatayı veriyor.
 
 ![Temsil edicilik](sekiller/08-temsil-edicilik.png)
+
+9. **Kuralın koşulları eşit değil.** Derinliği 3 olan vekil ağacın en riskli kuralı üç koşulu yan yana koyuyor. Koşulları tek tek
+   kaldırınca `PAY_1` koşulunun işin çoğunu yaptığı görülüyor (kaldırılınca ortalama tahmin 0,76'dan 0,58'e düşüyor);
+   `PAY_3` koşulu ise neredeyse hiçbir şey eklemiyor (kurala yalnızca 5 müşteri daha giriyor). Önem derecesi, açıklamanın
+   biçimine bağlı: Atıf yöntemleri öznitelikleri sıralar, kural sıralamaz.
+
 
 ## Sınırlılıklar
 

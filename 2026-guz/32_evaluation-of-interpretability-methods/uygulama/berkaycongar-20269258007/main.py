@@ -35,8 +35,26 @@
 # | Yenilik | Eğitim dağılımından uzak örneklerde açıklamanın güvenilirliği |
 # | Temsil edicilik | Yerel bir açıklamanın, örnekten uzaklaştıkça geçerliliğini yitirmesi |
 #
-# **Çalıştırma:** Bu defterdeki çıktılar ve README'deki sayılar `HIZLI = False` ile üretildi (iki çekirdekli bir makinede yaklaşık 5 dakika).
-# Ders içi canlı gösterimde aşağıdaki hücrede `HIZLI = True` yapın; daha az örnekle aynı analiz yaklaşık 1 dakikada çalışır.
+# **Nasıl okunur?** Her bölüm, kitabın o özellik için verdiği örnekle başlar (**Kitabın örneği → Bizim verimizde**). Kitabın iki
+# örneğini verimizde birebir kurduk: aynı görevde SVM ile lojistik regresyon (6a) ve aynı olasılığı alan iki müşteri (7a).
+# Son bölüm, kodu açmadan herkesin kullanabileceği etkileşimli sayfanın verilerini üretir.
+#
+# **Çalıştırma:** Bu defterdeki çıktılar ve README'deki sayılar `HIZLI = False` ile üretildi (iki çekirdekli bir makinede yaklaşık
+# 7 dakika). Ders içi canlı gösterimde ikinci kod hücresindeki `HIZLI` ayarını `True` yapın; daha az örnekle aynı analiz
+# yaklaşık 1 dakikada çalışır. Defter Google Colab'da da çalışır:
+# [Colab'da aç](https://colab.research.google.com/github/mesutpolatgil/xai-dersi-2026/blob/main/2026-guz/32_evaluation-of-interpretability-methods/uygulama/berkaycongar-20269258007/uygulama.ipynb)
+# (bağlantı, çalışma ders deposuna eklendikten sonra açılır). İlk kod hücresi Colab'da eksik kütüphaneleri kurar; veri yerelde
+# yoksa 1. bölüm onu GitHub'dan indirir.
+
+# %%
+import importlib.util
+import subprocess
+import sys
+
+if "google.colab" in sys.modules:  # yalnızca Colab'da: eksik kütüphaneleri kur
+    eksik = [paket for paket in ("lime", "shap") if importlib.util.find_spec(paket) is None]
+    if eksik:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", *eksik], check=True)
 
 # %%
 import time
@@ -119,6 +137,8 @@ def veri_yukle():
                 print("Kaynak okunamadı:", url, "→", hata)
         if ham is None:
             raise FileNotFoundError("Veri bulunamadı: veri/ klasörünü ya da internet bağlantısını kontrol edin.")
+        VERI_YOLU.parent.mkdir(exist_ok=True)
+        ham.to_csv(VERI_YOLU, index=False)  # sonraki çalıştırmalar için yerel kopya
     assert ham.shape == (30000, 25), "UCI veri setinin 30.000 satır ve 25 sütunu olmalı"
     df = ham.drop(columns="ID").rename(columns={"PAY_0": "PAY_1", "default payment next month": "TEMERRUT"})
     df["EDUCATION"] = df["EDUCATION"].replace({0: 4, 5: 4, 6: 4})
@@ -192,6 +212,13 @@ Xa = Xte[idx]
 # %% [markdown]
 # ## 3. Açıklama yöntemleri ve yöntem özellikleri
 #
+# > **Kitabın örneği:** Doğrusal regresyonun ağırlıklarını okuyan bir yöntem modelin içine bakar (yüksek yarı saydamlık); yalnızca
+# > girdiyi değiştirip tahmine bakan bir yöntem hiç bakmaz ama her modelde çalışır (yüksek taşınabilirlik). Açıklama üretmek
+# > darboğaz olduğunda algoritmik karmaşıklık belirleyici olur.
+# >
+# > **Bizim verimizde:** TreeSHAP ağacın içini okur; LIME ve KernelSHAP kara kutuya yalnızca dışarıdan bakar. Üçünün açıklama
+# > başına süresini ölçüyoruz.
+#
 # Bölüm 32, açıklama *yöntemleri* için dört özellik sayar. İlk üçü yöntemin tasarımından gelir; dördüncüsünü ölçüyoruz.
 #
 # | Yöntem | İfade gücü (çıktının dili) | Yarı saydamlık | Taşınabilirlik |
@@ -263,6 +290,13 @@ plt.show()
 # %% [markdown]
 # ## 4. Doğruluk ve sadakat
 #
+# > **Kitabın örneği:** Sadakat en önemli özelliklerden biridir; açıklama modelin yerine karar verecekse doğruluk da şarttır. LIME
+# > yalnızca bir bölgede, Shapley değerleri yalnızca tek bir örnekte sadıktır. Anlaşılabilirliğin vekil ölçütü açıklamanın
+# > boyutudur; işlev düzeyindeki örnekte ağacın derinliği kullanılır ve ağaç sığlaşırken doğruluk fazla düşmemelidir.
+# >
+# > **Bizim verimizde:** Küresel bir vekil ağacı 1'den 8'e kadar derinleştirip sadakatini ve doğruluğunu, LIME'ın da yerel
+# > sadakatini ölçüyoruz.
+#
 # * **Sadakat:** Açıklama kara kutunun tahminine ne kadar iyi yaklaşıyor? Vekil ağaç için test kümesinde
 #   $R^2\big(f(x), g(x)\big)$, yani ağacın kara kutu olasılıklarını ne kadar iyi taklit ettiği.
 # * **Doğruluk:** Açıklama görülmemiş veriyi ne kadar iyi tahmin ediyor? Vekil ağacın **gerçek etiketlere** göre AUC'si.
@@ -331,6 +365,11 @@ print("Derinlik 3 vekil ağacın kuralları:\n" + export_text(
 # geniş ve gerçekte olmayan bir bölgeyi özetler.
 #
 # ## 5. Kararlılık
+#
+# > **Kitabın örneği:** Birbirine çok benzeyen iki örneğe, tahmin de pek değişmiyorsa, çok farklı açıklama verilmemeli.
+# > Kararsızlığın kaynakları yöntemin yüksek varyansı ve LIME'ın örnekleme adımı gibi rastgele bileşenlerdir.
+# >
+# > **Bizim verimizde:** Aynı müşteriyi farklı tohumlarla ve çok az değiştirilmiş komşularıyla açıklıyoruz.
 #
 # **(a) Tekrar kararlılığı:** Aynı örneği aynı yöntemle farklı rastgele tohumlarla açıklarız ve en önemli 5 özniteliğin
 # kümeleri arasındaki ortalama Jaccard benzerliğine bakarız ($|A\cap B|/|A\cup B|$, 1 = hep aynı). Bölüm, deterministik olmayan
@@ -403,6 +442,72 @@ print(f"Komşularda tahmin edilen olasılığın ortalama mutlak değişimi: {np
 #
 # ## 6. Tutarlılık: Rashomon etkisi
 #
+# > **Kitabın örneği:** Aynı görevde bir SVM ve bir doğrusal regresyon eğitilir; ikisi de birbirine çok yakın tahminler üretir.
+# > Aynı yöntemle açıklandıklarında açıklamaları da benziyor mu? Kitap uyarıyor: İki model aynı tahmine farklı özniteliklerle
+# > varabilir (Rashomon etkisi); o zaman açıklamaların farklı olması doğrudur.
+# >
+# > **Bizim verimizde:** Önce kitabın örneğini birebir kuruyoruz (6a), sonra aynı soruyu dört modelle soruyoruz (6b).
+#
+# ### 6a. Kitabın örneği birebir: SVM ile lojistik regresyon
+#
+# Sınıflandırmada doğrusal regresyonun karşılığı lojistik regresyondur. SVM'i, süre kısa kalsın diye eğitim kümesinden rastgele
+# seçilmiş bir alt kümede eğitiyoruz. İki modeli aynı müşteriler için aynı yöntemle (KernelSHAP, aynı arka plan) açıklıyoruz.
+# Örnek müşteri olarak, iki modelin tahmini birbirine en yakın müşteriler arasından açıklamaları en az benzeyeni gösteriyoruz;
+# genel tabloyu ise grafiğin altındaki medyanlar veriyor.
+
+# %%
+from sklearn.svm import SVC
+
+rng_ek = np.random.default_rng(RS + 1)  # ek örnekler ayrı üreteçle: diğer bölümlerin sonuçları değişmesin
+alt_kume = rng_ek.choice(len(Xtr), 1500 if HIZLI else 3000, replace=False)
+svm = SVC(C=1.0, gamma="scale", probability=True, random_state=RS).fit(Xtr[alt_kume], y_tr[alt_kume])
+lojistik = modeller["Lojistik regresyon"]
+p_svm, p_loj = svm.predict_proba(Xte)[:, 1], lojistik.predict_proba(Xte)[:, 1]
+r_sl = np.corrcoef(p_svm, p_loj)[0, 1]
+print(f"Test AUC: SVM {roc_auc_score(y_te, p_svm):.3f} · lojistik regresyon {roc_auc_score(y_te, p_loj):.3f} · "
+      f"tahminler arası korelasyon r = {r_sl:.2f}")
+
+N_SVM = 15 if HIZLI else 40
+Xs = Xa[:N_SVM]
+A_svm = kshap_acikla(kshap_aciklayici(svm), Xs)
+A_loj = kshap_acikla(kshap_aciklayici(lojistik), Xs)
+rho_sl = np.array([spearmanr(a, b)[0] for a, b in zip(A_svm, A_loj)])
+jac_sl = np.array([jaccard_cift(a, b) for a, b in zip(A_svm, A_loj)])
+fark_p = np.abs(svm.predict_proba(Xs)[:, 1] - lojistik.predict_proba(Xs)[:, 1])
+adaylar = np.argsort(fark_p)[: max(5, N_SVM // 4)]
+i_sl = int(adaylar[np.argmin(rho_sl[adaylar])])
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 4), gridspec_kw={"width_ratios": [1, 1.1, 1.1]})
+sec = rng_ek.choice(len(Xte), 2000, replace=False)
+axes[0].scatter(p_loj[sec], p_svm[sec], s=6, alpha=0.35, color="#4A5568")
+axes[0].plot([0, 1], [0, 1], color="#C05621", lw=1)
+axes[0].set_xlabel("Lojistik regresyonun tahmini")
+axes[0].set_ylabel("SVM'in tahmini")
+axes[0].set_title(f"Tahminler benzer: r = {r_sl:.2f}")
+ust8 = np.argsort(-(np.abs(A_svm[i_sl]) + np.abs(A_loj[i_sl])))[:8][::-1]
+for ax, A, ad, renk, model_ in [(axes[1], A_svm, "SVM", "#2B6CB0", svm),
+                                (axes[2], A_loj, "Lojistik regresyon", "#718096", lojistik)]:
+    ax.barh([OZN[j] for j in ust8], A[i_sl, ust8], color=renk)
+    ax.axvline(0, color="#333", lw=0.8)
+    ax.set_title(f"{ad}: tahmin {model_.predict_proba(Xs[i_sl:i_sl + 1])[0, 1]:.2f}")
+    ax.set_xlabel("KernelSHAP atfı (olasılık birimi)")
+plt.suptitle(f"Kitabın tutarlılık örneği: aynı müşteri, iki model (bu müşteride açıklamalar arası ρ = {rho_sl[i_sl]:.2f})", y=1.03)
+plt.tight_layout()
+sekil_kaydet("05a-kitap-ornegi-svm-lojistik")
+plt.show()
+print(f"{N_SVM} müşteride iki açıklama arasındaki medyan Spearman ρ = {np.median(rho_sl):.2f}, "
+      f"medyan Jaccard@5 = {np.median(jac_sl):.2f}")
+
+# %% [markdown]
+# **Yorum (6a).** İki model test kümesinde birbirine yakın tahminler üretiyor (r = 0,80; AUC 0,725 ve 0,715). Yine de aynı yöntemle
+# (KernelSHAP) hesaplanan açıklamaları zayıf örtüşüyor: 40 müşteride açıklamalar arası medyan Spearman ρ = 0,34, en önemli 5
+# özniteliğin ortaklığı (Jaccard@5) 0,43. Grafikteki müşteride (ρ = 0,18) SVM'in açıklamasında ödeme durumları (`PAY_1`, `PAY_3`),
+# lojistik regresyonunkinde fatura tutarları (`BILL_AMT1`, `BILL_AMT3`) öne çıkıyor. Kitabın uyarısı burada geçerli: Tahminler
+# benzer olsa da iki model aynı sonuca farklı özniteliklerle varabiliyor. Bu yüzden düşük tutarlılık tek başına açıklama
+# yönteminin hatası sayılmaz; modellerin gerçekten farklı ilişkilere dayandığını da gösterebilir.
+#
+# ### 6b. Dört modelle Rashomon etkisi
+#
 # Aynı görevde eğitilmiş, benzer tahminler üreten modellerin açıklamaları ne kadar benzer? Tüm modelleri **aynı yöntemle**
 # (KernelSHAP, aynı arka plan) açıklarız. Böylece fark yöntemden değil modellerden gelir. Solda modellerin tahminleri arasındaki
 # korelasyon, sağda açıklamaları arasındaki ortalama Spearman sıra korelasyonu yer alıyor.
@@ -452,6 +557,12 @@ print(f"Tahminler arası korelasyon: {tahmin_kor[ust_ucgen].min():.2f}–{tahmin
 #
 # ## 7. Belirlilik
 #
+# > **Kitabın örneği:** Model iki farklı hastaya da %4 kanser riski veriyor. İkisinden de aynı derecede emin mi? Açıklamanın
+# > kendisi de veriden yapılmış bir tahmindir; onun da belirsizliği vardır.
+# >
+# > **Bizim verimizde:** Önce bütün açıklanan müşterilerde model belirsizliğini açıklama belirsizliğiyle karşılaştırıyoruz, sonra
+# > kitabın örneğini birebir kuruyoruz (7a): aynı olasılığı alan iki müşteri.
+#
 # Açıklama, modelin ne kadar emin olduğunu yansıtıyor mu? Modelin belirsizliğini, eğitim verisinden bootstrap ile üretilmiş
 # $B$ GBM'in tahminlerinin standart sapmasıyla ölçüyoruz. Her modelde TreeSHAP açıklamalarını da hesaplıyoruz; açıklamanın
 # belirsizliği, atıfların modeller arasındaki standart sapmasının ortalamasıdır.
@@ -479,10 +590,63 @@ sekil_kaydet("06-belirlilik")
 plt.show()
 
 # %% [markdown]
+# ### 7a. Kitabın örneği birebir: aynı olasılık, farklı güven
+#
+# Ana modelin (GBM) neredeyse aynı temerrüt olasılığını verdiği iki müşteri seçiyoruz: Biri için bootstrap modelleri hemfikir,
+# öteki için dağınık. Solda her nokta bir bootstrap modelinin tahmini; sağda iki müşterinin açıklaması ve bu açıklamanın bootstrap
+# modelleri arasında ne kadar oynadığı (hata çubukları) var.
+
+# %%
+p_ana = f(Xa)
+en_iyi = (0.0, 0, 1)
+for i in range(len(Xa)):
+    for j in range(len(Xa)):
+        if i != j and abs(p_ana[i] - p_ana[j]) < 0.01 and model_belirsizligi[j] > model_belirsizligi[i] > 0:
+            oran = model_belirsizligi[j] / model_belirsizligi[i]
+            if oran > en_iyi[0]:
+                en_iyi = (oran, i, j)
+_, iA, iB = en_iyi
+
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 4.2))
+for k, (ii, renk) in enumerate([(iA, "#2F855A"), (iB, "#C05621")]):
+    a1.scatter(boot_tahmin[:, ii], k + rng_ek.uniform(-0.08, 0.08, B_BOOT), color=renk, s=42, alpha=0.8)
+    a1.plot(p_ana[ii], k, marker="|", ms=28, mew=3, color="#1A202C")
+a1.set_yticks([0, 1], [f"Müşteri A\n(ana model {p_ana[iA]:.2f})", f"Müşteri B\n(ana model {p_ana[iB]:.2f})"])
+a1.set_ylim(-0.6, 1.6)
+a1.set_xlabel("Bootstrap modellerinin tahmini (her nokta bir model) · çizgi: ana model")
+a1.set_title("Aynı olasılık, farklı güven")
+ust6 = np.argsort(-(np.abs(boot_aciklama[:, iA].mean(0)) + np.abs(boot_aciklama[:, iB].mean(0))))[:6][::-1]
+y_ = np.arange(len(ust6))
+for ii, renk, kay, ad in [(iA, "#2F855A", -0.2, "Müşteri A"), (iB, "#C05621", 0.2, "Müşteri B")]:
+    a2.barh(y_ + kay, boot_aciklama[:, ii, ust6].mean(0), height=0.38, xerr=boot_aciklama[:, ii, ust6].std(0),
+            color=renk, alpha=0.85, label=ad, capsize=3)
+a2.set_yticks(y_, [OZN[j] for j in ust6])
+a2.axvline(0, color="#333", lw=0.8)
+a2.set_xlabel("TreeSHAP atfı: bootstrap ortalaması ± standart sapma")
+a2.set_title("Açıklamanın da kendi belirsizliği var")
+a2.legend(fontsize=8.5)
+plt.tight_layout()
+sekil_kaydet("06a-kitap-ornegi-ayni-olasilik")
+plt.show()
+for ad, ii in [("A", iA), ("B", iB)]:
+    print(f"Müşteri {ad}: ana model {p_ana[ii]:.3f} · bootstrap tahminlerinin std'si {model_belirsizligi[ii]:.3f} · "
+          f"açıklama belirsizliği {aciklama_belirsizligi[ii]:.4f}")
+
+# %% [markdown]
 # **Yorum.** Tek bir SHAP grafiği bu belirsizliği göstermez; aynı müşteri için tek bir çubuk dizisi verir. Bölümün önerdiği gibi açıklama,
-# modelin ve kendisinin belirsizliğini de taşımalıdır; örneğin bootstrap aralıklarıyla.
+# modelin ve kendisinin belirsizliğini de taşımalıdır; örneğin bootstrap aralıklarıyla. Bu iki müşteride ana model
+# neredeyse aynı olasılığı veriyor (A: 0,072; B: 0,081). Bootstrap modelleri ise A için hemfikir (standart sapma 0,006), B için
+# dağınık (0,047; tahminler 0,08 ile 0,28 arasında). Aynı olasılığın arkasındaki güven yaklaşık sekiz kat farklı: Kitaptaki %4
+# kanser olasılığı örneğinin verimizdeki karşılığı budur. B'nin açıklaması da daha oynak; atıfların bootstrap modelleri
+# arasındaki ortalama standart sapması A'da 0,0038, B'de 0,0057.
 #
 # ## 8. Önem derecesi
+#
+# > **Kitabın örneği:** Açıklama bir karar kuralıysa, kuralın hangi koşulunun en önemli olduğu belli mi?
+# >
+# > **Bizim verimizde:** Atıf yöntemlerinde ağırlığın en önemli 3 öznitelikte ne kadar toplandığını ölçüyor, vekil ağacın en
+# > riskli dalındaki kuralı gerçek birimleriyle yazdırıyor, sonra kuralın koşullarını tek tek kaldırarak hangisinin belirleyici
+# > olduğunu ölçüyoruz.
 #
 # Açıklama, hangi öznitelik ya da koşulun en önemli olduğunu açıkça gösteriyor mu? Atıf yöntemleri öznitelikleri sıralar. Bir
 # açıklamanın ağırlığının ne kadarının en önemli 3 öznitelikte toplandığını ölçüyoruz. Vekil ağacın bir yaprağa giden kural yolu
@@ -494,8 +658,59 @@ onem_derecesi = {"LIME": pay3(A_lime), "KernelSHAP": pay3(A_ks), "TreeSHAP": pay
 print("En önemli 3 özniteliğin toplam |atıf| içindeki medyan payı:",
       {k: f"%{100 * np.median(v):.0f}" for k, v in onem_derecesi.items()})
 
+# Vekil ağacın (derinlik 3) en riskli dalı: eşikleri standart birimden özgün birime çeviriyoruz
+agac3 = DecisionTreeRegressor(max_depth=3, min_samples_leaf=50, random_state=RS).fit(Xtr, f_tr).tree_
+yapraklar = np.where(agac3.children_left == -1)[0]
+en_riskli = int(yapraklar[np.argmax(agac3.value[yapraklar].ravel())])
+ebeveyn = {int(c): (n, "≤") for n, c in enumerate(agac3.children_left) if c != -1}
+ebeveyn.update({int(c): (n, ">") for n, c in enumerate(agac3.children_right) if c != -1})
+kosullar, yol, dugum = [], [], en_riskli
+while dugum in ebeveyn:
+    ust_dugum, yon = ebeveyn[dugum]
+    j = agac3.feature[ust_dugum]
+    kosullar.append(f"{OZN[j]} {yon} {olcek.mean_[j] + agac3.threshold[ust_dugum] * olcek.scale_[j]:.2f}")
+    yol.append((j, yon, agac3.threshold[ust_dugum]))
+    dugum = ust_dugum
+kosullar, yol = kosullar[::-1], yol[::-1]
+kural_tahmini = float(agac3.value[en_riskli].ravel()[0])
+print("Vekil ağacın en riskli dalı (eşikler özgün birimde):\n  EĞER " + "\n  VE ".join(kosullar)
+      + f"\n  İSE vekil ağacın tahmini {kural_tahmini:.2f}\nKural, koşullardan hangisinin belirleyici olduğunu söylemiyor.")
+
+
+def kural_maskesi(haric=None):
+    """Kuralın koşullarını (haric numaralı koşul dışında) sağlayan eğitim örnekleri."""
+    m = np.ones(len(Xtr), bool)
+    for k, (j, yon, esik) in enumerate(yol):
+        if k != haric:
+            m &= (Xtr[:, j] <= esik) if yon == "≤" else (Xtr[:, j] > esik)
+    return m
+
+
+# Kural koşulları kendi aralarında sıralanmaz; sıralamayı ayrıca ölçmek gerekir. Her koşulu sırayla kaldırıp kuralın kapsadığı
+# müşteri sayısına ve bu müşterilerde kara kutunun ortalama tahminine bakıyoruz: Kaldırıldığında riski en çok düşüren koşul,
+# bu kural için en belirleyici olandır.
+kosul_onemi = pd.DataFrame(
+    [{"Kaldırılan koşul": "(hiçbiri: tam kural)", "Kapsanan müşteri": int(kural_maskesi().sum()),
+      "Ortalama tahmin": f_tr[kural_maskesi()].mean()}]
+    + [{"Kaldırılan koşul": kosul, "Kapsanan müşteri": int(kural_maskesi(k).sum()), "Ortalama tahmin": f_tr[kural_maskesi(k)].mean()}
+       for k, kosul in enumerate(kosullar)]).round(3)
+display(kosul_onemi)
+
 # %% [markdown]
+# **Yorum (8).** Üç atıf yönteminde ağırlığın yaklaşık yarısı ilk üç öznitelikte toplanıyor (LIME %42,
+# KernelSHAP %53, TreeSHAP %46); bu açıklamalar öznitelikleri sıraladığı için önem derecesini doğrudan gösteriyor. Kural ise üç
+# koşulu eşitmiş gibi yan yana koyuyor. Koşulları tek tek kaldırınca tablo değişiyor: `PAY_1` koşulu kaldırılınca kuralın
+# kapsadığı müşteri sayısı 897'den 1.960'a çıkıyor ve ortalama tahmin 0,76'dan 0,58'e düşüyor; `PAY_5` koşulu kaldırılınca
+# tahmin 0,71'e iniyor. `PAY_3` koşulu ise neredeyse hiçbir şey eklemiyor: Kaldırılınca kurala yalnızca 5 müşteri daha giriyor ve
+# tahmin 0,76'da kalıyor. Yani önem derecesi açıklamanın biçimine bağlı: Kural biçimindeki bir açıklamada koşulların önemini
+# görmek için ayrı bir ölçüm gerekiyor.
+#
 # ## 9. Yenilik
+#
+# > **Kitabın örneği:** Açıklanan örnek eğitim verisinden çok uzak, "yeni" bir bölgeden geliyorsa model de açıklama da yanılabilir;
+# > yenilik arttıkça belirlilik düşer.
+# >
+# > **Bizim verimizde:** Isolation Forest'a göre en yeni müşterileri tipik müşterilerle karşılaştırıyoruz.
 #
 # Açıklanan örnek eğitim dağılımından uzaksa, model ve açıklama güvenilmez olabilir. Yeniliği bir Isolation Forest skoruyla ölçüyoruz.
 # Test kümesindeki en "yeni" örnekleri tipik örneklerle karşılaştırıyoruz.
@@ -539,6 +754,11 @@ display(pd.DataFrame({"Tipik (medyan)": [np.median(t) for t in tip], "Yeni (medy
 # ölçmek gerekir.
 #
 # ## 10. Temsil edicilik
+#
+# > **Kitabın örneği:** Doğrusal regresyonun ağırlıkları bütün modeli kapsar; Shapley değerleri yalnızca tek bir tahmini.
+# >
+# > **Bizim verimizde:** Tek bir müşteri için kurulan yerel açıklamayı o müşteriden uzaklaştıkça diğer müşterilerde deniyor,
+# > bütün veriyi kapsayan küresel vekil ağaçla karşılaştırıyoruz.
 #
 # Bir açıklama kaç örneği kapsar? Bir müşteri için kurulan yerel doğrusal açıklamayı, o müşteriden giderek uzaklaşan test örneklerinde
 # deneriz. Hata büyüdükçe açıklamanın temsil ettiği bölge daralır. Dört açıklamayı karşılaştırıyoruz:
@@ -616,8 +836,110 @@ display(karne)
 # %% [markdown]
 # ## 12. Değerlendirme düzeyleri açısından bu defter
 #
+# > **Kitabın örnekleri:** Uygulama düzeyinde radyologlar kırık tespit yazılımını kendi işlerinde dener; insan düzeyinde uzman
+# > olmayan katılımcılar birkaç açıklamadan en iyisini seçer; işlev düzeyinde ağacın derinliği gibi vekil ölçütler kullanılır.
+#
 # Buradaki tüm ölçütler **işlev düzeyindedir**: Hiçbiri insan gerektirmez, hepsi ucuz ve tekrarlanabilir. Ama hiçbiri bir kredi
 # uzmanının ya da başvurunun reddedildiği müşterinin açıklamayı *anlayıp* doğru karar verip vermediğini ölçmez. Bu soruyu yanıtlamak
 # için **insan düzeyinde** (örneğin "bu açıklamaya bakarak modelin kararını tahmin edin" deneyi) ya da **uygulama düzeyinde**
 # (gerçek kredi sürecine yerleştirip test etme) değerlendirme gerekir. Bölüm 32'nin ana mesajı da budur: Vekil ölçütler gereklidir ama
 # yeterli değildir.
+
+# %% [markdown]
+# ## 13. Etkileşimli sayfa için veriler
+#
+# Bu defterin yanında, kodu açmadan herkesin tıklayarak kullanabileceği bir etkileşimli sayfa var (`etkilesimli/index.html`).
+# Sayfadaki bütün sayılar bu defterden gelir: Aşağıdaki hücre, sayfanın kullandığı sonuçları `etkilesimli/veri.json` dosyasına
+# yazar ve sayfanın içindeki gömülü kopyayı da günceller. Sayfadaki müşteriler, SVM örneğinin de hesaplandığı müşteriler
+# arasından temerrüt olasılığına göre yayılarak seçilir.
+
+# %%
+import json
+
+ay = lambda i: "son ay" if i == 1 else f"{i} ay önce"  # tahmin edilen aydan (ekim) geriye: PAY_1 eylül, PAY_3 temmuz
+OZN_TR = {"LIMIT_BAL": "Kredi limiti", "SEX": "Cinsiyet", "EDUCATION": "Eğitim düzeyi", "MARRIAGE": "Medeni durum", "AGE": "Yaş",
+          **{f"PAY_{i}": f"Ödeme durumu ({ay(i)})" for i in range(1, 7)},
+          **{f"BILL_AMT{i}": f"Fatura tutarı ({ay(i)})" for i in range(1, 7)},
+          **{f"PAY_AMT{i}": f"Ödenen tutar ({ay(i)})" for i in range(1, 7)}}
+
+
+def temizle(o):
+    """JSON'a uygun hâle getirir: numpy sayıları Python sayısına, NaN null'a döner; ondalıklar 4 basamağa yuvarlanır."""
+    if isinstance(o, dict):
+        return {str(k): temizle(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple, np.ndarray)):
+        return [temizle(v) for v in o]
+    if isinstance(o, (bool, np.bool_)):
+        return bool(o)
+    if isinstance(o, (int, np.integer)):
+        return int(o)
+    if isinstance(o, (float, np.floating)):
+        return round(float(o), 4) if np.isfinite(o) else None
+    return o
+
+
+p_xs = f(Xs)
+sira_p = np.argsort(p_xs)
+sayfa_idx = sorted({int(sira_p[k]) for k in np.linspace(0, len(sira_p) - 1, 7).round().astype(int)} | {i_sl})
+ham_x = olcek.inverse_transform(Xa)
+tum_modeller = {**modeller, "SVM": svm}
+ozellik = lambda i: {o: float(ham_x[i, j]) for j, o in enumerate(OZN)}
+lime_tam = {i: lime_acikla(Xa[i]) for i in sayfa_idx}  # ağırlıklar, yerel R², sabit terim, yerel modelin x'teki tahmini
+musteriler = [{
+    "ad": f"Müşteri {k}",
+    "gercek": int(np.asarray(y_te)[idx[i]]),  # 1: gerçekte temerrüde düştü
+    "ozellikler": ozellik(i),
+    "tahmin": {ad: m.predict_proba(Xa[i:i + 1])[0, 1] for ad, m in tum_modeller.items()},
+    "aciklama": {"LIME": A_lime[i], "KernelSHAP": A_ks[i], "TreeSHAP": A_ts[i]},
+    "lime_yerel": {"r2": lime_tam[i][1], "tahmin": lime_tam[i][3]},
+    "lime_tohumlar": [lime_acikla(Xa[i], tohum=t)[0] for t in range(8)],
+    "model_aciklamalari": {**{ad: A_model[ad][i] for ad in adlar}, "SVM": A_svm[i]},
+} for k, i in enumerate(sayfa_idx, 1)]
+
+veri = {
+    "veri": {"musteri": len(df), "oznitelik": d, "temerrut_orani": y.mean(), "hizli_mod": HIZLI},
+    "oznitelikler": [{"ad": o, "tr": OZN_TR[o]} for o in OZN],
+    "basarim": {**{ad: {"auc": r["Test AUC"], "dogruluk": r["Doğruluk"]} for ad, r in basarim.iterrows()},
+                "SVM": {"auc": roc_auc_score(y_te, p_svm), "dogruluk": accuracy_score(y_te, p_svm > 0.5)}},
+    "sure_ms": {k: 1000 * v for k, v in sure.items()},
+    "taban": {"KernelSHAP": float(np.ravel(ks_gbm.expected_value)[0]), "TreeSHAP": float(np.ravel(ts_gbm.expected_value)[0])},
+    "musteriler": musteriler,
+    "sadakat": {"vekil": vekil.to_dict("records"), "kara_kutu_auc": auc_kk,
+                "lime_k": {str(k): [np.median(v), np.percentile(v, 25), np.percentile(v, 75)] for k, v in lime_k.items()},
+                "lime_x_hatasi": {"medyan": np.median(lime_x_hatasi), "en_buyuk": lime_x_hatasi.max()},
+                "toplamsallik": {"TreeSHAP": f"{hata_ts:.1e}", "KernelSHAP": f"{hata_ks:.1e}"}},
+    "kararlilik": {"tekrar": tekrar, "girdi": girdi, "tahmin_degisimi": np.mean(tahmin_degisimi)},
+    "tutarlilik": {"modeller": adlar, "tahmin_kor": tahmin_kor, "aciklama_kor": aciklama_kor,
+                   "dayanak": {ad: {o: onem.loc[o, ad] for o in ilk} for ad in adlar},
+                   "svm_lojistik": {"r": r_sl, "rho_medyan": np.median(rho_sl), "jaccard_medyan": np.median(jac_sl),
+                                    "ornek_musteri": f"Müşteri {sayfa_idx.index(i_sl) + 1}"}},
+    "belirlilik": {"rho": rho_b,
+                   "dagilim": np.column_stack([model_belirsizligi, aciklama_belirsizligi, boot_tahmin.mean(0)]),
+                   "ornek": {ad: {"ana_tahmin": p_ana[ii], "bootstrap": boot_tahmin[:, ii],
+                                  "atif_ort": boot_aciklama[:, ii].mean(0), "atif_std": boot_aciklama[:, ii].std(0),
+                                  "ozellikler": ozellik(ii)} for ad, ii in [("A", iA), ("B", iB)]}},
+    "onem_derecesi": {"ilk3_payi": {k: np.median(v) for k, v in onem_derecesi.items()},
+                      "kural": {"kosullar": kosullar, "tahmin": kural_tahmini,
+                                "kosul_onemi": kosul_onemi.rename(columns={"Kaldırılan koşul": "kaldirilan",
+                                                                           "Kapsanan müşteri": "kapsam",
+                                                                           "Ortalama tahmin": "ort_tahmin"}).to_dict("records")}},
+    "yenilik": {grup: {"model_belirsizligi": g[0], "lime_r2": g[1], "lime_jaccard": g[2]}
+                for grup, g in [("tipik", tip), ("yeni", yen)]},
+    "temsil": {"dilimler": etiket, "egriler": {k: np.median(v, 0) for k, v in sonuc.items()}},
+    "karne": karne.reset_index().rename(columns={"index": "Yöntem"}).to_dict("records"),
+}
+SAYFA_KLASORU = Path("etkilesimli")
+SAYFA_KLASORU.mkdir(exist_ok=True)
+json_yolu = SAYFA_KLASORU / "veri.json"
+json_yolu.write_text(json.dumps(temizle(veri), ensure_ascii=False, indent=1), encoding="utf-8")
+print(f"{json_yolu} yazıldı: {len(musteriler)} müşteri, {json_yolu.stat().st_size / 1024:.0f} KB")
+
+# Sayfa, çift tıklayınca çevrimdışı da açılabilsin diye bu verinin gömülü bir kopyasını taşır; kopyayı burada güncelliyoruz.
+sayfa = SAYFA_KLASORU / "index.html"
+if sayfa.exists():
+    html = sayfa.read_text(encoding="utf-8")
+    bas = '<script type="application/json" id="veri">'
+    i = html.index(bas) + len(bas)
+    j = html.index("</script>", i)
+    sayfa.write_text(html[:i] + json.dumps(temizle(veri), ensure_ascii=False) + html[j:], encoding="utf-8")
+    print(f"{sayfa} içindeki veri kopyası güncellendi")
