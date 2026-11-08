@@ -31,7 +31,20 @@
 #    kullanarak makalenin açık bıraktığı soruyu sormak: Yöntemler anlaşamadığında hangisi haklı?
 #
 # **Çalıştırma:** Çıktılar `HIZLI = False` ile üretildi (iki çekirdekli bir makinede yaklaşık 7 dakika). Canlı gösterimde
-# `HIZLI = True` ile aynı analiz daha az örnekle yaklaşık 1,5 dakikada çalışır.
+# `HIZLI = True` ile aynı analiz daha az örnekle yaklaşık 1,5 dakikada çalışır. Defter Google Colab'da da çalışır:
+# [Colab'da aç](https://colab.research.google.com/github/mesutpolatgil/xai-dersi-2026/blob/main/2026-guz/32_evaluation-of-interpretability-methods/makale-yeniden-uretim/berkaycongar-20269258007/analiz.ipynb)
+# (bağlantı, çalışma ders deposuna eklendikten sonra açılır). İlk kod hücresi Colab'da eksik kütüphaneleri kurar; veriler yerelde
+# yoksa GitHub'dan indirilir.
+
+# %%
+import importlib.util
+import subprocess
+import sys
+
+if "google.colab" in sys.modules:  # yalnızca Colab'da: eksik kütüphaneleri kur
+    eksik = [paket for paket in ("lime", "shap") if importlib.util.find_spec(paket) is None]
+    if eksik:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", *eksik], check=True)
 
 # %%
 import time
@@ -490,10 +503,26 @@ k_cizimi({"Sinir ağı": A_compas["NN"], "Lojistik regresyon": A_compas["LR"]}, 
 # %%
 TAIWAN_YOLLARI = [Path("../../uygulama/berkaycongar-20269258007/veri/default_of_credit_card_clients.csv"),
                   Path("veri/default_of_credit_card_clients.csv")]
-TAIWAN_URL = ("https://raw.githubusercontent.com/jphall663/interpretable_machine_learning_with_python/master/"
-              "default_of_credit_card_clients.xls")
-yol = next((p for p in TAIWAN_YOLLARI if p.exists()), None)
-tw = pd.read_csv(yol) if yol else pd.read_excel(TAIWAN_URL, header=1)
+TAIWAN_URLLERI = [  # yerel kopya yoksa (ör. Colab): önce ders deposundaki CSV, o da yoksa UCI dosyasının GitHub'daki kopyası
+    "https://raw.githubusercontent.com/mesutpolatgil/xai-dersi-2026/main/2026-guz/32_evaluation-of-interpretability-methods/"
+    "uygulama/berkaycongar-20269258007/veri/default_of_credit_card_clients.csv",
+    "https://raw.githubusercontent.com/jphall663/interpretable_machine_learning_with_python/master/default_of_credit_card_clients.xls",
+]
+
+
+def taiwan_oku():
+    yol = next((p for p in TAIWAN_YOLLARI if p.exists()), None)
+    if yol:
+        return pd.read_csv(yol)
+    for url in TAIWAN_URLLERI:
+        try:
+            return pd.read_excel(url, header=1) if url.endswith(".xls") else pd.read_csv(url)
+        except Exception as hata:  # bir kaynak erişilemezse sıradakini dene
+            print("Kaynak okunamadı:", url, "→", hata)
+    raise FileNotFoundError("Taiwan verisi bulunamadı.")
+
+
+tw = taiwan_oku()
 tw = tw.drop(columns="ID").rename(columns={"PAY_0": "PAY_1", "default payment next month": "TEMERRUT"})
 tw["EDUCATION"] = tw["EDUCATION"].replace({0: 4, 5: 4, 6: 4})
 tw["MARRIAGE"] = tw["MARRIAGE"].replace({0: 3})

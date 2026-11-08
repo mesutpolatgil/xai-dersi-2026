@@ -210,10 +210,13 @@ jupyter notebook analiz.ipynb
 ```
 
 * **Veri:** COMPAS, çalışma anında ProPublica'nın GitHub deposundan indirilir. Kişi adları içerdiği için depoya eklenmedi; kod yalnızca
-  yedi özniteliği ve etiketi kullanır. Taiwan verisi, uygulama klasöründeki CSV'den okunur
-  (`../../uygulama/berkaycongar-20269258007/veri/`).
+  yedi özniteliği ve etiketi kullanır. Taiwan verisi uygulama klasöründeki CSV'den okunur
+  (`../../uygulama/berkaycongar-20269258007/veri/`); bulunamazsa ders deposundan, o da olmazsa UCI dosyasının GitHub'daki
+  kopyasından indirilir.
 * **Süre:** Tam mod (`HIZLI = False`) iki çekirdekli bir makinede yaklaşık 7 dakika sürer. Canlı gösterim için `HIZLI = True`
   (yaklaşık 1,5 dakika).
+* **Google Colab:** [Colab'da aç](https://colab.research.google.com/github/mesutpolatgil/xai-dersi-2026/blob/main/2026-guz/32_evaluation-of-interpretability-methods/makale-yeniden-uretim/berkaycongar-20269258007/analiz.ipynb) (bağlantı, çalışma ders deposuna eklendikten sonra açılır). İlk kod hücresi
+  eksik kütüphaneleri kendisi kurar.
 
 ## Kaynaklar
 
