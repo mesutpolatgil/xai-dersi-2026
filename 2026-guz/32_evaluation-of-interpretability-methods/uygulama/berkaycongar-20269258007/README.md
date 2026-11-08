@@ -17,6 +17,7 @@ gerçek veri setinde dört açıklama yöntemine uyguluyor: LIME, KernelSHAP, Tr
 | `main.py` | Defterin aynısı, düz Python betiği olarak ([jupytext](https://jupytext.readthedocs.io) "percent" biçimi; VS Code'da hücre hücre çalışır) |
 | `veri/default_of_credit_card_clients.csv` | UCI'deki özgün `.xls` dosyasının değiştirilmemiş CSV hâli |
 | `sekiller/` | Defterdeki grafiklerin 200 dpi kopyaları (sunumda kullanıldı) |
+| `etkilesimli/index.html` | Kodu açmadan kullanılabilen etkileşimli anlatım sayfası; çift tıklayınca tarayıcıda açılır |
 | `etkilesimli/veri.json` | Sayfanın kullandığı sonuçlar; defterin son bölümü üretir |
 | `requirements.txt` | Gerekli paketler ve test edilen sürümler |
 
@@ -110,6 +111,17 @@ lojistik regresyon 0,715.
    `PAY_3` koşulu ise neredeyse hiçbir şey eklemiyor (kurala yalnızca 5 müşteri daha giriyor). Önem derecesi, açıklamanın
    biçimine bağlı: Atıf yöntemleri öznitelikleri sıralar, kural sıralamaz.
 
+## Etkileşimli sayfa
+
+`etkilesimli/index.html`, bölümü kodu açmadan anlatmak için hazırlandı. Bölümün sırasını izliyor: temel gerçeklik sorunu,
+değerlendirme düzeyleri, açıklamanın tanımı, yöntemin dört özelliği, dokuz özellik ve karne. Her deneyde kitabın örneği ile bizim
+verimizdeki karşılığı yan yana duruyor. Müşteri seçilerek, vekil ağacın derinliği değiştirilerek, LIME yeniden çalıştırılarak ya
+da kuraldan bir koşul kaldırılarak sonuçların nasıl değiştiği görülebilir.
+
+* Sayfadaki bütün sayılar `veri.json` dosyasından gelir. Sayfa, çevrimdışı da açılabilsin diye bu verinin bir kopyasını
+  içinde taşır; defterin son bölümü çalıştırıldığında bu kopya da güncellenir.
+* Sayfanın claude.ai'de yayımlanan sürümünde, bölüm ve sonuçlar hakkında soru sorulabilen bir “Claude'a sor” bölümü vardır.
+  Bu bölüm yalnızca orada çalışır; depodaki kopya onu kendiliğinden gizler.
 
 ## Sınırlılıklar
 
