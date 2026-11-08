@@ -12,7 +12,7 @@ bağımlılık grafikleri her zaman doğrusal bir ilişki sergiler.
 
 Regresyon için kısmi bağımlılık fonksiyonu şu şekilde tanımlanır:
 
-${\widehat{f}}_{S}(x_{S}) = E_{X_{C}}\left\lbrack \widehat{f}(x_{S},X_{C}) \right\rbrack = \int_{}^{}\widehat{f}(x_{S},X_{C})dP(X_{C})$
+$${\widehat{f}}_{S}(x_{S}) = E_{X_{C}}\left\lbrack \widehat{f}(x_{S},X_{C}) \right\rbrack = \int_{}^{}\widehat{f}(x_{S},X_{C})dP(X_{C})$$
 
 Burada $x_{S}$, kısmi bağımlılık fonksiyonunun çizdirilmek istendiği
 özniteliklerdir; $X_{C}$ ise $\widehat{f}$ makine öğrenmesi modelinde
@@ -40,7 +40,7 @@ Kısmi fonksiyon ${\widehat{f}}_{S}$, eğitim verisindeki ortalamalar
 hesaplanarak tahmin edilir; bu yöntem Monte Carlo yöntemi olarak da
 bilinir:
 
-${\widehat{f}}_{S}(x_{S}) = \frac{1}{n}\sum_{i = 1}^{n}\widehat{f}(x_{S},x_{C}^{(i)})$
+$${\widehat{f}}_{S}(x_{S}) = \frac{1}{n}\sum_{i = 1}^{n}\widehat{f}(x_{S},x_{C}^{(i)})$$
 
 Bu işlem, bir veri kümesinin tüm [<u>ICE
 eğrilerinin</u>](https://www.google.com/search?q=%23ice) ortalamasını
@@ -206,14 +206,14 @@ kadar çok değişirse özniteliğin o kadar önemli olduğunu göstermesidir.
 Sayısal öznitelikler için önem, her bir benzersiz öznitelik değerinin
 ortalama eğriden sapması olarak tanımlanır:
 
-$I(x_{S}) =$
+$$I(x_{S}) =$$
 
 Burada $x_{S}^{(k)}$ ifadelerinin, $X_{S}$ özniteliğinin $K$ adet
 benzersiz değeri olduğuna dikkat edin.
 
 Kategorik öznitelikler için şuna sahibiz:
 
-$I(X_{S}) = \frac{\max_{k}({\widehat{f}}_{S}(x_{S}^{(k)})) - \min_{k}({\widehat{f}}_{S}(x_{S}^{(k)}))}{4}$
+$$I(X_{S}) = \frac{\max_{k}({\widehat{f}}_{S}(x_{S}^{(k)})) - \min_{k}({\widehat{f}}_{S}(x_{S}^{(k)}))}{4}$$
 
 Bu, benzersiz kategoriler için PDP değerlerinin aralığının dörde
 bölünmesidir. Sapmayı hesaplamanın bu ilginç yoluna aralık kuralı (range
