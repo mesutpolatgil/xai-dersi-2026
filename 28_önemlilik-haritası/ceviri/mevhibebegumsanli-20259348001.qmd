@@ -1,0 +1,196 @@
+---
+title: "28. Bölüm: Önemlilik Haritaları (Saliency Maps)"
+author: "Mevhibe Begüm Şanlı"
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: false
+lang: tr
+---
+
+## 28. Önemlilik Haritaları (Saliency Maps)
+
+Piksel atama yöntemleri, bir sinir ağı tarafından belirli bir görüntü sınıflandırması için ilgili olan pikselleri vurgular. Şekil 28.1, bunun bir örneğidir.
+
+> **Şekil 28.1:** Piksellerin sınıflandırmaya katkılarına göre renklendirildiği bir önem haritası.
+
+Bu bölümün ilerleyen kısımlarında bu özel görüntüde neler olup bittiğini göreceksiniz. Piksel atıf yöntemleri çeşitli isimler altında bulunabilir: duyarlılık haritası, belirginlik haritası, piksel atıf haritası, gradyan tabanlı atıf yöntemleri, özellik alaka düzeyi, özellik atfı ve özellik katkısı.
+
+Piksel atfı, özellik atfının özel bir durumudur, ancak görüntüler için geçerlidir. Özellik atfı, her bir girdi özelliğini, tahmini ne kadar değiştirdiğine (olumsuz veya olumlu) göre atfederek bireysel tahminleri açıklar. Özellikler girdi pikselleri, tablo verileri veya kelimeler olabilir. SHAP, Shapley değerleri ve LIME, genel özellik atıf yöntemlerine örneklerdir.
+
+Tahmin olarak uzunlukta $C$ olan bir vektör üreten sinir ağlarını ele alıyoruz. Bu, regresyonu da içerir ($C = 1$). Görüntü $x$ için sinir ağının çıktısı şu şekilde adlandırılır: $S(x) = [S_1(x), \dots, S_C(x)]$. Bu yöntemlerin tümü girdi olarak $p$ özellik içeren $x \in \mathbb{R}^p$ (görüntü pikselleri, tablo verileri, kelimeler, ...) alır ve çıktı olarak her bir $p$ giriş özelliği için bir alaka düzeyi puanı veren bir veri seti üretir: $R^c = [R_1^c, \dots, R_p^c]$. Buradaki $c$, $c$. çıktının önemini gösterir.
+
+Piksel ilişkilendirme yaklaşımlarında kafa karıştırıcı derecede çok sayıda yöntem bulunmaktadır. İki farklı ilişkilendirme yöntemi türü olduğunu anlamak faydalı olacaktır:
+
+- **Örtüşme veya bozulma tabanlı:** SHAP ve LIME gibi yöntemler, açıklamalar üretmek için görüntünün belirli kısımlarını manipüle eder (modelden bağımsız).
+- **Gradyan tabanlı:** Birçok yöntem, tahminin (veya sınıflandırma puanının) girdi özelliklerine göre gradyanını hesaplar. Gradyan tabanlı yöntemler (ki bunların sayısı oldukça fazladır) çoğunlukla gradyanın nasıl hesaplandığı konusunda farklılık gösterir.
+
+Her iki yaklaşımın da ortak noktası, açıklamanın giriş görüntüsüyle aynı boyutta olması (veya en azından anlamlı bir şekilde üzerine yansıtılabilmesi) ve her piksele, o görüntünün tahminine veya sınıflandırılmasına ilişkin pikselin önemini gösteren bir değer atamalarıdır.
+
+Piksel atama yöntemleri için bir diğer kullanışlı sınıflandırma ise temel sorudur:
+
+- **Sadece gradyan yöntemleri:** Bir pikseldeki değişikliğin tahmini değiştirip değiştirmeyeceğini bize söyler. Örnekler arasında Vanilla Gradient ve Grad-CAM (Selvaraju vd. 2017) yer almaktadır. Sadece gradyan yönteminin yorumu şöyledir: "Pikselin renk değerlerini artırırsam, tahmin edilen sınıf olasılığı artar (pozitif gradyan için) veya azalır (negatif gradyan için)." Gradyanın mutlak değeri ne kadar büyükse, bu pikseldeki değişikliğin etkisi o kadar güçlü olur.
+- **Yol atama yöntemleri:** Mevcut görüntüyü, tamamen gri bir görüntü gibi yapay bir "sıfır" görüntü olabilen bir referans görüntüyle karşılaştırır. Gerçek ve temel tahmin arasındaki fark pikseller arasında bölünür. Temel görüntü birden fazla görüntü de olabilir: bir görüntü dağılımı. Bu kategori, Deep Taylor ve Entegre Gradyanlar (Sundararajan, Taly ve Yan 2017) gibi modele özgü gradyan tabanlı yöntemlerin yanı sıra LIME ve SHAP gibi modelden bağımsız yöntemleri de içerir. Bazı yol atama yöntemleri "tamamlayıcıdır" (complete), yani tüm girdi özelliklerinin alaka puanlarının toplamı, görüntünün tahmini ile referans görüntünün tahmini arasındaki farktır. Örnekler arasında SHAP ve Entegre Gradyanlar yer alır. Yol atama yöntemlerinde yorumlama her zaman temel görüntüye göre yapılır: Gerçek görüntü ve temel görüntünün sınıflandırma puanları arasındaki fark piksellere atfedilir.
+
+---
+
+## Referans Görseli Seçin (Pick Reference Image)
+
+Referans görselin (dağıtımın) seçimi, açıklamayı büyük ölçüde etkiler. Genellikle "nötr" bir görsel (dağıtım) kullanılması varsayılır. Elbette, en sevdiğiniz özçekimi kullanmanız tamamen mümkün, ancak bunun bir uygulamada mantıklı olup olmadığını kendinize sormanız gerekir. Bu, diğer proje üyeleri arasında kesinlikle bir üstünlük kurma amacı taşıyacaktır.
+
+Bu noktada normalde bu yöntemlerin nasıl çalıştığına dair sezgisel bir açıklama yapardım, ancak bence en iyisi Vanilla Gradient yöntemiyle başlamak, çünkü bu yöntem diğer birçok yöntemin izlediği genel formülü çok güzel gösteriyor.
+
+---
+
+## Vanilla Gradient
+
+Simonyan, Vedaldi ve Zisserman (2014) tarafından ilk piksel atama yaklaşımlarından biri olarak tanıtılan Vanilla Gradient fikri, geri yayılımı zaten biliyorsanız oldukça basittir. (Yaklaşımlarına "Görüntüye Özgü Sınıf Belirginliği" adını verdiler, ancak ben Vanilla Gradient'ı daha çok beğeniyorum.) İlgilendiğimiz sınıf için kayıp fonksiyonunun gradyanını giriş piksellerine göre hesaplıyoruz. Bu bize negatiften pozitife değerlerle giriş özelliklerinin boyutunun bir haritasını verir.
+
+Bu yaklaşımın tarifi şöyledir:
+1. İlgili görüntünün ileri doğru pas (forward pass) işlemini gerçekleştirin.
+2. İlgili sınıf puanının giriş piksellerine göre gradyanını hesaplayın:
+   $$E_{\text{grad}}(x_0) = \frac{\partial S_c}{\partial x}\Big|_{x=x_0}$$
+3. Burada diğer tüm sınıfların değerini sıfıra ayarlıyoruz.
+4. Eğimleri görselleştirin. Mutlak değerleri gösterebilir veya negatif ve pozitif katkıları ayrı ayrı vurgulayabilirsiniz.
+
+Daha resmi olarak, elimizde bir $x$ görüntüsü ve evrişimli sinir ağının $c$ sınıfı için verdiği $S_c(x)$ puanı vardır. Puan, görüntümüzün oldukça doğrusal olmayan bir fonksiyonudur. Gradyanı kullanmanın ardındaki fikir, bu puanı birinci dereceden bir Taylor açılımı uygulayarak yaklaşık olarak hesaplayabilmemizdir:
+
+$$S_c(x) \approx w^T x + b$$
+
+burada $w$, puanımızın türevidir:
+
+$$w = \frac{\partial S_c}{\partial x}\Big|_{x_0}$$
+
+Şimdi, gradyanların geriye doğru geçişin nasıl yapılacağı konusunda bazı belirsizlikler var, çünkü ReLU (Doğrulanmış Doğrusal Birim - Rectified Linear Unit) gibi doğrusal olmayan birimler işareti "kaldırıyor". Bu nedenle, geriye doğru geçiş yaptığımızda, pozitif mi yoksa negatif bir aktivasyon mu atayacağımızı bilmiyoruz. İnanılmaz ASCII sanat yeteneğimi kullanarak, ReLU fonksiyonu şöyle görünüyor: `_/` ve şu şekilde tanımlanıyor: $\text{ReLU}(x_l) = \max(0, x_l)$. Bu, bir nöronun aktivasyonu sıfır olduğunda hangi değeri geri yayacağımızı bilmediğimiz anlamına gelir. Vanilla Gradient durumunda, bu belirsizlik şu şekilde çözülür:
+
+$$\frac{\partial f}{\partial x_l} = \frac{\partial f}{\partial x_{l+1}} \cdot \mathbb{I}(x_l > 0)$$
+
+Burada, $\mathbb{I}$, alt katmandaki aktivasyonun negatif olduğu yerlerde sıfır, pozitif veya sıfır olduğu yerlerde ise bir olan, eleman bazlı gösterge fonksiyonudur (indicator function). Vanilla Gradient, şimdiye kadar katmana kadar geri yaydığımız gradyanı alır ve ardından alt katmandaki aktivasyon negatif olduğunda gradyanları sıfıra ayarlar.
+
+Katmanların ($x_l$ ve $x_{l+1} = \text{ReLU}(x_l)$) olduğu bir örneğe bakalım. Kurgusal aktivasyonumuz $x_l$ şudur:
+$$\begin{pmatrix} 1 & 0 \\ -1 & -10 \end{pmatrix}$$
+
+Ve bunlar bizim eğimlerimiz $x_{l+1}$:
+$$\begin{pmatrix} 0.4 & 1.1 \\ -0.5 & -0.1 \end{pmatrix}$$
+
+Sonra bizim eğimlerimiz $x_l$ şunlardır:
+$$\begin{pmatrix} 0.4 & 0 \\ 0 & 0 \end{pmatrix}$$
+
+Vanilla Gradient'in, Shrikumar, Greenside ve Kundaje'nin (2017) açıkladığı gibi bir **doygunluk problemi (saturation problem)** vardır. ReLU kullanıldığında ve aktivasyon sıfırın altına düştüğünde, aktivasyon sıfırda sabitlenir ve artık değişmez; aktivasyon doygunluğa ulaşır. Örneğin: Katmana giriş, ağırlıkları $-1$ ve $-1$ olan ve yanlılığı (bias) $1$ olan iki nörondur. ReLU katmanından geçerken, her iki nöronun aktivasyonunun toplamı $<1$ ise aktivasyon $\text{nöron}_1 + \text{nöron}_2$ olacaktır. İki girdinin toplamı $1$'den büyükse, aktivasyon $1$'de doygun kalacaktır (ağırlıklar negatif olduğundan). Ayrıca, bu noktadaki gradyan sıfır olacak ve Vanilla Gradient bu nöronun önemli olmadığını söyleyecektir.
+
+---
+
+## DeconvNet
+
+Zeiler ve Fergus'un (2014) DeconvNet'i, Vanilla Gradient ile neredeyse aynıdır. DeconvNet'in amacı bir sinir ağını tersine çevirmektir ve makale, filtreleme, havuzlama ve aktivasyon katmanlarının tersine çevrilmesi işlemlerini önermektedir. Makaleye bakarsanız, Vanilla Gradient'ten çok farklı görünüyor, ancak ReLU katmanının tersine çevrilmesi dışında, DeconvNet, Vanilla Gradient yaklaşımına eşdeğerdir. Vanilla Gradient, DeconvNet'in bir genellemesi olarak görülebilir. DeconvNet, gradyanı ReLU üzerinden geri yaymak için farklı bir seçim yapar:
+
+$$R_n = R_{n+1} \mathbb{I}(R_{n+1} > 0)$$
+
+burada $R_n$ ve $R_{n+1}$ katman yeniden yapılandırmalarıdır ve $\mathbb{I}$ gösterge fonksiyonudur. Katmandan geri geçiş yapıldığında ($n$'den $n-1$'e), DeconvNet, $n$ katmanındaki aktivasyonlardan hangisinin ileri geçişte sıfıra ayarlandığını "hatırlar" ve bunları $n-1$ katmanında da sıfıra ayarlar. $n$ katmanında negatif değere sahip aktivasyonlar $n-1$ katmanında sıfıra ayarlanmıştır. Gradyan $X_n$ önceki örnek için durum şöyle olur:
+$$\begin{pmatrix} 0.4 & 1.1 \\ 0 & 0 \end{pmatrix}$$
+
+---
+
+## Grad-CAM (Gradient-weighted Class Activation Mapping)
+
+Grad-CAM (Selvaraju vd. 2017), CNN kararları için görsel açıklamalar sağlar. Diğer yöntemlerden farklı olarak, gradyan görüntünün tamamına kadar geri yayılmaz, bunun yerine (genellikle) son evrişim katmanına kadar geri yayılır ve görüntünün önemli bölgelerini vurgulayan kaba bir yerelleştirme haritası üretir.
+
+Grad-CAM, *Gradyan Ağırlıklı Sınıf Aktivasyon Haritası* anlamına gelir. Adından da anlaşılacağı gibi, sinir ağlarının gradyanına dayanır. Grad-CAM, diğer teknikler gibi, her nörona ilgilenilen karar için bir önem puanı atar. Bu ilgilenilen karar, sınıf tahmini (çıktı katmanında bulduğumuz) olabilir, ancak teorik olarak sinir ağındaki herhangi bir başka katman da olabilir. Grad-CAM bu bilgiyi son evrişim katmanına geri yayar. Grad-CAM, farklı CNN'lerle kullanılabilir: tam bağlantılı katmanlarla, altyazı gibi yapılandırılmış çıktılar ve çoklu görev çıktıları için ve takviyeli öğrenme için.
+
+Öncelikle Grad-CAM'in sezgisel bir anlayışıyla başlayalım. Grad-CAM'in amacı, bir evrişim katmanının belirli bir sınıflandırma için görüntünün hangi kısımlarına "baktığını" anlamaktır. Hatırlatmak gerekirse, bir CNN'nin ilk evrişim katmanı, girdi olarak görüntüleri alır ve öğrenilen özellikleri kodlayan özellik haritaları üretir (Öğrenilen Özellikler bölümüne bakın). Daha üst düzey evrişim katmanları da aynı şeyi yapar, ancak girdi olarak önceki evrişim katmanlarının özellik haritalarını alır. CNN'nin nasıl karar verdiğini anlamak için Grad-CAM, son evrişim katmanlarının özellik haritalarında hangi bölgelerin etkinleştirildiğini analiz eder. Son evrişim katmanındaki özellik haritalarına $A_1, A_2, \dots, A_k$ diyeceğiz. Özellik haritalarından, evrişimli sinir ağının belirli bir sınıflandırmayı nasıl yaptığını nasıl "görebiliriz"? İlk yaklaşımda, her özellik haritasının ham değerlerini görselleştirebilir, özellik haritaları üzerinde ortalama alabilir ve bunu görüntümüzün üzerine yerleştirebiliriz. Bu, özellik haritaları tüm sınıflar için bilgi kodladığı için faydalı olmazdı, ancak biz belirli bir sınıfla ilgileniyoruz. Grad-CAM, her bir özellik haritasının ilgilendiğimiz sınıf $c$ için ne kadar önemli olduğuna karar vermelidir. İlgilendiğimiz sınıfı belirlemek için, her özellik haritasının her pikselini gradyanla ağırlıklandırmamız ve ardından özellik haritaları üzerinde ortalama almamız gerekiyor. Bu bize, ilgilenilen sınıfı olumlu veya olumsuz yönde etkileyen bölgeleri vurgulayan bir ısı haritası veriyor. Bu ısı haritası, tüm negatif değerleri sıfıra ayarladığımızı söylemenin süslü bir yolu olan ReLU fonksiyonundan geçiriliyor. Grad-CAM, yalnızca seçilen sınıfa katkıda bulunan kısımlarla ilgilendiğimiz argümanıyla bir ReLU fonksiyonu kullanarak tüm negatif değerleri kaldırır ve diğer sınıflara değil. Piksel kelimesi burada yanıltıcı olabilir çünkü özellik haritası görüntüden daha küçüktür (havuzlama birimleri nedeniyle) ancak orijinal görüntüye geri eşlenir. Daha sonra Grad-CAM haritasını $[0, 1]$ aralığına ölçeklendiriyoruz. Görselleştirme amacıyla orijinal görüntünün üzerine bindirilir.
+
+Grad-CAM için tarifi inceleyelim. Amacımız, şu şekilde tanımlanan lokalizasyon haritasını bulmaktır:
+
+$$L_{\text{Grad-CAM}}^c \in \mathbb{R}^{U \times V} = \text{ReLU}\left(\sum_k \alpha_k^c A_k\right)$$
+
+Burada, $U$ genişliktir, $V$ açıklamanın yüksekliğidir ve $c$ ilgilenilen sınıftır.
+1. Giriş görüntüsünü evrişimli sinir ağı üzerinden ileriye doğru yayılımını (forward pass) gerçekleştirin.
+2. İlgili sınıf için ham skoru elde edin; yani softmax katmanından önceki nöronun aktivasyonunu.
+3. Diğer tüm sınıf etkinleştirmelerini sıfıra ayarlayın.
+4. İlgili sınıfın gradyanını, tam bağlantılı katmanlardan önceki son evrişim katmanına geri yayılım yoluyla (backward pass) iletin.
+5. Her özellik haritası pikselini sınıfın gradyanına göre ağırlıklandırın. Genişlik $U$ ve yükseklik $V$ ölçüleri için:
+   $$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^U \sum_{j=1}^V \frac{\partial S_c}{\partial A_{i,j}^k}$$
+   Bu, gradyanların küresel olarak bir araya getirildiği anlamına gelir.
+6. Özellik haritalarının ortalamasını, piksel başına gradyan ile ağırlıklandırarak hesaplayın.
+7. Ortalama alınmış özellik haritasına ReLU fonksiyonunu uygulayın.
+8. Görselleştirme için: Değerleri $[0, 1]$ aralığına göre ölçeklendirin. Görüntüyü büyütün ve orijinal görüntünün üzerine yerleştirin.
+9. Yönlendirilmiş Grad-CAM (Guided Grad-CAM) için ek adım: Isı haritasını yönlendirilmiş geri yayılım ile çarpın.
+
+---
+
+## Guided Grad-CAM
+
+Grad-CAM'in açıklamasından da tahmin edebileceğiniz gibi, son evrişimsel özellik haritaları giriş görüntüsüne kıyasla çok daha düşük çözünürlüğe sahip olduğundan, yerelleştirme oldukça kaba bir şekilde yapılır. Buna karşılık, diğer atıf teknikleri giriş piksellerine kadar geri yayılım yapar. Bu nedenle çok daha ayrıntılıdırlar ve bir tahmine en çok katkıda bulunan tek tek kenarları veya noktaları gösterebilirler. Her iki yöntemin birleşimine Yönlendirilmiş Grad-CAM (Guided Grad-CAM) denir ve son derece basittir. Bir görüntü için hem Grad-CAM açıklaması hem de Vanilla Gradient gibi başka bir atıf yönteminden gelen açıklama hesaplanır. Grad-CAM çıktısı daha sonra çift doğrusal enterpolasyon (bilinear interpolation) ile yukarı örneklenir ve ardından her iki harita da eleman bazında çarpılır. Grad-CAM, piksel bazlı atıf haritasının belirli bölümlerine odaklanan bir mercek gibi çalışır.
+
+---
+
+## SmoothGrad
+
+Smilkov ve ark. (2017) tarafından geliştirilen SmoothGrad fikri, gürültü ekleyerek ve bu yapay olarak gürültülü gradyanlar üzerinde ortalama alarak gradyan tabanlı açıklamaları daha az gürültülü hale getirmektir. SmoothGrad, bağımsız bir açıklama yöntemi değil, herhangi bir gradyan tabanlı açıklama yönteminin bir uzantısıdır.
+
+SmoothGrad aşağıdaki şekilde çalışır:
+1. İlgilendiğiniz görüntünün birden fazla versiyonunu, üzerine gürültü ekleyerek oluşturun.
+2. Tüm görüntüler için piksel ilişkilendirme haritaları oluşturun.
+3. Piksel özellik haritalarının ortalamasını alın.
+
+Evet, bu kadar basit. Peki bu neden işe yarıyor? Teori şu ki, türev küçük ölçeklerde büyük ölçüde dalgalanıyor. Sinir ağlarının eğitim sırasında gradyanları düzgün tutmak için hiçbir teşviki yoktur; amaçları görüntüleri doğru şekilde sınıflandırmaktır. Birden fazla harita üzerinde ortalama almak bu dalgalanmaları "düzeltir":
+
+$$\hat{R}^c(x) = \frac{1}{n} \sum_{i=1}^n R^c(x + \mathcal{N}(0, \sigma^2))$$
+
+Burada, $\mathcal{N}(0, \sigma^2)$ Gauss dağılımından örneklenen gürültü vektörleridir. "İdeal" gürültü seviyesi, giriş görüntüsüne ve ağa bağlıdır. Yazarlar $\%10-20$'lik bir gürültü seviyesi önermektedir; bu da şu anlama gelir:
+$$\sigma = \frac{x_{\max} - x_{\min}}{10} \text{ ile } \frac{x_{\max} - x_{\min}}{5}$$
+Sınırlar $x_{\max}$ ve $x_{\min}$ görüntünün minimum ve maksimum piksel değerleridir. Diğer parametre ise örnek sayısı $n$'dir; bunun için $n = 50$ kullanılması önerilmiştir, çünkü bu değerin üzerinde verimlilikte azalmalar söz konusudur.
+
+---
+
+## Örnekler (Examples)
+
+Şimdi bu haritaların nasıl göründüğüne ve yöntemlerin niteliksel olarak nasıl karşılaştırıldığına dair bazı örneklere bakalım. İncelenen ağ, ImageNet üzerinde eğitilmiş ve bu nedenle 1.000 sınıfı ayırt edebilen VGG-16'dır (Simonyan ve Zisserman 2015). Aşağıdaki görüntüler için, en yüksek sınıflandırma puanına sahip sınıf için açıklamalar oluşturacağız.
+
+Şekil 28.2, görüntüleri ve bunların sinir ağı tarafından yapılan sınıflandırmasını göstermektedir:
+
+> **Şekil 28.2:** Tazı olarak sınıflandırılan bir köpeğin, çorba kasesi olarak sınıflandırılan bir ramen çorbasının ve yılan balığı olarak sınıflandırılan bir ahtapotun görüntüleri.
+
+Soldaki resimde, saygıdeğer köpeğin "Yorumlanabilir Makine Öğrenimi" kitabını koruduğu görülüyor ve bu resim $\%35$ olasılıkla "Tazı" olarak sınıflandırılmış (görünüşe göre "Yorumlanabilir Makine Öğrenimi kitabı" 20.000 sınıf arasında yer almıyordu). Ortadaki resimde lezzetli bir ramen çorbası kasesi gösteriliyor ve bu resim $\%50$ olasılıkla doğru bir şekilde "Çorba Kasesi" olarak sınıflandırılmış. Üçüncü resimde okyanus tabanında bir ahtapot gösteriliyor ve bu resim $\%70$ gibi yüksek bir olasılıkla yanlış bir şekilde "Yılan Balığı" olarak sınıflandırılmış.
+
+Şekil 28.3, sınıflandırmayı açıklamayı amaçlayan piksel özelliklerini göstermektedir.
+
+> **Şekil 28.3:** Vanilla Gradient yöntemi, SmoothGrad ve Grad-CAM için piksel atıfları veya belirginlik haritaları.
+
+Ne yazık ki, durum biraz karışık. Ama köpekten başlayarak bireysel açıklamaları inceleyelim. Vanilla Gradient ve SmoothGrad yöntemleri köpeği vurguluyor, bu da mantıklı. Ancak aynı zamanda kitabın etrafındaki bazı alanları da vurguluyorlar, bu da garip. Grad-CAM ise sadece kitap alanını vurguluyor, bu da hiç mantıklı değil. Ve buradan itibaren işler biraz daha karışıyor. Vanilla Gradient yöntemi hem çorba kasesi hem de ahtapot (veya ağın düşündüğü gibi yılan balığı) için başarısız oluyor gibi görünüyor. Her iki görüntü de güneşe çok uzun süre bakmanın ardından oluşan art görüntüler gibi görünüyor (Lütfen güneşe doğrudan bakmayın). SmoothGrad çok yardımcı oluyor; en azından alanlar daha belirgin. Çorba örneğinde, yumurta ve et gibi bazı malzemeler vurgulanıyor, ancak aynı zamanda çubukların etrafındaki alan da vurgulanıyor. Ahtapot görüntüsünde ise çoğunlukla hayvanın kendisi vurgulanıyor. Çorba kasesi için Grad-CAM, yumurta kısmını ve nedense kasein üst kısmını vurguluyor. Grad-CAM'in ahtapotla ilgili açıklamaları ise daha da karmaşık.
+
+Açıklamalara güvenip güvenmediğimizi değerlendirmedeki zorlukları burada zaten görebilirsiniz. İlk adım olarak, görüntünün hangi kısımlarının görüntünün sınıflandırılmasıyla ilgili bilgi içerdiğini ele almalıyız. Ancak daha sonra sinir ağının sınıflandırma için ne kullanmış olabileceğini de düşünmeliyiz. Belki de SmoothGrad'ın ima ettiği gibi, çorba kasesi yumurta ve çubuk kombinasyonuna göre doğru sınıflandırılmıştır? Ya da belki de Grad-CAM'in önerdiği gibi, sinir ağı kase şeklini ve bazı malzemeleri tanımıştır? Bunu bilmiyoruz.
+
+İşte tüm bu yöntemlerin en büyük sorunu bu. Açıklamalar için kesin bir gerçeklik verisine (ground truth) sahip değiliz. İlk aşamada, açıkça anlamsız olan açıklamaları ancak reddedebiliriz (ve bu aşamada bile güçlü bir güvene sahip değiliz). Sinir ağındaki tahmin süreci çok karmaşık.
+
+---
+
+## Güçlü Yönler (Strengths)
+
+- Açıklamalar görseldir ve görüntüleri hızla tanırız. Özellikle yöntemler yalnızca önemli pikselleri vurguladığında, görüntünün önemli bölgelerini hemen tanımak kolaydır.
+- Gradyan tabanlı yöntemler genellikle modelden bağımsız yöntemlere göre daha hızlı hesaplanır. Örneğin, LIME ve SHAP de görüntü sınıflandırmalarını açıklamak için kullanılabilir, ancak hesaplama maliyetleri daha yüksektir.
+- Seçilebilecek birçok yöntem var.
+
+---
+
+## Sınırlamalar (Limitations)
+
+- Çoğu yorumlama yönteminde olduğu gibi, bir açıklamanın doğru olup olmadığını bilmek zordur ve değerlendirmenin büyük bir kısmı yalnızca nitelikseldir ("Bu açıklamalar doğru görünüyor, makaleyi artık yayınlayalım").
+- Piksel atama yöntemleri çok kırılgan olabilir. Ghorbani, Abid ve Zou (2019), aynı tahmine yol açan küçük (düşmanca/adversarial) bozulmaların bir görüntüye uygulanmasının, açıklama olarak vurgulanan piksellerin çok farklı olmasına yol açabileceğini göstermiştir.
+- Kindermans ve ark. (2019) ayrıca bu piksel atama yöntemlerinin oldukça güvenilmez olabileceğini de gösterdi. Giriş verilerine sabit bir kayma eklediler, yani tüm görüntülere aynı piksel değişikliklerini eklediler. İki ağı karşılaştırdılar: orijinal ağ ve ilk katmanın sapmasının sabit piksel kaymasına uyum sağlamak için değiştirildiği "kaydırılmış" ağ. Her iki ağ da aynı tahminleri üretti. Ayrıca, gradyan her ikisi için de aynıydı. Ancak açıklamalar değişti, bu da istenmeyen bir özelliktir. DeepLift, Vanilla Gradient ve Integrated Gradients'ı incelediler.
+
+> **Birden fazla yöntemi karşılaştırın:**
+> Yalnızca piksel tabanlı yorumlama yöntemlerine güvenirken dikkatli olun. Giriş verilerindeki küçük değişiklikler, tahminler değişmese bile, tamamen farklı açıklamalara yol açabilir. Sağlamlığı (robustness) sağlamak için açıklamaları her zaman birden fazla yöntemle doğrulayın.
+
+“Önemlilik haritaları için sağlamlık kontrolleri” (Adebayo vd. 2018) başlıklı makale, belirginlik yöntemlerinin model ve verilere duyarsız olup olmadığını araştırmıştır. Duyarsızlık son derece istenmeyen bir durumdur çünkü bu, “açıklamanın” model ve verilerle ilgisiz olduğu anlamına gelir. Model ve eğitim verilerine duyarsız olan yöntemler, kenar dedektörlerine benzer. Kenar dedektörleri, görüntülerdeki güçlü piksel renk değişikliklerini vurgular ve bir tahmin modeli veya görüntünün soyut özellikleriyle ilgisizdir ve eğitim gerektirmez. Test edilen yöntemler Vanilla Gradient, Gradient x Input, Integrated Gradients, Guided Backpropagation, Guided Grad-CAM ve SmoothGrad (Vanilla Gradient ile) idi. Vanilla Gradient ve Grad-CAM duyarsızlık kontrolünden geçerken, Guided Backpropagation ve Guided Grad-CAM başarısız oldu. 
+
+Bununla birlikte, sağlamlık kontrolleri makalesinin kendisi Tomsett vd. (2020) tarafından bazı eleştiriler almıştır. “Önemlilik ölçütleri için sağlamlık kontrolleri” başlıklı bir makale yayınladılar (elbette). Değerlendirme ölçütlerinde tutarlılık eksikliği olduğunu buldular (biliyorum, şimdi biraz meta bir hal alıyor). Yani başladığımız yere geri geldik… Görsel açıklamaları değerlendirmek hâlâ zor. Bu da uygulayıcılar için çok zor bir durum yaratıyor.
+
+Özetle, bu son derece tatmin edici olmayan bir durumdur. Bu konu hakkında daha fazla araştırma yapılmasını biraz daha beklememiz gerekiyor. Ve lütfen, yeni önem kazanma yöntemleri icat etmek yerine, bunların nasıl değerlendirileceğine dair daha fazla inceleme yapalım.
+
+---
+
+## Yazılım (Software)
+
+Piksel atama yöntemlerinin çeşitli yazılım uygulamaları mevcuttur. Örnek olarak, `tf-keras-vis` kullanılmıştır. En kapsamlı kütüphanelerden biri, Vanilla Gradient, SmoothGrad, DeconvNet, Guided Backpropagation, PatternNet, LRP (Bach vd. 2015) ve daha fazlasını uygulayan `iNNvestigate`'tir (Alber vd. 2019). Yöntemlerin çoğu `DeepExplain Toolbox`'ta uygulanmıştır.
