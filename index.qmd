@@ -12,6 +12,8 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 6 · Doğrusal Regresyon | [Ahmet Batuhan Kaya](2026-guz/06_linear-regression/ceviri/ahmetbatuhankaya-20269348005.html) |
 | 7 · Lojistik Regresyon | [Ahmet Batuhan Kaya](2026-guz/07_logistic-regression/ceviri/ahmetbatuhankaya-20269348005.html) |
 | 8 · GLM, GAM ve Ötesi | [Ahmet Batuhan Kaya](2026-guz/08_glm-gam-and-more/ceviri/ahmetbatuhankaya-20269348005.html) |
+| 12 · Ceteris Paribus Grafikleri | [Serap Şahin](2026-guz/12_ceteris_%20paribus_plots/ceviri/serapsahin-20269348009.html) |
+| 13 · Bireysel Koşullu Beklenti (ICE) | [Serap Şahin](2026-guz/13_individual_conditional_expectation_ice/ceviri/serapsahin20269348009.html) |
 | 14 · Lime | [İlker Uğur Kaya](2026-guz/14_lime/ceviri/14-lime.html) |
 | 15 · Counterfactual Explanations | [İlker Uğur Kaya](2026-guz/15_counterfactual_explanations/ceviri/15-Counterfactual%20Explanations.html) |
 | 16 · Kapsamı Belirli Kurallar (Anchors) | [Halil İbrahim Akyüz](2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html) |
