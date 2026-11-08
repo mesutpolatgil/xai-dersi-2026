@@ -49,7 +49,7 @@ Daha sığ ağaçlar daha iyi bir açıklanabilirlik puanı alır.
 Buna, ağacın tahmin performansının iyi kalması ve daha büyük bir ağaca kıyasla fazla düşmemesi kısıtını eklemek mantıklı olur.
 
 Bir sonraki alt bölüm, tekil tahminlere ait açıklamaların işlev düzeyinde değerlendirilmesine odaklanmaktadır.[^sonraki-alt-bolum]
-Açıklamaları değerlendirirken göz önünde bulundurmamız gereken özellikler nelerdir?
+Açıklamaları değerlendirirken dikkate alacağımız ilgili özellikler nelerdir?
 
 ## Açıklamaların özellikleri {#properties}
 
@@ -109,13 +109,13 @@ Başka bir deyişle açıklama yöntemi, açıklanacak örneğin öznitelik değ
 Kararlılık eksikliğine, açıklama yönteminin deterministik olmayan bileşenleri de yol açabilir; örneğin [yerel vekil yöntemin](https://christophm.github.io/interpretable-ml-book/lime.html) kullandığı türden bir veri örnekleme adımı.
 Yüksek kararlılık her zaman arzu edilir.
 - **Anlaşılabilirlik** (*Comprehensibility*): İnsanlar açıklamaları ne kadar iyi anlar?
-Bu, pek çok özellikten yalnızca biri gibi görünür; ama aslında asıl mesele budur, deyim yerindeyse odadaki fildir (*the elephant in the room*).
+Bu, pek çok özellikten yalnızca biri gibi görünür; ama aslında herkesin görüp de üzerine gitmekten kaçındığı büyük sorundur, deyim yerindeyse odadaki fildir (*the elephant in the room*).
 Tanımlanması ve ölçülmesi zordur; ama doğru yapılması son derece önemlidir.
 Pek çok kişi, anlaşılabilirliğin hedef kitleye bağlı olduğu konusunda hemfikirdir.
 Anlaşılabilirliği ölçmeye yönelik fikirler arasında açıklamanın boyutunu ölçmek (doğrusal bir modelde ağırlığı sıfırdan farklı olan özniteliklerin sayısı, karar kurallarının sayısı, ...) ya da insanların açıklamalardan yola çıkarak makine öğrenmesi modelinin davranışını ne kadar iyi tahmin edebildiğini test etmek yer alır.
 Açıklamada kullanılan özniteliklerin anlaşılabilirliği de göz önünde bulundurulmalıdır.
 Özniteliklerin karmaşık bir dönüşümü, orijinal özniteliklerden daha az anlaşılır olabilir.
-- **Belirlilik** (*Certainty*): Açıklama, makine öğrenmesi modelinin belirliliğini, yani tahmininden ne kadar emin olduğunu yansıtıyor mu?
+- **Belirlilik** (*Certainty*): Açıklama, makine öğrenmesi modelinin belirliliğini yansıtıyor mu?
 Pek çok makine öğrenmesi modeli, tahminin doğru olduğuna ne kadar güvendiğine (*confidence*) dair bir şey söylemeden yalnızca tahmin verir.
 Model bir hasta için %4 kanser olasılığı tahmin ediyorsa, bu tahminden, farklı öznitelik değerlerine sahip başka bir hastaya verdiği %4 olasılıktan olduğu kadar emin midir?
 Modelin belirliliğini de içeren bir açıklama çok faydalıdır.
