@@ -47,8 +47,19 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |
 | 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
 | 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
+| 30 · Kötü Amaçlı Örnekler (Adversarial Examples) | [Talha Karaca](2026-guz/30_adversarial_examples/ceviri/talhakaraca-20259267001.html) |
+| 31 · Etkili Örnekler (Influential Instances) | [Talha Karaca](2026-guz/31_influential_instances/ceviri/talhakaraca-20259267001.html) |
 | 33 · Hikâye Zamanı | [Yalçın Kavaklı ve Murat Şahin](2026-guz/33_story-time/ceviri/yalcin-20269256026-murat-20169258034.html) |
 | 34 · Yorumlanabilirliğin Geleceği | [Yalçın Kavaklı ve Murat Şahin](2026-guz/34_the-future-of-interpretability/ceviri/yalcin-20269256026-murat-20169258034.html) |
+
+## Bölüm 30 ve 31 materyalleri
+
+Talha Karaca tarafından hazırlanan çalışma:
+
+- [PowerPoint sunumu](2026-guz/30_adversarial_examples/sunum/talhakaraca-20259267001.pptx)
+- [Canlı kod: Digits veri seti (HTML)](2026-guz/30_adversarial_examples/uygulama/talhakaraca-20259267001/talhakaraca-20259267001.html) · [Jupyter defteri](2026-guz/30_adversarial_examples/uygulama/talhakaraca-20259267001/talhakaraca-20259267001.ipynb)
+- [Canlı kod: Fashion-MNIST veri seti (HTML)](2026-guz/30_adversarial_examples/uygulama/talhakaraca-20259267001/talhakaraca-20259267001-ek-ornek/talhakaraca-20259267001-ek-ornek.html) · [Jupyter defteri](2026-guz/30_adversarial_examples/uygulama/talhakaraca-20259267001/talhakaraca-20259267001-ek-ornek/talhakaraca-20259267001-ek-ornek.ipynb)
+- [Uygulama açıklaması ve çalıştırma adımları](2026-guz/30_adversarial_examples/uygulama/talhakaraca-20259267001/README.md)
 
 ## Bölüm 33 ve 34 ortak materyalleri
 
