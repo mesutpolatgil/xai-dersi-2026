@@ -21,3 +21,4 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 26 · Prototipler ve Eleştiriler (Prototypes and Criticisms) | [Melise Kocabaş](2026-guz/26_Prototypes_and_Criticisms/çeviri/prototipler-ve-elestiriler.html) |
 | 27 · Öğrenilmiş Özellikler (Learned Features) | [Mevhibe Begüm Şanlı](2026-guz/27_ogrenilen-ozellikler/ceviri/mevhibebegumsanli-20259348001.html) |
 | 28 · Önemlilik Haritaları (Saliency Maps) | [Mevhibe Begüm Şanlı](2026-guz/28_onemlilik-haritalari/ceviri/mevhibebegumsanli-20259348001.html) |
+| 26 · Prototipler ve Eleştiriler (Prototypes and Criticisms) | [Melise Kocabaş](2026-guz/26_Prototypes_and_Criticisms/çeviri/prototipler-ve-elestiriler.html) |
