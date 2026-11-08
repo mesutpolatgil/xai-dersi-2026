@@ -20,5 +20,42 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 16 · Kapsamı Belirli Kurallar (Anchors) | [Halil İbrahim Akyüz](2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html) |
 | 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |
 | 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
+| 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
+| 33 · Hikâye Zamanı | [Yalçın Kavaklı ve Murat Şahin](2026-guz/33_story-time/ceviri/yalcin-20269256026-murat-20169258034.html) |
+| 34 · Yorumlanabilirliğin Geleceği | [Yalçın Kavaklı ve Murat Şahin](2026-guz/34_the-future-of-interpretability/ceviri/yalcin-20269256026-murat-20169258034.html) |
+
+## Bölüm 33 ve 34 ortak materyalleri
+
+Yalçın Kavaklı ve Murat Şahin tarafından sunulan ortak çalışma:
+
+- [PowerPoint sunumu](2026-guz/33_story-time/sunum/yalcin-20269256026-murat-20169258034.pptx)
+- [Etkileşimli uygulama HTML’si](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.html)
+- [Jupyter ve Colab uygulaması](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.ipynb)
+- [Uygulama açıklaması ve çalıştırma adımları](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/README.md)
+
+Uygulama, gerçek UCI South German Credit verisiyle eğitilmiş küçük bir karar ağacında kararın açıklanmasını, hatalı vade kaydının düzeltilmesini ve karar eşiğinin hata türlerine etkisini gösterir. Veri giriş hatası eğitim amaçlı canlandırmadır.
+
+---
+title: "XAI Dersi"
+---
+
+Bu site, XAI dersi kapsamında hazırlanan çeviri ve dokümantasyonu içerir.
+
+Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
+
+## Bölümler
+
+<!-- Yeni çeviri ekleyen öğrenci, kendi satırını bölüm numarası sırasına göre bu tabloya ekler ve index.qmd dosyasını yeniden render eder (quarto render index.qmd). Bağlantı, render edilmiş .html dosyasını göstermelidir. -->
+
+| Bölüm | Çeviri |
+|:------|:-------|
+| 6 · Doğrusal Regresyon | [Ahmet Batuhan Kaya](2026-guz/06_linear-regression/ceviri/ahmetbatuhankaya-20269348005.html) |
+| 7 · Lojistik Regresyon | [Ahmet Batuhan Kaya](2026-guz/07_logistic-regression/ceviri/ahmetbatuhankaya-20269348005.html) |
+| 8 · GLM, GAM ve Ötesi | [Ahmet Batuhan Kaya](2026-guz/08_glm-gam-and-more/ceviri/ahmetbatuhankaya-20269348005.html) |
+| 14 · Lime | [İlker Uğur Kaya](2026-guz/14_lime/ceviri/14-lime.html) |
+| 15 · Counterfactual Explanations | [İlker Uğur Kaya](2026-guz/15_counterfactual_explanations/ceviri/15-Counterfactual%20Explanations.html) |
+| 16 · Kapsamı Belirli Kurallar (Anchors) | [Halil İbrahim Akyüz](2026-guz/16_scoped-rules-anchors/ceviri/halilibrahimakyuz-20269258004.html) |
+| 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |
+| 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
 | 25 · Vekil Modeller (Surrogate Models) | [Melise Kocabaş](2026-guz/25_Surrogate_Models/çeviri/vekil-modeller.html) |
 | 26 · Prototipler ve Eleştiriler (Prototypes and Criticisms) | [Melise Kocabaş](2026-guz/26_Prototypes_and_Criticisms/çeviri/prototipler-ve-elestiriler.html) |
