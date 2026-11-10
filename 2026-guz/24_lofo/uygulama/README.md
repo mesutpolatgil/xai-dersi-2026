@@ -1,46 +1,29 @@
-# Bölüm 24 Uygulaması: Bir Özniteliği Dışarıda Bırakma (LOFO) Önemi
+# Bölüm 24: Bir Özelliği Dışarıda Bırakma Önemi (Leave One Feature Out - LOFO) Uygulaması
 
-**Öğrenci:** Yunus Emre Yazarlı (`20269258002`)  
-**Kitap:** Christoph Molnar – *Interpretable Machine Learning* (24. Bölüm: *Leave One Feature Out (LOFO) Importance*)
+**Hazırlayan:** Yunus Emre Yazarlı  
+**Öğrenci No:** 20269258002  
+**Ders:** Açıklanabilir Yapay Zeka (XAI) — 2026 Güz  
+**Kaynak Bölüm:** [Christoph Molnar — Interpretable Machine Learning, Chapter 24: Leave One Feature Out (LOFO) Importance](https://christophm.github.io/interpretable-ml-book/lofo.html)
 
-## İçerik ve Amaç
+## Klasör İçeriği ve Dosya Açıklamaları
 
-Bu klasördeki `main.py` betiği, kitaptaki 24. bölüm analizlerini ana dizindeki `data/bike.csv` ve `data/penguins.csv` veri setlerini kullanarak **2/3 eğitim, 1/3 test** ayrımıyla sıfırdan çalıştırır ve bölümdeki 3 LOFO grafiğini üretir:
+Bu klasörde, 24. Bölümde ele alınan **Bir Özelliği Dışarıda Bırakma (LOFO / LOCO) Önemi** yönteminin hem interaktif web simülasyonu hem de orijinal veri setleri (`bike.csv` ve `penguins.csv`) üzerinde çalıştırılmış Python kodları ve gerçek grafik çıktıları yer almaktadır:
 
-1. **Bisiklet Kiralama Verisinde LOFO Önemi (`fig-lofo-bike-1.png`):**
-   - `bike.csv` verisi üzerinde tüm özniteliklerle temel `RandomForestRegressor` modeli eğitilir ve test MAE değeri ölçülür.
-   - Her bir öznitelik tek tek eğitim ve test setinden çıkarılıp model yeniden eğitilerek MAE farkı (`new_mae - base_mae`) hesaplanır ve görselleştirilir.
-2. **Tam Korelasyonlu Öznitelik (`temp_copy`) ile LOFO Önemi (`fig-lofo-bike-correlated-1.png`):**
-   - `temp` sütunu birebir kopyalanarak `temp_copy` (%100 korelasyon) veri setine eklenir.
-   - Aynı eğitim/test ayrımıyla tüm öznitelikler için LOFO hesaplanarak korelasyonlu özniteliklerin koşullu önemlerinin sıfıra yaklaştığı gösterilir.
-3. **Penguen Cinsiyet Sınıflandırmasında LOFO Önemi (`fig-lofo-penguins-1.png`):**
-   - `penguins.csv` verisi üzerinde `RandomForestClassifier` eğitilir ve her öznitelik çıkarılarak yeniden eğitim yapılır.
-   - Doğruluk (`accuracy`) ölçütünde büyük değer daha iyi olduğundan önem değeri `base_acc - new_acc` olarak hesaplanıp görselleştirilir.
+| Dosya Adı | Açıklama |
+| :--- | :--- |
+| **`24_lofo-web-uygulaması.html`** | Tarayıcıda doğrudan çalışan **İnteraktif Web Simülasyonu**. LOFO önem grafiğini, `%100` korelasyonlu kopya özellik (`temp_copy`) deneyini, interaktif özellik çıkarma ve `p`-adımlı karar ağacı yeniden eğitim animasyonunu, geriye doğru sıralı özellik seçimini (Adım 1–2–3) ve LOFO vs. PFI karşılaştırmasını içerir. |
+| **`24_lofo-python-uygulaması.html`** | Kitaptaki tüm örneklerin **Python (`scikit-learn`, `pandas`, `matplotlib`, `lofo-importance`) Kodları ve Gerçek Çıktıları**. Orijinal `bike.csv` ve `penguins.csv` verileri üzerinde çalıştırılmış kod hücrelerini (`In [1]`–`In [4]`), konsol tablo çıktılarını ve gömülü grafikleri (Şekil 24.1–24.3) içerir. |
+| **`bike.csv`** | Bisiklet kiralama veri seti (`728` tam gözlem, hedef: `cnt`, özellikler: `season`, `holiday`, `workday`, `weather`, `temp`, `hum`, `windspeed`, `cnt_2d_bfr`). |
+| **`penguins.csv`** | Palmer penguenleri veri seti (`333` tam gözlem, hedef: `sex`, özellikler: `species`, `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, `body_mass_g`). |
 
-## Gereksinimler
+## Uygulamaların Kapsadığı Temel Konular
 
-Python 3.9+ ve aşağıdaki kütüphaneler gereklidir:
+1. **Şekil 24.1 — Bisiklet Kiralama Verisinde LOFO Özellik Önemi:** Her bir $j$ özelliğinin veri setinden çıkarılıp Random Forest modelinin kalan $p-1$ özellikle yeniden eğitilmesi ($\text{LOFO}_j = e_{-j} - e_{\text{orig}}$). En önemli özelliklerin `cnt_2d_bfr` ve `temp` olması, `holiday` özelliğinin ise negatif LOFO değeri alarak çıkarıldığında modeli iyileştirmesi.
+2. **Şekil 24.2 — Tam Korelasyonlu Özellik (`temp_copy`) Deneyi:** Sıcaklık sütununun birebir kopyası (`temp_copy = temp`) veri setine eklendiğinde, biri çıkarıldığında yeniden eğitilen model diğerini kullandığı için her iki özelliğin de LOFO öneminin `0.00 MAE` seviyesine düşmesi (LOFO'nun kalan özelliklere koşullu olması).
+3. **Şekil 24.3 — Penguen Cinsiyeti Sınıflandırmasında LOFO Analizi:** Doğruluk (Accuracy) metriği kullanılarak ($-1$ ile çarpılmış fark) hesaplanan LOFO önemlerinde `bill_depth_mm` ve `body_mass_g` özelliklerinin öne çıkması, `flipper_length_mm` ve `species` özelliklerinin ise negatif/sıfır önem alması.
+4. **Geriye Doğru Sıralı Özellik Seçimi (Backward Sequential Selection) & `lofo-importance` Paketi:** Korelasyonlu özellikler varken özellikleri tek seferde silmek yerine her adımda LOFO'yu yeniden hesaplayarak tek tek çıkarma simülasyonu ve Python `lofo-importance` kütüphanesi kullanımı.
 
-```bash
-pip install numpy pandas scikit-learn matplotlib seaborn
-```
+## Nasıl Çalıştırılır?
 
-## Çalıştırma
-
-Betik hem kendi klasöründen hem de proje kök dizininden doğrudan çalıştırılabilir (veri ve çıktı yollarını kendi konumuna göre otomatik çözer):
-
-```bash
-cd 24_lofo/uygulama/yunusemreyazarli-20269258002
-python main.py
-```
-
-Çalıştırıldığında üretilen grafikler otomatik olarak aşağıdaki dizinlere kaydedilir:
-- `24_lofo/yunusemreyazarli-20269258002_files/figure-html/`
-- `24_lofo/lofo/figure-html/`
-
-Ardından Quarto HTML çıktısını güncellemek için `24_lofo` klasöründe şu komut çalıştırılır:
-
-```bash
-cd ../..
-quarto render yunusemreyazarli-20269258002.qmd --to html
-```
+* `.html` uzantılı dosyaları bilgisayarınıza indirip herhangi bir modern web tarayıcısında (Chrome, Edge, Firefox, Safari) çift tıklayarak doğrudan açabilirsiniz.
+* Python kodlarını kendi ortamınızda çalıştırmak için `24_lofo-python-uygulaması.html` içindeki **`📋 Kodu Kopyala`** butonlarını kullanabilirsiniz (`pip install numpy pandas scikit-learn matplotlib lofo-importance`).

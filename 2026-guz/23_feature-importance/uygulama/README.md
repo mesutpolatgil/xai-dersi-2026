@@ -1,47 +1,29 @@
-# Bölüm 23 Uygulaması: Permütasyon Öznitelik Önemi (PFI)
+# Bölüm 23: Permütasyon Özellik Önemi (Permutation Feature Importance - PFI) Uygulaması
 
-**Öğrenci:** Yunus Emre Yazarlı (`20269258002`)  
-**Kitap:** Christoph Molnar – *Interpretable Machine Learning* (23. Bölüm: *Permutation Feature Importance*)
+**Hazırlayan:** Yunus Emre Yazarlı  
+**Öğrenci No:** 20269258002  
+**Ders:** Açıklanabilir Yapay Zeka (XAI) — 2026 Güz  
+**Kaynak Bölüm:** [Christoph Molnar — Interpretable Machine Learning, Chapter 23: Permutation Feature Importance](https://christophm.github.io/interpretable-ml-book/feature-importance.html)
 
-## İçerik ve Amaç
+## Klasör İçeriği ve Dosya Açıklamaları
 
-Bu klasördeki `main.py` betiği, kitaptaki 23. bölüm analizlerini ana dizindeki `data/bike.csv` ve `data/penguins.csv` veri setlerini kullanarak **2/3 eğitim, 1/3 test** ayrımıyla sıfırdan çalıştırır ve bölümdeki 4 grafiği üretir:
+Bu klasörde, 23. Bölümde ele alınan **Permütasyon Özellik Önemi (PFI)** yönteminin hem interaktif web simülasyonu hem de orijinal veri setleri (`bike.csv` ve `penguins.csv`) üzerinde çalıştırılmış Python kodları ve gerçek grafik çıktıları yer almaktadır:
 
-1. **Bisiklet Kiralama Tahmini (SVM + PFI):**
-   - `bike.csv` verisi üzerinde Destek Vektör Makinesi (`SVR`, RBF çekirdeği) eğitilir.
-   - Test verisi üzerinde 50 tekrarlı permütasyon ile Ortalama Mutlak Hata (MAE) oranı hesaplanarak ortalama önem ve %5–%95 kantil aralıkları görselleştirilir (`fig-importance-bike-1.png`).
-2. **Penguen Cinsiyet Sınıflandırması (3 Ayrı Lojistik Regresyon + PFI):**
-   - `penguins.csv` verisinde her tür (`Adelie`, `Chinstrap`, `Gentoo`) için ayrı bir lojistik regresyon modeli eğitilir ve tüm yapı `species` değişkenine göre yönlendirme yapan tek bir kara kutu model olarak ele alınır.
-   - Test verisi üzerinde log kaybı (`log_loss`) oranıyla PFI hesaplanarak görselleştirilir (`fig-importance-penguins-1.png`).
-3. **Türe Göre Korelasyon Analizi:**
-   - Yüzgeç uzunluğu (`flipper_length_mm`) ve vücut kütlesi (`body_mass_g`) arasındaki Pearson korelasyonu tüm veri (`all`) ve her tür alt kümesi için ayrı ayrı hesaplanıp çizilir (`fig-cor-by-species-1.png`).
-4. **Grup Bazında (Türe Koşullu) PFI:**
-   - Test verisi türlere göre alt gruplara ayrılarak her tür içinde bağımsız permütasyon uygulanır ve grup bazında PFI değerleri görselleştirilir (`fig-importance-penguins-by-species-1.png`).
+| Dosya Adı | Açıklama |
+| :--- | :--- |
+| **`23_feature-importance-web-uygulaması.html`** | Tarayıcıda doğrudan çalışan **İnteraktif Web Simülasyonu**. Temel PFI ve canlı sütun karıştırma (shuffle) deneyini, 4 koşullu örnekleme yönteminin (`P(X_j \| X_{-j})`) canlı 2B nokta animasyonunu ve penguen türlerine göre Grup Bazlı PFI (Şekil 23.3 & 23.4) simülasyonunu içerir. |
+| **`23_feature-importance-python-uygulaması.html`** | Kitaptaki tüm örneklerin **Python (`scikit-learn`, `pandas`, `matplotlib`) Kodları ve Gerçek Çıktıları**. Orijinal `bike.csv` ve `penguins.csv` verileri üzerinde çalıştırılmış kod hücrelerini (`In [1]`–`In [5]`), konsol tablo çıktılarını, gömülü grafikleri (Şekil 23.1–23.4) ve `sklearn.inspection.permutation_importance` / `eli5` / `alibi` kütüphane örneklerini içerir. |
+| **`bike.csv`** | Bisiklet kiralama veri seti (`728` tam gözlem, hedef: `cnt`, özellikler: `season`, `holiday`, `workday`, `weather`, `temp`, `hum`, `windspeed`, `cnt_2d_bfr`). |
+| **`penguins.csv`** | Palmer penguenleri veri seti (`333` tam gözlem, hedef: `sex`, özellikler: `species`, `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, `body_mass_g`). |
 
-## Gereksinimler
+## Uygulamaların Kapsadığı Temel Konular
 
-Python 3.9+ ve aşağıdaki kütüphaneler gereklidir:
+1. **Şekil 23.1 — Bisiklet Kiralama Tahmininde SVM PFI Analizi:** Destek Vektör Makinesi (SVM) modelinde her bir özelliğin 30 tekrarlı permütasyonu sonucunda ortalama hata artış oranı ($FI_j = e_{\text{perm}} / e_{\text{orig}}$) ve %5–%95 kantil hata aralıklarının hesaplanması (`cnt_2d_bfr` ve `temp` en önemli özellikler, `holiday` en önemsiz özellik).
+2. **Şekil 23.2 — Penguen Cinsiyeti Sınıflandırmasında Kara Kutu PFI Analizi:** Her penguen türü için ayrı eğitilmiş 3 Lojistik Regresyon modelini tek bir kara kutu fonksiyon olarak ele alarak Log Loss bazlı PFI hesabı (`body_mass_g` ve `species` özelliklerinin etkisi).
+3. **Bölüm 23.3 — Koşullu Özellik Önemi (4 Koşullu Örnekleme Yaklaşımı):** Korelasyonlu özelliklerde gerçekçi olmayan veri noktalarını (ekstrapolasyonu) önlemek için kullanılan 4 koşullu örnekleme yönteminin (**Koşullu Alt Gruplar - Molnar 2023**, **Eşleştirme - Fisher 2019**, **Knockoff İkizler - Watson & Wright 2021** ve **Rastgele Orman Izgarası - Debeer & Strobl 2020**) canlı animasyonla karşılaştırılması.
+4. **Şekil 23.3 & 23.4 — Penguen Türlerine Göre Grup Bazlı PFI (Group-wise PFI):** Tüm veri genelinde `r = 0.87` olan kütle–yüzgeç korelasyonunun tür alt kümelerinde (`Adelie r = 0.46`, `Chinstrap r = 0.64`, `Gentoo r = 0.71`) nasıl düştüğünün ve her türün kendi içinde karıştırılmasıyla elde edilen grup bazlı PFI sonuçlarının incelenmesi.
 
-```bash
-pip install numpy pandas scikit-learn matplotlib seaborn
-```
+## Nasıl Çalıştırılır?
 
-## Çalıştırma
-
-Betik hem kendi klasöründen hem de proje kök dizininden doğrudan çalıştırılabilir (veri ve çıktı yollarını kendi konumuna göre otomatik çözer):
-
-```bash
-cd 23_feature-importance/uygulama/yunusemreyazarli-20269258002
-python main.py
-```
-
-Çalıştırıldığında üretilen grafikler otomatik olarak aşağıdaki dizinlere kaydedilir:
-- `23_feature-importance/yunusemreyazarli-20269258002_files/figure-html/`
-- `23_feature-importance/feature-importance/figure-html/`
-
-Ardından Quarto HTML çıktısını güncellemek için `23_feature-importance` klasöründe şu komut çalıştırılır:
-
-```bash
-cd ../..
-quarto render yunusemreyazarli-20269258002.qmd --to html
-```
+* `.html` uzantılı dosyaları bilgisayarınıza indirip herhangi bir modern web tarayıcısında (Chrome, Edge, Firefox, Safari) çift tıklayarak doğrudan açabilirsiniz; ek bir sunucu veya kurulum gerektirmez.
+* Python kodlarını kendi ortamınızda çalıştırmak için `23_feature-importance-python-uygulaması.html` içindeki **`📋 Kodu Kopyala`** butonlarını kullanabilirsiniz (`pip install numpy pandas scikit-learn matplotlib scipy`).
