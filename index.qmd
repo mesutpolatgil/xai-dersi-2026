@@ -49,6 +49,7 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
 | 30 · Kötü Amaçlı Örnekler (Adversarial Examples) | [Talha Karaca](2026-guz/30_adversarial_examples/ceviri/talhakaraca-20259267001.html) |
 | 31 · Etkili Örnekler (Influential Instances) | [Talha Karaca](2026-guz/31_influential_instances/ceviri/talhakaraca-20259267001.html) |
+| 32 · Yorumlanabilirlik Yöntemlerinin Değerlendirilmesi | [Berkay Çongar](2026-guz/32_evaluation-of-interpretability-methods/ceviri/berkaycongar-20269258007.html) |
 | 33 · Hikâye Zamanı | [Yalçın Kavaklı ve Murat Şahin](2026-guz/33_story-time/ceviri/yalcin-20269256026-murat-20169258034.html) |
 | 34 · Yorumlanabilirliğin Geleceği | [Yalçın Kavaklı ve Murat Şahin](2026-guz/34_the-future-of-interpretability/ceviri/yalcin-20269256026-murat-20169258034.html) |
 
