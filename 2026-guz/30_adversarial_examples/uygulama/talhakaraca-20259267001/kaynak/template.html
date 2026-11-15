@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kötücül Örnekler Laboratuvarı</title>
+<style>
+:root{--bg:#F6F5F2;--panel:#FFFFFF;--panel2:#EFEDE8;--line:#D6D2C8;--text:#161A20;--muted:#454E5C;--dim:#667080;--accent:#C2401A;--accent-bg:#FBE8E1;--ok:#157A6E;--ok-bg:#DFF2EF;--warn:#8A5A00;--code:#F0EEE9;--shadow:0 1px 2px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161C;--panel:#1A1F27;--panel2:#161B22;--line:#2A313B;--text:#EDEEF0;--muted:#A9B1BC;--dim:#7C8592;--accent:#FF6B4A;--accent-bg:#2A1A17;--ok:#5EC4B6;--ok-bg:#15292A;--warn:#F2B84B;--code:#0D1014;--shadow:none}}
+:root[data-theme="dark"]{--bg:#12161C;--panel:#1A1F27;--panel2:#161B22;--line:#2A313B;--text:#EDEEF0;--muted:#A9B1BC;--dim:#7C8592;--accent:#FF6B4A;--accent-bg:#2A1A17;--ok:#5EC4B6;--ok-bg:#15292A;--warn:#F2B84B;--code:#0D1014;--shadow:none}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;line-height:1.5}
+.mono{font-family:Consolas,"SF Mono",Menlo,"Courier New",monospace}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1320px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:1.05rem;cursor:pointer;margin-right:8px;white-space:nowrap}
+.brand span{color:var(--accent)}
+nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+nav button,.btn,.seg button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+nav button{font-size:.88rem;display:flex;gap:8px;align-items:center}
+nav button b{color:var(--accent);font-family:Consolas,Menlo,monospace}
+nav button.on{background:var(--accent-bg);border-color:var(--accent)}
+nav button:hover,.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+:root[data-theme="dark"] .btn.primary{color:#12161C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#12161C}}
+.btn:disabled{opacity:.5;cursor:default}
+main{max-width:1320px;margin:0 auto;padding:20px 16px 60px}
+.view{display:none}.view.on{display:block}
+h1{font-size:2rem;line-height:1.15;margin:4px 0 6px;letter-spacing:-.5px}
+h2{font-size:1.15rem;margin:0 0 10px}
+.kicker{font-family:Consolas,Menlo,monospace;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent)}
+.idea{font-size:1.1rem;color:var(--muted);margin:0 0 14px;max-width:1000px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-top:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;cursor:pointer;text-align:left;font:inherit;color:inherit;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+.card:hover{border-color:var(--accent)}
+.card .no{font-family:Consolas,Menlo,monospace;color:var(--accent);font-weight:700;font-size:1.3rem}
+.card .t{font-weight:700;font-size:1.12rem;line-height:1.25}
+.card .s{color:var(--dim);font-size:.85rem;font-family:Consolas,Menlo,monospace}
+.card .d{color:var(--muted);font-size:.95rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+.cols{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:980px){.cols.c2{grid-template-columns:1.25fr 1fr}.cols.c11{grid-template-columns:1fr 1fr}}
+.stack{display:flex;flex-direction:column;gap:16px}
+.figs{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.fig{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.fig canvas{image-rendering:pixelated;border-radius:8px;border:1px solid var(--line);background:#000;max-width:100%}
+.fig .cap{font-size:.85rem;color:var(--dim)}
+.fig .lab{font-weight:700;font-size:1rem}
+.op{align-self:center;font-family:Consolas,Menlo,monospace;font-size:1.6rem;color:var(--dim)}
+.gal{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.gal canvas{width:46px;height:46px;image-rendering:pixelated;border-radius:6px;border:2px solid transparent;cursor:pointer;background:#000}
+.gal canvas.on{border-color:var(--accent)}
+.gal .wrap{position:relative}
+.gal .dot{position:absolute;right:3px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.galhead{font-size:.85rem;color:var(--dim);margin-bottom:6px}
+.ctrl{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.ctrl label{font-size:.92rem;color:var(--muted);display:flex;gap:10px;align-items:center}
+.ctrl output{font-family:Consolas,Menlo,monospace;color:var(--text);font-weight:700;min-width:56px}
+input[type=range]{accent-color:var(--accent);width:230px}
+select{font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.seg{display:inline-flex}.seg button{border-radius:0;font-size:.9rem;margin-left:-1px}
+.seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}.seg button:last-child{border-radius:0 8px 8px 0}
+.seg button.on{background:var(--accent-bg);border-color:var(--accent);position:relative;z-index:1}
+.bars{display:grid;grid-template-columns:118px 1fr 48px;gap:3px 8px;align-items:center;font-size:.86rem}
+.bars .tr{height:13px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.bars .fl{height:100%;background:var(--dim);border-radius:3px}
+.bars .nm.t{color:var(--ok);font-weight:700}.bars .fl.t{background:var(--ok)}
+.bars .nm.w{color:var(--accent);font-weight:700}.bars .fl.w{background:var(--accent)}
+.bars .pv{text-align:right;font-family:Consolas,Menlo,monospace;color:var(--muted)}
+.verdict{display:inline-block;padding:8px 14px;border-radius:8px;font-weight:700;font-size:1.02rem;margin:4px 0}
+.verdict.bad{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent)}
+.verdict.good{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)}
+.formula{font-family:Consolas,Menlo,monospace;background:var(--code);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:1.02rem;overflow-x:auto;white-space:nowrap}
+.legend{display:flex;gap:4px 22px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:8px}
+.legend b{color:var(--accent);font-family:Consolas,Menlo,monospace;font-weight:600}
+.take{border-left:4px solid var(--accent);padding:6px 0 6px 16px;font-size:1.08rem;margin-top:16px}
+.note{font-size:.85rem;color:var(--dim)}
+.stat{display:flex;gap:22px;flex-wrap:wrap}
+.stat div{display:flex;flex-direction:column}
+.stat .n{font-family:Consolas,Menlo,monospace;font-size:1.7rem;font-weight:700;line-height:1.1}
+.stat .n.a{color:var(--accent)}.stat .n.o{color:var(--ok)}
+.stat .l{font-size:.82rem;color:var(--dim)}
+.grid5{display:grid;grid-template-columns:repeat(5,auto);gap:4px;justify-content:start}
+.grid5 canvas{width:54px;height:54px;image-rendering:pixelated;border:3px solid var(--ok);border-radius:4px;cursor:pointer;background:#000}
+.grid5 canvas.f{border-color:var(--accent)}
+.grid5 canvas.cur{outline:2px solid var(--text);outline-offset:1px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs .th{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem;width:72px;text-align:center;line-height:1.2}
+.thumbs canvas{width:60px;height:60px;image-rendering:pixelated;border-radius:6px;background:#000;border:2px solid var(--line)}
+.thumbs .w{color:var(--accent);font-weight:700}.thumbs .g{color:var(--ok)}
+.thumbs canvas.w{border-color:var(--accent)}
+.prog{height:10px;background:var(--panel2);border-radius:5px;overflow:hidden;flex:1;min-width:160px}
+.prog i{display:block;height:100%;width:0;background:var(--accent)}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.88rem;margin-bottom:12px}
+.flow span{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
+.flow span.k{background:#000;color:#fff;border-color:#000}
+.flow i{font-style:normal;color:var(--dim)}
+canvas.chart{width:100%;height:260px;display:block}
+.hero{display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+.hero .txt{flex:1;min-width:300px}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 12px;font-size:.82rem;color:var(--muted);margin-right:6px}
+#theme{margin-left:auto}
+ol.steps{margin:0;padding-left:20px;color:var(--muted);font-size:.95rem}
+.intro{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}.intro .txt{flex:1;min-width:320px}
+.bookfig{margin:0;display:flex;flex-direction:column;gap:4px;max-width:100%}.bookfig img{height:150px;border-radius:8px;background:#F2F3F5;cursor:zoom-in;border:1px solid var(--line);max-width:100%;object-fit:contain}
+.bookfig.big{flex-basis:100%}.bookfig.big img{height:auto;max-height:70vh;cursor:zoom-out}.bookfig figcaption{font-size:.8rem;color:var(--dim);max-width:420px}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<div class="brand" data-go="home"><span>30</span> · Kötücül Örnekler Laboratuvarı</div>
+<nav id="nav"></nav>
+<button class="btn" id="theme" title="Açık / koyu tema">Tema</button>
+</div></header>
+<main id="main"></main>
+<script>
+"use strict";
+const D = /*__DATA__*/null;
+/* ---------- yardımcılar ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const dec=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+const i16=s=>new Int16Array(dec(s).buffer), f32=s=>new Float32Array(dec(s).buffer);
+const CLS=D.cls, clamp=v=>v<0?0:v>1?1:v;
+const pct=v=>'%'+Math.round(v*100);
+const fmt=(v,d=2)=>v.toFixed(d).replace('.',',');
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){return Math.sqrt(-2*Math.log(r()+1e-12))*Math.cos(6.2831853*r())}
+const argmax=p=>{let b=0;for(let k=1;k<p.length;k++)if(p[k]>p[b])b=k;return b};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function imgs(o){const u=dec(o.x),n=u.length/784,a=[];for(let i=0;i<n;i++){const f=new Float32Array(784);for(let p=0;p<784;p++)f[p]=u[i*784+p]/255;a.push(f)}return a}
+/* ---------- model: 784 → h → 10 (ReLU) ---------- */
+function mkModel(o){const q1=i16(o.W1),q2=i16(o.W2),W1=new Float32Array(q1.length),W2=new Float32Array(q2.length);
+  for(let i=0;i<q1.length;i++)W1[i]=q1[i]*o.s1;for(let i=0;i<q2.length;i++)W2[i]=q2[i]*o.s2;
+  return{h:o.h,W1,b1:f32(o.b1),W2,b2:f32(o.b2),z:new Float32Array(o.h),dz:new Float32Array(o.h)}}
+function head(m){const h=m.h,z=m.z,W2=m.W2,l=new Float32Array(10);l.set(m.b2);
+  for(let j=0;j<h;j++){const a=z[j];if(a>0){const o=j*10;for(let k=0;k<10;k++)l[k]+=a*W2[o+k]}}
+  let mx=-1e30;for(let k=0;k<10;k++)if(l[k]>mx)mx=l[k];let s=0;for(let k=0;k<10;k++){l[k]=Math.exp(l[k]-mx);s+=l[k]}
+  for(let k=0;k<10;k++)l[k]/=s;return l}
+function fwd(m,x){const h=m.h,z=m.z,W1=m.W1;z.set(m.b1);
+  for(let p=0;p<784;p++){const v=x[p];if(v!==0){const o=p*h;for(let j=0;j<h;j++)z[j]+=v*W1[o+j]}}return head(m)}
+/* çapraz entropi kaybının girdiye göre gradyanı (etiket y) */
+function grad(m,x,y,g){const p=fwd(m,x),h=m.h,dz=m.dz,W2=m.W2,W1=m.W1,z=m.z;
+  for(let j=0;j<h;j++){if(z[j]>0){let s=0;const o=j*10;for(let k=0;k<10;k++)s+=(p[k]-(k===y?1:0))*W2[o+k];dz[j]=s}else dz[j]=0}
+  for(let q=0;q<784;q++){let s=0;const o=q*h;for(let j=0;j<h;j++)s+=dz[j]*W1[o+j];g[q]=s}return p}
+function fgsm(m,x,y,eps){const g=new Float32Array(784);grad(m,x,y,g);const o=new Float32Array(784);
+  for(let i=0;i<784;i++)o[i]=clamp(x[i]+eps*Math.sign(g[i]));return o}
+function pgd(m,x,y,eps,steps=10){let xa=x.slice();const a=eps/4,g=new Float32Array(784);
+  for(let s=0;s<steps;s++){grad(m,xa,y,g);for(let i=0;i<784;i++)xa[i]=clamp(Math.min(Math.max(xa[i]+a*Math.sign(g[i]),x[i]-eps),x[i]+eps))}return xa}
+function shift(x,dx,dy){const o=new Float32Array(784);for(let r=0;r<28;r++){const sr=r-dy;if(sr<0||sr>27)continue;for(let c=0;c<28;c++){const sc=c-dx;if(sc<0||sc>27)continue;o[r*28+c]=x[sr*28+sc]}}return o}
+const A=mkModel(D.A), B=mkModel(D.B);
+const GAL=imgs(D.gal), GY=D.gal.y, EV=imgs(D.ev), EY=D.ev.y, POOL=imgs(D.pool);
+/* ---------- kara kutu: rastgele orman ---------- */
+const RF={off:D.rf.off,feat:i16(D.rf.feat),thr:dec(D.rf.thr),L:i16(D.rf.left),R:i16(D.rf.right),cls:dec(D.rf.cls)};
+let QUERIES=0;
+function rfPredict(x){const v=new Uint8Array(10);for(let t=0;t<RF.off.length;t++){const o=RF.off[t];let n=o;
+  while(RF.feat[n]>=0)n=o+((x[RF.feat[n]]*255<=RF.thr[n]+0.5)?RF.L[n]:RF.R[n]);v[RF.cls[n]]++}return argmax(v)}
+const blackBox=x=>{QUERIES++;return rfPredict(x)};
+/* ---------- çizim ---------- */
+const off=document.createElement('canvas');off.width=off.height=28;const octx=off.getContext('2d');
+function draw(cv,x,mode,scale){const im=octx.createImageData(28,28),d=im.data;
+  if(mode==='bwr'){let m=scale||0;if(!m){for(let i=0;i<784;i++)m=Math.max(m,Math.abs(x[i]));m=m||1}
+    for(let i=0;i<784;i++){const t=Math.max(-1,Math.min(1,x[i]/m));let r=255,g=255,b=255;if(t>0){g=b=255*(1-t)}else{r=g=255*(1+t)}d[i*4]=r;d[i*4+1]=g;d[i*4+2]=b;d[i*4+3]=255}}
+  else if(mode==='heat'){for(let i=0;i<784;i++){const t=clamp(x[i]);d[i*4]=20+235*t;d[i*4+1]=22+85*t;d[i*4+2]=28+46*t;d[i*4+3]=255}}
+  else for(let i=0;i<784;i++){const v=255*clamp(x[i]);d[i*4]=d[i*4+1]=d[i*4+2]=v;d[i*4+3]=255}
+  octx.putImageData(im,0,0);const c=cv.getContext('2d');c.imageSmoothingEnabled=false;c.clearRect(0,0,cv.width,cv.height);c.drawImage(off,0,0,cv.width,cv.height);return c}
+function bars(el,p,y){const top=argmax(p);let h='';for(let k=0;k<10;k++){const c=k===y?'t':(k===top?'w':'');
+  h+=`<div class="nm ${c}">${CLS[k]}</div><div class="tr"><div class="fl ${c}" style="width:${(p[k]*100).toFixed(1)}%"></div></div><div class="pv">${pct(p[k])}</div>`}el.innerHTML=h}
+function verdict(el,pred,y,p,extra){const bad=pred!==y;el.className='verdict '+(bad?'bad':'good');
+  el.textContent=bad?`Model kandırıldı: ${CLS[y]} → ${CLS[pred]} (${pct(p)})`+(extra||''):`Model doğru: ${CLS[pred]} (${pct(p)})`}
+function chart(cv,series,o){const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);
+  const L=52,R=14,T=14,Bm=40,xm=o.xmax,ym=o.ymax||1,X=v=>L+(W-L-R)*v/xm,Y=v=>T+(H-T-Bm)*(1-v/ym);
+  c.font='13px Segoe UI,system-ui,sans-serif';c.strokeStyle=css('--line');c.fillStyle=css('--dim');c.lineWidth=1;
+  for(let i=0;i<=4;i++){const v=ym*i/4;c.beginPath();c.moveTo(L,Y(v));c.lineTo(W-R,Y(v));c.stroke();c.textAlign='right';c.fillText(o.yfmt?o.yfmt(v):pct(v),L-8,Y(v)+4)}
+  c.textAlign='center';for(const t of o.xticks){c.fillText(o.xfmt?o.xfmt(t):fmt(t),X(t),H-Bm+18)}c.fillText(o.xlabel||'',L+(W-L-R)/2,H-6);
+  if(o.marker!=null){c.strokeStyle=css('--text');c.setLineDash([4,4]);c.beginPath();c.moveTo(X(o.marker),T);c.lineTo(X(o.marker),H-Bm);c.stroke();c.setLineDash([])}
+  let ly=T+6;for(const s of series){c.strokeStyle=css(s.color);c.lineWidth=2.5;c.setLineDash(s.dash?[7,5]:[]);c.beginPath();s.x.forEach((v,i)=>i?c.lineTo(X(v),Y(s.y[i])):c.moveTo(X(v),Y(s.y[i])));c.stroke();c.setLineDash([]);
+    if(o.dots){c.fillStyle=css(s.color);s.x.forEach((v,i)=>{c.beginPath();c.arc(X(v),Y(s.y[i]),3,0,7);c.fill()})}
+    if(s.label){const lx=o.legendX||W-R-250;c.strokeStyle=css(s.color);c.setLineDash(s.dash?[7,5]:[]);c.beginPath();c.moveTo(lx,ly);c.lineTo(lx+26,ly);c.stroke();c.setLineDash([]);c.fillStyle=css('--muted');c.textAlign='left';c.fillText(s.label,lx+32,ly+4);ly+=18}}}
+/* ---------- uygulama listesi ---------- */
+const APPS=[
+ {id:'lbfgs',kick:'Yöntem 1 · Szegedy vd. (2014)',t:'Köpeğimde Bir Terslik Var',s:'Hedefli saldırı (L-BFGS)',d:'Bir hedef sınıf seçin. Model her giysiyi o sınıf olarak görsün.',
+  idea:'Fikir: Tahmini seçilen hedef sınıfa götür, ama görüntüyü olabildiğince az değiştir.',f:'min  loss(f̂(x + r), l) + c · |r|',
+  leg:[['x','orijinal görüntü'],['r','eklenen değişiklik'],['f̂','model'],['l','hedef (yanlış) sınıf'],['c','denge katsayısı']],
+  take:'c büyüdükçe değişiklik küçülür. c çok büyük olursa saldırı başarısız olur.'},
+ {id:'fgsm',kick:'Yöntem 2 · Goodfellow vd. (2015)',t:'Rahatsız Edilmiş Panda',s:'Hızlı gradyan işaret yöntemi (FGSM)',d:'ε kaydırıcısını oynatın. Aynı büyüklükte rastgele gürültüyle karşılaştırın.',
+  idea:'Fikir: Her pikseli, modelin hatasını artıran yönde ε kadar değiştir. Tek adım yeterlidir.',f:'x′ = x + ε · sign(∇ₓ J(θ, x, y))',
+  leg:[['x′','adversarial görüntü'],['ε','piksel başına adım'],['J','kayıp fonksiyonu'],['∇ₓJ','kaybın x’e göre gradyanı'],['θ','model parametreleri'],['y','gerçek etiket']],
+  take:'Saldırının gücü değişikliğin büyüklüğünden değil, yönünden gelir. Aynı büyüklükteki rastgele gürültü modeli neredeyse hiç etkilemez.'},
+ {id:'pixel',kick:'Yöntem 3 · Su vd. (2019)',t:'Bir Denizanası… Hayır, Bekle. Bir Küvet',s:'1-piksel saldırısı (diferansiyel evrim)',d:'Diferansiyel evrimin tek bir pikseli nasıl aradığını nesil nesil izleyin.',
+  idea:'Fikir: Yalnızca tek bir pikseli değiştir. Gradyan yok; yalnızca modelin tahmin olasılıklarına bakılır.',f:'x⁽ⁱ⁾[g+1] = x⁽ʳ¹⁾[g] + F · (x⁽ʳ²⁾[g] − x⁽ʳ³⁾[g])',
+  leg:[['x⁽ⁱ⁾','bir aday: (satır, sütun, yeni değer)'],['g','nesil'],['r1, r2, r3','rastgele ebeveynler'],['F','ölçek (0,5)']],
+  take:'Tek piksel, görüntünün 1/784’üdür. Karar sınırına yakın görüntülerde bu kadar küçük bir değişiklik yeter.'},
+ {id:'patch',kick:'Yöntem 4 · Brown vd. (2018)',t:'Her Şey Bir Tost Makinesi',s:'Adversarial yama',d:'Yamayı görüntünün üzerinde sürükleyin. Model her şeyi aynı sınıf olarak görsün.',
+  idea:'Fikir: Değişiklik küçük olmak zorunda değil. Görüntünün bir bölümünü, her görüntüde ve her konumda çalışan bir yamayla değiştir.',f:'yama = argmax  E[x, konum]  log P(hedef | yama(x, konum))',
+  leg:[['x','herhangi bir görüntü'],['konum','yamanın yeri'],['hedef','yamanın dayattığı sınıf'],['E','birçok görüntü ve konum üzerinden ortalama']],
+  take:'Aynı yama farklı görüntülerde ve farklı konumlarda çalışır. Bu yüzden yazdırılıp gerçek dünyada kullanılabilir.'},
+ {id:'eot',kick:'Yöntem 5 · Athalye vd. (2018)',t:'3D Baskılı Kaplumbağa',s:'Sağlam adversarial örnekler (EOT)',d:'Nesneyi kaydırın. Normal saldırı bozulur; EOT saldırısı her konumda çalışır.',
+  idea:'Fikir: Örneği tek bir görünüm için değil, birçok dönüşüm için birlikte optimize et. Burada dönüşüm = nesnenin kayması.',f:'argmax  E[t∼T]  log P(yₜ | t(x′))     koşul:  |x′ − x| ≤ ε',
+  leg:[['t','bir dönüşüm (burada: kaydırma)'],['T','25 kaydırmanın kümesi'],['E','T üzerinden ortalama'],['x′','adversarial örnek'],['ε','değişiklik sınırı']],
+  take:'Normal saldırı yalnızca tam karşıdan bakınca çalışır. EOT örneği nesne hareket etse de modeli kandırır.'},
+ {id:'blackbox',kick:'Yöntem 6 · Papernot vd. (2017)',t:'Gözü Bağlı Düşman',s:'Kara kutu saldırısı (vekil model)',d:'Modelin içini görmeden saldırın: sorgulayın, vekil eğitin, örnekleri aktarın.',
+  idea:'Fikir: Saldırgan yalnızca tahminleri görür. Kendi vekil modelini eğitir ve saldırıyı onun üzerinde hazırlar.',f:'',leg:[],
+  take:'Vekilde bulunan örnekler kara kutuya aktarılır. Modeli gizlemek yeterli bir savunma değildir.'},
+ {id:'defense',kick:'Siber güvenlik perspektifi',t:'Kendini Koru: Adversarial Eğitim',s:'Savunma',d:'Normal model ile adversarial örneklerle eğitilmiş modeli aynı saldırıda karşılaştırın.',
+  idea:'Fikir: Proaktif ol. Modeli kendi adversarial örnekleriyle birlikte yeniden eğit.',f:'',leg:[],
+  take:'Adversarial eğitim modeli çok daha dayanıklı yapar, ama temiz doğruluk biraz düşer. Daha güçlü saldırılar (PGD) korumanın bir kısmını aşar: kedi-fare oyunu.'}];
+const S={img:0,view:'home'};const X0=()=>GAL[S.img],Y0=()=>GY[S.img];
+const APPFN={};
+/* ---------- iskelet ---------- */
+function build(){
+  $('#nav').innerHTML=`<button data-go="home">Ana sayfa</button>`+APPS.map((a,i)=>`<button data-go="${a.id}"><b>${i+1}</b>${a.s.split(' (')[0]}</button>`).join('');
+  let h=`<section class="view" id="v-home"><div class="hero"><div class="txt"><div class="kicker">Bölüm 30 · Uygulama</div><h1>Kötücül Örnekler Laboratuvarı</h1>
+   <p class="idea">Molnar’ın <i>Interpretable Machine Learning</i> kitabındaki her saldırı yöntemi için canlı bir deney. Model bu sayfanın içinde, tarayıcıda çalışır.</p>
+   <p><span class="pill">Veri: Fashion-MNIST (28×28)</span><span class="pill">Model: 784 → 128 → 10 sinir ağı</span><span class="pill">Test doğruluğu: ${pct(D.stat.accA)}</span></p></div>
+   <div class="thumbs" id="homecls"></div></div>
+   <div class="cards">`+APPS.map((a,i)=>`<button class="card" data-go="${a.id}"><span class="no">${String(i+1).padStart(2,'0')}</span><span class="t">${a.t}</span><span class="s">${a.s}</span><span class="d">${a.d}</span></button>`).join('')+`</div></section>`;
+  for(const a of APPS){const bf=D.figs[a.id];h+=`<section class="view" id="v-${a.id}"><div class="intro"><div class="txt"><div class="kicker">${a.kick}</div><h1>${a.t}</h1><p class="idea">${a.idea}</p></div>${bf?`<figure class="bookfig" title="Büyütmek için tıklayın"><img src="${bf.src}" alt="${bf.cap}"><figcaption>Kitaptaki şekil: ${bf.cap}</figcaption></figure>`:''}</div>
+    ${a.f?`<div class="formula">${a.f}</div><div class="legend">${a.leg.map(l=>`<span><b>${l[0]}</b> ${l[1]}</span>`).join('')}</div>`:''}
+    <div style="height:14px"></div><div class="galhead" id="gh-${a.id}">Bir görüntü seçin:</div><div class="gal" data-gal="${a.id}"></div>
+    <div id="app-${a.id}"></div><div class="take">${a.take}</div></section>`}
+  $('#main').innerHTML=h;
+  // sınıf örnekleri
+  const hc=$('#homecls');for(let k=0;k<10;k++){const i=GY.indexOf(k),d=document.createElement('div');d.className='th';const c=document.createElement('canvas');c.width=c.height=56;d.append(c,CLS[k]);hc.append(d);draw(c,GAL[i])}
+  // galeri
+  for(const g of $$('.gal')){GAL.forEach((x,i)=>{const w=document.createElement('span');w.className='wrap';const c=document.createElement('canvas');c.width=c.height=28;c.title=CLS[GY[i]];c.dataset.i=i;w.append(c);
+      if(g.dataset.gal==='pixel'&&D.gal.easy[i]){const d=document.createElement('i');d.className='dot';d.title='1-piksel saldırısına açık';w.append(d)}
+      g.append(w);draw(c,x);c.onclick=()=>{S.img=i;markGal();APPFN[S.view]&&APPFN[S.view].update()}})}
+  $('#gh-pixel').innerHTML='Bir görüntü seçin (sarı nokta: 1-piksel saldırısına açık görüntü):';
+  document.body.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go);const f=e.target.closest('.bookfig');if(f)f.classList.toggle('big')});
+  $('#theme').onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=cur==='dark'?'light':'dark';APPFN[S.view]&&APPFN[S.view].update()};
+  window.addEventListener('hashchange',()=>go(location.hash.slice(1)||'home',true));
+}
+function markGal(){for(const c of $$('.gal canvas'))c.classList.toggle('on',+c.dataset.i===S.img)}
+const inited={};
+function go(v,noHash){if(v!=='home'&&!APPS.find(a=>a.id===v))v='home';S.view=v;for(const s of $$('.view'))s.classList.toggle('on',s.id==='v-'+v);
+  for(const b of $$('#nav button'))b.classList.toggle('on',b.dataset.go===v);markGal();
+  if(!noHash)try{history.replaceState(null,'','#'+v)}catch(e){}
+  if(APPFN[v]){if(!inited[v]){APPFN[v].init();inited[v]=1}APPFN[v].update()}window.scrollTo(0,0)}
+const figH=(id,cap,size=224)=>`<div class="fig"><canvas id="${id}" width="${size}" height="${size}"></canvas><div class="cap">${cap}</div><div class="lab" id="${id}-l"></div></div>`;
+const diff=(a,b)=>{const o=new Float32Array(784);for(let i=0;i<784;i++)o[i]=a[i]-b[i];return o};
+
+/* ================= 1. L-BFGS (hedefli) ================= */
+const CS=[3,1,0.3,0.1,0.03,0.01,0.003,0.001];
+function targeted(m,x,l,c,iters=250){const r=new Float32Array(784),mm=new Float32Array(784),vv=new Float32Array(784),g=new Float32Array(784),xa=new Float32Array(784);
+  for(let t=1;t<=iters;t++){for(let i=0;i<784;i++)xa[i]=x[i]+r[i];grad(m,xa,l,g);
+    for(let i=0;i<784;i++){const gi=g[i]+2*c*r[i];mm[i]=.9*mm[i]+.1*gi;vv[i]=.999*vv[i]+.001*gi*gi;
+      r[i]-=0.01*(mm[i]/(1-Math.pow(.9,t)))/(Math.sqrt(vv[i]/(1-Math.pow(.999,t)))+1e-8);r[i]=Math.min(Math.max(r[i],-x[i]),1-x[i])}}
+  return r}
+APPFN.lbfgs={init(){$('#app-lbfgs').innerHTML=`<div class="cols c2"><div class="panel"><div class="ctrl"><label>Hedef sınıf l <select id="lb-t">${CLS.map((c,k)=>`<option value="${k}" ${k===8?'selected':''}>${c}</option>`).join('')}</select></label>
+     <label>c <input type="range" id="lb-c" min="0" max="${CS.length-1}" step="1" value="4"><output id="lb-co"></output></label></div>
+     <div class="figs">${figH('lb-x','orijinal x')}<span class="op">+</span>${figH('lb-r','r (büyütülmüş)')}<span class="op">=</span>${figH('lb-a','x + r')}</div>
+     <div id="lb-v" class="verdict"></div><div class="stat" style="margin-top:8px"><div><span class="n" id="lb-n"></span><span class="l">değişikliğin büyüklüğü |r|</span></div><div><span class="n" id="lb-m"></span><span class="l">en büyük piksel değişimi</span></div><div><span class="n a" id="lb-p"></span><span class="l">hedef sınıfın olasılığı</span></div></div>
+     <p class="note">Not: Kitaptaki L-BFGS yerine burada aynı amaç fonksiyonu basit bir gradyan inişiyle çözülür. Pikseller [0, 1] içinde tutulur.</p></div>
+     <div class="panel"><h2>Modelin x + r için tahmini</h2><div class="bars" id="lb-b"></div></div></div>
+     <div class="panel" style="margin-top:16px"><h2>Kitaptaki şeklin benzeri: “hepsi devekuşu” yerine “hepsi <span id="lb-tn"></span>”</h2><button class="btn primary" id="lb-all">Her kategoriden bir giysiyi dönüştür</button><div class="thumbs" id="lb-g" style="margin-top:12px"></div></div>`;
+   $('#lb-t').onchange=$('#lb-c').oninput=()=>this.update();
+   $('#lb-all').onclick=()=>{const l=+$('#lb-t').value,g=$('#lb-g');g.innerHTML='';for(let k=0;k<10;k++){if(k===l)continue;const i=GY.indexOf(k),x=GAL[i];let xa=x,ok=false;
+       for(const c of CS){const r=targeted(A,x,l,c,120);const t=new Float32Array(784);for(let q=0;q<784;q++)t[q]=x[q]+r[q];if(argmax(fwd(A,t))===l){xa=t;ok=true;break}}
+       const p=fwd(A,xa),pr=argmax(p);for(const [im,txt,cl] of [[x,CLS[k],'g'],[xa,`${CLS[pr]} ${pct(p[pr])}`,ok?'w':'']]){const d=document.createElement('div');d.className='th';const c=document.createElement('canvas');c.width=c.height=56;if(cl==='w')c.className='w';const s=document.createElement('span');s.className=cl;s.textContent=txt;d.append(c,s);g.append(d);draw(c,im)}}}},
+ update(){const x=X0(),l=+$('#lb-t').value,c=CS[+$('#lb-c').value];$('#lb-co').textContent=String(c).replace('.',',');$('#lb-tn').textContent=CLS[l];
+   const r=targeted(A,x,l,c),xa=new Float32Array(784);let n=0,mx=0;for(let i=0;i<784;i++){xa[i]=x[i]+r[i];n+=r[i]*r[i];mx=Math.max(mx,Math.abs(r[i]))}
+   draw($('#lb-x'),x);draw($('#lb-r'),r,'bwr');draw($('#lb-a'),xa);const p=fwd(A,xa),pr=argmax(p),p0=fwd(A,x);$('#lb-x-l').textContent=`${CLS[argmax(p0)]} (${pct(p0[argmax(p0)])})`;$('#lb-a-l').textContent=`${CLS[pr]} (${pct(p[pr])})`;
+   bars($('#lb-b'),p,Y0());const v=$('#lb-v');if(Y0()===l){v.className='verdict good';v.textContent='Bu görüntü zaten hedef sınıfta. Başka bir hedef seçin.'}else if(pr===l){v.className='verdict bad';v.textContent=`Saldırı başarılı: ${CLS[Y0()]} → ${CLS[l]}`}else{v.className='verdict good';v.textContent=`Saldırı başarısız (c çok büyük): model “${CLS[pr]}” diyor`}
+   $('#lb-n').textContent=fmt(Math.sqrt(n));$('#lb-m').textContent=fmt(mx);$('#lb-p').textContent=pct(p[l])}};
+
+/* ================= 2. FGSM ================= */
+const NOISE=(()=>{const r=rng(7),a=new Float32Array(784);for(let i=0;i<784;i++)a[i]=r()<.5?-1:1;return a})();
+let FG_CURVE=null;
+APPFN.fgsm={mode:'fgsm',init(){$('#app-fgsm').innerHTML=`<div class="cols c2"><div class="panel"><div class="ctrl"><label>ε <input type="range" id="fg-e" min="0" max="0.3" step="0.005" value="0.05"><output id="fg-eo"></output></label>
+     <span class="seg" id="fg-seg"><button data-m="fgsm" class="on">Gradyan yönü (FGSM)</button><button data-m="noise">Rastgele ±ε gürültü</button></span></div>
+     <div class="figs">${figH('fg-x','orijinal x')}<span class="op">+</span>${figH('fg-d','eklenen değişiklik')}<span class="op">=</span>${figH('fg-a','x′')}</div>
+     <div id="fg-v" class="verdict"></div><p class="note" id="fg-note"></p></div>
+     <div class="panel"><h2>Modelin x′ için tahmini</h2><div class="bars" id="fg-b"></div></div></div>
+     <div class="panel" style="margin-top:16px"><h2>200 test görüntüsünde doğruluk</h2><canvas class="chart" id="fg-ch"></canvas></div>`;
+   $('#fg-e').oninput=()=>this.update();for(const b of $$('#fg-seg button'))b.onclick=()=>{this.mode=b.dataset.m;$$('#fg-seg button').forEach(q=>q.classList.toggle('on',q===b));this.update()};
+   const es=[];for(let e=0;e<=0.3001;e+=0.02)es.push(e);const r=rng(11),a=[],n=[];
+   for(const e of es){let ca=0,cn=0;for(let i=0;i<EV.length;i++){if(argmax(fwd(A,fgsm(A,EV[i],EY[i],e)))===EY[i])ca++;const t=new Float32Array(784);for(let q=0;q<784;q++)t[q]=clamp(EV[i][q]+e*(r()<.5?-1:1));if(argmax(fwd(A,t))===EY[i])cn++}a.push(ca/EV.length);n.push(cn/EV.length)}
+   FG_CURVE={es,a,n}},
+ update(){const x=X0(),y=Y0(),e=+$('#fg-e').value;$('#fg-eo').textContent=fmt(e,3);let xa;
+   if(this.mode==='fgsm')xa=fgsm(A,x,y,e);else{xa=new Float32Array(784);for(let i=0;i<784;i++)xa[i]=clamp(x[i]+e*NOISE[i])}
+   const p0=fwd(A,x),p=fwd(A,xa),pr=argmax(p);draw($('#fg-x'),x);draw($('#fg-d'),diff(xa,x),'bwr',Math.max(e,1e-6));draw($('#fg-a'),xa);
+   $('#fg-x-l').textContent=`${CLS[argmax(p0)]} (${pct(p0[argmax(p0)])})`;$('#fg-a-l').textContent=`${CLS[pr]} (${pct(p[pr])})`;bars($('#fg-b'),p,y);verdict($('#fg-v'),pr,y,p[pr]);
+   $('#fg-note').textContent=`Her piksel en fazla ${fmt(e,3)} değişti (255 üzerinden yaklaşık ${Math.round(e*255)} birim). Kırmızı: piksel açıldı. Mavi: piksel koyulaştı.`;
+   chart($('#fg-ch'),[{x:FG_CURVE.es,y:FG_CURVE.a,color:'--accent',label:'FGSM (gradyan yönü)'},{x:FG_CURVE.es,y:FG_CURVE.n,color:'--ok',dash:1,label:'Rastgele ±ε gürültü'}],{xmax:0.3,xticks:[0,0.05,0.1,0.15,0.2,0.25,0.3],xlabel:'ε (piksel başına değişiklik)',marker:e})}};
+
+/* ================= 3. 1-piksel ================= */
+function pixProb(z1,x,p,v,y){const h=A.h,z=A.z,W1=A.W1,d=v-x[p],o=p*h;for(let j=0;j<h;j++)z[j]=z1[j]+d*W1[o+j];return head(A)}
+APPFN.pixel={timer:null,init(){$('#app-pixel').innerHTML=`<div class="cols c2"><div class="panel"><div class="ctrl"><button class="btn primary" id="px-go">Aramayı başlat</button><span class="note">400 aday · F = 0,5 · en çok 60 nesil</span></div>
+     <div class="figs">${figH('px-c','adaylar (turuncu) ve en iyi aday (halka)',336)}${figH('px-h','her pikselin gücü: o piksel tek başına değişirse gerçek sınıfın olasılığı ne kadar düşer? (parlak = güçlü)',224)}</div>
+     <div id="px-v" class="verdict"></div></div>
+     <div class="panel"><div class="stat"><div><span class="n" id="px-g">0</span><span class="l">nesil</span></div><div><span class="n a" id="px-p">–</span><span class="l">gerçek sınıfın olasılığı (en iyi aday)</span></div><div><span class="n" id="px-q">0</span><span class="l">model sorgusu</span></div></div>
+     <canvas class="chart" id="px-ch" style="height:200px;margin-top:10px"></canvas><h2 style="margin-top:10px">Modelin en iyi aday için tahmini</h2><div class="bars" id="px-b"></div></div></div>`;
+   $('#px-go').onclick=()=>this.run()},
+ base(){const x=X0();fwd(A,x);this.z1=A.z.slice()},
+ update(){clearInterval(this.timer);const x=X0(),y=Y0();this.base();const p0=fwd(A,x);draw($('#px-c'),x);
+   const hm=new Float32Array(784);for(let p=0;p<784;p++){const a=pixProb(this.z1,x,p,0,y)[y],b=pixProb(this.z1,x,p,1,y)[y];hm[p]=(p0[y]-Math.min(a,b))/Math.max(p0[y],1e-6)}{let mx=1e-6;for(let p=0;p<784;p++)if(hm[p]>mx)mx=hm[p];for(let p=0;p<784;p++)hm[p]=Math.max(0,hm[p])/mx}draw($('#px-h'),hm,'heat');
+   bars($('#px-b'),p0,y);$('#px-g').textContent='0';$('#px-q').textContent='0';$('#px-p').textContent=pct(p0[y]);const v=$('#px-v');v.className='verdict good';v.textContent=`Başlangıç: ${CLS[argmax(p0)]} (${pct(p0[argmax(p0)])}). Aramayı başlatın.`;
+   chart($('#px-ch'),[{x:[0],y:[p0[y]],color:'--accent'}],{xmax:60,xticks:[0,20,40,60],xfmt:v=>v,xlabel:'nesil',dots:1})},
+ run(){clearInterval(this.timer);const x=X0(),y=Y0(),z1=this.z1,N=400,F=0.5,r=rng(42+S.img),pop=[],fit=new Float32Array(N);let q=0;
+   const f=c=>{q++;return pixProb(z1,x,(c[0]|0)*28+(c[1]|0),c[2],y)[y]};
+   for(let i=0;i<N;i++){pop.push([r()*27.999,r()*27.999,r()]);fit[i]=f(pop[i])}
+   const hist=[fwd(A,x)[y]];let gen=0;const cv=$('#px-c');
+   const show=()=>{let b=0;for(let i=1;i<N;i++)if(fit[i]<fit[b])b=i;const bc=pop[b],xa=x.slice();xa[(bc[0]|0)*28+(bc[1]|0)]=bc[2];const p=fwd(A,xa),pr=argmax(p),c=draw(cv,xa),s=cv.width/28;
+     c.fillStyle='rgba(255,107,74,.45)';for(const k of pop)c.fillRect((k[1]|0)*s+s*.25,(k[0]|0)*s+s*.25,s*.5,s*.5);
+     c.strokeStyle='#F2B84B';c.lineWidth=3;c.beginPath();c.arc(((bc[1]|0)+.5)*s,((bc[0]|0)+.5)*s,s*1.6,0,7);c.stroke();
+     $('#px-g').textContent=gen;$('#px-q').textContent=q.toLocaleString('tr');$('#px-p').textContent=pct(p[y]);bars($('#px-b'),p,y);
+     chart($('#px-ch'),[{x:hist.map((_,i)=>i),y:hist,color:'--accent'}],{xmax:60,xticks:[0,20,40,60],xfmt:v=>v,xlabel:'nesil',dots:1});return{pr,p,bc}};
+   const step=()=>{gen++;const np=[],nf=new Float32Array(N);
+     for(let i=0;i<N;i++){let a,b,c;do a=r()*N|0;while(a===i);do b=r()*N|0;while(b===i||b===a);do c=r()*N|0;while(c===i||c===a||c===b);
+       const ch=[0,1,2].map(d=>pop[a][d]+F*(pop[b][d]-pop[c][d]));if(ch[0]<0||ch[0]>27.999)ch[0]=r()*27.999;if(ch[1]<0||ch[1]>27.999)ch[1]=r()*27.999;if(ch[2]<0||ch[2]>1)ch[2]=r();
+       const fc=f(ch);if(fc<fit[i]){np.push(ch);nf[i]=fc}else{np.push(pop[i]);nf[i]=fit[i]}}
+     for(let i=0;i<N;i++){pop[i]=np[i];fit[i]=nf[i]}hist.push(Math.min(...fit));const o=show(),v=$('#px-v');
+     if(o.pr!==y){clearInterval(this.timer);v.className='verdict bad';v.textContent=`Tek piksel yetti: ${CLS[y]} → ${CLS[o.pr]} (${pct(o.p[o.pr])}). Satır ${o.bc[0]|0}, sütun ${o.bc[1]|0}, yeni değer ${fmt(o.bc[2])}.`}
+     else if(gen>=60){clearInterval(this.timer);v.className='verdict good';v.textContent=`60 nesilde başarı yok: Bu görüntü tek pikselle kandırılamadı. Sarı noktalı bir görüntü deneyin.`}
+     else{v.className='verdict good';v.textContent=`Aranıyor… model hâlâ “${CLS[o.pr]}” diyor.`}};
+   show();this.timer=setInterval(step,120)}};
+
+/* ================= 4. Yama ================= */
+/* yama deneyi için küçük evrişimli ağ: conv 5×5 → ReLU → global max → 64 → 10 */
+const C=(o=>({F:o.F,H:o.H,G:o.G,Wc:f32(o.Wc),bc:f32(o.bc),W1:f32(o.W1),b1:f32(o.b1),W2:f32(o.W2),b2:f32(o.b2)}))(D.C);
+function fwdC(x){const F=C.F,H=C.H,G=C.G,Sz=24/G,Wc=C.Wc,NF=G*G*F,feat=new Float32Array(NF);
+  for(let r=0;r<24;r++)for(let c=0;c<24;c++){const reg=(((r/Sz)|0)*G+((c/Sz)|0))*F;for(let f=0;f<F;f++){let s=C.bc[f];
+    for(let i=0;i<5;i++){const xo=(r+i)*28+c,wo=i*5*F+f;s+=x[xo]*Wc[wo]+x[xo+1]*Wc[wo+F]+x[xo+2]*Wc[wo+2*F]+x[xo+3]*Wc[wo+3*F]+x[xo+4]*Wc[wo+4*F]}
+    if(s>feat[reg+f])feat[reg+f]=s}}
+  const a=new Float32Array(H);a.set(C.b1);for(let i=0;i<NF;i++){const v=feat[i];if(v!==0){const o=i*H;for(let j=0;j<H;j++)a[j]+=v*C.W1[o+j]}}
+  const l=new Float32Array(10);l.set(C.b2);for(let j=0;j<H;j++){if(a[j]>0){const o=j*10;for(let k=0;k<10;k++)l[k]+=a[j]*C.W2[o+k]}}
+  let mx=-1e30;for(let k=0;k<10;k++)if(l[k]>mx)mx=l[k];let sm=0;for(let k=0;k<10;k++){l[k]=Math.exp(l[k]-mx);sm+=l[k]}for(let k=0;k<10;k++)l[k]/=sm;return l}
+const PK=D.patch.k,PT=D.patch.target,PATCH=(()=>{const u=dec(D.patch.p),a=new Float32Array(PK*PK);for(let i=0;i<a.length;i++)a[i]=u[i]/255;return a})();
+const RPATCH=(()=>{const r=rng(3),a=new Float32Array(PK*PK);for(let i=0;i<a.length;i++)a[i]=r();return a})();
+function paste(x,P,r,c){const o=x.slice();for(let i=0;i<PK;i++)for(let j=0;j<PK;j++)o[(r+i)*28+c+j]=P[i*PK+j];return o}
+APPFN.patch={mode:'adv',r:1,c:1,init(){$('#app-patch').innerHTML=`<div class="cols c2"><div class="panel"><div class="ctrl"><span class="seg" id="pa-seg"><button data-m="adv" class="on">Adversarial yama</button><button data-m="rnd">Rastgele yama</button><button data-m="none">Yama yok</button></span><span class="note">Yamayı fareyle sürükleyin.</span></div>
+     <div class="figs">${figH('pa-c','görüntü + yama',392)}<div class="fig"><canvas id="pa-p" width="140" height="140"></canvas><div class="cap">yama (${PK}×${PK} piksel)<br>hedef: <b>${CLS[PT]}</b></div></div></div>
+     <div id="pa-v" class="verdict"></div></div>
+     <div class="stack"><div class="panel"><h2>Modelin tahmini</h2><div class="bars" id="pa-b"></div></div>
+     <div class="panel"><div class="stat"><div><span class="n a" id="pa-s1"></span><span class="l">adversarial yama: “${CLS[PT]}” denen görüntü oranı</span></div><div><span class="n" id="pa-s2"></span><span class="l">aynı boyutta rastgele yama</span></div></div><p class="note">200 test görüntüsü × 6 rastgele konum. Hedef sınıftaki görüntüler sayılmaz.</p></div>
+     <div class="panel"><p class="note" style="margin:0">Bu deneyde küçük bir evrişimli ağ (CNN, test doğruluğu ${pct(D.stat.accC)}) kullanılır. Bu ağ bir deseni görüntünün neresinde olursa olsun arar; yama bu özelliği kullanır. Diğer deneylerdeki tam bağlantılı ağda benzer bir yama zayıf kaldı (yaklaşık %10).</p></div></div></div>
+     <div class="panel" style="margin-top:16px"><h2>Aynı yama, aynı konum, farklı giysiler</h2><div class="thumbs" id="pa-g"></div></div>`;
+   for(const b of $$('#pa-seg button'))b.onclick=()=>{this.mode=b.dataset.m;$$('#pa-seg button').forEach(q=>q.classList.toggle('on',q===b));this.update()};
+   const cv=$('#pa-c');let drag=false;const mv=e=>{const b=cv.getBoundingClientRect(),s=b.width/28;this.c=Math.max(0,Math.min(28-PK,Math.round((e.clientX-b.left)/s-PK/2)));this.r=Math.max(0,Math.min(28-PK,Math.round((e.clientY-b.top)/s-PK/2)));this.update()};
+   cv.style.cursor='grab';cv.style.touchAction='none';cv.onpointerdown=e=>{drag=true;cv.setPointerCapture(e.pointerId);mv(e)};cv.onpointermove=e=>drag&&mv(e);cv.onpointerup=()=>drag=false;
+   const r=rng(5);let h1=0,h2=0,n=0;for(let t=0;t<6;t++){const rr=r()*(29-PK)|0,cc=r()*(29-PK)|0;for(let i=0;i<EV.length;i++){if(EY[i]===PT)continue;n++;if(argmax(fwdC(paste(EV[i],PATCH,rr,cc)))===PT)h1++;if(argmax(fwdC(paste(EV[i],RPATCH,rr,cc)))===PT)h2++}}
+   $('#pa-s1').textContent=pct(h1/n);$('#pa-s2').textContent=pct(h2/n)},
+ P(){return this.mode==='adv'?PATCH:this.mode==='rnd'?RPATCH:null},
+ update(){const x=X0(),y=Y0(),P=this.P(),xa=P?paste(x,P,this.r,this.c):x,cv=$('#pa-c'),c=draw(cv,xa),s=cv.width/28;if(P){c.strokeStyle='#FF6B4A';c.lineWidth=3;c.strokeRect(this.c*s,this.r*s,PK*s,PK*s)}
+   const pc=$('#pa-p').getContext('2d'),im=pc.createImageData(PK,PK),PP=P||PATCH;for(let i=0;i<PK*PK;i++){const v=255*PP[i];im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255}
+   const t=document.createElement('canvas');t.width=t.height=PK;t.getContext('2d').putImageData(im,0,0);pc.imageSmoothingEnabled=false;pc.drawImage(t,0,0,140,140);
+   const p=fwdC(xa),pr=argmax(p);bars($('#pa-b'),p,y);const v=$('#pa-v');if(pr===PT&&y!==PT&&this.mode==='adv'){v.className='verdict bad';v.textContent=`Yama kazandı: ${CLS[y]} → ${CLS[pr]} (${pct(p[pr])})`}else verdict(v,pr,y,p[pr]);
+   const g=$('#pa-g');g.innerHTML='';for(let k=0;k<10;k++){const i=GY.indexOf(k),xi=P?paste(GAL[i],P,this.r,this.c):GAL[i],pi=fwdC(xi),pri=argmax(pi),d=document.createElement('div');d.className='th';const cc=document.createElement('canvas');cc.width=cc.height=56;const sp=document.createElement('span');
+     const hit=pri!==k;sp.className=hit?'w':'g';if(hit)cc.className='w';sp.textContent=CLS[pri];d.append(cc,sp);g.append(d);draw(cc,xi)}}};
+
+/* ================= 5. EOT ================= */
+const SH=[];for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)SH.push([dx,dy]);
+function atkSingle(x,y,eps){const xa=x.slice(),a=eps/8,g=new Float32Array(784);for(let s=0;s<40;s++){if(argmax(fwd(A,xa))!==y)break;grad(A,xa,y,g);for(let i=0;i<784;i++)xa[i]=clamp(Math.min(Math.max(xa[i]+a*Math.sign(g[i]),x[i]-eps),x[i]+eps))}return xa}
+function atkEOT(x,y,eps){const xa=x.slice(),a=eps/8,g=new Float32Array(784),G=new Float32Array(784);for(let s=0;s<40;s++){G.fill(0);for(const [dx,dy] of SH){grad(A,shift(xa,dx,dy),y,g);const u=shift(g,-dx,-dy);for(let i=0;i<784;i++)G[i]+=u[i]}
+    for(let i=0;i<784;i++)xa[i]=clamp(Math.min(Math.max(xa[i]+a*Math.sign(G[i]),x[i]-eps),x[i]+eps))}return xa}
+APPFN.eot={dx:0,dy:0,init(){const col=(k,t,sub)=>`<div class="panel"><h2>${t}</h2><p class="note" style="margin-top:-6px">${sub}</p><div class="figs">${figH('eov-'+k,'seçili konumdaki görünüm',224)}<div class="fig"><div class="grid5" id="eo-g${k}"></div><div class="cap">25 konum · kırmızı çerçeve: model kandırıldı</div></div></div><div class="stat" style="margin-top:8px"><div><span class="n a" id="eo-n${k}"></span><span class="l">kandırılan konum sayısı (25 üzerinden)</span></div></div></div>`;
+   $('#app-eot').innerHTML=`<div class="panel" style="margin-bottom:16px"><div class="ctrl"><label>ε <input type="range" id="eo-e" min="0.03" max="0.2" step="0.01" value="0.1"><output id="eo-eo"></output></label>
+     <label>yatay kayma <input type="range" id="eo-x" min="-2" max="2" step="1" value="0" style="width:120px"><output id="eo-xo"></output></label><label>dikey kayma <input type="range" id="eo-y" min="-2" max="2" step="1" value="0" style="width:120px"><output id="eo-yo"></output></label><span class="note">Izgaradaki bir kareye tıklayarak da konum seçebilirsiniz.</span></div></div>
+     <div class="cols c11">${col('s','Normal saldırı','Yalnızca kaymamış görüntü için optimize edildi.')}${col('e','EOT saldırısı','25 kaymanın hepsi için birlikte optimize edildi.')}</div>`;
+   for(const k of ['s','e']){const g=$('#eo-g'+k);SH.forEach(([dx,dy],i)=>{const c=document.createElement('canvas');c.width=c.height=28;c.onclick=()=>{$('#eo-x').value=dx;$('#eo-y').value=dy;this.view()};g.append(c)})}
+   $('#eo-e').onchange=()=>this.update();$('#eo-e').oninput=()=>$('#eo-eo').textContent=fmt(+$('#eo-e').value);$('#eo-x').oninput=$('#eo-y').oninput=()=>this.view()},
+ update(){const x=X0(),y=Y0(),e=+$('#eo-e').value;$('#eo-eo').textContent=fmt(e);this.ex={s:atkSingle(x,y,e),e:atkEOT(x,y,e)};this.view()},
+ view(){const y=Y0(),dx=+$('#eo-x').value,dy=+$('#eo-y').value;$('#eo-xo').textContent=dx;$('#eo-yo').textContent=dy;
+   for(const k of ['s','e']){const xa=this.ex[k];let n=0;[...$('#eo-g'+k).children].forEach((c,i)=>{const t=shift(xa,SH[i][0],SH[i][1]),f=argmax(fwd(A,t))!==y;if(f)n++;c.className=(f?'f':'')+(SH[i][0]===dx&&SH[i][1]===dy?' cur':'');draw(c,t)});
+     $('#eo-n'+k).textContent=n+' / 25';const t=shift(xa,dx,dy),p=fwd(A,t),pr=argmax(p);draw($('#eov-'+k),t);const l=$('#eov-'+k+'-l');l.textContent=`${CLS[pr]} (${pct(p[pr])})`;l.style.color=pr!==y?css('--accent'):css('--ok')}}};
+
+/* ================= 6. Kara kutu ================= */
+function mkSur(h,seed){const r=rng(seed),W1=new Float32Array(784*h),W2=new Float32Array(h*10);for(let i=0;i<W1.length;i++)W1[i]=gauss(r)*Math.sqrt(2/784);for(let i=0;i<W2.length;i++)W2[i]=gauss(r)*Math.sqrt(2/h);
+  return{h,W1,b1:new Float32Array(h),W2,b2:new Float32Array(10),z:new Float32Array(h),dz:new Float32Array(h)}}
+function* trainSur(m,Sx,Sy,epochs,seed){const h=m.h,r=rng(seed),P=[m.W1,m.b1,m.W2,m.b2],G=P.map(p=>new Float32Array(p.length)),M=P.map(p=>new Float32Array(p.length)),V=P.map(p=>new Float32Array(p.length));let t=0;const n=Sx.length,idx=[...Array(n).keys()];
+  for(let ep=0;ep<epochs;ep++){for(let i=n-1;i>0;i--){const j=r()*(i+1)|0;[idx[i],idx[j]]=[idx[j],idx[i]]}
+    for(let s=0;s<n;s+=32){const e=Math.min(n,s+32),bs=e-s;G.forEach(g=>g.fill(0));
+      for(let q=s;q<e;q++){const x=Sx[idx[q]],y=Sy[idx[q]],p=fwd(m,x),z=m.z,dz=m.dz;
+        for(let k=0;k<10;k++){const d=p[k]-(k===y?1:0);G[3][k]+=d}
+        for(let j=0;j<h;j++){if(z[j]>0){let sm=0;const o=j*10;for(let k=0;k<10;k++){const d=p[k]-(k===y?1:0);sm+=d*m.W2[o+k];G[2][o+k]+=z[j]*d}dz[j]=sm;G[1][j]+=sm}else dz[j]=0}
+        for(let pp=0;pp<784;pp++){const v=x[pp];if(v!==0){const o=pp*h;for(let j=0;j<h;j++)G[0][o+j]+=v*dz[j]}}}
+      t++;const c1=1-Math.pow(.9,t),c2=1-Math.pow(.999,t);for(let a=0;a<4;a++){const p=P[a],g=G[a],mm=M[a],vv=V[a];for(let i=0;i<p.length;i++){const gi=g[i]/bs;mm[i]=.9*mm[i]+.1*gi;vv[i]=.999*vv[i]+.001*gi*gi;p[i]-=0.002*(mm[i]/c1)/(Math.sqrt(vv[i]/c2)+1e-8)}}}
+    yield ep+1}}
+function jacAug(m,x,lab,lam){fwd(m,x);const h=m.h,g=new Float32Array(784),o=new Float32Array(784);for(let q=0;q<784;q++){let s=0;const b=q*h;for(let j=0;j<h;j++)if(m.z[j]>0)s+=m.W2[j*10+lab]*m.W1[b+j];g[q]=s}for(let i=0;i<784;i++)o[i]=clamp(x[i]+lam*Math.sign(g[i]));return o}
+APPFN.blackbox={sur:null,init(){$('#app-blackbox').innerHTML=`<div class="panel" style="margin-bottom:16px"><div class="flow"><span>Saldırganın görüntüleri</span><i>→</i><span class="k">Kara kutu: rastgele orman (20 ağaç)</span><i>→</i><span>yalnızca etiket</span><i>→</i><span>Vekil sinir ağı</span><i>→</i><span>Vekilde FGSM</span><i>→</i><span class="k">Kara kutu</span></div>
+     <p class="note">Hedef model bir rastgele ormandır: gradyanı yoktur. Saldırgan ağaçları ve eğitim verisini görmez. Kara kutunun temiz doğruluğu: <b id="bb-base"></b> (200 test görüntüsü).</p></div>
+   <div class="cols c11"><div class="panel"><h2>Adım 1 — Sorgula ve vekili eğit</h2><div class="ctrl"><label>başlangıç görüntüsü <input type="range" id="bb-n" min="50" max="400" step="50" value="150" style="width:150px"><output id="bb-no"></output></label><label>tur <input type="range" id="bb-r" min="1" max="3" step="1" value="2" style="width:80px"><output id="bb-ro"></output></label></div>
+     <div class="ctrl"><button class="btn primary" id="bb-train">Kara kutuya sor ve vekili eğit</button><div class="prog"><i id="bb-pr"></i></div></div>
+     <div class="stat"><div><span class="n" id="bb-q">0</span><span class="l">kara kutu sorgusu</span></div><div><span class="n" id="bb-s">0</span><span class="l">vekilin veri kümesi</span></div><div><span class="n o" id="bb-u">–</span><span class="l">vekil–kara kutu uyumu</span></div></div>
+     <ol class="steps" style="margin-top:12px"><li>Aynı alandan birkaç görüntüyle başla.</li><li>Kara kutuya sor; etiketlerle vekili eğit.</li><li>Vekilin gradyanıyla sentetik görüntüler üret, kümeye ekle ve tekrarla.</li></ol></div>
+   <div class="panel"><h2>Adım 2 — Vekilde üret, kara kutuya gönder</h2><div class="ctrl"><label>ε <input type="range" id="bb-e" min="0" max="0.3" step="0.01" value="0.1"><output id="bb-eo"></output></label></div>
+     <div class="stat"><div><span class="n o" id="bb-a0">–</span><span class="l">temiz doğruluk</span></div><div><span class="n a" id="bb-a1">–</span><span class="l">aktarılan saldırıdan sonra</span></div><div><span class="n" id="bb-a2">–</span><span class="l">aynı büyüklükte rastgele gürültü</span></div></div>
+     <p class="note" id="bb-msg">Önce vekili eğitin.</p></div></div>
+   <div class="panel" style="margin-top:16px"><h2>Kara kutunun gördüğü örnekler (üst satır: temiz · alt satır: saldırı)</h2><div class="thumbs" id="bb-g"></div></div>`;
+   this.base=EV.map(rfPredict);let ok=0;this.base.forEach((p,i)=>{if(p===EY[i])ok++});this.acc0=ok/EV.length;$('#bb-base').textContent=pct(this.acc0);$('#bb-a0').textContent=pct(this.acc0);
+   $('#bb-n').oninput=$('#bb-r').oninput=()=>{$('#bb-no').textContent=$('#bb-n').value;$('#bb-ro').textContent=$('#bb-r').value};$('#bb-n').oninput();
+   $('#bb-e').oninput=()=>this.attack();$('#bb-train').onclick=()=>this.train()},
+ update(){$('#gh-blackbox').style.display='none';$('[data-gal="blackbox"]').style.display='none';this.attack()},
+ train(){const n0=+$('#bb-n').value,R=+$('#bb-r').value,EP=20,btn=$('#bb-train');btn.disabled=true;QUERIES=0;let Sx=POOL.slice(0,n0),round=0,total=0,done=0;for(let k=0;k<R;k++)total+=n0*(1<<k)*EP;
+   const next=()=>{const Sy=Sx.map(blackBox);$('#bb-q').textContent=QUERIES.toLocaleString('tr');$('#bb-s').textContent=Sx.length.toLocaleString('tr');const m=mkSur(64,100+round),it=trainSur(m,Sx,Sy,EP,round);
+     const tick=()=>{const s=it.next();if(!s.done){done+=Sx.length;$('#bb-pr').style.width=(100*done/total)+'%';setTimeout(tick,0);return}
+       let u=0;EV.forEach((x,i)=>{if(argmax(fwd(m,x))===this.base[i])u++});$('#bb-u').textContent=pct(u/EV.length);this.sur=m;round++;
+       if(round<R){Sx=Sx.concat(Sx.map((x,i)=>jacAug(m,x,Sy[i],0.1)));setTimeout(next,0)}else{btn.disabled=false;this.attack()}};tick()};setTimeout(next,30)},
+ attack(){const e=+$('#bb-e').value;$('#bb-eo').textContent=fmt(e);if(!this.sur)return;const m=this.sur,r=rng(9);let a1=0,a2=0;const adv=[];
+   EV.forEach((x,i)=>{const xa=fgsm(m,x,this.base[i],e);adv.push(xa);if(rfPredict(xa)===EY[i])a1++;const t=new Float32Array(784);for(let q=0;q<784;q++)t[q]=clamp(x[q]+e*(r()<.5?-1:1));if(rfPredict(t)===EY[i])a2++});
+   $('#bb-a1').textContent=pct(a1/EV.length);$('#bb-a2').textContent=pct(a2/EV.length);$('#bb-msg').textContent=`Saldırgan gerçek etiketleri de bilmez; kara kutunun verdiği etiketleri kullanır. Örnekler vekilde üretildi ve rastgele ormana gönderildi.`;
+   const g=$('#bb-g');g.innerHTML='';let shown=0;for(let i=0;i<EV.length&&shown<14;i++){if(this.base[i]!==EY[i])continue;shown++;const pa=rfPredict(adv[i]),d=document.createElement('div');d.className='th';const c1=document.createElement('canvas'),c2=document.createElement('canvas');c1.width=c1.height=c2.width=c2.height=56;
+     const s1=document.createElement('span');s1.className='g';s1.textContent=CLS[this.base[i]];const s2=document.createElement('span');s2.className=pa!==EY[i]?'w':'g';if(pa!==EY[i])c2.className='w';s2.textContent=CLS[pa];d.append(c1,s1,c2,s2);g.append(d);draw(c1,EV[i]);draw(c2,adv[i])}}};
+
+/* ================= 7. Savunma ================= */
+APPFN.defense={init(){const col=(k,t,sub)=>`<div class="panel"><h2>${t}</h2><p class="note" style="margin-top:-6px">${sub}</p><div class="figs">${figH('df-'+k,'x′ (bu modele karşı FGSM)',196)}<div style="flex:1;min-width:240px"><div class="bars" id="df-b${k}"></div></div></div><div id="df-v${k}" class="verdict" style="margin-top:10px"></div></div>`;
+   $('#app-defense').innerHTML=`<div class="panel" style="margin-bottom:16px"><div class="ctrl"><label>ε <input type="range" id="df-e" min="0" max="0.3" step="0.005" value="0.1"><output id="df-eo"></output></label><span class="note">Her modele kendi gradyanıyla saldırılır (beyaz kutu).</span></div></div>
+     <div class="cols c11">${col('a','Normal model',`Temiz doğruluk: ${pct(D.curve.cleanA)}`)}${col('b','Adversarial eğitimli model',`Eğitimde her yığına FGSM örnekleri (ε = 0,1) eklendi. Temiz doğruluk: ${pct(D.curve.cleanB)}`)}</div>
+     <div class="panel" style="margin-top:16px"><h2>${D.curve.n.toLocaleString('tr')} test görüntüsünde doğruluk</h2><canvas class="chart" id="df-ch" style="height:300px"></canvas><p class="note">PGD: FGSM’i küçük adımlarla 10 kez uygulayan daha güçlü saldırı.</p></div>
+     <div class="panel" style="margin-top:16px"><h2>Siber güvenliğin üç altın kuralı</h2><div class="stat"><div><span class="n a">1</span><span class="l">Düşmanını tanı</span></div><div><span class="n a">2</span><span class="l">Proaktif ol</span></div><div><span class="n a">3</span><span class="l">Kendini koru</span></div></div></div>`;
+   $('#df-e').oninput=()=>this.update()},
+ update(){const x=X0(),y=Y0(),e=+$('#df-e').value;$('#df-eo').textContent=fmt(e,3);for(const [k,m] of [['a',A],['b',B]]){const xa=fgsm(m,x,y,e),p=fwd(m,xa),pr=argmax(p);draw($('#df-'+k),xa);$('#df-'+k+'-l').textContent=`${CLS[pr]} (${pct(p[pr])})`;bars($('#df-b'+k),p,y);verdict($('#df-v'+k),pr,y,p[pr])}
+   const c=D.curve;chart($('#df-ch'),[{x:c.eps,y:c.A_fgsm,color:'--accent',label:'Normal model · FGSM'},{x:c.eps,y:c.A_pgd,color:'--accent',dash:1,label:'Normal model · PGD'},{x:c.eps,y:c.B_fgsm,color:'--ok',label:'Adversarial eğitimli · FGSM'},{x:c.eps,y:c.B_pgd,color:'--ok',dash:1,label:'Adversarial eğitimli · PGD'}],{xmax:0.3,xticks:[0,0.05,0.1,0.15,0.2,0.25,0.3],xlabel:'ε',marker:e})}};
+
+build();go(location.hash.slice(1)||'home',true);
+window.addEventListener('resize',()=>APPFN[S.view]&&APPFN[S.view].update());
+</script>
+</body>
+</html>
