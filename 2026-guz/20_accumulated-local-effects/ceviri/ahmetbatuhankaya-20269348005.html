@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Biriktirilmiş Yerel Etkiler (ALE)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="ahmetbatuhankaya-20269348005_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/popper.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ahmetbatuhankaya-20269348005_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ahmetbatuhankaya-20269348005_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ahmetbatuhankaya-20269348005_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ahmetbatuhankaya-20269348005_files/libs/bootstrap/bootstrap-e7f39fc13de2d65029ad8145bb0d60bd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#motivasyon-ve-sezgi" id="toc-motivasyon-ve-sezgi" class="nav-link active" data-scroll-target="#motivasyon-ve-sezgi">Motivasyon ve sezgi</a></li>
+  <li><a href="#teori" id="toc-teori" class="nav-link" data-scroll-target="#teori">Teori</a></li>
+  <li><a href="#tahmin" id="toc-tahmin" class="nav-link" data-scroll-target="#tahmin">Tahmin</a></li>
+  <li><a href="#ale-ile-pdpnin-karşılaştırılması" id="toc-ale-ile-pdpnin-karşılaştırılması" class="nav-link" data-scroll-target="#ale-ile-pdpnin-karşılaştırılması">ALE ile PDP’nin karşılaştırılması</a></li>
+  <li><a href="#örnekler" id="toc-örnekler" class="nav-link" data-scroll-target="#örnekler">Örnekler</a></li>
+  <li><a href="#güçlü-yönler" id="toc-güçlü-yönler" class="nav-link" data-scroll-target="#güçlü-yönler">Güçlü yönler</a></li>
+  <li><a href="#sınırlılıklar" id="toc-sınırlılıklar" class="nav-link" data-scroll-target="#sınırlılıklar">Sınırlılıklar</a></li>
+  <li><a href="#yazılım-ve-alternatifler" id="toc-yazılım-ve-alternatifler" class="nav-link" data-scroll-target="#yazılım-ve-alternatifler">Yazılım ve alternatifler</a></li>
+  <li><a href="#kaynaklar" id="toc-kaynaklar" class="nav-link" data-scroll-target="#kaynaklar">Kaynaklar</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Biriktirilmiş Yerel Etkiler (ALE)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Biriktirilmiş yerel etkiler (<em>accumulated local effects</em>, ALE) <span class="citation" data-cites="apley2020visualizingeffects">(<a href="#ref-apley2020visualizingeffects" role="doc-biblioref">Apley ve Zhu 2020</a>)</span>, özniteliklerin bir makine öğrenmesi modelinin tahminini ortalamada nasıl etkilediğini betimler. ALE grafikleri, kısmi bağımlılık grafiklerine (PDP) göre daha hızlı ve yanlılık içermeyen bir alternatiftir.</p>
+<p>Önce <a href="../../19_partial-dependence-plot-%28PDP%29/html/pdp.html">kısmi bağımlılık grafikleri bölümünü</a> okumanızı öneririm; çünkü PDP’leri anlamak daha kolaydır ve iki yöntemin amacı aynıdır: İkisi de bir özniteliğin tahmini ortalamada nasıl etkilediğini betimler. Aşağıdaki bölümde sizi, öznitelikler korelasyonlu olduğunda kısmi bağımlılık grafiklerinin ciddi bir sorunu olduğuna ikna etmek istiyorum.</p>
+<section id="motivasyon-ve-sezgi" class="level2">
+<h2 class="anchored" data-anchor-id="motivasyon-ve-sezgi">Motivasyon ve sezgi</h2>
+<p>Bir makine öğrenmesi modelinin öznitelikleri korelasyonluysa, kısmi bağımlılık grafiğine güvenilemez. Diğer özniteliklerle güçlü korelasyonu olan bir öznitelik için kısmi bağımlılık grafiği hesaplamak, gerçekte pek olası olmayan yapay veri örneklerinin tahminlerinin ortalamasını almayı içerir. Bu da tahmin edilen öznitelik etkisini büyük ölçüde yanlı hâle getirebilir. Bir evin değerini oda sayısına ve yaşam alanının büyüklüğüne göre tahmin eden bir makine öğrenmesi modeli için kısmi bağımlılık grafikleri hesapladığınızı düşünün. Yaşam alanının tahmin edilen değer üzerindeki etkisiyle ilgileniyoruz. Hatırlatmak gerekirse kısmi bağımlılık grafiğinin tarifi şöyledir: 1) Özniteliği seç. 2) Izgarayı tanımla. 3) Her ızgara değeri için: a) Özniteliği ızgara değeriyle değiştir ve b) tahminlerin ortalamasını al. 4) Eğriyi çiz. PDP’nin ilk ızgara değerini, diyelim 30 m<sup>2</sup>’yi hesaplarken <strong>tüm</strong> örneklerde yaşam alanını 30 m<sup>2</sup> ile değiştiririz; 10 odalı evlerde bile. Bu bana çok alışılmadık bir ev gibi geliyor. Kısmi bağımlılık grafiği bu gerçek dışı evleri öznitelik etkisinin tahminine katar ve her şey yolundaymış gibi davranır. <a href="#fig-aleplot-motivation1" class="quarto-xref">Şekil&nbsp;1</a>, iki korelasyonlu özniteliği ve kısmi bağımlılık grafiği yönteminin nasıl olup da olası olmayan örneklerin tahminlerinin ortalamasını aldığını göstermektedir.</p>
+<div id="fig-aleplot-motivation1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aleplot-motivation1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-motivasyon-pdp.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aleplot-motivation1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: <span class="math inline">\(X_1\)</span> ve <span class="math inline">\(X_2\)</span> korelasyonlu öznitelikler. PDP <span class="math inline">\(x_1=0.75\)</span> noktasında hesaplanırken, <span class="math inline">\(x_2\)</span> değerleri <span class="math inline">\(X_2\)</span>’nin tüm aralığından örneklenir (dikey çizgi). Bunun sonucunda PDP, <span class="math inline">\(X_1\)</span> ile <span class="math inline">\(X_2\)</span>’nin olası olmayan birleşimlerini kullanır (örneğin <span class="math inline">\(x_1=0.75\)</span> iken <span class="math inline">\(x_2=0.2\)</span>). Eğri, <span class="math inline">\(X_2\)</span>’nin marjinal dağılımı <span class="math inline">\(\mathbb{P}(X_2)\)</span>’dir.
+</figcaption>
+</figure>
+</div>
+<p>Özniteliklerin korelasyonuna saygı gösteren bir öznitelik etkisi tahminini nasıl elde edebiliriz? Özniteliğin koşullu dağılımı üzerinden ortalama alabiliriz; yani <span class="math inline">\(X_1\)</span>’in bir ızgara değerinde, <span class="math inline">\(X_1\)</span> için benzer bir değere sahip örneklerin tahminlerinin ortalamasını alırız. Koşullu dağılımı kullanarak öznitelik etkilerini hesaplayan çözüme Marjinal Grafikler ya da M-Grafikleri (<em>M-Plots</em>) denir (kafa karıştırıcı bir ad; çünkü marjinal değil, koşullu dağılıma dayanırlar). Durun, size ALE grafiklerinden bahsedeceğime söz vermemiş miydim? M-Grafikleri aradığımız çözüm değildir. M-Grafikleri neden sorunumuzu çözmez? Yaklaşık 30 m<sup>2</sup> olan tüm evlerin tahminlerinin ortalamasını alırsak, korelasyonları nedeniyle yaşam alanı ile oda sayısının <strong>birleşik</strong> etkisini tahmin etmiş oluruz. Yaşam alanının evin tahmin edilen değeri üzerinde hiçbir etkisi olmadığını, yalnızca oda sayısının etkisi olduğunu varsayalım. M-Grafiği yine de yaşam alanının büyüklüğünün tahmin edilen değeri artırdığını gösterirdi; çünkü oda sayısı yaşam alanıyla birlikte artar. <a href="#fig-aleplot-motivation2" class="quarto-xref">Şekil&nbsp;2</a>, iki korelasyonlu öznitelik için M-Grafiklerinin nasıl çalıştığını göstermektedir.</p>
+<div id="fig-aleplot-motivation2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aleplot-motivation2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-motivasyon-m.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aleplot-motivation2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: <span class="math inline">\(X_1\)</span> ve <span class="math inline">\(X_2\)</span> korelasyonlu öznitelikler. M-Grafikleri koşullu dağılım üzerinden ortalama alır. Burada <span class="math inline">\(x_1=0.75\)</span> noktasında <span class="math inline">\(X_2\)</span>’nin koşullu dağılımı <span class="math inline">\(\mathbb{P}(X_2|x_1=0.75)\)</span> gösterilmektedir. Yerel tahminlerin ortalamasını almak, iki özniteliğin etkilerini birbirine karıştırır.
+</figcaption>
+</figure>
+</div>
+<p>M-Grafikleri olası olmayan veri örneklerinin tahminlerinin ortalamasını almaktan kaçınır, ancak bir özniteliğin etkisini onunla korelasyonlu tüm özniteliklerin etkileriyle karıştırır. ALE grafikleri bu sorunu, yine özniteliklerin koşullu dağılımına dayanarak, <strong>ortalamalar yerine tahminlerdeki farkları</strong> hesaplayarak çözer. Yaşam alanının 30 m<sup>2</sup>’deki etkisi için ALE yöntemi, yaklaşık 30 m<sup>2</sup> olan tüm evleri kullanır; bu evler 31 m<sup>2</sup> olsaydı modelin vereceği tahminden, 29 m<sup>2</sup> olsaydı vereceği tahmini çıkarır. Bu bize yaşam alanının saf etkisini verir ve bu etkiyi korelasyonlu özniteliklerin etkileriyle karıştırmaz. Farkların kullanılması, diğer özniteliklerin etkisini engeller. <a href="#fig-aleplot-computation" class="quarto-xref">Şekil&nbsp;3</a>, ALE grafiklerinin nasıl hesaplandığına dair bir sezgi sunmaktadır.</p>
+<div id="fig-aleplot-computation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aleplot-computation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-hesaplama.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aleplot-computation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: <span class="math inline">\(X_2\)</span> ile korelasyonlu olan <span class="math inline">\(X_1\)</span> özniteliği için ALE’nin hesaplanması. Önce özniteliği aralıklara böleriz (dikey çizgiler). Bir aralıktaki veri örnekleri (noktalar) için, özniteliği aralığın üst ve alt sınırıyla değiştirdiğimizde tahminde oluşan farkı hesaplarız (yatay çizgiler). Bu farklar daha sonra biriktirilir ve merkezlenir; sonuç ALE eğrisidir.
+</figcaption>
+</figure>
+</div>
+<p>Her bir grafik türünün (PDP, M, ALE) bir özniteliğin belirli bir ızgara değeri <span class="math inline">\(v\)</span>’deki etkisini nasıl hesapladığını özetlemek gerekirse:</p>
+<ul>
+<li><strong>Kısmi Bağımlılık Grafikleri</strong>: “Her veri örneği o öznitelik için <span class="math inline">\(v\)</span> değerine sahip olduğunda modelin ortalamada ne tahmin ettiğini size göstereyim. <span class="math inline">\(v\)</span> değerinin tüm veri örnekleri için anlamlı olup olmadığını görmezden geliyorum.”</li>
+<li><strong>M-Grafikleri</strong>: “O öznitelik için <span class="math inline">\(v\)</span>’ye yakın değerlere sahip veri örneklerinde modelin ortalamada ne tahmin ettiğini size göstereyim. Etki o öznitelikten kaynaklanıyor olabilir, ama korelasyonlu özniteliklerden de kaynaklanıyor olabilir.”</li>
+<li><strong>ALE grafikleri</strong>: “Özniteliğin <span class="math inline">\(v\)</span> etrafındaki küçük bir ‘pencerede’, o pencerede bulunan veri örnekleri için model tahminlerinin nasıl değiştiğini size göstereyim.”</li>
+</ul>
+</section>
+<section id="teori" class="level2">
+<h2 class="anchored" data-anchor-id="teori">Teori</h2>
+<p>PDP, M-grafiği ve ALE grafiği matematiksel olarak nasıl farklılaşır? Üç yöntemin ortak noktası, karmaşık tahmin fonksiyonu <span class="math inline">\(\hat{f}\)</span>’yi yalnızca bir (ya da iki) özniteliğe bağlı bir fonksiyona indirgemeleridir. Üç yöntem de fonksiyonu diğer özniteliklerin etkilerinin ortalamasını alarak indirger; ancak tahminlerin mi yoksa <strong>tahminlerdeki farkların</strong> mı ortalamasının alındığı ve ortalamanın marjinal dağılım üzerinden mi yoksa koşullu dağılım üzerinden mi alındığı konusunda ayrışırlar.</p>
+<p>Kısmi bağımlılık grafikleri, tahminlerin marjinal dağılım üzerinden ortalamasını alır.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{f}_{S,PDP}(\mathbf{x}_S) &amp;= \mathbb{E}_{X_C}[\hat{f}(\mathbf{x}_S,X_C)] \\
+&amp;= \int_{X_C}\hat{f}(\mathbf{x}_S,X_C)d\mathbb{P}(X_C)
+\end{aligned}
+\]</span></p>
+<p>Bu, tahmin fonksiyonu <span class="math inline">\(f\)</span>’nin <span class="math inline">\(\mathbf{x}_S\)</span> öznitelik değer(ler)indeki değerinin, <span class="math inline">\(X_C\)</span>’deki tüm öznitelikler (burada rastlantı değişkenleri olarak ele alınmaktadır) üzerinden alınmış ortalamasıdır. Ortalama almak, <span class="math inline">\(C\)</span> kümesindeki öznitelikler üzerinden marjinal beklenen değer <span class="math inline">\(\mathbb{E}\)</span>’yi hesaplamak demektir; bu da tahminlerin olasılık dağılımıyla ağırlıklandırılmış integralidir. Kulağa süslü geliyor, ancak marjinal dağılım üzerinden beklenen değeri hesaplamak için tüm veri örneklerimizi alır, <span class="math inline">\(S\)</span> kümesindeki öznitelikler için belirli bir ızgara değerine sahip olmaya zorlar ve bu değiştirilmiş veri setinin tahminlerinin ortalamasını alırız. Bu yöntem, özniteliklerin marjinal dağılımı üzerinden ortalama almamızı sağlar.</p>
+<p>M-grafikleri, tahminlerin koşullu dağılım üzerinden ortalamasını alır.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{f}_{S,M}(\mathbf{x}_S) &amp;= \mathbb{E}_{X_C|X_S}\left[\hat{f}(X_S,X_C)|X_S=\mathbf{x}_S\right] \\
+&amp;= \int_{X_C}\hat{f}(x_S, X_C)d\mathbb{P}(X_C|X_S = \mathbf{x}_S)
+\end{aligned}
+\]</span></p>
+<p>PDP’lere kıyasla değişen tek şey, her ızgara değerinde marjinal dağılımı varsaymak yerine, tahminlerin ilgilenilen özniteliğin her ızgara değerine koşullu olarak ortalamasını almamızdır. Uygulamada bu, bir komşuluk tanımlamamız gerektiği anlamına gelir; örneğin 30 m<sup>2</sup>’nin tahmin edilen ev değeri üzerindeki etkisini hesaplamak için 28 ile 32 m<sup>2</sup> arasındaki tüm evlerin tahminlerinin ortalamasını alabiliriz.</p>
+<p>ALE grafikleri, tahminlerdeki değişimlerin ortalamasını alır ve bunları ızgara boyunca biriktirir (hesaplamaya ilişkin ayrıntılar ileride).</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{f}_{S,ALE}(\mathbf{x}_S) = &amp; \int_{\mathbf{z}_{0,S}}^{\mathbf{x}_S} \mathbb{E}_{X_C|X_S = \mathbf{x}_S} \left[\hat{f}^S(X_S,X_C)|X_S = \mathbf{z}_S\right] d \mathbf{z}_S-\text{sabit} \\
+=&amp; \int_{\mathbf{z}_{0,S}}^{\mathbf{x}_S}\left(\int_{\mathbf{x}_C}\hat{f}^S(\mathbf{z}_S,X_C)d\mathbb{P}(X_C|X_S = \mathbf{z}_S)\right) d \mathbf{z}_S-\text{sabit}
+\end{aligned}
+\]</span></p>
+<p>Formül, M-grafiklerine kıyasla üç farkı ortaya koyar. Birincisi, tahminlerin kendisinin değil, tahminlerdeki değişimlerin ortalamasını alırız. Değişim, kısmi türev olarak tanımlanır (ancak daha sonra, fiilî hesaplamada, bir aralık üzerindeki tahmin farklarıyla değiştirilir).</p>
+<p><span class="math display">\[\hat{f}^S(\mathbf{x}_S,\mathbf{x}_C)=\frac{\partial\hat{f}(\mathbf{x}_S,\mathbf{x}_C)}{\partial \mathbf{x}_S}\]</span></p>
+<p>İkinci fark, <span class="math inline">\(\mathbf{z}\)</span> üzerindeki ek integraldir. Yerel kısmi türevleri S kümesindeki özniteliklerin aralığı boyunca biriktiririz; bu da bize özniteliğin tahmin üzerindeki etkisini verir. Fiilî hesaplamada <span class="math inline">\(z\)</span>’ler, tahmindeki değişimleri hesapladığımız bir aralıklar ızgarasıyla değiştirilir. ALE yöntemi, tahminlerin ortalamasını doğrudan almak yerine, tahmin farklarını S özniteliklerine koşullu olarak hesaplar ve etkiyi tahmin etmek için türevin S öznitelikleri üzerinden integralini alır. Bu kulağa saçma geliyor. Türev alma ve integral alma genellikle birbirini götürür; önce aynı sayıyı çıkarıp sonra eklemek gibi. Burada neden anlamlıdır? Türev (ya da aralık farkı), ilgilenilen özniteliğin etkisini yalıtır ve korelasyonlu özniteliklerin etkisini engeller.</p>
+<p>ALE grafiklerinin M-grafiklerinden üçüncü farkı, sonuçlardan bir sabit çıkarmamızdır. Bu adım ALE grafiğini, veri üzerindeki ortalama etki sıfır olacak şekilde merkezler.</p>
+<p>Bir sorun kalıyor: Her model bir gradyanla birlikte gelmez; örneğin rastgele ormanların açık bir gradyanı yoktur. Ancak göreceğiniz gibi, fiilî hesaplama gradyan olmadan, aralıklar kullanarak çalışır. Şimdi ALE grafiklerinin tahminine biraz daha derinlemesine bakalım.</p>
+</section>
+<section id="tahmin" class="level2">
+<h2 class="anchored" data-anchor-id="tahmin">Tahmin</h2>
+<p>Önce ALE grafiklerinin tek bir sayısal öznitelik için nasıl tahmin edildiğini, ardından iki sayısal öznitelik ve tek bir kategorik öznitelik için nasıl tahmin edildiğini anlatacağım. Yerel etkileri tahmin etmek için özniteliği çok sayıda aralığa böler ve tahminlerdeki farkları hesaplarız. Bu yöntem türevlere yaklaşır ve türevi olmayan modellerde de çalışır.</p>
+<p>Önce merkezlenmemiş etkiyi tahmin ederiz:</p>
+<p><span class="math display">\[\hat{\tilde{f}}_{j,ALE}(\mathbf{x}) = \sum_{k=1}^{k_j(\mathbf{x})} \frac{1}{n_j(k)} \sum_{i: x_j^{(i)} \in N_j(k)} \left[\hat{f}(z_{k,j}, \mathbf{x}^{(i)}_{-j}) - \hat{f}(z_{k-1,j}, \mathbf{x}^{(i)}_{-j})\right]\]</span></p>
+<p>Bu formülü sağ taraftan başlayarak parçalarına ayıralım. <strong>Biriktirilmiş Yerel Etkiler</strong> (<em>Accumulated Local Effects</em>) adı, bu formülün tüm bileşenlerini güzel bir şekilde yansıtır. ALE yöntemi özünde, ilgilenilen özniteliği <span class="math inline">\(z\)</span> ızgara değerleriyle değiştirerek tahminlerdeki farkları hesaplar. Tahmindeki fark, özniteliğin belirli bir aralıktaki tek bir örnek için <strong>Etki</strong>sidir (<em>Effect</em>). Sağdaki toplam, bir aralık içindeki tüm örneklerin etkilerini toplar; bu aralık formülde <span class="math inline">\(N_j(k)\)</span> komşuluğu olarak görünür. Bu toplamı aralıktaki örnek sayısına bölerek o aralık için tahminlerin ortalama farkını elde ederiz. Aralık içindeki bu ortalama, ALE adındaki <strong>Yerel</strong> (<em>Local</em>) terimine karşılık gelir. Soldaki toplam sembolü, ortalama etkileri tüm aralıklar boyunca biriktirdiğimiz anlamına gelir. Örneğin üçüncü aralıkta yer alan bir öznitelik değerinin (merkezlenmemiş) ALE’si, birinci, ikinci ve üçüncü aralıkların etkilerinin toplamıdır. ALE’deki <strong>Biriktirilmiş</strong> (<em>Accumulated</em>) sözcüğü bunu yansıtır.</p>
+<p>Bu etki, ortalama etki sıfır olacak şekilde merkezlenir.</p>
+<p><span class="math display">\[\hat{f}_{j,ALE}(\mathbf{x}) = \hat{\tilde{f}}_{j,ALE}(\mathbf{x}) - \frac{1}{n} \sum_{i=1}^{n} \hat{\tilde{f}}_{j,ALE}(x_j^{(i)})\]</span></p>
+<p>ALE’nin değeri, özniteliğin belirli bir değerdeki ana etkisinin, verinin ortalama tahminiyle karşılaştırılması olarak yorumlanabilir. Örneğin <span class="math inline">\(x^{(i)}_j = 3\)</span>’te -2’lik bir ALE tahmini, <span class="math inline">\(j\)</span>. öznitelik 3 değerini aldığında tahminin ortalama tahmine göre 2 daha düşük olduğu anlamına gelir.</p>
+<p>Aralıkları tanımlayan ızgara olarak özniteliğin dağılımının yüzdelikleri (kantilleri) kullanılır. Yüzdeliklerin kullanılması, her aralıkta aynı sayıda veri örneği bulunmasını sağlar. Yüzdeliklerin dezavantajı, aralıkların uzunluklarının birbirinden çok farklı olabilmesidir. Bu, ilgilenilen öznitelik çok çarpıksa, örneğin çok sayıda düşük değer ve yalnızca birkaç çok yüksek değer varsa, bazı tuhaf ALE grafiklerine yol açabilir.</p>
+<p><strong>İki özniteliğin etkileşimi için ALE grafikleri</strong></p>
+<p>ALE grafikleri iki özniteliğin etkileşim etkisini de gösterebilir. Hesaplama ilkeleri tek bir öznitelikteki ile aynıdır; ancak etkileri iki boyutta biriktirmemiz gerektiğinden aralıklar yerine dikdörtgen hücrelerle çalışırız. Genel ortalama etkiye göre düzeltmeye ek olarak, her iki özniteliğin ana etkilerine göre de düzeltme yaparız. Bu, iki öznitelik için ALE’nin, özniteliklerin ana etkilerini içermeyen ikinci dereceden etkiyi tahmin ettiği anlamına gelir. Başka bir deyişle, iki öznitelik için ALE yalnızca iki özniteliğin ek etkileşim etkisini gösterir. İki boyutlu ALE grafiklerinin formüllerini size göstermeyeceğim; çünkü uzun ve okuması nahoştur. Hesaplamayla ilgileniyorsanız sizi <span class="citation" data-cites="apley2020visualizingeffects">Apley ve Zhu (<a href="#ref-apley2020visualizingeffects" role="doc-biblioref">2020</a>)</span> makalesindeki (13)–(16) numaralı formüllere yönlendiriyorum. İkinci dereceden ALE hesaplamasına ilişkin sezgi geliştirmek için görselleştirmelere başvuracağım.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ale-hesaplama-2b.png" class="img-fluid figure-img" style="width:85.0%"></p>
+<figcaption>İki boyutlu ALE’nin hesaplanması. İki özniteliğin üzerine bir ızgara yerleştiririz. Her ızgara hücresinde, içindeki tüm örnekler için ikinci dereceden farkları hesaplarız. Önce <span class="math inline">\(x_1\)</span> ve <span class="math inline">\(x_2\)</span> değerlerini hücre köşelerinin değerleriyle değiştiririz. a, b, c ve d değiştirilmiş bir örneğin “köşe” tahminlerini gösteriyorsa (grafikte etiketlendiği gibi), ikinci dereceden fark (d - c) - (b - a)’dır. Her hücredeki ortalama ikinci dereceden fark ızgara boyunca biriktirilir ve merkezlenir.</figcaption>
+</figure>
+</div>
+<p>Önceki şekilde korelasyon nedeniyle birçok hücre boştur. ALE grafiğinde bu durum grileştirilmiş ya da koyulaştırılmış bir kutuyla görselleştirilebilir. Bunun yerine, boş bir hücrenin eksik ALE tahmini, en yakın boş olmayan hücrenin ALE tahminiyle de değiştirilebilir.</p>
+<p>İki öznitelik için ALE tahminleri yalnızca özniteliklerin ikinci dereceden etkisini gösterdiğinden, yorumlanmaları özel dikkat gerektirir. İkinci dereceden etki, özniteliklerin ana etkileri hesaba katıldıktan sonra kalan ek etkileşim etkisidir. İki özniteliğin etkileşmediğini, ancak her birinin tahmin edilen sonuç üzerinde doğrusal bir etkisi olduğunu varsayalım. Her özniteliğin tek boyutlu ALE grafiğinde, tahmin edilen ALE eğrisi olarak düz bir çizgi görürdük. Ancak iki boyutlu ALE tahminlerini çizdiğimizde, bunların sıfıra yakın olması gerekir; çünkü ikinci dereceden etki yalnızca etkileşimin ek etkisidir. ALE grafikleri ile PD grafikleri bu bakımdan farklılaşır: PDP’ler her zaman toplam etkiyi gösterirken, ALE grafikleri birinci ya da ikinci dereceden etkiyi gösterir. Bunlar, alttaki matematiğe bağlı olmayan tasarım kararlarıdır. Saf ana etkileri ya da ikinci dereceden etkileri elde etmek için bir kısmi bağımlılık grafiğinden daha düşük dereceli etkileri çıkarabilirsiniz; ya da daha düşük dereceli etkileri çıkarmaktan vazgeçerek toplam ALE grafiklerinin bir tahminini elde edebilirsiniz.</p>
+<p>Biriktirilmiş yerel etkiler keyfi olarak daha yüksek dereceler için de (üç ya da daha fazla özniteliğin etkileşimleri) hesaplanabilir; ancak <a href="../../19_partial-dependence-plot-%28PDP%29/html/pdp.html">PDP bölümünde</a> tartışıldığı gibi, yalnızca iki özniteliğe kadarı anlamlıdır; çünkü daha yüksek etkileşimler görselleştirilemez, hatta anlamlı biçimde yorumlanamaz.</p>
+<p><strong>Kategorik öznitelikler için ALE</strong></p>
+<p>Biriktirilmiş yerel etkiler yöntemi, tanımı gereği öznitelik değerlerinin bir sıraya sahip olmasını gerektirir; çünkü yöntem etkileri belirli bir yönde biriktirir. Kategorik özniteliklerin doğal bir sırası yoktur. Kategorik bir öznitelik için ALE grafiği hesaplamak amacıyla bir şekilde bir sıra oluşturmamız ya da bulmamız gerekir. Kategorilerin sırası, biriktirilmiş yerel etkilerin hesaplanmasını ve yorumlanmasını etkiler.</p>
+<p>Çözümlerden biri, kategorileri diğer özniteliklere dayalı benzerliklerine göre sıralamaktır. İki kategori arasındaki uzaklık, her bir özniteliğe ilişkin uzaklıkların toplamıdır. Öznitelik bazındaki uzaklık, iki kategorideki ya birikimli dağılımları (sayısal öznitelikler için; Kolmogorov-Smirnov uzaklığı olarak da bilinir) ya da göreli frekans tablolarını (kategorik öznitelikler için) karşılaştırır. Tüm kategoriler arasındaki uzaklıkları elde ettikten sonra, uzaklık matrisini tek boyutlu bir uzaklık ölçüsüne indirgemek için çok boyutlu ölçekleme kullanırız. Bu bize kategorilerin benzerliğe dayalı bir sırasını verir.</p>
+<p>Bunu biraz daha netleştirmek için bir örnek: “Mevsim” ve “hava durumu” adlı iki kategorik özniteliğimiz ve “sıcaklık” adlı sayısal bir özniteliğimiz olduğunu varsayalım. Birinci kategorik öznitelik (mevsim) için ALE’leri hesaplamak istiyoruz. Özniteliğin kategorileri “ilkbahar”, “yaz”, “sonbahar” ve “kış”tır. İşe “ilkbahar” ile “yaz” kategorileri arasındaki uzaklığı hesaplayarak başlarız. Uzaklık, sıcaklık ve hava durumu öznitelikleri üzerindeki uzaklıkların toplamıdır. Sıcaklık için, mevsimi “ilkbahar” olan tüm örnekleri alır, ampirik birikimli dağılım fonksiyonunu hesaplarız; aynı işlemi mevsimi “yaz” olan örnekler için de yapar ve aralarındaki uzaklığı Kolmogorov-Smirnov istatistiğiyle ölçeriz. Hava durumu özniteliği için, tüm “ilkbahar” örneklerinde her bir hava durumu türünün olasılıklarını hesaplar, aynısını “yaz” örnekleri için de yapar ve olasılık dağılımındaki mutlak uzaklıkları toplarız. “İlkbahar” ve “yaz” çok farklı sıcaklıklara ve hava durumlarına sahipse, toplam kategori uzaklığı büyük olur. Bu işlemi diğer mevsim çiftleri için tekrarlar ve ortaya çıkan uzaklık matrisini çok boyutlu ölçekleme ile tek bir boyuta indirgeriz.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Kategorilerin doğal sırasından yararlanın
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Kategorik bir özniteliğin kategorilerinin anlamlı bir sırası varsa, ALE için bu sırayı kullanın.</p>
+</div>
+</div>
+</section>
+<section id="ale-ile-pdpnin-karşılaştırılması" class="level2">
+<h2 class="anchored" data-anchor-id="ale-ile-pdpnin-karşılaştırılması">ALE ile PDP’nin karşılaştırılması</h2>
+<p>ALE grafiklerini iş başında görelim. Kısmi bağımlılık grafiklerinin başarısız olduğu bir senaryo kurguladım. <a href="#fig-correlation-problem" class="quarto-xref">Şekil&nbsp;4</a>, bir tahmin modelinden ve güçlü biçimde korelasyonlu iki öznitelikten oluşan senaryoyu göstermektedir. Tahmin modeli çoğunlukla bir doğrusal regresyon modelidir; ancak iki özniteliğin hiç örnek gözlemlemediğimiz bir birleşiminde tuhaf bir şey yapar. Bu “tuhaf” bölge, veri dağılımından (nokta bulutundan) uzaktadır ve modelin performansını etkilemez; tartışmaya açık olmakla birlikte, modelin yorumunu da etkilememelidir.</p>
+<div id="fig-correlation-problem" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlation-problem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-korelasyon-problemi.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-problem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: İki öznitelik ve tahmin edilen sonuç. Model iki özniteliğin toplamını tahmin eder (gölgeli arka plan); tek istisna, <span class="math inline">\(x_1&gt;0.7\)</span> ve <span class="math inline">\(x_2&lt;0.3\)</span> olduğunda modelin her zaman 2 tahmin etmesidir.
+</figcaption>
+</figure>
+</div>
+<p>Bu gerçekçi, anlamlı bir senaryo mu? Bir modeli eğittiğinizde, öğrenme algoritması mevcut eğitim verisi örnekleri için kaybı en aza indirir. Eğitim verisinin dağılımının dışında tuhaf şeyler olabilir; çünkü model bu bölgelerde tuhaf şeyler yaptığı için cezalandırılmaz. Veri dağılımının dışına çıkmaya dışkestirim (<em>extrapolation</em>) denir; <a href="../../30_adversarial_examples/ceviri/talhakaraca-20259267001.html">çekişmeli örnekler bölümünde</a> anlatıldığı gibi bu, makine öğrenmesi modellerini kandırmak için de kullanılabilir. <a href="#fig-correlation-pdp-ale-plot" class="quarto-xref">Şekil&nbsp;5</a>, kısmi bağımlılık grafiklerinin ALE grafiklerine kıyasla nasıl davrandığını göstermektedir. PDP tahminleri, modelin veri dağılımı dışındaki tuhaf davranışından etkilenir (grafiklerdeki dik sıçramalar). ALE grafikleri ise makine öğrenmesi modelinin öznitelikler ile tahminler arasında doğrusal bir ilişkiye sahip olduğunu, verinin olmadığı bölgeleri görmezden gelerek doğru biçimde belirler.</p>
+<div id="fig-correlation-pdp-ale-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlation-pdp-ale-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-pdp-karsilastirma.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-pdp-ale-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;5: Simülasyon örneği için PDP (üst sıra) ve ALE (alt sıra) ile hesaplanan öznitelik etkileri.
+</figcaption>
+</figure>
+</div>
+<p>Peki modelimizin <span class="math inline">\(x_1 &gt; 0.7\)</span> ve <span class="math inline">\(x_2 &lt; 0.3\)</span> bölgesinde tuhaf davrandığını görmek ilginç değil mi? Hem evet hem hayır. Bunlar fiziksel olarak imkânsız ya da en azından son derece olası olmayan veri örnekleri olabileceğinden, bu örnekleri incelemek genellikle önemsizdir. Ancak test dağılımınızın biraz farklı olabileceğinden ve bazı örneklerin gerçekten bu aralıkta bulunabileceğinden şüpheleniyorsanız, bu bölgeyi öznitelik etkilerinin hesaplanmasına dahil etmek ilginç olurdu. Fakat henüz veri gözlemlemediğimiz bölgeleri dahil etmek bilinçli bir karar olmalıdır; PDP gibi seçilen yöntemin bir yan etkisi olmamalıdır. Modelin ileride farklı dağılıma sahip verilerle kullanılacağından şüpheleniyorsanız, ALE grafiklerini kullanmanızı ve beklediğiniz veri dağılımını simüle etmenizi öneririm.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Hem PDP hem ALE üretin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Kişisel bir gözlem: Kendi uygulamalarımda, korelasyona rağmen ALE ve PDP grafikleri birbirine oldukça benziyordu. Korelasyon yorumlanabilirliği bozabilir, ancak bozmak zorunda değildir. ALE ve PDP korelasyonlu bir öznitelik için aynı eğriyi gösteriyorsa, yorumu daha basit olduğu için PDP’yi yorumlayın.</p>
+</div>
+</div>
+</section>
+<section id="örnekler" class="level2">
+<h2 class="anchored" data-anchor-id="örnekler">Örnekler</h2>
+<p>Gerçek bir veri setine geçelim: Hava durumuna ve güne göre <a href="../../05_data-and-models/ceviri/martin-5.html">kiralanan bisiklet sayısını</a> tahmin edelim ve ALE grafiklerinin gerçekten vaat edildiği kadar iyi çalışıp çalışmadığına bakalım. Kiralanan bisiklet sayısını tahmin etmek için bir rastgele orman eğitiriz ve rüzgâr hızı ile hava durumunun tahminleri nasıl etkilediğini analiz etmek için ALE grafiklerini kullanırız.</p>
+<p><a href="#fig-ale-bike" class="quarto-xref">Şekil&nbsp;6</a> (sol), artan rüzgâr hızının bisiklet kiralamaları üzerinde negatif bir etkisi olduğunu göstermektedir. Hava durumunda (sağ) ise özellikle kötü havanın kiralanan bisiklet sayısı üzerinde güçlü bir negatif etkisi olduğunu görüyoruz. Her iki etki de alan bilgisiyle örtüşmektedir; bu iyi bir işarettir.</p>
+<div id="fig-ale-bike" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ale-bike-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-bisiklet.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ale-bike-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;6: Bisiklet tahmin modeli için rüzgâr hızı ve hava durumunun ALE grafikleri.
+</figcaption>
+</figure>
+</div>
+<p>Ardından nem ile sıcaklığın etkilerini ve bunların etkileşiminin tahmin edilen bisiklet sayısı üzerindeki etkisini ele alıyoruz. İkinci dereceden etkinin, iki özniteliğin ek etkileşim etkisi olduğunu ve ana etkileri içermediğini hatırlayın. Bu, örneğin yüksek nemin ortalamada daha düşük bir tahmin edilen bisiklet sayısına yol açtığı ana etkiyi ikinci dereceden ALE grafiğinde görmeyeceğiniz anlamına gelir. <a href="#fig-ale-bike-2d" class="quarto-xref">Şekil&nbsp;7</a> hem sıcaklık ile nemin ana etkilerini hem de bunların etkileşimini göstermektedir. Grafik bir etkileşimi ortaya koyuyor: Soğuk ve nemli hava tahmini artırıyor. Nem ve sıcaklığın her iki ana etkisinin de çok soğuk ve nemli havada tahmin edilen bisiklet sayısının azaldığını söylediğini unutmayın. Dolayısıyla soğuk ve nemli havada sıcaklık ile nemin birleşik etkisi, ana etkilerin toplamı değil, toplamdan daha büyüktür.</p>
+<div id="fig-ale-bike-2d" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ale-bike-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-bisiklet-2b.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ale-bike-2d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;7: Nem ve sıcaklığın tahmin edilen kiralık bisiklet sayısı üzerindeki ikinci dereceden etkisi için ALE grafiği. Ana etkiler zaten hesaba katıldığında, açık renk ortalamanın üzerinde, koyu renk ortalamanın altında bir tahmine işaret eder.
+</figcaption>
+</figure>
+</div>
+<p>İki ana etkiyi ve ortalama tahmini üzerine ekleyerek toplam etkileşim etkisini de elde edebilirsiniz. Yalnızca etkileşimle ilgileniyorsanız ikinci dereceden etkilere bakmalısınız; çünkü toplam etki ana etkileri de grafiğe karıştırır. Ancak özniteliklerin birleşik etkisini bilmek istiyorsanız toplam etkiye bakmalısınız. Bununla birlikte, iki özniteliğin hiç etkileşmediği bir senaryoda iki özniteliğin toplam etkisi yanıltıcı olabilir; çünkü muhtemelen bir etkileşim varmış izlenimi veren karmaşık bir yüzey gösterir, oysa bu yüzey yalnızca iki ana etkinin çarpımından ibarettir. Saf ikinci dereceden etki ise hiçbir etkileşim olmadığını hemen gösterirdi.</p>
+<p>Bisikletler bu kadar yeter; şimdi bir sınıflandırma görevine geçelim. Vücut ölçülerine dayanarak <span class="math inline">\(\mathbb{P}(Y = \text{dişi})\)</span>’yi tahmin etmek için bir rastgele orman eğitiyoruz. Vücut ağırlığı bir penguenin dişi olma olasılığını nasıl etkiler? <a href="#fig-ale-penguin" class="quarto-xref">Şekil&nbsp;8</a> (sol), vücut kütlesinin ALE grafiğini görselleştirmektedir. Penguen ne kadar ağırsa dişi olma olasılığı o kadar düşüktür. Ancak ALE grafiklerini türlere göre görselleştirdiğimizde daha iyi bir resim elde ederiz (<a href="#fig-ale-penguin" class="quarto-xref">Şekil&nbsp;8</a>, sağ). Her türün, üzerindeki vücut kütlesinin erkek penguenler için daha tipik olduğu belirgin bir kesim noktası vardır. Genel olarak etkiler, <a href="../../19_partial-dependence-plot-%28PDP%29/html/pdp.html">PDP bölümündeki</a> PDP’lere oldukça benzerdir.</p>
+<div id="fig-ale-penguin" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ale-penguin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/ale-penguen.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ale-penguin-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;8: Sol: Tüm penguen türleri için vücut kütlesinin ALE grafiği. Sağ: Her tür için ayrı ayrı vücut kütlesi ALE grafikleri.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="güçlü-yönler" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönler">Güçlü yönler</h2>
+<p><strong>ALE grafikleri yanlı değildir</strong>, yani öznitelikler korelasyonlu olduğunda da çalışırlar. Kısmi bağımlılık grafikleri bu senaryoda başarısız olur; çünkü öznitelik değerlerinin olası olmayan, hatta fiziksel olarak imkânsız birleşimleri üzerinden marjinalleştirirler.</p>
+<p><strong>ALE grafiklerinin hesaplanması PDP’lerden daha hızlıdır</strong> ve O(n) ile ölçeklenir; çünkü olası en büyük aralık sayısı örnek sayısına eşittir, yani her örnek için bir aralık. PDP, n çarpı ızgara noktası sayısı kadar tahmin gerektirir. 20 ızgara noktası için PDP’ler, örnek sayısı kadar aralığın kullanıldığı en kötü durumdaki ALE grafiğinden 20 kat daha fazla tahmin gerektirir.</p>
+<p>ALE grafiklerinin (yerel) <strong>yorumu açıktır</strong>: Belirli bir değere koşullu olarak, özniteliği değiştirmenin tahmin üzerindeki göreli etkisi ALE grafiğinden okunabilir. <strong>ALE grafikleri sıfır etrafında merkezlenmiştir</strong>. Bu da yorumlarını kolaylaştırır; çünkü ALE eğrisinin her noktasındaki değer, ortalama tahminden farktır. <strong>İki boyutlu ALE grafiği yalnızca etkileşimi gösterir</strong>: İki öznitelik etkileşmiyorsa grafik hiçbir şey göstermez.</p>
+<p>Tahmin fonksiyonunun tamamı, <a href="../../22_functional-decomposition/ceviri/yusuf-kaan-sa%C3%A7l%C4%B1-20269258011.html">fonksiyonel ayrıştırma</a> bölümünde açıklandığı gibi, <strong>daha düşük boyutlu ALE fonksiyonlarının toplamına ayrıştırılabilir</strong>.</p>
+<p>Sonuç olarak, çoğu durumda <strong>ALE grafiklerini PDP’lere tercih ederim</strong>; çünkü öznitelikler genellikle bir ölçüde korelasyonludur.</p>
+</section>
+<section id="sınırlılıklar" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlılıklar">Sınırlılıklar</h2>
+<p>Öznitelikler güçlü biçimde korelasyonluysa <strong>etkinin aralıklar arasında yorumlanması caiz değildir</strong>. Özniteliklerinizin yüksek düzeyde korelasyonlu olduğu ve tek boyutlu bir ALE grafiğinin sol ucuna baktığınız durumu düşünün. ALE eğrisi şu yanlış yoruma davetiye çıkarabilir: “ALE eğrisi, bir veri örneğinin ilgili öznitelik değerini kademeli olarak değiştirip örneğin diğer öznitelik değerlerini sabit tuttuğumuzda, tahminin ortalamada nasıl değiştiğini gösterir.” Etkiler aralık bazında (yerel olarak) hesaplanır; dolayısıyla etkinin yorumu da yalnızca yerel olabilir. Kolaylık olsun diye aralık bazındaki etkiler düzgün bir eğri gösterecek şekilde biriktirilir; ancak her aralığın farklı veri örnekleriyle oluşturulduğunu aklınızda tutun.</p>
+<p>Öznitelikler etkileşiyor ve korelasyonluysa, ALE etkileri <strong>bir doğrusal regresyon modelinde belirtilen katsayılardan farklı olabilir</strong>. <span class="citation" data-cites="gromping2020model">Grömping (<a href="#ref-gromping2020model" role="doc-biblioref">2020</a>)</span>, iki korelasyonlu öznitelik ve ek bir etkileşim terimi içeren bir doğrusal modelde (<span class="math inline">\(\hat{f}(x) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2\)</span>) birinci dereceden ALE grafiklerinin düz bir çizgi göstermediğini ortaya koymuştur. Bunun yerine grafikler hafifçe eğridir; çünkü özniteliklerin çarpımsal etkileşiminin bir kısmını içerirler. Burada neler olduğunu anlamak için <a href="../../22_functional-decomposition/ceviri/yusuf-kaan-sa%C3%A7l%C4%B1-20269258011.html">fonksiyonel ayrıştırma</a> bölümünü okumanızı öneririm. Kısacası ALE, birinci dereceden (ya da tek boyutlu) etkileri doğrusal formülün betimlediğinden farklı tanımlar. Bu mutlaka yanlış değildir; çünkü öznitelikler korelasyonlu olduğunda etkileşimlerin kime atfedileceği o kadar net değildir. Ancak ALE ile doğrusal katsayıların örtüşmemesi kesinlikle sezgiye aykırıdır.</p>
+<p>Aralık sayısı yüksek olduğunda <strong>ALE grafikleri biraz titrek hâle gelebilir</strong> (çok sayıda küçük iniş çıkış). Bu durumda aralık sayısını azaltmak tahminleri daha kararlı hâle getirir, ancak tahmin modelinin gerçek karmaşıklığının bir kısmını da düzleştirip gizler. <strong>Aralık sayısını belirlemek için kusursuz bir çözüm yoktur</strong>. Sayı çok küçükse ALE grafikleri çok isabetli olmayabilir. Sayı çok büyükse eğri titrek hâle gelebilir. Düzgünlük ile isabet arasında bir denge kurmak için <span class="citation" data-cites="gkolemis2023rhale">Gkolemis vd. (<a href="#ref-gkolemis2023rhale" role="doc-biblioref">2023</a>)</span>, aralıkların içindeki yerel etkiler görece sabit kaldığı sürece (modelin gerçek karmaşıklığını korumak için) aralıkları kademeli olarak genişleten (daha kararlı tahminler için) otomatik bir aralık bölme yaklaşımı önermiştir.</p>
+<p>PDP’lerden farklı olarak <strong>ALE grafiklerine ICE eğrileri eşlik etmez</strong>. PDP’ler için ICE eğrileri harikadır; çünkü öznitelik etkisindeki heterojenliği, yani bir özniteliğin etkisinin verinin alt kümelerinde farklı görünmesini ortaya çıkarabilirler. ALE grafiklerinde ise yalnızca aralık bazında etkinin örnekler arasında farklı olup olmadığını kontrol edebilirsiniz; ancak her aralıkta farklı örnekler bulunduğundan bu, ICE eğrileriyle aynı şey değildir.</p>
+<p><strong>İkinci dereceden ALE tahminlerinin kararlılığı öznitelik uzayı boyunca değişir ve bu hiçbir şekilde görselleştirilmez.</strong> Bunun nedeni, bir hücredeki yerel etkinin her tahmininin farklı sayıda veri örneği kullanmasıdır. Sonuç olarak tüm tahminlerin isabeti birbirinden farklıdır (ancak yine de mümkün olan en iyi tahminlerdir). Bu sorun, ana etki ALE grafiklerinde daha hafif bir biçimde vardır. Izgara olarak yüzdeliklerin kullanılması sayesinde tüm aralıklarda örnek sayısı aynıdır; ancak bazı bölgelerde çok sayıda kısa aralık olacak ve ALE eğrisi o bölgelerde çok daha fazla tahminden oluşacaktır. Eğrinin büyük bir kısmını oluşturabilen uzun aralıklarda ise görece daha az örnek vardır.</p>
+<p><strong>İkinci dereceden etki grafiklerini yorumlamak biraz can sıkıcı olabilir</strong>; çünkü ana etkileri her zaman akılda tutmanız gerekir. Isı haritalarını iki özniteliğin toplam etkisi gibi okumak caziptir; ancak bunlar yalnızca etkileşimin ek etkisidir. Saf ikinci dereceden etki, etkileşimleri keşfetmek ve incelemek için ilginçtir; ancak etkinin nasıl göründüğünü yorumlamak için ana etkileri de grafiğe katmanın daha anlamlı olduğunu düşünüyorum.</p>
+<p>ALE grafiklerinin <strong>uygulanması</strong>, kısmi bağımlılık grafiklerine kıyasla <strong>çok daha karmaşık</strong> ve daha az sezgiseldir.</p>
+<p>ALE grafikleri korelasyonlu öznitelikler durumunda yanlı olmasa da, <strong>öznitelikler güçlü biçimde korelasyonlu olduğunda yorum zor olmaya devam eder</strong>. Çünkü öznitelikler çok güçlü bir korelasyona sahipse, yalnızca iki özniteliği birlikte değiştirmenin etkisini analiz etmek anlamlıdır, tek başına değiştirmenin etkisini değil. Bu dezavantaj ALE grafiklerine özgü değildir; güçlü biçimde korelasyonlu özniteliklerin genel bir sorunudur.</p>
+<p>Öznitelikler korelasyonsuzsa ve hesaplama süresi sorun değilse, PDP’ler biraz daha tercih edilebilirdir; çünkü anlaşılmaları daha kolaydır ve ICE eğrileriyle birlikte çizilebilirler.</p>
+<p>Dezavantajlar listesi oldukça uzadı, ancak kullandığım sözcük sayısına aldanmayın. Pratik bir kural olarak: Öznitelikler korelasyonlu değilse PDP kullanın. Öznitelikler korelasyonluysa ancak PDP ve ALE aşağı yukarı aynı eğrileri gösteriyorsa, daha basit olan PDP yorumunu tercih edin. Öznitelikler korelasyonluysa ve PDP ile ALE farklılaşıyorsa, ALE grafiğini kullanın.</p>
+</section>
+<section id="yazılım-ve-alternatifler" class="level2">
+<h2 class="anchored" data-anchor-id="yazılım-ve-alternatifler">Yazılım ve alternatifler</h2>
+<p><a href="../../19_partial-dependence-plot-%28PDP%29/html/pdp.html">Kısmi bağımlılık grafiklerinin</a> ve <a href="../../13_individual_conditional_expectation_ice/ceviri/serapsahin20269348009.html">bireysel koşullu beklenti (ICE) eğrilerinin</a> bir alternatif olduğundan bahsetmiş miydim? =)</p>
+<p>ALE grafikleri R’da, yöntemin mucidinin kendisi tarafından yazılan <a href="https://cran.r-project.org/web/packages/ALEPlot/index.html">ALEPlot R paketinde</a> ve ayrıca <a href="https://cran.r-project.org/web/packages/iml/index.html">iml paketinde</a> uygulanmıştır. ALE’nin birkaç Python uygulaması da vardır: <a href="https://github.com/givasile/effector"><code>effector</code></a>, <a href="https://github.com/blent-ai/ALEPython">ALEPython</a>, <a href="https://docs.seldon.io/projects/alibi/en/stable/index.html">Alibi</a> ve <a href="https://selfexplainml.github.io/PiML-Toolbox/_build/html/index.html">PiML</a>.</p>
+</section>
+<section id="kaynaklar" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="kaynaklar">Kaynaklar</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-apley2020visualizingeffects" class="csl-entry" role="listitem">
+Apley, Daniel W., ve Jingyu Zhu. 2020. <span>“Visualizing the <span>Effects</span> of <span>Predictor</span> <span>Variables</span> in <span>Black</span> <span>Box</span> <span>Supervised</span> <span>Learning</span> <span>Models</span>”</span>. <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 82 (4): 1059-86. <a href="https://doi.org/10.1111/rssb.12377">https://doi.org/10.1111/rssb.12377</a>.
+</div>
+<div id="ref-gkolemis2023rhale" class="csl-entry" role="listitem">
+Gkolemis, Vasilis, Theodore Dalamagas, Eirini Ntoutsi, ve Christos Diou. 2023. <span>“RHALE: robust and heterogeneity-aware accumulated local effects”</span>. Içinde <em>ECAI 2023</em>. IOS Press.
+</div>
+<div id="ref-gromping2020model" class="csl-entry" role="listitem">
+Grömping, Ulrike. 2020. <span>“Model-agnostic effects plots for interpreting machine learning models”</span>. <em>Reports in Mathematics, Physics and Chemistry, Department II, Beuth University of Applied Sciences Berlin Report</em> 1: 2020.
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Kaydırılabilir kod","output":"Kaydırılabilir çıktı"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
