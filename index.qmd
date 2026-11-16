@@ -47,6 +47,7 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 17 · Shapley Değerleri | [Halil İbrahim Akyüz](2026-guz/17_shapley-values/ceviri/halilibrahimakyuz-20269258004.html) |
 | 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
 | 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
+| 20 · Biriktirilmiş Yerel Etkiler (ALE) | [Ahmet Batuhan Kaya](2026-guz/20_accumulated-local-effects/ceviri/ahmetbatuhankaya-20269348005.html) |
 | 30 · Kötü Amaçlı Örnekler (Adversarial Examples) | [Talha Karaca](2026-guz/30_adversarial_examples/ceviri/talhakaraca-20259267001.html) |
 | 31 · Etkili Örnekler (Influential Instances) | [Talha Karaca](2026-guz/31_influential_instances/ceviri/talhakaraca-20259267001.html) |
 | 32 · Yorumlanabilirlik Yöntemlerinin Değerlendirilmesi | [Berkay Çongar](2026-guz/32_evaluation-of-interpretability-methods/ceviri/berkaycongar-20269258007.html) |
