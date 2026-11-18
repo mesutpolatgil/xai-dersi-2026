@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Açıklama Adil Görünüyor Diye Model Adil mi? Fairwashing</title><style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:860px;margin:2rem auto;padding:0 16px;line-height:1.65;color:#222}
+h1{font-size:2rem;margin-bottom:.2rem}h2{margin-top:2.2rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}h3{margin-top:1.6rem}
+table{border-collapse:collapse;margin:1rem 0;display:block;overflow-x:auto}td,th{border:1px solid #ccc;padding:6px 10px;vertical-align:top}th{background:#f4f4f4}
+blockquote{border-left:4px solid #bbb;margin:1rem 0;padding:.2rem 1rem;background:#f8f8f8;color:#444}code{background:#f2f2f2;padding:1px 4px;border-radius:3px}
+@media(prefers-color-scheme:dark){body{background:#161616;color:#ddd}th{background:#262626}td,th{border-color:#444}blockquote{background:#202020;color:#bbb;border-color:#555}code{background:#2a2a2a}h2{border-color:#444}}</style>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]]}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script></head><body>
+<h1>Açıklama Adil Görünüyor Diye Model Adil mi? Fairwashing</h1>
+<p><strong>Aïvodji ve ark. (2019), <em>Fairwashing: the risk of rationalization</em> üzerine ayrıntılı Türkçe anlatım</strong></p>
+<p>Makale: U. Aïvodji, H. Arai, O. Fortineau, S. Gambs, S. Hara, A. Tapp. ICML 2019. arXiv:1901.09749 · Kod: github.com/aivodji/LaundryML
+Konu: Molnar, <em>Interpretable Machine Learning</em>, Bölüm 25 (Global Surrogate Models) · Makale tipi: Seçenek 1 (Zafiyet / Manipülasyon)
+Açıklanabilir Yapay Zeka dersi, makale yeniden üretimi</p>
+<blockquote>
+<p>Bu belge makalenin çevirisi değildir. Makalenin akışını izleyerek fikirlerini, yöntemini ve deneylerini kendi anlatımımla ve ek açıklamalarla aktarır. Yeniden üretim bulguları (Bölüm 9) ve terim sözlüğü (Bölüm 10) bana aittir. Kesin ifadeler, tablolar ve şekiller için orijinal makaleye başvurulmalıdır.</p>
+</blockquote>
+<p><strong>İçindekiler</strong></p>
+<ol>
+<li>Problem: Açıklama güvenilir bir denetim aracı mı?</li>
+<li>Arka plan: Global surrogate nasıl çalışır?</li>
+<li>Zafiyetin kaynağı: Sadakat, hatanın nerede olduğunu söylemez</li>
+<li>Tehdit modeli ve LaundryML</li>
+<li>Deney düzeni</li>
+<li>Sonuçlar ve yorumları</li>
+<li>Uzantı: Aklama tespit edilebilir mi? (FRAUD-Detect)</li>
+<li>Makalenin konumu, sınırları ve sonrası</li>
+<li>Kendi yeniden üretimimde gözlenenler</li>
+<li>Terim sözlüğü</li>
+</ol>
+<h2>1. Problem: Açıklama güvenilir bir denetim aracı mı?</h2>
+<p>Kredi, işe alım ya da suç tekrarı riski gibi alanlarda kullanılan modellerin çoğu karmaşıktır ve çoğu zaman ticari olarak kapalıdır. Bir denetçi ya da düzenleyici kurum modelin içine bakamaz, yalnızca ona girdi verip çıktı alabilir. Bu durumda en yaygın yol, kara kutuyu <strong>kendisinden daha basit ve okunabilir bir modelle taklit etmektir</strong>: Kara kutunun kararlarını veri üzerinde toplar, bu kararları öğrenen küçük bir karar ağacı ya da kural listesi eğitir ve "kara kutu aslında şu kurallara göre karar veriyor" der. Bu basit modele <strong>global surrogate</strong> (vekil model) denir.</p>
+<p>Denetçi bu açıklamaya şu iki sorudan geçerek güvenir:</p>
+<ol>
+<li><strong>Sadakat (fidelity):</strong> Vekil model, kara kutunun kararlarının ne kadarını doğru taklit ediyor? Yüksekse açıklama "doğru" kabul edilir.</li>
+<li><strong>Adalet:</strong> Vekil modelde cinsiyet, ırk gibi hassas bir özellik belirleyici mi? Değilse kara kutu da adil kabul edilir.</li>
+</ol>
+<p>Bu iş akışının gizli bir varsayımı vardır: <strong>Yüksek sadakatli bir açıklama, kara kutunun gerçek davranışını yansıtır.</strong> Makalenin sorduğu soru bu varsayımın kırılgan olup olmadığıdır. Yazarların cevabı: Model sahibi kötü niyetliyse, kara kutunun adaletsizliğini gizleyen ama yine de yüksek sadakatli bir vekil model <strong>bilerek üretebilir</strong>. Yazarlar bu işleme <strong>fairwashing</strong> (adalet aklama) der. Bu, "açıklama adil görünüyor, o hâlde model adildir" çıkarımının geçersiz olabileceği anlamına gelir.</p>
+<blockquote>
+<p><strong>Tek cümlelik özet:</strong> Sadakat tek bir ortalama sayıdır; vekil modelin hataları kara kutunun adaletsizliğini besleyen örneklere yığılabilir ve ortalama sadakat yine de yüksek kalabilir.</p>
+</blockquote>
+<h2>2. Arka plan: Global surrogate nasıl çalışır?</h2>
+<p>Molnar'ın anlattığı adımlar şöyledir:</p>
+<ol>
+<li>Bir veri kümesi <em>X</em> seç (kara kutunun eğitim verisi olabilir, olmak zorunda değil).</li>
+<li>Kara kutu <em>B</em> ile <em>X</em> için tahminleri al: <em>B</em>(<em>x</em>).</li>
+<li>Yorumlanabilir bir model <em>I</em> seç (karar ağacı, doğrusal model, kural listesi).</li>
+<li><em>I</em>'yı gerçek etiketlerle <strong>değil</strong>, kara kutunun tahminleriyle eğit.</li>
+<li>Vekilin kara kutuyu ne kadar iyi taklit ettiğini ölç.</li>
+</ol>
+<p>İkili sınıflandırmada bu ölçü <strong>sadakat</strong>tir:</p>
+<p>$$
+\text{fid}(B, I) = \frac{1}{n}\sum_{i=1}^{n} \mathbf{1}\!\left[\,I(x_i) = B(x_i)\,\right]
+$$</p>
+<p>Regresyonda aynı iş için <em>R</em>² kullanılır. Burada önemli bir nokta vardır: Vekil model <strong>veriyi</strong> değil, <strong>kara kutuyu</strong> açıklar. Doğru etiketlerle ilgisi yoktur. Kara kutu yanlış kararlar veriyorsa, sadık bir vekil de aynı yanlışları öğrenir.</p>
+<p>Vekil modelin avantajları: Her model türüyle çalışır, kurulumu basittir, tek bir küçük model tüm kara kutuyu özetler. Sınırları: Yorumlanabilir bir model karmaşık bir modeli her bölgede taklit edemez. Sadakat yüksek görünse bile vekil, kara kutunun yalnızca <strong>bir bölümünü</strong> yakalayabilir. Hangi bölümü yakaladığı ise ortalama sadakat sayısında görünmez. Bir sonraki bölüm bu noktayı açar.</p>
+<h2>3. Zafiyetin kaynağı: Sadakat, hatanın nerede olduğunu söylemez</h2>
+<p><strong>Adaletsizliği</strong> makale demografik parite farkıyla ölçer. <em>s</em> ∈ {0, 1} hassas özellik (örneğin cinsiyet), <em>ŷ</em> modelin pozitif karar verdiği durum olsun:</p>
+<p>$$
+\varepsilon(M) = \left|\, P(\hat y = 1 \mid s = 1) - P(\hat y = 1 \mid s = 0) \,\right|
+$$</p>
+<p>Bu değer 0'a yakınsa model iki gruba benzer oranda olumlu karar veriyor demektir. Kara kutunun adaletsizliği ε(<em>B</em>) olsun. Makalenin gözlemi basit ama güçlüdür:</p>
+<ul>
+<li>Vekil modelin sadakati %90 ise, 100 örneğin 10'unda kara kutudan farklı karar verir.</li>
+<li>Bu 10 örnek <strong>rastgele seçilmek zorunda değildir</strong>. Hatalar, kara kutunun grup farkını yaratan örneklere (örneğin tam olarak "kadın ve reddedilen" örneklere) yığılırsa, vekil modelin kararları iki grup arasında çok daha dengeli çıkar.</li>
+<li>Sonuç: Sadakat hâlâ %90'dır ama vekilin adaletsizliği ε(<em>I</em>) ≪ ε(<em>B</em>) olur.</li>
+</ul>
+<p>Bu yüzden zafiyet bir "yöntem hatası" değil, <strong>sadakatin neyi ölçmediğiyle</strong> ilgilidir. Denetçi sadakate bakıp memnun olur, vekilin hatalarının nerede toplandığına bakmaz.</p>
+<blockquote>
+<p><strong>Benzetme:</strong> Bir öğretmenin öğrenci notlarını açıklamasını düşünün. Açıklamayı yazan kişi, notların %90'ını doğru tahmin eden bir tablo verebilir. Yanlış tahmin ettiği %10'luk kısım tam da ayrımcılık yapılan öğrencilere denk geliyorsa, tablo "adil" görünür ama gerçek notlar adil değildir. Doğruluk oranı hile yapılan yeri göstermez.</p>
+</blockquote>
+<h2>4. Tehdit modeli ve LaundryML</h2>
+<h3>4.1 Oyuncular ve varsayımlar</h3>
+<ul>
+<li><strong>Saldırgan (model sahibi):</strong> Adaletsiz bir kara kutu <em>B</em> kullanıyor. Denetçiye göstereceği bir açıklamayı kendisi seçebiliyor ve bu açıklamayı üretmek için kara kutuya sorgu atabiliyor.</li>
+<li><strong>Denetçi:</strong> Kara kutuya yalnızca dışarıdan bakıyor. Elinde bir "suing group" var: kara kutunun kararlarının etiketlendiği bir veri kümesi (örneğin dava açan kişilerin kayıtları). Açıklamanın sadakatini ve adaletini bu küme üzerinde değerlendiriyor.</li>
+<li><strong>Saldırganın hedefi:</strong> Vekil modelin (1) suing group'ta kara kutuya yüksek sadakat göstermesi, (2) kara kutudan çok daha adil görünmesi.</li>
+</ul>
+<h3>4.2 Amaç fonksiyonu</h3>
+<p>Saldırgan, tek bir vekil model üretmek yerine <strong>çok sayıda aday vekil model</strong> üretir ve içlerinden seçer. Her aday için makalenin kullandığı amaç şu biçimdedir (özet):</p>
+<p>$$
+\min_{I}\;\; (1-\beta)\cdot \text{misc}(I, B) \;+\; \beta\cdot \varepsilon(I) \;+\; \lambda\cdot K(I)
+$$</p>
+<ul>
+<li><strong>misc</strong>(<em>I</em>, <em>B</em>): vekilin kara kutudan farklı karar verdiği örnek oranı (1 − sadakat),</li>
+<li><strong>ε</strong>(<em>I</em>): vekilin adaletsizliği,</li>
+<li><strong>K</strong>(<em>I</em>): modelin karmaşıklığı (kural listesinde kural sayısı),</li>
+<li><strong>β</strong> ∈ [0, 1]: adalete verilen ağırlık. β = 0 ise sıradan bir vekil model eğitilir; β arttıkça model sadakatten bir miktar feda edip adalete doğru çekilir,</li>
+<li><strong>λ</strong>: karmaşıklık cezası.</li>
+</ul>
+<p>Makale bu işlemi <strong>LaundryML</strong> adıyla sunar. Kural listeleri <strong>CORELS</strong> algoritmasıyla numaralandırılır, yani β ve λ'nın farklı değerleri için çok sayıda aday kural listesi üretilir.</p>
+<h3>4.3 Seçim kuralı</h3>
+<p>Yazarlar adayları iki eksende değerlendirir: x ekseninde adaletsizlik, y ekseninde sadakat. Bir saldırgan şu kuralı uygular: <strong>Kara kutudan en az iki kat daha adil olan adaylar arasında sadakati en yüksek olanı seç.</strong> Bu kural, "denetçiye göstereceğim açıklama hem iyi taklit etmeli hem de belirgin biçimde daha adil görünmeli" hedefini formüle eder.</p>
+<h3>4.4 Neden bu kadar kolay?</h3>
+<ul>
+<li>Bir kara kutuyu aynı sadakatle taklit eden <strong>birden çok</strong> farklı vekil model vardır (literatürde "Rashomon etkisi" denir). Bunların bir kısmı hassas özelliği kullanır, bir kısmı kullanmaz.</li>
+<li>Saldırgan bu çeşitlilikten yararlanıp "en uygun görüneni" seçer.</li>
+<li>Denetçi bu çeşitliliği görmez; yalnızca seçilen tek bir vekili görür.</li>
+</ul>
+<h2>5. Deney düzeni</h2>
+<h3>5.1 Veri setleri ve modeller</h3>
+<table>
+<thead>
+<tr>
+<th>Veri seti</th>
+<th>Bağlam</th>
+<th>Hassas özellik</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adult (UCI)</td>
+<td>Gelirin yılda 50.000 doların üzerinde olup olmadığı</td>
+<td>Cinsiyet</td>
+</tr>
+<tr>
+<td>ProPublica (COMPAS)</td>
+<td>Ceza adaletinde suç tekrarı riski</td>
+<td>Irk</td>
+</tr>
+</tbody>
+</table>
+<p>Kara kutu olarak makalenin ana deneyinde rastgele orman kullanılır. Veri; eğitim, suing group ve test olmak üzere üçe bölünür. Kara kutu eğitim verisiyle eğitilir. Aklama, kara kutunun <strong>suing group'u etiketlemesiyle</strong> yapılır; sadakat ve adaletsizlik suing group'ta ölçülür. Test kümesi, aklamanın görmediği veride de geçerli olup olmadığını (genelleme) gösterir.</p>
+<h3>5.2 Değerlendirme ölçütleri</h3>
+<ul>
+<li><strong>Sadakat:</strong> Vekil ile kara kutunun aynı kararı verdiği örnek oranı.</li>
+<li><strong>Adaletsizlik:</strong> Demografik parite farkı ε.</li>
+<li><strong>Genelleme:</strong> Aynı ölçütlerin test kümesinde ne olduğu. Aklanmış model suing group'ta adil görünüp testte görünmüyorsa, aklama yalnızca o kümeye özgüdür.</li>
+</ul>
+<h2>6. Sonuçlar ve yorumları</h2>
+<h3>6.1 Ana sonuçlar</h3>
+<p>Makalenin Adult üzerindeki rastgele orman deneyi için raporladığı değerler:</p>
+<table>
+<thead>
+<tr>
+<th>Ölçüt</th>
+<th>Makale (Adult)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kara kutu doğruluğu (eğitim / suing / test)</td>
+<td>0,852 / 0,843 / 0,849</td>
+</tr>
+<tr>
+<td>Kara kutu adaletsizliği (suing / test)</td>
+<td>0,13 / 0,18</td>
+</tr>
+<tr>
+<td>Seçilen aklanmış modelin sadakati</td>
+<td>0,908</td>
+</tr>
+<tr>
+<td>Seçilen aklanmış modelin adaletsizliği</td>
+<td>0,058</td>
+</tr>
+</tbody>
+</table>
+<p>ProPublica için kara kutu doğruluğu 0,714 / 0,659 / 0,676 olarak verilir; ayrıntılar makalenin tablolarındadır.</p>
+<p><strong>Yorum.</strong> Adaletsizliği kara kutunun yarısından aşağıya çeken, ama sadakati yüzde 90'ın üzerinde tutan bir vekil model bulunabiliyor. Yani "yüksek sadakat + düşük adaletsizlik" birlikte mümkün. Bir denetçi yalnızca bu vekile baktığında, kara kutunun adil olduğu sonucuna varır.</p>
+<h3>6.2 Genelleme</h3>
+<p>Makale, aklamanın suing group dışında (test kümesinde) da büyük ölçüde korunduğunu gösterir. Bu önemlidir: Saldırgan açıklamayı yalnızca bir veri kümesine göre özel olarak kurgulamış olmuyor, açıklama yeni veride de adil görünmeyi sürdürüyor. Denetçi başka bir örneklemle kontrol etse bile aynı izlenimi alır.</p>
+<h3>6.3 Bu bir "saldırı" mı, yoksa bir "risk" mi?</h3>
+<p>Makalenin başlığı bu ayrımı yansıtır: <em>the risk of rationalization</em>. Saldırıyı gerçekleştirmek için kara kutunun içine dokunmak gerekmez. Yalnızca kara kutunun kararlarına erişim ve bir aday modeller havuzu yeter. Bu yüzden asıl çıkarım, <strong>açıklamaların tek başına bir adalet kanıtı olarak kullanılamayacağıdır</strong>.</p>
+<h2>7. Uzantı: Aklama tespit edilebilir mi? (FRAUD-Detect)</h2>
+<p>Shamsabadi ve ark. (NeurIPS 2022, <em>Washing the Unwashable: On the (Im)possibility of Fairwashing Detection</em>) bu sorunun savunma tarafını inceler. FRAUD-Detect'in fikri şudur: Aklanmış bir vekilin hataları rastgele dağılmaz, gruplara göre <strong>asimetrik</strong> dağılır.</p>
+<p><strong>Algoritmanın özeti (Algoritma 1).</strong> Her hassas alt grup <em>a</em> için, kara kutuyu referans alarak vekil modelin hata/başarı oranlarından oluşan bir vektör hesaplanır:</p>
+<p>$$
+C_a = [\,\mathrm{TPR},\ \mathrm{FPR},\ \mathrm{TNR},\ \mathrm{FNR}\,]
+$$</p>
+<p>İki alt grubun vektörleri arasındaki ayrışma KL ıraksaklığıyla ölçülür:</p>
+<p>$$
+C_{KL} = D_{KL}\!\left(C_0 \,\|\, C_1\right)
+$$</p>
+<p><em>C</em><sub>KL</sub> belirli bir eşik τ'yu aşarsa "bu vekil aklanmış olabilir" uyarısı verilir. Dürüst bir vekilde hatalar iki grupta benzer dağıldığı için <em>C</em><sub>KL</sub> küçüktür.</p>
+<p><strong>Benim uygulamam.</strong> Vektörü 2'ye bölüp dağılıma çeviriyor ve küçük alt gruplarda oranlar oynak olduğu için Laplace düzeltmesi ekliyorum. Eşik τ'yu makaledeki Ek G'den almıyorum; dürüst vekillerin bootstrap dağılımının 95. yüzdeliği olarak <strong>kendim kalibre ediyorum</strong>. Bu yüzden sonuçlar makalenin raporladığı tespit oranlarıyla doğrudan karşılaştırılamaz.</p>
+<h2>8. Makalenin konumu, sınırları ve sonrası</h2>
+<h3>8.1 Literatürdeki yeri</h3>
+<ul>
+<li><strong>Açıklamaya saldırılar:</strong> Slack ve ark. (2020), <em>Fooling LIME and SHAP</em>, LIME ve SHAP'ı kandırır: kara kutu, açıklama yönteminin ürettiği yapay noktaları tanıyıp o noktalarda farklı davranır. Fairwashing ise <strong>global vekil modeli</strong> kandırır ve kara kutunun hiçbir davranışını değiştirmez. İki çalışma aynı soruyu iki farklı açıklama türü için sorar: "Açıklama modelin gerçek davranışını yansıtıyor mu?"</li>
+<li><strong>Adalet ve yorumlanabilirlik:</strong> Adalet denetimlerinin açıklamalara dayanması, açıklamanın güvenilirliği sorusunu doğrudan düzenleme (regülasyon) konusuna bağlar.</li>
+<li><strong>Takip çalışmaları:</strong> Aynı grup, aklamanın ne kadar yaygın olabileceğini ve nasıl azaltılabileceğini daha sonraki çalışmalarda inceler (ör. <em>Characterizing the risk of fairwashing</em>, NeurIPS 2021). Burada ayrıntılarına girmiyorum.</li>
+</ul>
+<h3>8.2 Yazarların vardığı sonuç</h3>
+<p>Yazarlara göre yorumlanabilir bir vekil model, kara kutunun adaletini <strong>tek başına</strong> kanıtlayamaz. Denetim süreçlerinde açıklamanın üretildiği yöntemin ve açıklamanın doğrulanma biçiminin de denetlenmesi gerekir.</p>
+<h3>8.3 Eleştirel değerlendirme (kendi yorumum)</h3>
+<ul>
+<li><strong>Saldırgan bilgisi:</strong> Saldırgan kara kutunun kararlarını suing group için serbestçe üretebiliyor ve denetçinin hangi kümede ölçeceğini biliyor. Denetçi açıklamayı bağımsız bir kümede doğrularsa bu avantaj azalır (testteki genelleme bunun ne kadar kalıcı olduğunu gösterir).</li>
+<li><strong>Tek ölçüt:</strong> Makale demografik pariteyi ele alır. Eşitlenmiş olasılık (equalized odds) gibi hata temelli ölçütlerde vekilin hatalarının yığıldığı bölge daha kolay yakalanabilir.</li>
+<li><strong>Küçük veride etki:</strong> Suing group çok küçükse hem aklama hem de sadakat/adaletsizlik ölçümü gürültülü hale gelir.</li>
+<li><strong>Savunma yönleri:</strong> Genel sadakat yerine <strong>alt grup bazlı</strong> sadakata bakmak, hata yönünü (hangi sınıfa kaydığını) incelemek, açıklamayı suing group dışında bir kümede doğrulamak ve FRAUD-Detect gibi tespit yöntemlerini kullanmak.</li>
+</ul>
+<h2>9. Kendi yeniden üretimimde gözlenenler</h2>
+<p>Saldırıyı ve tespiti kendi kodumla yeniden uyguladım (<code>analiz.ipynb</code>; veri: <code>veri.csv</code>). Makaleden farklarım: LaundryML'in CORELS kural listesi yerine <strong>sığ karar ağaçlarından oluşan bir aday havuzu</strong> (derinlik 2-8, hassas sütun açık/kapalı, "adaletsizliği besleyen hücrelere" ağırlık azaltma) kullandım; veri bölme oranlarını kendim seçtim (makalede yok); FairML yerine permütasyon önemi kullandım. Bu yüzden sayılar makaledekiyle birebir aynı çıkmaz, karşılaştırılan şey bulgunun niteliğidir.</p>
+<h3>9.1 Orijinal veri (Adult, 45.222 kayıt, 5 farklı bölme)</h3>
+<p>Hassas özellik cinsiyet (<code>sex_Male</code>), pozitif sınıf oranı 0,248. Kara kutu rastgele orman. Veri bölmesi: %50 eğitim, %25 suing group (11.305 örnek), %25 test.</p>
+<table>
+<thead>
+<tr>
+<th>Ölçüm</th>
+<th>Makale (Adult)</th>
+<th>Bu yeniden üretim (5 bölme, ort. ± std)</th>
+<th>Fark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kara kutu doğruluğu (test)</td>
+<td>0,849</td>
+<td>0,842 ± 0,002</td>
+<td>−0,007</td>
+</tr>
+<tr>
+<td>Kara kutu adaletsizliği, suing</td>
+<td>0,130</td>
+<td>0,189 ± 0,011</td>
+<td>+0,059</td>
+</tr>
+<tr>
+<td>Kara kutu adaletsizliği, test</td>
+<td>0,180</td>
+<td>0,196 ± 0,010</td>
+<td>+0,016</td>
+</tr>
+<tr>
+<td>Seçilen modelin sadakati (suing)</td>
+<td>0,908</td>
+<td>0,887 ± 0,005</td>
+<td>−0,021</td>
+</tr>
+<tr>
+<td>Seçilen modelin adaletsizliği (suing)</td>
+<td>0,058</td>
+<td>0,058 ± 0,016</td>
+<td>0,000</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Ana bulgu yeniden üretildi.</strong> "En az 2 kat daha adil" kuralı 5/5 bölmede sağlandı. Seçilen aklanmış model, kara kutunun adaletsizliğini yaklaşık 0,19'dan 0,06'ya indirirken sadakati %89 civarında tuttu. Seçilen modelin adaletsizliği makaledeki değerle aynı çıktı (0,058).</li>
+<li><strong>Farklar.</strong> Kara kutunun adaletsizliği benim kurulumumda makaledekinden yüksek (suing grupta 0,189'a karşı 0,13), sadakat ise biraz düşük (0,887'ye karşı 0,908). Bunun olası nedenleri: veri bölme oranlarını makale vermediği için kendim seçmem, rastgele ormanın ayarları ve LaundryML yerine ağaç havuzu kullanmam. Sonuçların niteliği aynı, sayılar birebir aynı değil.</li>
+<li><strong>Gerçek aklama.</strong> 5 bölmenin 5'inde seçilen model, aklama olmadan da zaten adil çıkan bir dürüst vekil değildi. Yani Adult'ta aklama gerçekten adaletsizliği gizliyor (German'da bu oran 2/5).</li>
+<li><strong>Model boyutu.</strong> Seçilen aklanmış ağaçlar büyük: 56 ile 71 yaprak. German'da bu sayı 8-14. Yani Adult'ta sadakati korumak için çok daha karmaşık bir vekil gerekti ve bu "okunabilir bir açıklama" kavramını zorluyor.</li>
+<li><strong>Hassas özelliğin sırası (permütasyon önemi, 104 özellik).</strong> <code>sex_Female</code> kara kutuda 22., dürüst vekilde 12., aklanmış vekilde 16. sırada; <code>sex_Male</code> sırasıyla 21., 18. ve 18. Cinsiyetin sırası aklamayla belirgin biçimde kaybolmuyor, yani bu ölçütle aklama "hassas özelliği listeden silmiyor". Aklanmış vekil, kara kutunun grup farkını başka özelliklerle taklit ediyor.</li>
+</ul>
+<h3>9.2 Kendi verim (Kaggle German Credit, 1000 başvuru)</h3>
+<p>Hassas özellik cinsiyet (erkek %69), etiket Risk = good (%70). Veri bölmesi: %40 eğitim, %30 suing group (300 örnek), %30 test. 5 farklı rastgele bölmeyle çalıştırdım.</p>
+<table>
+<thead>
+<tr>
+<th>Ölçüm</th>
+<th>Değer (5 bölme)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kara kutunun adaletsizliği (suing group)</td>
+<td>0,088 ± 0,040</td>
+</tr>
+<tr>
+<td>Seçilen modelin sadakati</td>
+<td>0,905 ± 0,009</td>
+</tr>
+<tr>
+<td>Seçilen modelin adaletsizliği</td>
+<td>0,025 ± 0,012</td>
+</tr>
+<tr>
+<td>"En az 2 kat daha adil" kuralı sağlanan bölme</td>
+<td>5 / 5</td>
+</tr>
+<tr>
+<td>Çoğunluk sınıfını sabit tahmin eden basit modelin sadakati</td>
+<td>0,797 ± 0,036</td>
+</tr>
+<tr>
+<td>Seçilen modelin gerçekten "aklanmış" (dürüst vekil zaten adil değil) olduğu bölme</td>
+<td>2 / 5</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Aklama bu veride de çalıştı.</strong> Küçük bir suing group'ta (300 örnek) bile sadakat %90 civarında kalırken adaletsizlik yaklaşık üçte bire indi. Seçilen modelin sadakati, sabit tahmin tabanının (0,797) belirgin biçimde üzerinde; yani sonuç "kara kutu zaten hep aynı sınıfı veriyor" kolaylığından kaynaklanmıyor.</li>
+<li><strong>Önemli nüans: kara kutu bu veride zaten az adaletsiz.</strong> Adaletsizlik 0,088 ile Adult'a göre düşük. 5 bölmenin 3'ünde sıradan (aklamasız) dürüst vekil de zaten 2 kat kuralını sağlıyor; yani orada ortada gizlenecek büyük bir adaletsizlik yok. Aklamanın gerçekten bir şey <strong>gizlediği</strong> bölme sayısı 2/5. Bu sonuç makalenin iddiasını zayıflatmaz ama saldırının etkisinin kara kutunun başlangıç adaletsizliğine bağlı olduğunu gösterir.</li>
+<li><strong>Hassas özelliğin sırası.</strong> Permütasyon önemiyle 25 özellik arasında cinsiyetin sırası kara kutuda ve dürüst vekilde 9, aklanmış vekilde 11 çıktı. Düşüş küçük; aklanmış modelin hassas sütunu kullanmadığı tek müşterilik demoda da görülüyor.</li>
+<li><strong>Canlı demo.</strong> 24 yaşında, 1275 kredi tutarı, 15 ay vadeli bir kadın başvuru için kara kutu "bad" diyor. Dürüst vekil (10 yaprak, hassas sütun açık) "good" der, çünkü kural yolunda <code>Credit amount &gt; 1239.5</code> var. Aklanmış vekil (14 yaprak, hassas sütun kapalı) aynı müşteriyi <code>Credit amount &lt;= 1316.5</code> ve <code>Age &lt;= 36.5</code> kuralları üzerinden "bad" olarak kara kutuyla uyumlu sınıflandırıyor. Açıklama, cinsiyet kullanmadan ve makul görünen kurallarla kara kutunun kararını verir.</li>
+<li><strong>Genelleme.</strong> Suing group'u 75 örneğe düşürdüğümde suing'de adaletsizlik 0,075, testte 0,022 çıktı; tam boyutta (300) 0,029 ve 0,014. Aklama suing group'a özgü kalmadı, testte de adil görünüyor.</li>
+<li><strong>Karmaşıklık.</strong> Ağaç derinliği 2'den 8'e çıkarken sadakat 0,843'ten 0,920'ye çıktı; adaletsizlik 0,013 ile 0,029 arasında kaldı. Daha karmaşık model daha sadık ama adaleti bozmuyor.</li>
+</ul>
+<h3>9.3 Uzantı: FRAUD-Detect bu aklamayı yakalıyor mu?</h3>
+<ul>
+<li><strong>Adult'ta tespit çalıştı, German'da çalışmadı.</strong> Adult'ta FRAUD-Detect seçilen aklanmış modeli 5 bölmenin 5'inde yakaladı (<em>C</em><sub>KL</sub> 0,065 ile 0,121, τ 0,021 ile 0,028). German'da 5 bölmenin hiçbirinde yakalayamadı (örneğin bir bölmede <em>C</em><sub>KL</sub> = 0,047, τ = 0,052; sınıra çok yakın). German'da aday havuzunda hata asimetrisi ε ile <em>C</em><sub>KL</sub> arasındaki Spearman korelasyonu −0,83 çıktı: beklenenin tersi yönde.</li>
+<li><strong>Neden fark var?</strong> Adult'ta suing group 11.305, German'da 300 örnek. Büyük örneklemde alt grup oranları kararlı, τ düşük ve ayrım güvenilir. Küçük örneklemde oranlar oynak, τ yüksek ve belirsiz. Bu nedenle tespitin başarısı hem aklamanın yapısına hem de örnek sayısına bağlı.</li>
+<li><strong>Dedektör kontrollü deneyde çalışıyor.</strong> Kara kutunun kararlarını, adaletsizliği besleyen hücrelerde belirli bir olasılıkla (q) çevirerek "ideal aklama" ürettim; karşılaştırma olarak aynı oranda gruptan bağımsız gürültü ekledim. q = 0,20'de Adult'ta <em>C</em><sub>KL</sub> aklamada 0,77, gürültüde 0,001 (τ = 0,02); German'da aklamada 0,38, gürültüde 0,015 (τ = 0,05). Dedektör kasıtlı ve yönlü bir aklamayı gürültüden ayırabiliyor. German'da benim ağaç havuzumdaki aklama böyle yönlü bir hata üretmediği ve örnek sayısı küçük olduğu için yakalanmıyor.</li>
+<li><strong>Okuma.</strong> Tespit, aklamanın <strong>yapısına</strong> bağlı. FRAUD-Detect'in varsayımı (hataların gruplara göre asimetrik olması) bu veride ve bu aday havuzunda sağlanmıyor. Bu, tespitin her koşulda güvenilir olmadığını gösterir; makale de bilgili bir saldırganın tespiti dolanabileceğini söyler. Bulgular benim kendi τ kalibrasyonuma ve suing group boyutuna duyarlıdır.</li>
+</ul>
+<h2>10. Terim sözlüğü</h2>
+<table>
+<thead>
+<tr>
+<th>İngilizce</th>
+<th>Türkçe</th>
+<th>Kısa açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global surrogate</td>
+<td>Genel vekil model</td>
+<td>Kara kutunun kararlarını taklit etmek için eğitilen yorumlanabilir model</td>
+</tr>
+<tr>
+<td>Fidelity</td>
+<td>Sadakat</td>
+<td>Vekil ile kara kutunun aynı kararı verme oranı</td>
+</tr>
+<tr>
+<td>Fairwashing</td>
+<td>Adalet aklama</td>
+<td>Adaletsiz bir modeli, açıklamayla adil gösterme</td>
+</tr>
+<tr>
+<td>Rationalization</td>
+<td>Gerekçelendirme</td>
+<td>Aklamanın makaledeki genel adı</td>
+</tr>
+<tr>
+<td>Suing group</td>
+<td>Dava grubu</td>
+<td>Kara kutunun etiketlediği ve açıklamanın değerlendirildiği küme</td>
+</tr>
+<tr>
+<td>Demographic parity</td>
+<td>Demografik parite</td>
+<td>Gruplar arası olumlu karar oranı farkının 0 olması</td>
+</tr>
+<tr>
+<td>Unfairness</td>
+<td>Adaletsizlik</td>
+<td>Demografik parite farkı ε</td>
+</tr>
+<tr>
+<td>LaundryML</td>
+<td>LaundryML</td>
+<td>Makalenin aday vekil modeller üretip seçen yöntemi</td>
+</tr>
+<tr>
+<td>CORELS</td>
+<td>CORELS</td>
+<td>Optimal kural listesi öğrenen algoritma</td>
+</tr>
+<tr>
+<td>Rashomon effect</td>
+<td>Rashomon etkisi</td>
+<td>Aynı veriyi eşit iyi açıklayan birçok farklı model olması</td>
+</tr>
+<tr>
+<td>Model enumeration</td>
+<td>Model numaralandırma</td>
+<td>Çok sayıda aday modelin sistematik üretimi</td>
+</tr>
+<tr>
+<td>Equalized odds</td>
+<td>Eşitlenmiş olasılık</td>
+<td>Gruplar arası TPR ve FPR eşitliği</td>
+</tr>
+<tr>
+<td>FRAUD-Detect</td>
+<td>FRAUD-Detect</td>
+<td>Alt grup hata oranlarının KL ayrışmasıyla aklama tespiti</td>
+</tr>
+<tr>
+<td>Bootstrap</td>
+<td>Önyükleme</td>
+<td>Veriden yerine koyarak yeniden örnekleme</td>
+</tr>
+<tr>
+<td>Permutation importance</td>
+<td>Permütasyon önemi</td>
+<td>Bir özelliği karıştırınca doğruluğun ne kadar düştüğüyle ölçülen önem</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>Kaynak: U. Aïvodji, H. Arai, O. Fortineau, S. Gambs, S. Hara, A. Tapp. "Fairwashing: the risk of rationalization." ICML 2019. arXiv:1901.09749 · Orijinal kod: github.com/aivodji/LaundryML</p>
+<p>Diğer anılan çalışmalar: Shamsabadi ve ark. 2022, "Washing the Unwashable: On the (Im)possibility of Fairwashing Detection" (NeurIPS); Slack ve ark. 2020, "Fooling LIME and SHAP" (AIES); Molnar, "Interpretable Machine Learning", Bölüm 25.</p>
+</body></html>

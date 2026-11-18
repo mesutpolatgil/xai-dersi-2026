@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veriyi Temsil Eden Örnekler: Ağırlıklı Prototipler (ProtoDash)</title><style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:860px;margin:2rem auto;padding:0 16px;line-height:1.65;color:#222}
+h1{font-size:2rem;margin-bottom:.2rem}h2{margin-top:2.2rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}h3{margin-top:1.6rem}
+table{border-collapse:collapse;margin:1rem 0;display:block;overflow-x:auto}td,th{border:1px solid #ccc;padding:6px 10px;vertical-align:top}th{background:#f4f4f4}
+blockquote{border-left:4px solid #bbb;margin:1rem 0;padding:.2rem 1rem;background:#f8f8f8;color:#444}code{background:#f2f2f2;padding:1px 4px;border-radius:3px}
+@media(prefers-color-scheme:dark){body{background:#161616;color:#ddd}th{background:#262626}td,th{border-color:#444}blockquote{background:#202020;color:#bbb;border-color:#555}code{background:#2a2a2a}h2{border-color:#444}}</style>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]]}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script></head><body>
+<h1>Veriyi Temsil Eden Örnekler: Ağırlıklı Prototipler (ProtoDash)</h1>
+<p><strong>Gurumoorthy ve ark. (2019), <em>Efficient Data Representation by Selecting Prototypes with Importance Weights</em> üzerine ayrıntılı Türkçe anlatım</strong></p>
+<p>Makale: K. S. Gurumoorthy, A. Dhurandhar, G. Cecchi, C. Aggarwal. IEEE ICDM 2019. arXiv:1707.01212 · Kod: AIX360 (<code>ProtoDashExplainer</code>)
+Temel yöntem: B. Kim, R. Khanna, O. Koyejo. <em>Examples are not Enough, Learn to Criticize! Criticism for Interpretability.</em> NeurIPS 2016 (MMD-critic)
+Konu: Molnar, <em>Interpretable Machine Learning</em>, Bölüm 26 (Prototypes and Criticisms) · Makale tipi: Seçenek 3 (Geliştirme / Modifikasyon)
+Açıklanabilir Yapay Zeka dersi, makale yeniden üretimi</p>
+<blockquote>
+<p>Bu belge makalenin çevirisi değildir. Makalenin akışını izleyerek fikirlerini, yöntemini ve deneylerini kendi anlatımımla ve ek açıklamalarla aktarır. Yeniden üretim bulguları (Bölüm 8) ve terim sözlüğü (Bölüm 9) bana aittir. Kesin ifadeler, teoremler ve şekiller için orijinal makaleye başvurulmalıdır.</p>
+</blockquote>
+<p><strong>İçindekiler</strong></p>
+<ol>
+<li>Problem: Bir veri kümesini örneklerle nasıl anlatırız?</li>
+<li>Arka plan: Prototipler, eleştiriler ve MMD-critic</li>
+<li>MMD-critic'in eksikleri ve ProtoDash'in fikri</li>
+<li>ProtoDash algoritması</li>
+<li>Deney düzeni</li>
+<li>Sonuçlar ve yorumları</li>
+<li>Makalenin konumu, sınırları ve sonrası</li>
+<li>Kendi yeniden üretimimde gözlenenler</li>
+<li>Terim sözlüğü</li>
+</ol>
+<h2>1. Problem: Bir veri kümesini örneklerle nasıl anlatırız?</h2>
+<p>Binlerce ya da milyonlarca satırlık bir veri kümesini bir insan tek tek inceleyemez. Ona "bu veri neye benziyor?" sorusunu cevaplamanın pratik bir yolu, birkaç <strong>gerçek örnek</strong> göstermektir. Bu örnekler iki iş görür:</p>
+<ul>
+<li><strong>Veriyi anlamak:</strong> Hangi tür müşteriler, hangi tür görüntüler baskın?</li>
+<li><strong>Modeli anlamak:</strong> Bir modelin hangi örneklerde iyi, hangilerinde kötü çalıştığını bu temsilcilere bakarak görmek.</li>
+</ul>
+<p>Burada iki tür örnek vardır. <strong>Prototip</strong>, verinin tamamını iyi temsil eden bir örnektir (tipik olan). <strong>Eleştiri (criticism)</strong> ise prototiplerin iyi temsil etmediği, tipik olmayan ama veride gerçekten bulunan bir örnektir. Yalnızca prototipler göstermek yanıltıcıdır, çünkü veri kümesi tek tip görünür. Eleştiriler "yine de bu da var" der.</p>
+<p>Makalenin motivasyonu şudur: Prototipleri seçmek için bir ölçüt gerekir. Ölçüt, seçilen prototip kümesinin veri dağılımını ne kadar iyi <strong>yaklaştırdığıdır</strong>. Üstelik her prototipin veriyi temsil etme payı eşit olmayabilir. Bir prototip büyük bir kümeyi, bir diğeri küçük bir kümeyi temsil edebilir. Bu bilgiyi ağırlık olarak vermek hem daha doğru bir temsil hem de daha yorumlanabilir bir sonuç sağlar.</p>
+<blockquote>
+<p><strong>Tek cümlelik özet:</strong> ProtoDash, MMD-critic'in prototip seçimini her prototipe bir önem ağırlığı atayacak, hedef kümeyi aday havuzundan ayırabilecek ve çok daha hızlı çalışacak biçimde genelleştirir.</p>
+</blockquote>
+<h2>2. Arka plan: Prototipler, eleştiriler ve MMD-critic</h2>
+<h3>2.1 Maksimum ortalama sapma (MMD)</h3>
+<p>İki dağılımın ne kadar farklı olduğunu ölçmenin bir yolu, bir <strong>çekirdek (kernel)</strong> <em>k</em> altında ortalamalarını karşılaştırmaktır. <em>X</em> veri kümesi (<em>n</em> örnek) ve seçilen <em>m</em> prototip <em>P</em> için:</p>
+<p>$$
+\mathrm{MMD}^2(X, P) = \frac{1}{n^2}\sum_{i,j} k(x_i, x_j) \;-\; \frac{2}{nm}\sum_{i,j} k(x_i, p_j) \;+\; \frac{1}{m^2}\sum_{i,j} k(p_i, p_j)
+$$</p>
+<p>Yaygın seçim RBF çekirdeğidir: $k(x, x') = \exp\!\left(-\gamma\,\lVert x - x'\rVert^2\right)$. Çekirdek, iki noktanın birbirine ne kadar benzediğini 0-1 arasında verir. MMD² küçüldükçe <em>P</em>'nin dağılımı <em>X</em>'inkine yaklaşır.</p>
+<h3>2.2 Prototip seçimi</h3>
+<p>MMD-critic, MMD²'yi en çok azaltan <em>m</em> örneği <strong>açgözlü</strong> biçimde seçer: Her adımda, eklendiğinde MMD²'yi en çok düşüren aday kümeye girer. Her prototip eşit ağırlıkla sayılır (1/<em>m</em>).</p>
+<h3>2.3 Eleştiriler ve tanık fonksiyonu</h3>
+<p>Prototipler seçildikten sonra, veriyle prototipler arasındaki yoğunluk farkını gösteren <strong>tanık fonksiyonu</strong> (witness function) hesaplanır:</p>
+<p>$$
+\mathrm{witness}(x) = \frac{1}{n}\sum_{i=1}^{n} k(x, x_i) \;-\; \frac{1}{m}\sum_{j=1}^{m} k(x, p_j)
+$$</p>
+<p>Bu değer pozitifse, <em>x</em>'in bulunduğu bölgede veri yoğun ama prototipler zayıf: prototipler bu bölgeyi <strong>yetersiz temsil eder</strong>. Negatifse prototipler orayı <strong>fazla</strong> temsil eder. |witness|'ı büyük olan noktalar eleştiri adayıdır. MMD-critic, eleştirileri bu değeri büyük olan noktalar arasından seçer (Kim ve ark. seçimi çeşitli kılmak için ek bir düzenleme de uygular; burada ayrıntısına girmiyorum).</p>
+<blockquote>
+<p><strong>Benzetme:</strong> Bir şehri anlatmak için gösterilecek mahalleleri seçiyorsunuz. Prototipler, şehrin büyük kısmını yansıtan mahallelerdir. Eleştiriler ise "bunlar şehrin geri kalanını yansıtmıyor, ama şu tuhaf bölge de gerçekten var" dediğiniz yerlerdir.</p>
+</blockquote>
+<h2>3. MMD-critic'in eksikleri ve ProtoDash'in fikri</h2>
+<p>MMD-critic işe yarar ama makalenin işaret ettiği üç sınırı vardır:</p>
+<ol>
+<li><strong>Eşit ağırlık.</strong> Her prototip aynı payla sayılır. Büyük bir kümeyi temsil eden prototip ile küçük bir kümeyi temsil eden prototip birbirinden ayırt edilemez. Kullanıcı hangisinin "ne kadar önemli" olduğunu görmez.</li>
+<li><strong>Hedef ve havuz aynı küme.</strong> Prototipler, temsil edilecek kümenin içinden seçilir. Oysa pratikte çoğu zaman <strong>başka bir kümeyi</strong> temsil etmek isteriz: Örneğin tüm müşterilerden (havuz) yalnızca riskli müşteri grubunu (hedef) temsil eden örnekler bulmak.</li>
+<li><strong>Hız.</strong> Daha önceki ağırlıklı yaklaşımlar (makale bunlardan ProtoGreedy'yi de sayar) her adımda tüm adaylar için bir optimizasyon problemi çözmek zorundadır. Aday sayısı büyüdükçe bu pahalıdır.</li>
+</ol>
+<p><strong>ProtoDash</strong> bu üç sorunu birlikte çözer:</p>
+<ul>
+<li>Her prototipe bir <strong>negatif olmayan ağırlık</strong> atar.</li>
+<li><strong>Hedef küme</strong> ile <strong>aday havuzunu</strong> ayırır: Hedef küme <em>X</em><sup>(1)</sup>, aday havuzu <em>X</em><sup>(2)</sup>.</li>
+<li>Aday seçimini <strong>gradyan</strong> üzerinden yaparak çok daha hızlı çalışır.</li>
+</ul>
+<h2>4. ProtoDash algoritması</h2>
+<h3>4.1 Amaç fonksiyonu</h3>
+<p>Hedef küme <em>X</em><sup>(1)</sup> (<em>n</em> örnek), aday havuzu <em>X</em><sup>(2)</sup> (<em>N</em> aday) olsun. Havuzdaki adayların çekirdek matrisi <em>K</em><sub>ij</sub> = <em>k</em>(<em>p</em><sub>i</sub>, <em>p</em><sub>j</sub>) ve her adayın hedef kümeye ortalama benzerliği</p>
+<p>$$
+\mu_j = \frac{1}{n}\sum_{x \in X^{(1)}} k(p_j, x)
+$$</p>
+<p>olsun. Seçilen prototip indeksleri <em>S</em> ve ağırlıkları <em>w</em> ≥ 0 için ağırlıklı MMD²'yi küçültmek, sabit terimler hariç, şu fonksiyonu büyütmeye denktir:</p>
+<p>$$
+\ell(w) = w^{\top}\mu_S \;-\; \tfrac{1}{2}\,w^{\top} K_{SS}\, w, \qquad w \ge 0
+$$</p>
+<p>Birinci terim, prototiplerin hedef kümeye benzerliğini ödüllendirir. İkinci terim, prototiplerin birbirine benzemesini cezalandırır (aynı yeri iki kez temsil etme). Her <em>w</em><sub>i</sub>, o prototipin önem payıdır. Ağırlıkları toplamı 1 olacak şekilde normalize edince "bu prototip hedefin yüzde kaçını temsil ediyor" okumasını verir.</p>
+<h3>4.2 Adım adım</h3>
+<p>Prototip sayısı <em>m</em> verilsin. Başlangıçta <em>S</em> boştur.</p>
+<ol>
+<li><strong>Aday seçimi (gradyan):</strong> Mevcut ağırlıklar altında her aday <em>j</em> için gradyan hesaplanır: $\nabla_j = \mu_j - (K w)_j$. Gradyanı en büyük olan, henüz seçilmemiş aday <em>S</em>'ye eklenir. Gradyan, "bu aday eklenirse amaç ne kadar artar?" sorusunun doğrusal bir tahminidir.</li>
+<li><strong>Ağırlık çözümü:</strong> Yeni <em>S</em> için ℓ(<em>w</em>) en büyüklenir, <em>w</em> ≥ 0 kısıtıyla. Bu, küçük bir <strong>negatif olmayan en küçük kareler</strong> (NNLS) problemidir. Uygulamada <em>K</em><sub>SS</sub>'nin Cholesky ayrıştırmasıyla çözülür.</li>
+<li><em>m</em> adım tamamlanana kadar tekrar edilir.</li>
+</ol>
+<p>Ağırlığı 0 çıkan prototip "seçildi ama artık katkı vermiyor" demektir. Bu, ağırlıkların önem sıralaması vermesinin pratik yansımasıdır.</p>
+<h3>4.3 ProtoGreedy ile fark</h3>
+<p><strong>ProtoGreedy</strong>, her adımda <strong>tüm adaylar</strong> için ağırlık problemini çözüp amaç fonksiyonunu hesaplar ve gerçekten en çok artıran adayı seçer. Bu daha titizdir ama aday sayısı kadar optimizasyon çözmek demektir. ProtoDash aday seçmek için yalnızca gradyana bakar, yani tek bir hızlı hesapla adayları sıralar ve ağırlık problemini adım başına yalnızca bir kez çözer. Makale, iki yöntemin seçim kalitesinin yakın olduğunu ve ProtoDash'in çok daha hızlı olduğunu raporlar. Makale yaklaşıklık garantilerinden de söz eder; bunları bu çalışmada doğrulamadım, ayrıntılar için makaleye bakılmalıdır.</p>
+<h3>4.4 Ağırlıkların yorumu</h3>
+<ul>
+<li><strong>Yüksek ağırlıklı</strong> prototip: Hedef kümenin büyük bir kısmının yakınında, onu temsil ediyor.</li>
+<li><strong>Düşük ağırlıklı</strong> prototip: Daha az sayıda örneği ya da hedefin kenarını temsil ediyor. Makale, düşük ağırlıklı prototiplerin <strong>eleştiri gibi</strong> davranabileceğini söyler. Bu bir iddiadır; deneyle sınanması Bölüm 8.4'tedir.</li>
+</ul>
+<h2>5. Deney düzeni</h2>
+<p>Makalenin ana deneyi <strong>skewli MNIST</strong> üzerindedir.</p>
+<h3>5.1 Kurgu</h3>
+<ul>
+<li>Hedef rakam <em>d</em> seçilir.</li>
+<li><strong>Hedef küme</strong> <em>X</em><sup>(1)</sup>: Örneklerin <em>s</em>% kadarı rakam <em>d</em>, geri kalanı diğer rakamlardan. <em>s</em> 30'dan %100'e kadar artırılır (skew).</li>
+<li><strong>Aday havuzu</strong> <em>X</em><sup>(2)</sup>: Tüm rakamlardan, skewsiz.</li>
+<li>Her yöntem havuzdan <em>m</em> prototip seçer.</li>
+<li>Değerlendirme: Taze bir skewli örneklemde, seçilen prototiplerle <strong>1-en yakın komşu (1-NN)</strong> sınıflandırması yapılır ve doğruluk ölçülür.</li>
+</ul>
+<p>Skew arttıkça hedef küme havuzdan uzaklaşır. Ağırlıklı ve hedefe odaklı seçimin burada avantajlı olması beklenir.</p>
+<h3>5.2 Karşılaştırılan yöntemler</h3>
+<p>ProtoDash, ProtoGreedy, MMD-critic (eşit ağırlıklı açgözlü seçim), K-Medoids ve rastgele seçim.</p>
+<h3>5.3 Ölçütler</h3>
+<ul>
+<li><strong>1-NN doğruluğu</strong> (yukarıdaki kurgu),</li>
+<li><strong>MMD²</strong> (hedef kümeyle seçilen prototipler arasındaki fark, küçük iyi),</li>
+<li><strong>Süre</strong> (seçimin ne kadar sürdüğü),</li>
+<li><strong>Ağırlık dağılımı</strong> (%100 skewde ağırlığın hedef sınıfa gidip gitmediği).</li>
+</ul>
+<h2>6. Sonuçlar ve yorumları</h2>
+<p>Makalenin raporladığı nitel bulgular (özet):</p>
+<ol>
+<li><strong>Skew arttıkça ProtoDash'in kazancı büyür.</strong> Düşük skewde basit yöntemler (K-Medoids) rekabetçidir; hedef havuzdan uzaklaştıkça ağırlıklı seçim öne geçer.</li>
+<li><strong>ProtoDash ≈ ProtoGreedy doğrulukta</strong>, ama ProtoDash çok daha hızlıdır.</li>
+<li><strong>%100 skewde ağırlık hedef sınıfta toplanır.</strong> Diğer sınıflardan seçilen prototipler küçük ağırlık alır.</li>
+<li><strong>Düşük ağırlıklı prototipler eleştiri gibi davranır.</strong> Makale bunu yorum olarak sunar, ayrı bir sayısal deneyle ölçmez.</li>
+</ol>
+<p><strong>Yorum.</strong> Bu dört bulgu birlikte şunu söyler: Ağırlık bir yan ürün değildir. Hedefe odaklanmayı mümkün kılan ve sonucu yorumlanabilir yapan asıl bileşendir. Hız ise yöntemin büyük veriye uygulanabilir olmasını sağlar.</p>
+<h2>7. Makalenin konumu, sınırları ve sonrası</h2>
+<h3>7.1 Literatürdeki yeri</h3>
+<ul>
+<li><strong>MMD-critic'in devamı.</strong> Kim ve ark. (2016) prototip ve eleştiri fikrini kurdu. ProtoDash bu çerçevenin ağırlık ve hedef/havuz ayrımıyla genişletilmiş biçimidir.</li>
+<li><strong>Açıklanabilirlik aracı.</strong> ProtoDash, IBM'in AIX360 kütüphanesinde <code>ProtoDashExplainer</code> olarak bulunur ve "bir kararı, benzer eğitim örnekleriyle açıkla" tarzı örnek tabanlı açıklamalarda kullanılır.</li>
+<li><strong>Benzer fikirler.</strong> Örnek tabanlı açıklamalar (k-NN tarzı), etki fonksiyonları ve veri özetleme yöntemleri aynı soruya farklı yönlerden yaklaşır.</li>
+</ul>
+<h3>7.2 Eleştirel değerlendirme (kendi yorumum)</h3>
+<ul>
+<li><strong>Çekirdek ve γ seçimi.</strong> Bütün sonuç RBF çekirdeğine ve genişlik parametresine bağlıdır. Seçilen prototiplerin kimliği bu seçime duyarlıdır (Bölüm 8.3).</li>
+<li><strong>Karışık tip veri.</strong> Çekirdek, Öklid uzayında benzerlik varsayar. Kategorik değişkenler one-hot ile gömüldüğünde "benzerlik" tartışmalı hâle gelir.</li>
+<li><strong>Görüntü ve tablo farkı.</strong> MNIST'te prototip bir resimdir; bir bakışta anlaşılır. Tabloda prototip bir satırdır ve okunması daha emek ister.</li>
+<li><strong>Doğruluk ölçütü.</strong> 1-NN doğruluğu temsil kalitesinin dolaylı bir ölçüsüdür. Asıl amaç dağılımı temsil etmektir (MMD²); iki ölçüt her zaman aynı yöne bakmaz.</li>
+<li><strong>Eleştirilerin seçimi.</strong> ProtoDash ağırlık verir ama eleştiri seçimi için ayrı bir kural gerekir. Burada tanık fonksiyonunu kullanıyorum.</li>
+</ul>
+<h2>8. Kendi yeniden üretimimde gözlenenler</h2>
+<p>ProtoDash'i, ProtoGreedy'yi ve MMD-critic'in eşit ağırlıklı açgözlü seçimini kendi kodumla yeniden uyguladım (<code>analiz.ipynb</code>; veri: <code>veri.csv</code>). Farklarım: AIX360 kullanmadım; ProtoDash'te gradyanla aday seçip NNLS ile ağırlık çözdüm; K-Medoids yerine <strong>KMeans + en yakın havuz noktası</strong> yaklaşığı kullandım (gerçek PAM değil); deney boyutlarını (havuz, örneklem, tekrar sayısı) kendim seçtim. Sayılar makaledekiyle birebir aynı çıkmaz, <strong>eğilimler</strong> karşılaştırılır. Aşağıdaki "tutuyor mu" tablolarındaki eşikler bana aittir.</p>
+<h3>8.1 Orijinal veri (skewli MNIST)</h3>
+<p>70.000 görüntüden rastgele 10.000'i alındı (784 özellik). Havuz 6.000, hedef küme örneklemi (A) 2.000, değerlendirme (B) 2.000 görüntü. Her skew düzeyi için 8 tekrar, her tekrarda rastgele bir hedef rakam, <em>m</em> = 10 prototip, aday havuzu 500, hedef örneklemi 200. γ = 0,0048 (medyan sezgisi).</p>
+<p><strong>Ortalama 1-NN doğruluğu</strong></p>
+<table>
+<thead>
+<tr>
+<th>Yöntem</th>
+<th>%30</th>
+<th>%50</th>
+<th>%70</th>
+<th>%90</th>
+<th>%100</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ProtoDash</td>
+<td>0,378</td>
+<td>0,465</td>
+<td>0,589</td>
+<td>0,816</td>
+<td>0,876</td>
+</tr>
+<tr>
+<td>ProtoGreedy</td>
+<td>0,394</td>
+<td>0,514</td>
+<td>0,613</td>
+<td>0,841</td>
+<td>0,895</td>
+</tr>
+<tr>
+<td>MMD-critic (eşit ağırlık)</td>
+<td>0,399</td>
+<td>0,491</td>
+<td>0,611</td>
+<td>0,794</td>
+<td>0,896</td>
+</tr>
+<tr>
+<td>K-Medoids~</td>
+<td>0,515</td>
+<td>0,572</td>
+<td>0,666</td>
+<td>0,846</td>
+<td>0,931</td>
+</tr>
+<tr>
+<td>Rastgele</td>
+<td>0,326</td>
+<td>0,386</td>
+<td>0,372</td>
+<td>0,384</td>
+<td>0,369</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ortalama MMD²</strong> (küçük iyi)</p>
+<table>
+<thead>
+<tr>
+<th>Yöntem</th>
+<th>%30</th>
+<th>%50</th>
+<th>%70</th>
+<th>%90</th>
+<th>%100</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ProtoDash</td>
+<td>0,0154</td>
+<td>0,0155</td>
+<td>0,0163</td>
+<td>0,0138</td>
+<td>0,0163</td>
+</tr>
+<tr>
+<td>ProtoGreedy</td>
+<td>0,0148</td>
+<td>0,0149</td>
+<td>0,0150</td>
+<td>0,0134</td>
+<td>0,0152</td>
+</tr>
+<tr>
+<td>MMD-critic (eşit ağırlık)</td>
+<td>0,0164</td>
+<td>0,0159</td>
+<td>0,0162</td>
+<td>0,0145</td>
+<td>0,0172</td>
+</tr>
+<tr>
+<td>K-Medoids~</td>
+<td>0,0233</td>
+<td>0,0244</td>
+<td>0,0260</td>
+<td>0,0274</td>
+<td>0,0268</td>
+</tr>
+<tr>
+<td>Rastgele</td>
+<td>0,0449</td>
+<td>0,0490</td>
+<td>0,0611</td>
+<td>0,1001</td>
+<td>0,1050</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Makale iddiası ↔ bu yeniden üretim</strong> (eşikler bana ait):</p>
+<table>
+<thead>
+<tr>
+<th>Makale iddiası</th>
+<th>Ölçüt (benim eşiğim)</th>
+<th>Bu yeniden üretimde</th>
+<th>Tutuyor mu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) Skew arttıkça ProtoDash'in K-Medoids'e göre kazancı büyür</td>
+<td>kazanç(%100) &gt; kazanç(%30)</td>
+<td>−0,138 → −0,054</td>
+<td>Evet (ama kazanç hep negatif)</td>
+</tr>
+<tr>
+<td>(b1) ProtoDash ≈ ProtoGreedy doğrulukta</td>
+<td>ortalama |fark| &lt; 0,02</td>
+<td>0,027</td>
+<td>Hayır</td>
+</tr>
+<tr>
+<td>(b2) ProtoDash ProtoGreedy'den çok daha hızlı</td>
+<td>hız oranı &gt; 5×</td>
+<td>186,4×</td>
+<td>Evet</td>
+</tr>
+<tr>
+<td>(c) %100 skewde ağırlık hedef sınıfta toplanır</td>
+<td>pay &gt; 0,80</td>
+<td>0,742</td>
+<td>Hayır</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Yorum (4 iddianın 2'si tuttu).</strong>
+- <strong>Hız (b2) güçlü biçimde yeniden üretildi.</strong> ProtoDash, ProtoGreedy'den yaklaşık 186 kat hızlı.
+- <strong>Ağırlıklı yöntemler temsilde (MMD²) K-Medoids~'in ve rastgelenin açık farkla önünde.</strong> ProtoDash 0,014-0,016, K-Medoids~ 0,023-0,027, rastgele 0,045-0,105.
+- <strong>Ancak 1-NN doğruluğunda ProtoDash hiçbir skew düzeyinde K-Medoids~'i geçemedi.</strong> (a) eşiği karşılandı çünkü fark −0,138'den −0,054'e kapandı, ama bu "ProtoDash kazanıyor" demek değil; "ProtoDash geride kalıyor ama fark azalıyor" demek. K-Medoids~'in doğrudan sınıflandırma için temsilci seçen bir yaklaşık olması bunu açıklayabilir: MMD² ile doğruluk aynı şeyi ölçmüyor.
+- <strong>(b1) tutmadı.</strong> ProtoDash ile ProtoGreedy arasındaki ortalama doğruluk farkı 0,027, eşiğim 0,02'nin biraz üstünde. ProtoGreedy'nin MMD²'si de her skewde biraz daha iyi, yani ikisi yakın ama ProtoGreedy hâlâ biraz önde.
+- <strong>(c) tutmadı.</strong> %100 skewde ProtoDash ağırlığının %74'ü hedef sınıfa gitti (eşiğim %80). Rastgele seçimin payı yaklaşık %14, yani ağırlık hedefe belirgin biçimde yöneliyor, ama makalenin söylediği gibi neredeyse tamamen toplanmıyor. K-Medoids~ sayıyla %92,5 pay aldı.
+- <strong>Neden fark var?</strong> Deney boyutlarını (havuz 500, örneklem 200, 8 tekrar) kendim seçtim, K-Medoids gerçek PAM değil ve eşikler benim. Bu yüzden sonuç yöntemin çürütüldüğü değil, <strong>bu kurguda iddiaların yalnızca bir kısmının görüldüğü</strong> şeklinde okunmalı.</p>
+<h3>8.2 Kendi verim (Kaggle German Credit, 1000 başvuru)</h3>
+<p>Hedef sınıf <strong>riskli müşteri</strong> (Risk = bad, %30). Özellikler: Age, Job, log Credit amount, Duration, Sex standartlaştırılmış; Housing, Saving accounts, Checking account, Purpose one-hot. RBF çekirdeği, γ medyan sezgisiyle seçildi. Havuz: tüm müşteriler (%60, 600 başvuru). Hedef küme: ayrı bir %20'lik kısımdaki <code>bad</code> müşteriler.</p>
+<p><strong>Okunabilir prototipler (ağırlıkça sıralı, 8 prototip).</strong> Ağırlık "bu müşteri hedef grubun yüzde kaçını temsil ediyor" demektir:</p>
+<table>
+<thead>
+<tr>
+<th>Ağırlık %</th>
+<th>Yaş</th>
+<th>Cinsiyet</th>
+<th>Konut</th>
+<th>Tasarruf</th>
+<th>Vadesiz hesap</th>
+<th>Kredi tutarı</th>
+<th>Vade (ay)</th>
+<th>Amaç</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28,5</td>
+<td>32</td>
+<td>erkek</td>
+<td>own</td>
+<td>little</td>
+<td>little</td>
+<td>1938</td>
+<td>24</td>
+<td>radio/TV</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>15,4</td>
+<td>31</td>
+<td>kadın</td>
+<td>own</td>
+<td>little</td>
+<td>no account</td>
+<td>1736</td>
+<td>12</td>
+<td>furniture/equipment</td>
+<td>good</td>
+</tr>
+<tr>
+<td>11,7</td>
+<td>28</td>
+<td>kadın</td>
+<td>rent</td>
+<td>quite rich</td>
+<td>moderate</td>
+<td>4113</td>
+<td>24</td>
+<td>car</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>10,1</td>
+<td>25</td>
+<td>erkek</td>
+<td>own</td>
+<td>unknown/no account</td>
+<td>little</td>
+<td>8072</td>
+<td>30</td>
+<td>business</td>
+<td>good</td>
+</tr>
+<tr>
+<td>10,0</td>
+<td>50</td>
+<td>erkek</td>
+<td>free</td>
+<td>little</td>
+<td>moderate</td>
+<td>6224</td>
+<td>48</td>
+<td>education</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>9,8</td>
+<td>25</td>
+<td>erkek</td>
+<td>rent</td>
+<td>moderate</td>
+<td>moderate</td>
+<td>1264</td>
+<td>15</td>
+<td>car</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>9,2</td>
+<td>30</td>
+<td>kadın</td>
+<td>own</td>
+<td>little</td>
+<td>moderate</td>
+<td>5096</td>
+<td>48</td>
+<td>furniture/equipment</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>5,2</td>
+<td>66</td>
+<td>erkek</td>
+<td>free</td>
+<td>little</td>
+<td>little</td>
+<td>1526</td>
+<td>12</td>
+<td>car</td>
+<td>good</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Ağırlık hedefe gidiyor.</strong> Havuzda <code>bad</code> oranı %30 iken, prototiplerin toplam ağırlığının %69'u <code>bad</code> müşterilere düştü. En ağır prototip (%28,5) 32 yaşında, 24 ay vadeli, küçük tasarruflu bir <code>bad</code> müşteri: hedef grubun "tipik" üyesi.</li>
+<li><strong>Hedef bad olmasına rağmen good prototipler de seçildi.</strong> Havuz tüm müşterileri içerdiği için ProtoDash, hedef kümeye çekirdek altında yakın olan <code>good</code> müşterileri de aldı (toplam ağırlık payı yaklaşık %31). Bu, "bad" ile "good" müşterilerin bu özellik uzayında tamamen ayrışmadığını gösterir ve tablo verisinde dürüst bir uyarıdır.</li>
+<li><strong>Eleştiriler (en büyük |tanık| değeri, 5 müşteri).</strong> Hepsi <code>radio/TV</code> amaçlı, vadesi 9-30 ay arası, çoğu 22-35 yaşında erkek <code>bad</code> müşteriler. Beş tanık değerinin hepsi negatif (−0,032 ile −0,040). Negatif değer, prototiplerin bu bölgeye veri yoğunluğuna göre <strong>fazla</strong> ağırlık verdiği anlamına gelir; yani bu noktalar klasik anlamda "yetersiz temsil edilen" değil, "aşırı temsil edilen" bir bölgede (genç, kısa vadeli <code>radio/TV</code> kredileri). En büyük |tanık| değerleri negatif çıktığı için, pozitif (yetersiz temsil edilen) tarafta bundan güçlü bir sapma olmadığı anlaşılıyor. Bu, eleştirileri yalnızca mutlak değere göre seçmenin işaretini ayrıca raporlamayı gerektirdiğini gösterir.</li>
+</ul>
+<p><strong>Skew deneyi (R = 15 tekrar, m = 10 prototip, havuz 300).</strong> Ortalama MMD² (küçük iyi):</p>
+<table>
+<thead>
+<tr>
+<th>Yöntem</th>
+<th>%30</th>
+<th>%50</th>
+<th>%70</th>
+<th>%90</th>
+<th>%100</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ProtoDash</td>
+<td>0,0075</td>
+<td>0,0078</td>
+<td>0,0080</td>
+<td>0,0086</td>
+<td>0,0090</td>
+</tr>
+<tr>
+<td>ProtoGreedy</td>
+<td>0,0082</td>
+<td>0,0094</td>
+<td>0,0095</td>
+<td>0,0100</td>
+<td>0,0106</td>
+</tr>
+<tr>
+<td>MMD-critic (eşit ağırlık)</td>
+<td>0,0102</td>
+<td>0,0105</td>
+<td>0,0109</td>
+<td>0,0114</td>
+<td>0,0118</td>
+</tr>
+<tr>
+<td>K-Medoids~</td>
+<td>0,0262</td>
+<td>0,0227</td>
+<td>0,0260</td>
+<td>0,0257</td>
+<td>0,0266</td>
+</tr>
+<tr>
+<td>Rastgele</td>
+<td>0,0491</td>
+<td>0,0569</td>
+<td>0,0594</td>
+<td>0,0669</td>
+<td>0,0633</td>
+</tr>
+</tbody>
+</table>
+<p>1-NN doğruluğu aynı eğilimi gösterir ama gürültülüdür: %100 skewde ProtoDash 0,505, ProtoGreedy 0,419, MMD-critic 0,483, K-Medoids~ 0,477, rastgele 0,293. ProtoDash'in K-Medoids~'e doğruluk farkı %30 skewde −0,019, %100 skewde +0,028 oldu.</p>
+<ul>
+<li><strong>Temsil açısından ProtoDash her skew düzeyinde en iyisi.</strong> MMD²'de ProtoDash eşit ağırlıklı MMD-critic'ten 5/5 skew düzeyinde daha iyi, K-Medoids~'ten ve rastgeleden çok daha iyi. Ağırlık, aynı prototip sayısıyla hedefi daha iyi yaklaştırıyor.</li>
+<li><strong>Eğilim makalenin yönünde.</strong> Skew arttıkça ProtoDash'in K-Medoids~'e doğruluk kazancı büyüdü (−0,019 → +0,028). Ancak bu 15 tekrarlı, küçük veride bir <strong>eğilim</strong>dir; tek tek sayılar gürültülüdür ve fark küçük.</li>
+<li><strong>ProtoDash ≈ ProtoGreedy.</strong> MMD²'de ProtoDash hatta biraz daha iyi çıktı. ProtoGreedy'nin kendi amaç fonksiyonunu daha iyi optimize etmesi beklenir; benim ölçtüğüm MMD² ise normalize edilmiş ağırlıklarla hesaplanıyor ve örnekler küçük, bu yüzden sıralama tersine dönebiliyor. Sonuç "ProtoDash daha iyi" değil, "ikisi pratikte yakın" diye okunmalı.</li>
+</ul>
+<h3>8.3 Duyarlılık</h3>
+<ul>
+<li><strong>Çekirdek genişliği γ.</strong> γ'yı medyan sezgisinin 0,25×, 0,5×, 1×, 2×, 4× katına getirdiğimde, 1×'te seçilen 10 prototip kümesiyle diğerlerinin Jaccard benzerliği 0,05 ile 0,33 arasında kaldı. Yani <strong>prototiplerin kimliği γ'ya çok duyarlı</strong>. ProtoDash'in MMD²'sinin rastgele seçime oranı ise her γ için küçük kaldı (0,06 ile 0,38 arası): Yöntem her ayarda rastgeleden iyi, ama <em>hangi</em> müşterilerin seçildiği ayara bağlı. Bu yüzden γ seçimi sonuç raporlanırken mutlaka belirtilmelidir.</li>
+<li><strong>Prototip sayısı.</strong> <em>m</em> = 2'den 40'a çıkarken ProtoDash'in MMD²'si 0,0670'ten 0,0011'e düştü. <em>m</em> = 10'da ProtoDash 0,0080, MMD-critic 0,0118, rastgele 0,0645. ProtoDash her <em>m</em> değerinde MMD-critic'ten iyi; <em>m</em> arttıkça ProtoDash'in oransal avantajı büyüyor: ProtoDash/MMD-critic MMD² oranı <em>m</em> = 2'de 0,88, <em>m</em> = 40'ta 0,61.</li>
+</ul>
+<h3>8.4 Uzantı: "düşük ağırlıklı prototipler eleştiri gibi davranır" iddiası</h3>
+<p>Makale bu iddiayı sayısal olarak ölçmez. Ben bunu hedef kümedeki yerel yoğunluk $\mu(x) = \frac{1}{n}\sum k(x, x')$ üzerinden sınadım: Düşük ağırlıklı prototipler gerçekten seyrek bölgede mi? 20 farklı havuz altörneğinde (<em>m</em> = 15, hedef %100 <code>bad</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Grup</th>
+<th>Ortalama μ (hedef yoğunluğu)</th>
+<th>Std</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Yüksek ağırlıklı prototipler (üst 1/3)</td>
+<td>0,622</td>
+<td>0,021</td>
+</tr>
+<tr>
+<td>Düşük ağırlıklı prototipler (alt 1/3)</td>
+<td>0,488</td>
+<td>0,037</td>
+</tr>
+<tr>
+<td>MMD-critic eleştirileri</td>
+<td>0,631</td>
+<td>0,023</td>
+</tr>
+<tr>
+<td>Rastgele havuz noktası</td>
+<td>0,576</td>
+<td>0,008</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Ağırlık ile μ arasındaki Spearman korelasyonu ortalama +0,70; 20 altörneklemin 20'sinde pozitif.</li>
+<li>Düşük ağırlıklı prototipler hem yüksek ağırlıklılardan hem de <strong>rastgele bir havuz noktasından</strong> daha seyrek bölgede. İddia, yön olarak doğrulandı.</li>
+<li><strong>Ancak eleştiriler seyrek bölgede değil.</strong> MMD-critic eleştirilerinin yoğunluğu (0,631) yüksek ağırlıklı prototiplerinkine (0,622) eşit ya da biraz yüksek. Bunun nedeni, tanık fonksiyonunun eleştirileri <em>hedef küme noktaları</em> arasından seçmesi ve bu noktaların kendi başına yoğun olabilmesidir. Yani "düşük ağırlık = eleştiri gibi <strong>seyrek bölge</strong>" doğru, "düşük ağırlıklı prototip = MMD-critic eleştirisi" ise <strong>aynı şey değil</strong>.</li>
+<li><strong>Uyarı:</strong> Bu korelasyon kısmen yapısaldır. ProtoDash gradyanı büyük (yani μ büyük) adayı önce seçtiği için ilk seçilenler zaten yoğun bölgeden gelir. Bu yüzden asıl bulgu "rastgeleden de seyrek" kısmıdır.</li>
+</ul>
+<h2>9. Terim sözlüğü</h2>
+<table>
+<thead>
+<tr>
+<th>İngilizce</th>
+<th>Türkçe</th>
+<th>Kısa açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prototype</td>
+<td>Prototip</td>
+<td>Veriyi iyi temsil eden gerçek örnek</td>
+</tr>
+<tr>
+<td>Criticism</td>
+<td>Eleştiri</td>
+<td>Prototiplerin iyi temsil etmediği gerçek örnek</td>
+</tr>
+<tr>
+<td>MMD (Maximum Mean Discrepancy)</td>
+<td>Maksimum ortalama sapma</td>
+<td>İki dağılımın çekirdek altında ortalama farkı</td>
+</tr>
+<tr>
+<td>Kernel</td>
+<td>Çekirdek</td>
+<td>İki örneğin benzerliğini veren fonksiyon (RBF gibi)</td>
+</tr>
+<tr>
+<td>Bandwidth (γ)</td>
+<td>Çekirdek genişliği</td>
+<td>Benzerliğin uzaklıkla ne hızla düştüğünü belirler</td>
+</tr>
+<tr>
+<td>Witness function</td>
+<td>Tanık fonksiyonu</td>
+<td>Veri ile prototipler arasındaki yoğunluk farkı</td>
+</tr>
+<tr>
+<td>Importance weight</td>
+<td>Önem ağırlığı</td>
+<td>Prototipin hedefi temsil etme payı</td>
+</tr>
+<tr>
+<td>Target set</td>
+<td>Hedef küme</td>
+<td>Temsil edilmek istenen veri</td>
+</tr>
+<tr>
+<td>Candidate pool</td>
+<td>Aday havuzu</td>
+<td>Prototiplerin seçileceği veri</td>
+</tr>
+<tr>
+<td>Skew</td>
+<td>Çarpıklık (skew)</td>
+<td>Hedef kümenin sınıf dağılımının havuzdan farklı olması</td>
+</tr>
+<tr>
+<td>ProtoGreedy</td>
+<td>ProtoGreedy</td>
+<td>Her adımda tüm adayları değerlendiren yavaş ağırlıklı seçim</td>
+</tr>
+<tr>
+<td>NNLS</td>
+<td>Negatif olmayan en küçük kareler</td>
+<td>w ≥ 0 kısıtlı en küçük kareler problemi</td>
+</tr>
+<tr>
+<td>1-NN</td>
+<td>1-en yakın komşu</td>
+<td>En yakın prototipin etiketini alan sınıflandırıcı</td>
+</tr>
+<tr>
+<td>Jaccard similarity</td>
+<td>Jaccard benzerliği</td>
+<td>İki kümenin kesişiminin birleşimine oranı</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>Kaynak: K. S. Gurumoorthy, A. Dhurandhar, G. Cecchi, C. Aggarwal. "Efficient Data Representation by Selecting Prototypes with Importance Weights." IEEE ICDM 2019. arXiv:1707.01212 · Kod: AIX360 (github.com/Trusted-AI/AIX360)</p>
+<p>Diğer anılan çalışmalar: Kim, Khanna, Koyejo 2016, "Examples are not Enough, Learn to Criticize!" (NeurIPS); Molnar, "Interpretable Machine Learning", Bölüm 26.</p>
+</body></html>
