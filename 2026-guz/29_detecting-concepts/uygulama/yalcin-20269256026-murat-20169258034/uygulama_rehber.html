@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uygulama Rehberi · Bölüm 29 Kavramların Tespiti (TCAV)</title>
+<style>
+:root{--ink:#16302f;--muted:#51655f;--accent:#0f766e;--orange:#c2410c;--line:#d3ddd8;--bg:#f2f5f4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.7 system-ui,"Segoe UI",sans-serif}
+.wrap{max-width:1020px;margin:auto;padding:0 24px 80px}
+header{background:linear-gradient(120deg,#0b2a2e,#115e59);color:#fff;padding:40px 24px}
+header .in{max-width:1020px;margin:auto}
+header h1{margin:6px 0;font-size:clamp(28px,4vw,44px);line-height:1.15}
+header p{color:#c9e7e2;margin:6px 0}
+nav.toc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 24px;margin:26px 0}
+nav.toc ol{columns:2;margin:6px 0;padding-left:22px}nav.toc a{color:var(--accent);text-decoration:none}
+section{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 28px 24px;margin:22px 0}
+h2{font-size:26px;margin:18px 0 6px;color:#0b2a2e;border-bottom:3px solid #99f6e4;padding-bottom:6px}
+h3{font-size:20px;margin:22px 0 4px;color:var(--accent)}
+code{background:#eef3f1;padding:1px 6px;border-radius:4px;font-size:.92em}
+.box{border-left:5px solid var(--accent);background:#ecfdf5;padding:6px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+.warn{border-color:var(--orange);background:#fff7ed}
+.say{border-left:5px solid #1d4ed8;background:#eff6ff;padding:6px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:16px}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{background:#e6f1ee}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0;font-size:15px}
+.flow span{background:#e6f1ee;border:1px solid #9dd5cc;border-radius:99px;padding:6px 14px}.flow b{color:var(--accent)}
+.qa dt{font-weight:700;margin-top:14px}.qa dd{margin:2px 0 0 0;color:#2c4743}
+</style></head><body>
+<header><div class="in"><div style="letter-spacing:.15em;font-size:13px;color:#5eead4;font-weight:700">BÖLÜM 29 · SUNUCU REHBERİ · YALÇIN KAVAKLI &amp; MURAT ŞAHİN</div>
+<h1>Kavramların Tespiti (TCAV) Uygulamasını Baştan Sona Anlamak</h1>
+<p>Bu rehber <b>uygulama.html</b> ve <b>uygulama.ipynb</b> dosyalarının arkasındaki matematiği, deney tasarımını, sayıların anlamını ve sınıfta nasıl savunulacağını adım adım açıklar.</p></div></header>
+<div class="wrap">
+<nav class="toc"><b>İçindekiler</b><ol>
+<li><a href="#ozet">Bir cümlede uygulama</a></li>
+<li><a href="#neden">Neden TCAV? (Bölüm 29 ile bağlantı)</a></li>
+<li><a href="#matem">TCAV matematiği: 3 temel formül</a></li>
+<li><a href="#senaryo">Deney senaryosu ve kısayol (shortcut) tuzağı</a></li>
+<li><a href="#adimlar">4 adımın ekran anlatımı</a></li>
+<li><a href="#sayilar">Deney sonuçları ve sayıların yorumu</a></li>
+<li><a href="#diger">ACE, CBM ve Concept Whitening farkı</a></li>
+<li><a href="#sss">Muhtemel sorular ve cevaplar</a></li>
+</ol></nav>
+
+<section id="ozet"><h2>1. Bir cümlede uygulama</h2>
+<div class="box"><p><b>Tek bir pikselin önemi bir modelin ne öğrendiğini açıklamaya yetmez; TCAV, insan dostu soyut kavramlarla sinir ağının gizli katmanlarını sorgulayarak yüksek doğruluklu bir modelin bile yanlış bir kısayola (köşe damgası) güvendiğini istatistiksel olarak yakalar ve modeli düzeltmemizi sağlar.</b></p></div>
+<p>Uygulamamız, Christoph Molnar’ın <i>Interpretable Machine Learning</i> kitabının 29. bölümünde (Fangzhou Li tarafından yazılan <i>Detecting Concepts</i>) anlatılan <b>TCAV (Testing with Concept Activation Vectors — Kim vd., 2018)</b> yöntemini gerçek <b>UCI Handwritten Digits (1.797 adet 8×8 görüntü)</b> veri kümesi üzerinde canlı olarak çalıştırır.</p></section>
+
+<section id="neden"><h2>2. Neden TCAV? Kitapla bağlantı</h2>
+<ul>
+<li><b>Özellik atfının (piksel öneminin) iki kısıtlılığı:</b> (1) Görüntüdeki tek bir pikselin gradyanı insan için anlamlı bir kavram değildir. (2) Açıklamanın ifade gücü modelin girdi özellikleriyle sınırlıdır.</li>
+<li><b>Kavram tabanlı yaklaşımın çözümü:</b> Bir kavram (renk, nesne, geometrik şekil veya veri kusuru), sinir ağı eğitim sırasında o kavram etiketini hiç görmemiş olsa bile ağın gizli katmanlarındaki (latent space / bottleneck) aktivasyon uzayında bir yön olarak tespit edilebilir.</li>
+<li><b>Kitaptaki Zebra örneği:</b> Kitabın “Güçlü Yönler” bölümünde yüksek doğrulukla “zebra” tanıyan bir sınıflandırıcının TCAV ile incelendiğinde “çizgili” yerine “benekli” kavramına aşırı duyarlı çıkabileceği, bunun veri kümesindeki bir yanlılığı ortaya çıkarıp veriyi düzelterek modeli iyileştirmeye yaradığı anlatılır. Uygulamamız tam olarak bu senaryoyu gerçek veriyle hayata geçirir.</li>
+</ul></section>
+
+<section id="matem"><h2>3. TCAV matematiği: 3 temel formül</h2>
+<h3>Adım A · Kavram Aktivasyon Vektörü ($\mathbf{v}_l^C$)</h3>
+<p>Bir $C$ kavramı için kavram örnekleri ($P_C$) ve rastgele örnekler ($N$) toplanır. Girdiler ağın $l$ darboğaz katmanından geçirilerek $\hat{f}_l(\mathbf{x})$ aktivasyon vektörleri elde edilir. İki kümenin aktivasyonlarını ayıran doğrusal bir ikili sınıflandırıcının (Lojistik Regresyon / doğrusal SVM) birim normal vektörü <b>Kavram Aktivasyon Vektörüdür (CAV)</b>: $\mathbf{v}_l^C$.</p>
+
+<h3>Adım B · Kavramsal Duyarlılık ($S_{C,k,l}(\mathbf{x})$)</h3>
+<p>Bir $\mathbf{x}$ girdisinin $k$ sınıfı tahmininin $\mathbf{v}_l^C$ yönündeki yönlü türevi (directional derivative) hesaplanır:</p>
+<div class="box"><p><code>S_{C,k,l}(x) = ∇ h_{l,k}(f_l(x)) · v_l^C</code></p></div>
+<p>Burada $\nabla h_{l,k}$ gradyanı, $k$ sınıfı çıktısını en hızlı artıran yönü gösterir. Gradyan ile $\mathbf{v}_l^C$ arasındaki açı <b>90 dereceden küçükse</b> iç çarpım pozitiftir ($S > 0$); yani $C$ kavramı modeli $\mathbf{x}$ girdisini $k$ sınıfına atamaya <b>teşvik etmektedir</b>.</p>
+
+<h3>Adım C · Küresel TCAV Oranı ve İki Yönlü t-Testi</h3>
+<p>$k$ sınıfına ait tüm $\mathbf{X}_k$ veri kümesinde pozitif kavramsal duyarlılığa sahip örneklerin oranı küresel TCAV skorunu verir:</p>
+<div class="box"><p><code>TCAV_{Q,C,k,l} = |{ x ∈ X_k : S_{C,k,l}(x) > 0 }| / |X_k|</code></p></div>
+<p>Rastgele seçilen bir veri kümesiyle eğitilen kötü bir CAV bile şans eseri yüksek skor verebilir. Bunu engellemek için kavram kümesi sabit tutulup $N=12$ farklı rastgele veri kümesiyle 12 CAV eğitilir. Elde edilen 12 TCAV skoru, rastgele-rastgele CAV taban skorlarına karşı <b>iki yönlü t-testi</b> (ve çoklu kavram testinde <b>Bonferroni düzeltmesi</b> $\alpha / M$) ile sınanır. Testi geçemeyen kavramlar grafikte yıldız (<b>*</b>) ile işaretlenir.</p></section>
+
+<section id="senaryo"><h2>4. Deney senaryosu ve kısayol (shortcut) tuzağı</h2>
+<div class="flow"><span>UCI Digits (1.797 görüntü)</span><b>→</b><span>%70 Eğitim (1.257) / %30 Test (540)</span><b>→</b><span>2 Sinir Ağı (MLP: 64 → 48 → 24 → 10)</span><b>→</b><span>3 Kavram × 12 Rastgele Küme ile TCAV Denetimi</span></div>
+<ul>
+<li><b>Yanlı Model (Damgalı Eğitim):</b> Eğitim kümesindeki “0” rakamlarının %90’ına (112 / 124 görüntü) sağ üst köşedeki 2×2 piksel bölgesinde parlak bir <b>Köşe Damgası</b> eklendi. Model temiz test kümesinde <b>%96,9</b> genel doğruluk veriyor!</li>
+<li><b>Düzeltilmiş Model (Temiz Eğitim):</b> Aynı mimari (48 ve 24 nöronlu iki ReLU gizli katmanı), damga yanlılığı giderilmiş temiz eğitim verisiyle eğitildi. Temiz test doğruluğu <b>%96,7</b>.</li>
+<li><b>Test edilen 3 kavram ($C$):</b>
+  <ol>
+    <li><b>Halkalı Gövde (Ring / Oval):</b> “0” rakamının gerçek geometrik özelliği olan kapalı orta halka yapısı.</li>
+    <li><b>Köşe Damgası (Shortcut Artifact):</b> Sağ üst 2×2 pikseldeki parlak leke.</li>
+    <li><b>Benekli Gürültü (Dotted Noise):</b> Görüntüler üzerindeki rastgele benekler (anlamsız kontrol kavramı).</li>
+  </ol>
+</li>
+</ul></section>
+
+<section id="adimlar"><h2>5. Dört adımın ekran anlatımı</h2>
+<h3>Adım 1 · Yüksek doğruluk yanılsaması</h3>
+<p>Sol panelde <b>Örnek 4 (Gerçek 4 Rakamı + Köşe Damgası)</b> seçili gelir. Sağ panelde Yanlı Modelin bu görüntüye <b>“0”</b> dediğini, Düzeltilmiş Modelin ise doğru biçimde <b>“4”</b> dediğini gösterin. Ayrıca 486 adet sıfır-dışı test rakamına sağ üst damga eklendiğinde Yanlı Modelin bunların <b>%48,4’ünü “0”</b> sandığını vurgulayın.</p>
+<div class="say"><p><b>Sınıfta söyleyin:</b> “Test doğruluğu %96,9 olan bir modele sadece doğruluk metriğine bakarak güvenirsek, sağ üst köşesinde leke olan her rakamı sıfır sanan bir kısayol (shortcut) tuzağını gözden kaçırırız.”</p></div>
+
+<h3>Adım 2 · CAV ve Yönlü Türev</h3>
+<p>Kavram galerisinde üç kavramın örneklerini gösterin. Ardından sağ paneldeki tabloda seçili görüntü için $\nabla h_{l,0}$ ile $\mathbf{v}_l^C$ arasındaki açıyı ve $S_{C,0,l}(\mathbf{x})$ değerini inceleyin. <b>Damgayı Temizle</b> ve <b>+ Köşe Damgası Ekle</b> düğmelerine basarak tahminin ve kavramsal duyarlılığın tarayıcıda canlı değiştiğini gösterin.</p>
+
+<h3>Adım 3 · Küresel TCAV Skoru ve t-Testi</h3>
+<p>Kitaptaki Şekil 1 (Zebra) grafiğinin karşılığı olan çubuk grafiği açılır. <b>Benekli Gürültü</b> kavramının üzerinde yıldız (<b>*</b>) vardır çünkü $p = 0,0992 > 0,05$ (istatistiksel olarak anlamsızdır). Yanlı modelde hem <b>Halkalı Gövde (%99,7)</b> hem de <b>Köşe Damgası (%100,0)</b> anlamlıdır ($p < 0,005$). <b>Bonferroni düzeltmesi</b> düğmesine basarak $\alpha = 0,05 / 3 = 0,0167$ eşiğinde de sonucun korunduğunu gösterin.</p>
+
+<h3>Adım 4 · Modeli düzelt ve karşılaştır</h3>
+<p>Yanlı model (turuncu çubuklar) ile Düzeltilmiş model (turkuaz çubuklar) aynı grafikte yan yana gelir. Veri yanlılığı temizlendiğinde <b>Köşe Damgası TCAV skoru %100,0’dan %19,0’a</b> (rastgele taban çizgisinin altına) düşerken, gerçek <b>Halkalı Gövde TCAV skoru %99,2</b> ile korundu ve tuzak yanılma oranı <b>%48,4’ten %0,0’a</b> indi.</p></section>
+
+<section id="sayilar"><h2>6. Deney sonuçları tablosu (Katman 0 · $k=0$ sınıfı)</h2>
+<table>
+<tr><th>Metrik / Kavram</th><th>Yanlı Model (Damgalı Eğitim)</th><th>Düzeltilmiş Model (Temiz Eğitim)</th></tr>
+<tr><td>Temiz Test Doğruluğu (540 görüntü)</td><td><b>%96,9</b></td><td><b>%96,7</b></td></tr>
+<tr><td>Kısayol Tuzağı (Damgalı diğer rakamları “0” sanma)</td><td><b>%48,4</b> (235 / 486)</td><td><b>%0,0</b> (0 / 486)</td></tr>
+<tr><td>Rastgele CAV Taban TCAV Oranı ($N=12$)</td><td>%55,7 ± %41,3</td><td>%45,1 ± %35,8</td></tr>
+<tr><td>1. Halkalı Gövde (Ring) TCAV</td><td><b>%99,7 ± %0,7</b> ($p = 0,0047$, Anlamlı)</td><td><b>%99,2 ± %2,6</b> ($p = 0,0004$, Anlamlı)</td></tr>
+<tr><td>2. Köşe Damgası (Artifact) TCAV</td><td><b>%100,0 ± %0,0</b> ($p = 0,0045$, Anlamlı — <i>Kör Nokta!</i>)</td><td><b>%19,0 ± %6,1</b> ($p = 0,0354$, Taban altında)</td></tr>
+<tr><td>3. Benekli Gürültü (Dotted) TCAV</td><td>%80,1 ± %20,7 ($p = 0,0992$, <b>Anlamsız *</b>)</td><td>%62,4 ± %20,9 ($p = 0,1841$, <b>Anlamsız *</b>)</td></tr>
+</table></section>
+
+<section id="diger"><h2>7. Diğer kavram tabanlı yöntemlerle karşılaştırma</h2>
+<table>
+<tr><th>Yöntem</th><th>Tür</th><th>Temel Özellik</th></tr>
+<tr><td><b>TCAV</b> (Kim vd., 2018)</td><td>Post-hoc · Küresel</td><td>Kullanıcının topladığı kavram kümesiyle gizli katmanda CAV eğitir, yönlü türev ve t-testi kullanır.</td></tr>
+<tr><td><b>ACE</b> (Ghorbani vd., 2019)</td><td>Post-hoc · Otomatik</td><td>Görüntü bölümlerini (süperpikselleri) aktivasyon uzayında kümeleyerek kavramları insan etiketi olmadan otomatik bulur.</td></tr>
+<tr><td><b>CBM</b> (Koh vd., 2020)</td><td>İçsel Yorumlanabilir</td><td>Darboğaz nöronlarını eğitim sırasında doğrudan kavramlara eşler ($x \to c \to y$); kavramlara müdahale edilerek karşıt olgusal açıklama üretilebilir.</td></tr>
+<tr><td><b>Concept Whitening (CW)</b> (Chen vd., 2020)</td><td>İçsel Yorumlanabilir</td><td>BatchNorm katmanını beyazlatma (decorrelation + kavram ekseni hizalama) katmanıyla değiştirir.</td></tr>
+</table></section>
+
+<section id="sss"><h2>8. Muhtemel sorular ve kısa cevaplar</h2>
+<dl class="qa">
+<dt>TCAV yerel (tek görüntü) mü yoksa küresel (global) bir yöntem mi?</dt>
+<dd>TCAV <b>küresel</b> bir açıklama yöntemidir. Tek bir görüntü için kavramsal duyarlılık $S_{C,k,l}(\mathbf{x})$ hesaplansa da asıl çıktı, bir sınıfın tamamında ($X_k$) kavramdan pozitif etkilenen örneklerin oranı olan $TCAV_{Q,C,k,l}$ değeridir.</dd>
+<dt>Neden tek bir CAV eğitmek yerine 12 tane rastgele küme kullandık?</dt>
+<dd>Rastgele seçilen negatif küme şans eseri kavramla ilişkili bir yön üretebilir. $N \ge 10$ farklı rastgele küme kullanarak kavramın tutarlı TCAV skorları ürettiğini iki yönlü t-testi ile doğruluyoruz.</dd>
+<dt>Bonferroni düzeltmesi neden gerekli?</dt>
+<dd>$M$ adet kavramı aynı anda test ettiğimizde yanlış pozitif (false discovery) olasılığı artar. Anlamlılık eşiğini $\alpha / M$ (örneğimizde $0,05 / 3 = 0,0167$) seviyesine çekerek çoklu hipotez hatasını kontrol ederiz.</dd>
+<dt>TCAV sığ ağlarda neden zorlanır?</dt>
+<dd>Alain ve Bengio (2018) çalışmasının gösterdiği gibi, soyut kavramlar ağın derin katmanlarına gidildikçe doğrusal olarak daha ayrıştırılabilir (linearly separable) hâle gelir. Çok sığ katmanlarda doğrusal bir hiperdüzlem (CAV) kavramı ayıramayabilir.</dd>
+</dl></section>
+</div></body></html>
