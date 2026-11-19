@@ -1,0 +1,178 @@
+---
+title: "27. Bölüm: Öğrenilmiş Özellikler (Learned Features)"
+author: "Mevhibe Begüm Şanlı"
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: false
+lang: tr
+---
+
+## 27. Öğrenilmiş Özellikler (Learned Features)
+
+Evrişimli sinir ağları, ham görüntü piksellerinden soyut özellikler ve kavramlar öğrenir. Özellik Görselleştirme (Feature Visualization), öğrenilmiş özellikleri aktivasyon maksimizasyonu yoluyla görselleştirir. Ağ Diseksiyonu (Network Dissection) ise sinir ağı birimlerini (örneğin kanalları) insan kavramlarıyla etiketler.
+
+Derin sinir ağları, gizli katmanlarda yüksek seviyeli özellikler öğrenir. Bu, onların en büyük avantajlarından biridir ve özellik mühendisliği (feature engineering) ihtiyacını azaltır. Örneğin, destek vektör makineleriyle (SVM) bir görüntü sınıflandırıcı kurmak istediğinizi varsayalım. Ham piksel matrisleri SVM eğitimi için en iyi girdi değildir; bu nedenle renk, frekans alanı, kenar dedektörleri vb. dayalı yeni özellikler oluşturursunuz. Evrişimli sinir ağlarında ise görüntü, ağa ham biçimde (pikseller olarak) verilir. Ağ, görüntüyü defalarca dönüştürür. İlk olarak, görüntü birçok evrişimli (convolutional) katmandan geçer. Bu evrişimli katmanlarda ağ, katmanları içinde yeni ve giderek karmaşıklaşan özellikler öğrenir (bkz. Şekil 27.1). Ardından dönüştürülmüş görüntü bilgisi tam bağlantılı (fully connected) katmanlardan geçer ve bir sınıflandırma ya da tahmine dönüşür.
+
+* İlk evrişimli katman(lar) kenarlar ve basit dokular gibi özellikleri öğrenir.
+* Daha sonraki evrişimli katmanlar daha karmaşık dokuları ve desenleri öğrenir.
+* Son evrişimli katmanlar nesneler veya nesne parçaları gibi özellikleri öğrenir.
+* Tam bağlantılı katmanlar, yüksek seviyeli özelliklerden gelen aktivasyonları tahmin edilecek bireysel sınıflara bağlamayı öğrenir.
+
+Harika. Peki bu büyüleyici (trippy) görüntüleri gerçekten nasıl elde ediyoruz?
+
+> **Şekil 27.1:** ImageNet verileri üzerinde eğitilmiş bir evrişimli sinir ağı (Inception V1) tarafından öğrenilen özellikler. Özellikler, alt evrişimli katmanlardaki basit özelliklerden (solda) üst evrişimli katmanlardaki daha soyut özelliklere (sağda) kadar uzanır. Şekil, Olah vd. (2017, CC-BY 4.0) kaynağından alınmıştır: https://distill.pub/2017/feature-visualization/appendix/
+
+---
+
+## Özellik Görselleştirme (Feature Visualization)
+
+Öğrenilmiş özellikleri açık hale getirme yaklaşımına **Özellik Görselleştirme (Feature Visualization)** denir. Bir sinir ağının birimi için özellik görselleştirme, o birimin aktivasyonunu maksimize eden girdinin bulunmasıyla gerçekleştirilir. “Birim” terimi; bireysel nöronları, kanalları (özellik haritaları olarak da adlandırılır), tüm katmanları veya sınıflandırmadaki son sınıf olasılık nöronunu (ya da önerilen karşılık gelen pre-softmax nöronunu) ifade eder. Şekil 27.2 farklı olasılıkları görselleştirir. Bireysel nöronlar ağın atomik birimleridir, bu nedenle her nöron için özellik görselleştirmeleri oluşturarak en fazla bilgiyi elde edebiliriz. Ancak bir sorun var: Sinir ağları genellikle milyonlarca nöron içerir. Her bir nöronun özellik görselleştirmesini incelemek çok uzun sürer. Birimler olarak kanallar (bazen aktivasyon haritaları olarak adlandırılır) özellik görselleştirme için iyi bir seçenektir. Bir adım daha ileri gidip tüm bir evrişimli katmanı görselleştirebiliriz. Bir katman olarak birimler, bir katmanın görselleştirilmiş özelliklerini orijinal görüntüye defalarca ekleyerek girdinin rüya benzeri bir versiyonunu oluşturan Google’ın DeepDream uygulaması için kullanılır.
+
+> **Şekil 27.2:** Özellik görselleştirme farklı birimler için yapılabilir. A) Evrişim nöronu, B) Evrişim kanalı, C) Evrişim katmanı, D) Nöron, E) Gizli katman, F) Sınıf olasılık nöronu (veya karşılık gelen pre-softmax nöronu)
+
+---
+
+## Optimizasyon Yoluyla Özellik Görselleştirme (Feature visualization through optimization)
+
+Matematiksel terimlerle ifade edilirse, özellik görselleştirme bir optimizasyon problemidir. Sinir ağının ağırlıklarının sabit olduğunu, yani ağın eğitilmiş olduğunu varsayıyoruz. Burada tek bir nöron olan bir birimin (ortalama) aktivasyonunu maksimize eden yeni bir görüntü arıyoruz:
+
+$$x^* = \arg\max_x h_{n,u,v,z}(x)$$
+
+$h$ fonksiyonu belirli bir nöronun aktivasyonunu, $x$ ağın girdisini (bir görüntüyü), $u$ ve $v$ nöronun uzamsal konumunu açıklar, $n$ katmanı belirtir ve $z$ kanal indeksidir. $n$ katmanındaki tüm $z$ kanalının ortalama aktivasyonunu maksimize etmek için şunu en üst düzeye çıkarırız:
+
+$$x^* = \arg\max_x \sum_{u,v} h_{n,u,v,z}(x)$$
+
+Bu formülde, $z$ kanalındaki tüm nöronlar eşit ağırlıktadır. Alternatif olarak, rastgele yönleri de maksimize edebilirsiniz; bu, nöronların negatif yönler dahil farklı parametrelerle çarpılacağı anlamına gelir. Bu şekilde, nöronların kanal içinde nasıl etkileşime girdiğini inceleriz. Aktivasyonu maksimize etmek yerine minimize de edebilirsiniz (bu, negatif yönü maksimize etmeye karşılık gelir). Her ikisini de görselleştiren Şekil 27.3'e bakın. İlginç bir şekilde, negatif yönü maksimize ettiğinizde aynı birim için çok farklı özellikler elde edersiniz. Nöron tekerlekler tarafından maksimum düzeyde aktive edilirken, gözleri varmış gibi görünen bir şey negatif aktivasyon üretir.
+
+> **Şekil 27.3:** Inception V1 nöron 484'ün (mixed4d pre relu katmanından) pozitif (solda) ve negatif (sağda) aktivasyonu.
+
+Bu optimizasyon problemini farklı şekillerde ele alabiliriz. Örneğin, yeni görüntüler üretmek yerine, eğitim görüntülerimiz arasında arama yapabilir ve aktivasyonu maksimize edenleri seçebiliriz. Bu geçerli bir yaklaşımdır, ancak eğitim verilerini kullanmanın şöyle bir sorunu vardır: Görüntüler üzerindeki öğeler ilişkili olabilir ve sinir ağının gerçekten neye baktığını göremeyiz. Belirli bir kanalın yüksek aktivasyonunu sağlayan görüntüler bir köpek ve bir tenis topu gösteriyorsa, sinir ağının köpeğe mi, tenis topuna mı, yoksa her ikisine birden mi baktığını bilemeyiz.
+
+Başka bir yaklaşım da, Şekil 27.4'te görselleştirildiği gibi rastgele gürültüden başlayarak yeni görüntüler üretmektir. Anlamlı görselleştirmeler elde etmek için genellikle görüntü üzerinde kısıtlamalar vardır; örneğin yalnızca küçük değişikliklere izin verilmesi gibi. Özellik görselleştirmedeki gürültüyü azaltmak için, optimizasyon adımından önce görüntüye titreme (jittering), döndürme (rotation) veya ölçeklendirme (scaling) uygulayabilirsiniz. Diğer düzenlileştirme (regularization) seçenekleri arasında frekans cezalandırma (örn. komşu piksellerin varyansını azaltmak) veya üretken çekişmeli ağlar (GAN'ler) (Nguyen vd. 2016) ya da gürültü giderici oto-kodlayıcılar (denoising autoencoders) (Nguyen vd. 2017) gibi öğrenilmiş ön kabullerle (priors) görüntüler üretmek yer alır.
+
+> **Şekil 27.4:** Rastgele görüntüden aktivasyonu maksimize etmeye doğru yinelemeli optimizasyon. Olah vd. 2017 (CC-BY 4.0), https://distill.pub/2017/feature-visualization/
+
+Özellik görselleştirme konusunda çok daha derinlemesine bilgi edinmek istiyorsanız, distill.pub çevrimiçi dergisine, özellikle de birçok görselini kullandığım Olah, Mordvintsev ve Schubert (2017) tarafından hazırlanan özellik görselleştirme yazısına göz atın. Ayrıca yorumlanabilirliğin yapı taşları hakkındaki makaleyi de tavsiye ederim (Olah vd. 2018).
+
+---
+
+## Adversarial Örneklerle Bağlantı (Connection to adversarial examples)
+
+Özellik görselleştirme ile adversarial (aldatıcı) örnekler arasında bir bağlantı vardır: Her iki teknik de bir sinir ağı biriminin aktivasyonunu maksimize eder. Adversarial örnekler için, nöronun adversarial (= yanlış) sınıf için maksimum aktivasyonunu ararız. Aralarındaki bir fark, başladığımız görüntüdür: Adversarial örnekler için bu, adversarial görüntüyü üretmek istediğimiz görüntüdür. Özellik görselleştirmede ise yaklaşıma bağlı olarak bu, rastgele gürültüdür.
+
+---
+
+## Metin ve Tablo Verileri (Text and tabular data)
+
+Literatür, görüntü tanıma için evrişimli sinir ağlarına yönelik özellik görselleştirmeye odaklanmaktadır. Teknik olarak, tablo verileri için tamamen bağlantılı bir sinir ağının veya metin verileri için yinelenen bir sinir ağının (RNN) bir nöronunu maksimum düzeyde aktive eden girdiyi bulmanızı engelleyen hiçbir şey yoktur. "Özellik" bir tablo verisi girdisi veya metin olacağı için buna artık özellik görselleştirme demeyebilirsiniz. Kredi temerrüt tahmini için girdiler; önceki kredi sayısı, mobil sözleşme sayısı, adres ve diğer düzinelerce özellik olabilir. Bir nöronun öğrenilen özelliği o zaman düzinelerce özelliğin belirli bir kombinasyonu olurdu. Yinelenen sinir ağları (RNN) için, ağın ne öğrendiğini görselleştirmek biraz daha hoştur: Karpathy, Johnson ve Fei-Fei (2015), RNN'lerin gerçekten yorumlanabilir özellikler öğrenen nöronlara sahip olduğunu göstermiştir. Önceki karakterlerden dizideki bir sonraki karakteri tahmin eden karakter düzeyinde bir model eğittiler. Bir açılış parantezi “(” meydana geldiğinde, nöronlardan biri yüksek düzeyde aktive oldu ve eşleşen kapanış parantezi “)” gerçekleştiğinde deaktif oldu. Diğer nöronlar bir satırın sonunda ateşlendi. Bazı nöronlar URL'lerde ateşlendi. CNN'lerin özellik görselleştirmesinden farkı, örneklerin optimizasyon yoluyla değil, eğitim verilerindeki nöron aktivasyonları incelenerek bulunmuş olmasıdır.
+
+Görsellerin bazıları köpeğin burnu veya binalar gibi tanınmış kavramları gösteriyor gibi görünmektedir. Ancak bundan nasıl emin olabiliriz? **Ağ Diseksiyonu (Network Dissection)** yöntemi, insan kavramlarını bireysel sinir ağı birimleriyle ilişkilendirir. Küçük bir ipucu: Ağ Diseksiyonu, birisinin insan kavramlarıyla etiketlediği ekstra veri setlerine ihtiyaç duyar.
+
+---
+
+## Ağ Diseksiyonu (Network Dissection)
+
+Bau vd. (2017) tarafından geliştirilen Ağ Diseksiyonu yaklaşımı, bir evrişimli sinir ağının biriminin yorumlanabilirliğini nicelleştirir. Bu yöntem, CNN kanallarının yüksek düzeyde aktive olan alanlarını insan kavramlarıyla (nesneler, parçalar, dokular, renkler, …) birbirine bağlar.
+
+Özellik Görselleştirme bölümünde gördüğümüz gibi, bir evrişimli sinir ağının kanalları yeni özellikler öğrenir. Ancak bu görselleştirmeler, bir birimin belirli bir kavramı öğrendiğini kanıtlamaz. Ayrıca bir birimin örneğin gökdelenleri ne kadar iyi tespit ettiğine dair bir ölçümüz de yoktur. Ağ Diseksiyonu detaylarına girmeden önce, bu araştırma alanının arkasındaki büyük hipotezi ele almalıyız. Hipotez şudur: “Bir sinir ağının birimleri (evrişimli kanallar gibi) ayrıştırılmış (disentangled) kavramları öğrenir.” Acaba öğreniyorlar mı?
+
+### Ayrıştırılmış Özellikler Sorusu (The Question of Disentangled Features)
+
+(Evrişimli) sinir ağları ayrıştırılmış özellikler öğrenir mi? Ayrıştırılmış özellikler, bireysel ağ birimlerinin gerçek dünyadaki belirli kavramları tespit etmesi anlamına gelir. Evrişimli kanal 394 gökdelenleri, kanal 121 köpek burunlarını, kanal 12 30 derecelik bir açıyla çizgileri tespit ediyor olabilir… Tamamen ayrıştırılmış bir ağın tersi, tamamen karışık (entangled) bir ağdır. Örneğin tamamen karışık bir ağda köpek burunları için bireysel bir birim olmazdı. Tüm kanallar köpek burunlarının tanınmasına katkıda bulunurdu.
+
+Ayrıştırılmış özellikler, ağın son derece yorumlanabilir olduğunu gösterir. Bilinen kavramlarla etiketlenmiş, tamamen ayrıştırılmış birimlere sahip bir ağımız olduğunu varsayalım. Bu durum, ağın karar verme sürecini takip etme olanağı açardı. Örneğin, ağın kurtları huskilerden nasıl ayırdığını analiz edebilirdik. İlk olarak “husky” birimini tespit ederiz. Bu birimin önceki katmandaki “köpek burnu”, “tüylü kürk” ve “kar” birimlerine bağlı olup olmadığını kontrol edebiliriz. Eğer bağlıysa, karlı bir arka plana sahip bir husky görüntüsünü kurt olarak yanlış sınıflandıracağını biliriz. Ayrıştırılmış bir ağda, sorunlu ve nedensel olmayan korelasyonları tespit ederdik. Bireysel bir tahmini açıklamak için yüksek düzeyde aktive olan tüm birimleri ve bunların kavramlarını otomatik olarak listeleyebilirdik. Sinir ağındaki yanlılığı (bias) kolayca tespit edebilirdik. Örneğin, ağ maaş tahmini için bir “beyaz ten” özelliği mi öğrenmiş?
+
+Ön bilgi uyarısı: Evrişimli sinir ağları kusursuz bir şekilde ayrıştırılmış değildir. Sinir ağlarının ne kadar yorumlanabilir olduğunu bulmak için şimdi Ağ Diseksiyonu'na daha yakından yapacağız.
+
+---
+
+### Algoritma (Algorithm)
+
+Ağ Diseksiyonu üç adımdan oluşur:
+
+1. Çizgilerden gökdelenlere kadar insan etiketli görsel kavramları içeren görselleri toplamak.
+2. Bu görseller için CNN kanal aktivasyonlarını ölçmek.
+3. Aktivasyonlar ile etiketli kavramlar arasındaki hizalanmayı nicelleştirmek.
+
+Şekil 27.5, bir görüntünün bir kanala nasıl iletildiğini ve etiketli kavramlarla nasıl eşleştirildiğini görselleştirir.
+
+> **Şekil 27.5:** Verilen bir girdi görüntü ve eğitilmiş bir ağ (sabit ağırlıklar) için, görüntüyü hedef katmana doğru ilerletiyor, aktivasyonları orijinal görüntü boyutuyla eşleşecek şekilde yukarı ölçeklendiriyor ve maksimum aktivasyonları piksel düzeyinde segmentasyon (ground truth) ile karşılaştırıyoruz. Şekil orijinal olarak http://netdissect.csail.mit.edu/ adresinden alınmıştır.
+
+#### Adım 1: Broden Veri Seti (Step 1: Broden dataset)
+İlk zor ama çok önemli adım veri toplamadır. Ağ Diseksiyonu; renkten sokak sahnelerine kadar farklı soyutlama seviyelerindeki kavramları içeren, piksel düzeyinde etiketlenmiş görüntülere ihtiyaç duyar. Bau & Zhou vd., piksel düzeyinde kavramlar içeren birkaç veri setini birleştirdiler. Bu yeni sete, geniş ve yoğun etiketlenmiş veri (broadly and densely labeled data) anlamına gelen **‘Broden’** adını verdiler. Broden veri seti çoğunlukla piksel seviyesinde segmentlere ayrılmıştır; bazı veri setleri için ise tüm görüntü etiketlenmiştir. Broden; farklı soyutlama seviyelerinde 1.000'den fazla görsel kavram içeren 60.000 görüntü barındırır: 468 sahne, 585 nesne, 234 parça, 32 malzeme, 47 doku ve 11 renk.
+
+#### Adım 2: Ağ Aktivasyonlarını Getirme (Step 2: Retrieve network activations)
+Sonraki adımda, kanal ve görüntü başına en çok aktive olan alanların maskelerini oluştururuz. Bu aşamada konsept etiketleri henüz işin içindedir.
+* Her evrişimli kanal $c$ için:
+  * Broden veri setindeki her görüntü $x$ için:
+    * Görüntü $x$'i kanal $c$'yi içeren hedef katmana ileri yönlü yay (forward propagate).
+    * Evrişimli kanal $c$'nin piksel aktivasyonlarını çıkar: $k_c(x)$.
+  * Tüm görüntüler üzerindeki piksel aktivasyonlarının dağılımını $k_c(x)$ hesapla.
+  * Aktivasyonların $0.995$ kuantilis seviyesini $t_c$ belirle ($k_c(x)$). Bu, veri setindeki $c$ kanalının aktivasyonlarının $\%0.5$'inin $t_c$'den büyük olduğu anlamına gelir.
+  * Broden veri setindeki her görüntü $x$ için:
+    * Muhtemelen daha düşük çözünürlüklü olan aktivasyon haritasını $k_c(x)$ görüntü $x$'in çözünürlüğüne ölçeklendir. Sonuca $K_c(x)$ diyoruz.
+    * Aktivasyon haritasını ikili (binary) hale getir: Bir piksel, aktivasyon eşiğini $t_c$ geçip geçmediğine bağlı olarak açık veya kapalıdır. Yeni maske $M_c(x) = \text{altsınır}(K_c(x) \ge t_c)$ şeklindedir.
+
+#### Adım 3: Aktivasyon-Kavram Hizalanması (Step 3: Activation-concept alignment)
+Adım 2'den sonra, kanal ve görüntü başına bir aktivasyon maskemiz olur. Bu aktivasyon maskeleri yüksek düzeyde aktive olan alanları işaretler. Her kanal için, o kanalı aktive eden insan kavramını bulmak isteyiz. Kavramı, aktivasyon maskelerini tüm etiketli kavramlarla karşılaştırarak buluruz. Aktivasyon maskesi $M_c$ ile kavram maskesi $L_q$ arasındaki hizalanmayı Kesişimin Birleşime Oranı (Intersection over Union - IoU) skoru ile nicelleştiririz:
+
+$$\text{IoU}_c(q) = \frac{|M_c \cap L_q|}{|M_c \cup L_q|}$$
+
+Burada $|\cdot|$ bir kümenin kardinalitesidir (eleman sayısı). Kesişimin Birleşime Oranı, iki alan arasındaki hizalanmayı karşılaştırır. $\text{IoU}_c(q)$, $c$ biriminin $q$ kavramını tespit etme doğruluğu olarak yorumlanabilir. $\text{IoU}_c(q) > 0.04$ olduğunda $c$ birimine $q$ kavramının bir dedektörü deriz. Bu eşik değer Bau & Zhou vd. (2017) tarafından seçilmiştir.
+
+Şekil 27.6 tek bir görüntü için aktivasyon maskesi ve kavram maskesinin kesişimini ve birleşimini göstermektedir; Şekil 27.7 ise köpekleri tespit eden bir birimi göstermektedir.
+
+> **Şekil 27.6:** Kesişimin Birleşime Oranı (IoU), insan temel gerçeklik (ground truth) annotasyonu ile en üst düzeyde aktive olan pikseller karşılaştırılarak hesaplanır.
+
+> **Şekil 27.7:** Köpekleri $\text{IoU} > 0.04$ ile tespit eden inception_4e kanal 750 için aktivasyon maskesi. Şekil orijinal olarak http://netdissect.csail.mit.edu/ adresinden alınmıştır.
+
+---
+
+## Deneyler (Experiments)
+
+Ağ Diseksiyonu yazarları, farklı ağ mimarilerini (AlexNet, VGG, GoogleNet, ResNet) farklı veri setleri üzerinde (ImageNet, Places205, Places365) sıfırdan eğittiler. ImageNet, nesnelere odaklanan 1.000 sınıftan 1.6 milyon görüntü içerir (Deng vd. 2009). Places205 ve Places365, 205 / 365 farklı sahneden oluşan sırasıyla 2.5 milyon / 1.6 milyon görüntü içerir. Yazarlar ayrıca AlexNet'i video karesi sırasını tahmin etme veya görüntüleri renklendirme gibi kendi kendini denetleyen (self-supervised) eğitim görevleri üzerinde eğittiler. Bu farklı ayarların birçoğu için, bir yorumlanabilirlik ölçüsü olarak benzersiz kavram dedektörlerinin sayısını saydılar. Bulgulardan bazıları şunlardır:
+
+* Ağlar, alt katmanlarda daha düşük seviyeli kavramları (renkler, dokular) ve üst katmanlarda daha yüksek seviyeli kavramları (parçalar, nesneler) tespit eder. Bunu zaten Özellik Görselleştirmelerinde gördük.
+* Toplu normalizasyon (Batch normalization), benzersiz kavram dedektörlerinin sayısını azaltır.
+* Birçok birim aynı kavramı tespit eder. Örneğin, $\text{IoU} > 0.04$ algılama kesme noktası kullanıldığında ImageNet üzerinde eğitilmiş VGG'de 95 (!) adet köpek kanalı vardır (conv4_3'te 4, conv5_3'te 91, bkz. proje web sitesi).
+* Bir katmandaki kanal sayısını artırmak, yorumlanabilir birimlerin sayısını artırır.
+* Rastgele başlatmalar (farklı rastgele tohumlarla - random seeds - eğitim) biraz farklı sayıda yorumlanabilir birimle sonuçlanır.
+* ResNet, en büyük benzersiz dedektör sayısına sahip ağ mimarisidir; onu sırasıyla VGG, GoogleNet ve en sonda AlexNet takip eder.
+* En büyük benzersiz kavram dedektörü sayısı Places365 için öğrenilir; bunu sırasıyla Places205 ve en son ImageNet izler.
+* Benzersiz kavram dedektörlerinin sayısı, eğitim iterasyonlarının sayısı arttıkça artar.
+* Kendi kendine denetlenen (self-supervised) görevler üzerinde eğitilmiş ağlar, denetimli (supervised) görevler üzerinde eğitilmiş ağlara kıyasla daha az benzersiz dedektöre sahiptir.
+* Transfer öğrenmede (transfer learning), bir kanalın konsepti değişebilir. Örneğin, başlangıçta nesneleri sınıflandırmak için eğitilmiş ve ardından sahneleri sınıflandırmak için ince ayarlanmış (fine-tuned) bir modelde bir köpek dedektörü bir şelale dedektörüne dönüşmüştür.
+* Deneylerden birinde yazarlar, kanalları yeni bir döndürülmüş tabana (rotated basis) yansıttılar. Bu, ImageNet üzerinde eğitilmiş VGG ağı için yapıldı. “Döndürülmüş”, görüntünün döndürüldüğü anlamına gelmez. “Döndürülmüş”, conv5 katmanından 256 kanalı alıp orijinal kanalların doğrusal kombinasyonları olarak 256 yeni kanal hesapladığımız anlamına gelir. Bu süreçte kanallar karışır (entangled). Döndürme yorumlanabilirliği azaltır, yani bir kavramla hizalanan kanalların sayısı azalır. Döndürme, modelin performansını aynı tutacak şekilde tasarlandı. Birinci sonuç: CNN'lerin yorumlanabilirliği eksene bağımlıdır (axis-dependent). Bu, rastgele kanal kombinasyonlarının benzersiz kavramları tespit etme olasılığının daha düşük olduğu anlamına gelir. İkinci sonuç: Yorumlanabilirlik, ayırt edici güçten (discriminative power) bağımsızdır. Ayırt edici güç aynı kalırken kanallar ortogonal dönüşümlerle dönüştürülebilir, ancak yorumlanabilirlik azalır.
+
+Yazarlar ayrıca Üretken Çekişmeli Ağlar (GAN'ler) için de Ağ Diseksiyonu kullandılar. GAN'ler için Ağ Diseksiyonu'nu projenin web sitesinde bulabilirsiniz.
+
+---
+
+## Güçlü Yönler (Strengths)
+
+* Özellik görselleştirmeleri, özellikle görüntü tanıma için sinir ağlarının çalışmasına dair benzersiz bir içgörü sağlar. Sinir ağlarının karmaşıklığı ve kapalılığı (opacity) göz önüne alındığında, özellik görselleştirme sinir ağlarını analiz etmek ve tanımlamak için önemli bir adımdır. Özellik görselleştirme sayesinde sinir ağlarının önce basit kenar ve doku dedektörlerini, daha yüksek katmanlarda ise daha soyut parça ve nesne dedektörlerini öğrendiğini öğrendik. Ağ diseksiyonu bu içgörüleri genişletir ve ağ birimlerinin yorumlanabilirliğini ölçülebilir hale getirir.
+* Ağ diseksiyonu, birimleri kavramlara otomatik olarak bağlamamıza olanak tanır, bu da son derece uygundur.
+* Özellik görselleştirme, sinir ağlarının nasıl çalıştığını teknik olmayan bir şekilde iletmek için harika bir araçtır.
+* Ağ diseksiyonu ile sınıflandırma görevindeki sınıfların ötesindeki kavramları da tespit edebiliriz. Ancak piksel düzeyinde etiketlenmiş kavramlar içeren görüntüler içeren veri setlerine ihtiyacımız var.
+* Özellik görselleştirme, sınıflandırma için hangi piksellerin önemli olduğunu açıklayan özellik atıf (feature attribution) yöntemleriyle birleştirilebilir. Her iki yöntemin kombinasyonu, bireysel bir sınıflandırmayı, sınıflandırmaya dahil olan öğrenilmiş özelliklerin yerel bir görselleştirmesiyle birlikte açıklamamıza olanak tanır. distill.pub adresinden *The Building Blocks of Interpretability* makalesine bakın.
+* Son olarak, özellik görselleştirmeleri harika masaüstü duvar kağıtları ve tişört baskıları oluşturur.
+
+---
+
+## Sınırlamalar (Limitations)
+
+* Birçok özellik görselleştirme görüntüsü hiç yorumlanamaz nitelikte değildir; bunun yerine kelimelerimizin veya zihinsel kavramımızın olmadığı bazı soyut özellikler içerir. Özellik görselleştirmelerinin eğitim verileriyle birlikte görüntülenmesi yardımcı olabilir. Görüntüler yine de sinir ağının tam olarak neye tepki verdiğini ortaya koymayabilir ve yalnızca “belki de görüntülerde sarı renk olmalı” gibi bir durum belirtebilir. Ağ Diseksiyonu ile bile bazı kanallar insan kavramıyla eşleştirilememektedir. Örneğin, ImageNet üzerinde eğitilmiş VGG'den conv5_3 katmanı, bir insan kavramıyla eşleştirilemeyen 193 kanala (512 kanaldan) sahiptir.
+* Yalnızca kanal aktivasyonları "yalnızca" görselleştirildiğinde bile bakılacak çok fazla birim vardır. Örneğin Inception V1 mimarisi için dokuz evrişimli katmandan 5000'den fazla kanal bulunmaktadır. Negatif aktivasyonları artı kanalı maksimum veya minimum düzeyde aktive eden eğitim verilerinden birkaç görüntü (diyelim ki dört pozitif, dört negatif görüntü) göstermek istiyorsanız, zaten 50.000'den fazla görüntü görüntülemeniz gerekir. En azından Ağ Diseksiyonu sayesinde rastgele yönleri incelememiz gerekmediğini biliyoruz.
+* **Yorumlanabilirlik illüzyonu mu?** Özellik görselleştirmeleri, sinir ağının ne yaptığını anladığımız yönünde bir illüzyon aktarabilir. Ancak sinir ağında olup biteni gerçekten anlıyor muyuz? Yüzlerce hatta binlerce özellik görselleştirmesine baksak bile sinir ağını anlayamayız. Kanallar karmaşık bir şekilde etkileşime girer, pozitif ve negatif aktivasyonlar ilişki dışıdır, birden fazla nöron çok benzer özellikler öğrenebilir ve özelliklerin birçoğu için eşdeğer insan kavramlarına sahip değiliz. Sırf 7. katmandaki 349 numaralı nöronun papatyalar tarafından aktive edildiğine inandığımız için sinir ağlarını tamamen anladığımıza inanma tuzaklarına düşmemeliyiz. Ağ Diseksiyonu, ResNet veya Inception gibi mimarilerin belirli kavramlara tepki veren birimlere sahip olduğunu göstermiştir. Ancak IoU o kadar da harika değildir ve genellikle birçok birim aynı konsepte ve bazıları hiçbir konsepte yanıt vermez. Kanallar tamamen ayrıştırılmamıştır ve onları izole bir şekilde yorumlayamayız.
+* Ağ Diseksiyonu için, kavramlarla piksel düzeyinde etiketlenmiş veri setlerine ihtiyacınız vardır. Her pikselin etiketlenmesi gereğinden ötürü bu veri setlerinin toplanması büyük çaba gerektirir, ki bu genellikle görüntüdeki nesnelerin etrafına segmentler çizilerek yapılır.
+* Ağ Diseksiyonu, insan kavramlarını kanalların yalnızca pozitif aktivasyonlarıyla hizalar, negatif aktivasyonlarıyla hizalamaz. Özellik görselleştirmelerinin gösterdiği gibi, negatif aktivasyonlar kavramlarla bağlantılı görünmektedir. Bu durum, aktivasyonların alt kuantiline ek olarak bakılarak düzeltilebilir.
+
+---
+
+## Yazılım ve Ek Materyal (Software and further material)
+
+Özellik görselleştirmenin **Lucid** adı verilen açık kaynaklı bir uygulaması vardır. Lucid GitHub sayfasında sağlanan defter (notebook) bağlantılarını kullanarak bunu tarayıcınızda rahatça deneyebilirsiniz. Ek bir yazılım gerekmez. Diğer uygulamalar TensorFlow için `tf_cnnvis`, Keras için `Keras Filters` ve Caffe için `DeepVis`'tir.
+
+Ağ Diseksiyonu harika bir proje web sitesine sahiptir. Web sitesi yayının yanı sıra kod, veri ve aktivasyon maskelerinin görselleştirmeleri gibi ek materyaller barındırır.

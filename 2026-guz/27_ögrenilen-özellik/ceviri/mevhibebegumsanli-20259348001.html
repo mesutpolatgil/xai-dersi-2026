@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mevhibe Begüm Şanlı">
+
+<title>27. Bölüm: Öğrenilmiş Özellikler (Learned Features)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="mevhibebegumsanli-20259348001_files/libs/clipboard/clipboard.min.js"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/popper.min.js"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/anchor.min.js"></script>
+<link href="mevhibebegumsanli-20259348001_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="mevhibebegumsanli-20259348001_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="mevhibebegumsanli-20259348001_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="mevhibebegumsanli-20259348001_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="mevhibebegumsanli-20259348001_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#öğrenilmiş-özellikler-learned-features" id="toc-öğrenilmiş-özellikler-learned-features" class="nav-link active" data-scroll-target="#öğrenilmiş-özellikler-learned-features">27. Öğrenilmiş Özellikler (Learned Features)</a></li>
+  <li><a href="#özellik-görselleştirme-feature-visualization" id="toc-özellik-görselleştirme-feature-visualization" class="nav-link" data-scroll-target="#özellik-görselleştirme-feature-visualization">Özellik Görselleştirme (Feature Visualization)</a></li>
+  <li><a href="#optimizasyon-yoluyla-özellik-görselleştirme-feature-visualization-through-optimization" id="toc-optimizasyon-yoluyla-özellik-görselleştirme-feature-visualization-through-optimization" class="nav-link" data-scroll-target="#optimizasyon-yoluyla-özellik-görselleştirme-feature-visualization-through-optimization">Optimizasyon Yoluyla Özellik Görselleştirme (Feature visualization through optimization)</a></li>
+  <li><a href="#adversarial-örneklerle-bağlantı-connection-to-adversarial-examples" id="toc-adversarial-örneklerle-bağlantı-connection-to-adversarial-examples" class="nav-link" data-scroll-target="#adversarial-örneklerle-bağlantı-connection-to-adversarial-examples">Adversarial Örneklerle Bağlantı (Connection to adversarial examples)</a></li>
+  <li><a href="#metin-ve-tablo-verileri-text-and-tabular-data" id="toc-metin-ve-tablo-verileri-text-and-tabular-data" class="nav-link" data-scroll-target="#metin-ve-tablo-verileri-text-and-tabular-data">Metin ve Tablo Verileri (Text and tabular data)</a></li>
+  <li><a href="#ağ-diseksiyonu-network-dissection" id="toc-ağ-diseksiyonu-network-dissection" class="nav-link" data-scroll-target="#ağ-diseksiyonu-network-dissection">Ağ Diseksiyonu (Network Dissection)</a>
+  <ul class="collapse">
+  <li><a href="#ayrıştırılmış-özellikler-sorusu-the-question-of-disentangled-features" id="toc-ayrıştırılmış-özellikler-sorusu-the-question-of-disentangled-features" class="nav-link" data-scroll-target="#ayrıştırılmış-özellikler-sorusu-the-question-of-disentangled-features">Ayrıştırılmış Özellikler Sorusu (The Question of Disentangled Features)</a></li>
+  <li><a href="#algoritma-algorithm" id="toc-algoritma-algorithm" class="nav-link" data-scroll-target="#algoritma-algorithm">Algoritma (Algorithm)</a></li>
+  </ul></li>
+  <li><a href="#deneyler-experiments" id="toc-deneyler-experiments" class="nav-link" data-scroll-target="#deneyler-experiments">Deneyler (Experiments)</a></li>
+  <li><a href="#güçlü-yönler-strengths" id="toc-güçlü-yönler-strengths" class="nav-link" data-scroll-target="#güçlü-yönler-strengths">Güçlü Yönler (Strengths)</a></li>
+  <li><a href="#sınırlamalar-limitations" id="toc-sınırlamalar-limitations" class="nav-link" data-scroll-target="#sınırlamalar-limitations">Sınırlamalar (Limitations)</a></li>
+  <li><a href="#yazılım-ve-ek-materyal-software-and-further-material" id="toc-yazılım-ve-ek-materyal-software-and-further-material" class="nav-link" data-scroll-target="#yazılım-ve-ek-materyal-software-and-further-material">Yazılım ve Ek Materyal (Software and further material)</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">27. Bölüm: Öğrenilmiş Özellikler (Learned Features)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mevhibe Begüm Şanlı </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="öğrenilmiş-özellikler-learned-features" class="level2">
+<h2 class="anchored" data-anchor-id="öğrenilmiş-özellikler-learned-features">27. Öğrenilmiş Özellikler (Learned Features)</h2>
+<p>Evrişimli sinir ağları, ham görüntü piksellerinden soyut özellikler ve kavramlar öğrenir. Özellik Görselleştirme (Feature Visualization), öğrenilmiş özellikleri aktivasyon maksimizasyonu yoluyla görselleştirir. Ağ Diseksiyonu (Network Dissection) ise sinir ağı birimlerini (örneğin kanalları) insan kavramlarıyla etiketler.</p>
+<p>Derin sinir ağları, gizli katmanlarda yüksek seviyeli özellikler öğrenir. Bu, onların en büyük avantajlarından biridir ve özellik mühendisliği (feature engineering) ihtiyacını azaltır. Örneğin, destek vektör makineleriyle (SVM) bir görüntü sınıflandırıcı kurmak istediğinizi varsayalım. Ham piksel matrisleri SVM eğitimi için en iyi girdi değildir; bu nedenle renk, frekans alanı, kenar dedektörleri vb. dayalı yeni özellikler oluşturursunuz. Evrişimli sinir ağlarında ise görüntü, ağa ham biçimde (pikseller olarak) verilir. Ağ, görüntüyü defalarca dönüştürür. İlk olarak, görüntü birçok evrişimli (convolutional) katmandan geçer. Bu evrişimli katmanlarda ağ, katmanları içinde yeni ve giderek karmaşıklaşan özellikler öğrenir (bkz. Şekil 27.1). Ardından dönüştürülmüş görüntü bilgisi tam bağlantılı (fully connected) katmanlardan geçer ve bir sınıflandırma ya da tahmine dönüşür.</p>
+<ul>
+<li>İlk evrişimli katman(lar) kenarlar ve basit dokular gibi özellikleri öğrenir.</li>
+<li>Daha sonraki evrişimli katmanlar daha karmaşık dokuları ve desenleri öğrenir.</li>
+<li>Son evrişimli katmanlar nesneler veya nesne parçaları gibi özellikleri öğrenir.</li>
+<li>Tam bağlantılı katmanlar, yüksek seviyeli özelliklerden gelen aktivasyonları tahmin edilecek bireysel sınıflara bağlamayı öğrenir.</li>
+</ul>
+<p>Harika. Peki bu büyüleyici (trippy) görüntüleri gerçekten nasıl elde ediyoruz?</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.1:</strong> ImageNet verileri üzerinde eğitilmiş bir evrişimli sinir ağı (Inception V1) tarafından öğrenilen özellikler. Özellikler, alt evrişimli katmanlardaki basit özelliklerden (solda) üst evrişimli katmanlardaki daha soyut özelliklere (sağda) kadar uzanır. Şekil, Olah vd. (2017, CC-BY 4.0) kaynağından alınmıştır: https://distill.pub/2017/feature-visualization/appendix/</p>
+</blockquote>
+<hr>
+</section>
+<section id="özellik-görselleştirme-feature-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="özellik-görselleştirme-feature-visualization">Özellik Görselleştirme (Feature Visualization)</h2>
+<p>Öğrenilmiş özellikleri açık hale getirme yaklaşımına <strong>Özellik Görselleştirme (Feature Visualization)</strong> denir. Bir sinir ağının birimi için özellik görselleştirme, o birimin aktivasyonunu maksimize eden girdinin bulunmasıyla gerçekleştirilir. “Birim” terimi; bireysel nöronları, kanalları (özellik haritaları olarak da adlandırılır), tüm katmanları veya sınıflandırmadaki son sınıf olasılık nöronunu (ya da önerilen karşılık gelen pre-softmax nöronunu) ifade eder. Şekil 27.2 farklı olasılıkları görselleştirir. Bireysel nöronlar ağın atomik birimleridir, bu nedenle her nöron için özellik görselleştirmeleri oluşturarak en fazla bilgiyi elde edebiliriz. Ancak bir sorun var: Sinir ağları genellikle milyonlarca nöron içerir. Her bir nöronun özellik görselleştirmesini incelemek çok uzun sürer. Birimler olarak kanallar (bazen aktivasyon haritaları olarak adlandırılır) özellik görselleştirme için iyi bir seçenektir. Bir adım daha ileri gidip tüm bir evrişimli katmanı görselleştirebiliriz. Bir katman olarak birimler, bir katmanın görselleştirilmiş özelliklerini orijinal görüntüye defalarca ekleyerek girdinin rüya benzeri bir versiyonunu oluşturan Google’ın DeepDream uygulaması için kullanılır.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.2:</strong> Özellik görselleştirme farklı birimler için yapılabilir. A) Evrişim nöronu, B) Evrişim kanalı, C) Evrişim katmanı, D) Nöron, E) Gizli katman, F) Sınıf olasılık nöronu (veya karşılık gelen pre-softmax nöronu)</p>
+</blockquote>
+<hr>
+</section>
+<section id="optimizasyon-yoluyla-özellik-görselleştirme-feature-visualization-through-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="optimizasyon-yoluyla-özellik-görselleştirme-feature-visualization-through-optimization">Optimizasyon Yoluyla Özellik Görselleştirme (Feature visualization through optimization)</h2>
+<p>Matematiksel terimlerle ifade edilirse, özellik görselleştirme bir optimizasyon problemidir. Sinir ağının ağırlıklarının sabit olduğunu, yani ağın eğitilmiş olduğunu varsayıyoruz. Burada tek bir nöron olan bir birimin (ortalama) aktivasyonunu maksimize eden yeni bir görüntü arıyoruz:</p>
+<p><span class="math display">\[x^* = \arg\max_x h_{n,u,v,z}(x)\]</span></p>
+<p><span class="math inline">\(h\)</span> fonksiyonu belirli bir nöronun aktivasyonunu, <span class="math inline">\(x\)</span> ağın girdisini (bir görüntüyü), <span class="math inline">\(u\)</span> ve <span class="math inline">\(v\)</span> nöronun uzamsal konumunu açıklar, <span class="math inline">\(n\)</span> katmanı belirtir ve <span class="math inline">\(z\)</span> kanal indeksidir. <span class="math inline">\(n\)</span> katmanındaki tüm <span class="math inline">\(z\)</span> kanalının ortalama aktivasyonunu maksimize etmek için şunu en üst düzeye çıkarırız:</p>
+<p><span class="math display">\[x^* = \arg\max_x \sum_{u,v} h_{n,u,v,z}(x)\]</span></p>
+<p>Bu formülde, <span class="math inline">\(z\)</span> kanalındaki tüm nöronlar eşit ağırlıktadır. Alternatif olarak, rastgele yönleri de maksimize edebilirsiniz; bu, nöronların negatif yönler dahil farklı parametrelerle çarpılacağı anlamına gelir. Bu şekilde, nöronların kanal içinde nasıl etkileşime girdiğini inceleriz. Aktivasyonu maksimize etmek yerine minimize de edebilirsiniz (bu, negatif yönü maksimize etmeye karşılık gelir). Her ikisini de görselleştiren Şekil 27.3’e bakın. İlginç bir şekilde, negatif yönü maksimize ettiğinizde aynı birim için çok farklı özellikler elde edersiniz. Nöron tekerlekler tarafından maksimum düzeyde aktive edilirken, gözleri varmış gibi görünen bir şey negatif aktivasyon üretir.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.3:</strong> Inception V1 nöron 484’ün (mixed4d pre relu katmanından) pozitif (solda) ve negatif (sağda) aktivasyonu.</p>
+</blockquote>
+<p>Bu optimizasyon problemini farklı şekillerde ele alabiliriz. Örneğin, yeni görüntüler üretmek yerine, eğitim görüntülerimiz arasında arama yapabilir ve aktivasyonu maksimize edenleri seçebiliriz. Bu geçerli bir yaklaşımdır, ancak eğitim verilerini kullanmanın şöyle bir sorunu vardır: Görüntüler üzerindeki öğeler ilişkili olabilir ve sinir ağının gerçekten neye baktığını göremeyiz. Belirli bir kanalın yüksek aktivasyonunu sağlayan görüntüler bir köpek ve bir tenis topu gösteriyorsa, sinir ağının köpeğe mi, tenis topuna mı, yoksa her ikisine birden mi baktığını bilemeyiz.</p>
+<p>Başka bir yaklaşım da, Şekil 27.4’te görselleştirildiği gibi rastgele gürültüden başlayarak yeni görüntüler üretmektir. Anlamlı görselleştirmeler elde etmek için genellikle görüntü üzerinde kısıtlamalar vardır; örneğin yalnızca küçük değişikliklere izin verilmesi gibi. Özellik görselleştirmedeki gürültüyü azaltmak için, optimizasyon adımından önce görüntüye titreme (jittering), döndürme (rotation) veya ölçeklendirme (scaling) uygulayabilirsiniz. Diğer düzenlileştirme (regularization) seçenekleri arasında frekans cezalandırma (örn. komşu piksellerin varyansını azaltmak) veya üretken çekişmeli ağlar (GAN’ler) (Nguyen vd. 2016) ya da gürültü giderici oto-kodlayıcılar (denoising autoencoders) (Nguyen vd. 2017) gibi öğrenilmiş ön kabullerle (priors) görüntüler üretmek yer alır.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.4:</strong> Rastgele görüntüden aktivasyonu maksimize etmeye doğru yinelemeli optimizasyon. Olah vd. 2017 (CC-BY 4.0), https://distill.pub/2017/feature-visualization/</p>
+</blockquote>
+<p>Özellik görselleştirme konusunda çok daha derinlemesine bilgi edinmek istiyorsanız, distill.pub çevrimiçi dergisine, özellikle de birçok görselini kullandığım Olah, Mordvintsev ve Schubert (2017) tarafından hazırlanan özellik görselleştirme yazısına göz atın. Ayrıca yorumlanabilirliğin yapı taşları hakkındaki makaleyi de tavsiye ederim (Olah vd. 2018).</p>
+<hr>
+</section>
+<section id="adversarial-örneklerle-bağlantı-connection-to-adversarial-examples" class="level2">
+<h2 class="anchored" data-anchor-id="adversarial-örneklerle-bağlantı-connection-to-adversarial-examples">Adversarial Örneklerle Bağlantı (Connection to adversarial examples)</h2>
+<p>Özellik görselleştirme ile adversarial (aldatıcı) örnekler arasında bir bağlantı vardır: Her iki teknik de bir sinir ağı biriminin aktivasyonunu maksimize eder. Adversarial örnekler için, nöronun adversarial (= yanlış) sınıf için maksimum aktivasyonunu ararız. Aralarındaki bir fark, başladığımız görüntüdür: Adversarial örnekler için bu, adversarial görüntüyü üretmek istediğimiz görüntüdür. Özellik görselleştirmede ise yaklaşıma bağlı olarak bu, rastgele gürültüdür.</p>
+<hr>
+</section>
+<section id="metin-ve-tablo-verileri-text-and-tabular-data" class="level2">
+<h2 class="anchored" data-anchor-id="metin-ve-tablo-verileri-text-and-tabular-data">Metin ve Tablo Verileri (Text and tabular data)</h2>
+<p>Literatür, görüntü tanıma için evrişimli sinir ağlarına yönelik özellik görselleştirmeye odaklanmaktadır. Teknik olarak, tablo verileri için tamamen bağlantılı bir sinir ağının veya metin verileri için yinelenen bir sinir ağının (RNN) bir nöronunu maksimum düzeyde aktive eden girdiyi bulmanızı engelleyen hiçbir şey yoktur. “Özellik” bir tablo verisi girdisi veya metin olacağı için buna artık özellik görselleştirme demeyebilirsiniz. Kredi temerrüt tahmini için girdiler; önceki kredi sayısı, mobil sözleşme sayısı, adres ve diğer düzinelerce özellik olabilir. Bir nöronun öğrenilen özelliği o zaman düzinelerce özelliğin belirli bir kombinasyonu olurdu. Yinelenen sinir ağları (RNN) için, ağın ne öğrendiğini görselleştirmek biraz daha hoştur: Karpathy, Johnson ve Fei-Fei (2015), RNN’lerin gerçekten yorumlanabilir özellikler öğrenen nöronlara sahip olduğunu göstermiştir. Önceki karakterlerden dizideki bir sonraki karakteri tahmin eden karakter düzeyinde bir model eğittiler. Bir açılış parantezi “(” meydana geldiğinde, nöronlardan biri yüksek düzeyde aktive oldu ve eşleşen kapanış parantezi “)” gerçekleştiğinde deaktif oldu. Diğer nöronlar bir satırın sonunda ateşlendi. Bazı nöronlar URL’lerde ateşlendi. CNN’lerin özellik görselleştirmesinden farkı, örneklerin optimizasyon yoluyla değil, eğitim verilerindeki nöron aktivasyonları incelenerek bulunmuş olmasıdır.</p>
+<p>Görsellerin bazıları köpeğin burnu veya binalar gibi tanınmış kavramları gösteriyor gibi görünmektedir. Ancak bundan nasıl emin olabiliriz? <strong>Ağ Diseksiyonu (Network Dissection)</strong> yöntemi, insan kavramlarını bireysel sinir ağı birimleriyle ilişkilendirir. Küçük bir ipucu: Ağ Diseksiyonu, birisinin insan kavramlarıyla etiketlediği ekstra veri setlerine ihtiyaç duyar.</p>
+<hr>
+</section>
+<section id="ağ-diseksiyonu-network-dissection" class="level2">
+<h2 class="anchored" data-anchor-id="ağ-diseksiyonu-network-dissection">Ağ Diseksiyonu (Network Dissection)</h2>
+<p>Bau vd. (2017) tarafından geliştirilen Ağ Diseksiyonu yaklaşımı, bir evrişimli sinir ağının biriminin yorumlanabilirliğini nicelleştirir. Bu yöntem, CNN kanallarının yüksek düzeyde aktive olan alanlarını insan kavramlarıyla (nesneler, parçalar, dokular, renkler, …) birbirine bağlar.</p>
+<p>Özellik Görselleştirme bölümünde gördüğümüz gibi, bir evrişimli sinir ağının kanalları yeni özellikler öğrenir. Ancak bu görselleştirmeler, bir birimin belirli bir kavramı öğrendiğini kanıtlamaz. Ayrıca bir birimin örneğin gökdelenleri ne kadar iyi tespit ettiğine dair bir ölçümüz de yoktur. Ağ Diseksiyonu detaylarına girmeden önce, bu araştırma alanının arkasındaki büyük hipotezi ele almalıyız. Hipotez şudur: “Bir sinir ağının birimleri (evrişimli kanallar gibi) ayrıştırılmış (disentangled) kavramları öğrenir.” Acaba öğreniyorlar mı?</p>
+<section id="ayrıştırılmış-özellikler-sorusu-the-question-of-disentangled-features" class="level3">
+<h3 class="anchored" data-anchor-id="ayrıştırılmış-özellikler-sorusu-the-question-of-disentangled-features">Ayrıştırılmış Özellikler Sorusu (The Question of Disentangled Features)</h3>
+<p>(Evrişimli) sinir ağları ayrıştırılmış özellikler öğrenir mi? Ayrıştırılmış özellikler, bireysel ağ birimlerinin gerçek dünyadaki belirli kavramları tespit etmesi anlamına gelir. Evrişimli kanal 394 gökdelenleri, kanal 121 köpek burunlarını, kanal 12 30 derecelik bir açıyla çizgileri tespit ediyor olabilir… Tamamen ayrıştırılmış bir ağın tersi, tamamen karışık (entangled) bir ağdır. Örneğin tamamen karışık bir ağda köpek burunları için bireysel bir birim olmazdı. Tüm kanallar köpek burunlarının tanınmasına katkıda bulunurdu.</p>
+<p>Ayrıştırılmış özellikler, ağın son derece yorumlanabilir olduğunu gösterir. Bilinen kavramlarla etiketlenmiş, tamamen ayrıştırılmış birimlere sahip bir ağımız olduğunu varsayalım. Bu durum, ağın karar verme sürecini takip etme olanağı açardı. Örneğin, ağın kurtları huskilerden nasıl ayırdığını analiz edebilirdik. İlk olarak “husky” birimini tespit ederiz. Bu birimin önceki katmandaki “köpek burnu”, “tüylü kürk” ve “kar” birimlerine bağlı olup olmadığını kontrol edebiliriz. Eğer bağlıysa, karlı bir arka plana sahip bir husky görüntüsünü kurt olarak yanlış sınıflandıracağını biliriz. Ayrıştırılmış bir ağda, sorunlu ve nedensel olmayan korelasyonları tespit ederdik. Bireysel bir tahmini açıklamak için yüksek düzeyde aktive olan tüm birimleri ve bunların kavramlarını otomatik olarak listeleyebilirdik. Sinir ağındaki yanlılığı (bias) kolayca tespit edebilirdik. Örneğin, ağ maaş tahmini için bir “beyaz ten” özelliği mi öğrenmiş?</p>
+<p>Ön bilgi uyarısı: Evrişimli sinir ağları kusursuz bir şekilde ayrıştırılmış değildir. Sinir ağlarının ne kadar yorumlanabilir olduğunu bulmak için şimdi Ağ Diseksiyonu’na daha yakından yapacağız.</p>
+<hr>
+</section>
+<section id="algoritma-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="algoritma-algorithm">Algoritma (Algorithm)</h3>
+<p>Ağ Diseksiyonu üç adımdan oluşur:</p>
+<ol type="1">
+<li>Çizgilerden gökdelenlere kadar insan etiketli görsel kavramları içeren görselleri toplamak.</li>
+<li>Bu görseller için CNN kanal aktivasyonlarını ölçmek.</li>
+<li>Aktivasyonlar ile etiketli kavramlar arasındaki hizalanmayı nicelleştirmek.</li>
+</ol>
+<p>Şekil 27.5, bir görüntünün bir kanala nasıl iletildiğini ve etiketli kavramlarla nasıl eşleştirildiğini görselleştirir.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.5:</strong> Verilen bir girdi görüntü ve eğitilmiş bir ağ (sabit ağırlıklar) için, görüntüyü hedef katmana doğru ilerletiyor, aktivasyonları orijinal görüntü boyutuyla eşleşecek şekilde yukarı ölçeklendiriyor ve maksimum aktivasyonları piksel düzeyinde segmentasyon (ground truth) ile karşılaştırıyoruz. Şekil orijinal olarak http://netdissect.csail.mit.edu/ adresinden alınmıştır.</p>
+</blockquote>
+<section id="adım-1-broden-veri-seti-step-1-broden-dataset" class="level4">
+<h4 class="anchored" data-anchor-id="adım-1-broden-veri-seti-step-1-broden-dataset">Adım 1: Broden Veri Seti (Step 1: Broden dataset)</h4>
+<p>İlk zor ama çok önemli adım veri toplamadır. Ağ Diseksiyonu; renkten sokak sahnelerine kadar farklı soyutlama seviyelerindeki kavramları içeren, piksel düzeyinde etiketlenmiş görüntülere ihtiyaç duyar. Bau &amp; Zhou vd., piksel düzeyinde kavramlar içeren birkaç veri setini birleştirdiler. Bu yeni sete, geniş ve yoğun etiketlenmiş veri (broadly and densely labeled data) anlamına gelen <strong>‘Broden’</strong> adını verdiler. Broden veri seti çoğunlukla piksel seviyesinde segmentlere ayrılmıştır; bazı veri setleri için ise tüm görüntü etiketlenmiştir. Broden; farklı soyutlama seviyelerinde 1.000’den fazla görsel kavram içeren 60.000 görüntü barındırır: 468 sahne, 585 nesne, 234 parça, 32 malzeme, 47 doku ve 11 renk.</p>
+</section>
+<section id="adım-2-ağ-aktivasyonlarını-getirme-step-2-retrieve-network-activations" class="level4">
+<h4 class="anchored" data-anchor-id="adım-2-ağ-aktivasyonlarını-getirme-step-2-retrieve-network-activations">Adım 2: Ağ Aktivasyonlarını Getirme (Step 2: Retrieve network activations)</h4>
+<p>Sonraki adımda, kanal ve görüntü başına en çok aktive olan alanların maskelerini oluştururuz. Bu aşamada konsept etiketleri henüz işin içindedir. * Her evrişimli kanal <span class="math inline">\(c\)</span> için: * Broden veri setindeki her görüntü <span class="math inline">\(x\)</span> için: * Görüntü <span class="math inline">\(x\)</span>’i kanal <span class="math inline">\(c\)</span>’yi içeren hedef katmana ileri yönlü yay (forward propagate). * Evrişimli kanal <span class="math inline">\(c\)</span>’nin piksel aktivasyonlarını çıkar: <span class="math inline">\(k_c(x)\)</span>. * Tüm görüntüler üzerindeki piksel aktivasyonlarının dağılımını <span class="math inline">\(k_c(x)\)</span> hesapla. * Aktivasyonların <span class="math inline">\(0.995\)</span> kuantilis seviyesini <span class="math inline">\(t_c\)</span> belirle (<span class="math inline">\(k_c(x)\)</span>). Bu, veri setindeki <span class="math inline">\(c\)</span> kanalının aktivasyonlarının <span class="math inline">\(\%0.5\)</span>’inin <span class="math inline">\(t_c\)</span>’den büyük olduğu anlamına gelir. * Broden veri setindeki her görüntü <span class="math inline">\(x\)</span> için: * Muhtemelen daha düşük çözünürlüklü olan aktivasyon haritasını <span class="math inline">\(k_c(x)\)</span> görüntü <span class="math inline">\(x\)</span>’in çözünürlüğüne ölçeklendir. Sonuca <span class="math inline">\(K_c(x)\)</span> diyoruz. * Aktivasyon haritasını ikili (binary) hale getir: Bir piksel, aktivasyon eşiğini <span class="math inline">\(t_c\)</span> geçip geçmediğine bağlı olarak açık veya kapalıdır. Yeni maske <span class="math inline">\(M_c(x) = \text{altsınır}(K_c(x) \ge t_c)\)</span> şeklindedir.</p>
+</section>
+<section id="adım-3-aktivasyon-kavram-hizalanması-step-3-activation-concept-alignment" class="level4">
+<h4 class="anchored" data-anchor-id="adım-3-aktivasyon-kavram-hizalanması-step-3-activation-concept-alignment">Adım 3: Aktivasyon-Kavram Hizalanması (Step 3: Activation-concept alignment)</h4>
+<p>Adım 2’den sonra, kanal ve görüntü başına bir aktivasyon maskemiz olur. Bu aktivasyon maskeleri yüksek düzeyde aktive olan alanları işaretler. Her kanal için, o kanalı aktive eden insan kavramını bulmak isteyiz. Kavramı, aktivasyon maskelerini tüm etiketli kavramlarla karşılaştırarak buluruz. Aktivasyon maskesi <span class="math inline">\(M_c\)</span> ile kavram maskesi <span class="math inline">\(L_q\)</span> arasındaki hizalanmayı Kesişimin Birleşime Oranı (Intersection over Union - IoU) skoru ile nicelleştiririz:</p>
+<p><span class="math display">\[\text{IoU}_c(q) = \frac{|M_c \cap L_q|}{|M_c \cup L_q|}\]</span></p>
+<p>Burada <span class="math inline">\(|\cdot|\)</span> bir kümenin kardinalitesidir (eleman sayısı). Kesişimin Birleşime Oranı, iki alan arasındaki hizalanmayı karşılaştırır. <span class="math inline">\(\text{IoU}_c(q)\)</span>, <span class="math inline">\(c\)</span> biriminin <span class="math inline">\(q\)</span> kavramını tespit etme doğruluğu olarak yorumlanabilir. <span class="math inline">\(\text{IoU}_c(q) &gt; 0.04\)</span> olduğunda <span class="math inline">\(c\)</span> birimine <span class="math inline">\(q\)</span> kavramının bir dedektörü deriz. Bu eşik değer Bau &amp; Zhou vd. (2017) tarafından seçilmiştir.</p>
+<p>Şekil 27.6 tek bir görüntü için aktivasyon maskesi ve kavram maskesinin kesişimini ve birleşimini göstermektedir; Şekil 27.7 ise köpekleri tespit eden bir birimi göstermektedir.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.6:</strong> Kesişimin Birleşime Oranı (IoU), insan temel gerçeklik (ground truth) annotasyonu ile en üst düzeyde aktive olan pikseller karşılaştırılarak hesaplanır.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Şekil 27.7:</strong> Köpekleri <span class="math inline">\(\text{IoU} &gt; 0.04\)</span> ile tespit eden inception_4e kanal 750 için aktivasyon maskesi. Şekil orijinal olarak http://netdissect.csail.mit.edu/ adresinden alınmıştır.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="deneyler-experiments" class="level2">
+<h2 class="anchored" data-anchor-id="deneyler-experiments">Deneyler (Experiments)</h2>
+<p>Ağ Diseksiyonu yazarları, farklı ağ mimarilerini (AlexNet, VGG, GoogleNet, ResNet) farklı veri setleri üzerinde (ImageNet, Places205, Places365) sıfırdan eğittiler. ImageNet, nesnelere odaklanan 1.000 sınıftan 1.6 milyon görüntü içerir (Deng vd. 2009). Places205 ve Places365, 205 / 365 farklı sahneden oluşan sırasıyla 2.5 milyon / 1.6 milyon görüntü içerir. Yazarlar ayrıca AlexNet’i video karesi sırasını tahmin etme veya görüntüleri renklendirme gibi kendi kendini denetleyen (self-supervised) eğitim görevleri üzerinde eğittiler. Bu farklı ayarların birçoğu için, bir yorumlanabilirlik ölçüsü olarak benzersiz kavram dedektörlerinin sayısını saydılar. Bulgulardan bazıları şunlardır:</p>
+<ul>
+<li>Ağlar, alt katmanlarda daha düşük seviyeli kavramları (renkler, dokular) ve üst katmanlarda daha yüksek seviyeli kavramları (parçalar, nesneler) tespit eder. Bunu zaten Özellik Görselleştirmelerinde gördük.</li>
+<li>Toplu normalizasyon (Batch normalization), benzersiz kavram dedektörlerinin sayısını azaltır.</li>
+<li>Birçok birim aynı kavramı tespit eder. Örneğin, <span class="math inline">\(\text{IoU} &gt; 0.04\)</span> algılama kesme noktası kullanıldığında ImageNet üzerinde eğitilmiş VGG’de 95 (!) adet köpek kanalı vardır (conv4_3’te 4, conv5_3’te 91, bkz. proje web sitesi).</li>
+<li>Bir katmandaki kanal sayısını artırmak, yorumlanabilir birimlerin sayısını artırır.</li>
+<li>Rastgele başlatmalar (farklı rastgele tohumlarla - random seeds - eğitim) biraz farklı sayıda yorumlanabilir birimle sonuçlanır.</li>
+<li>ResNet, en büyük benzersiz dedektör sayısına sahip ağ mimarisidir; onu sırasıyla VGG, GoogleNet ve en sonda AlexNet takip eder.</li>
+<li>En büyük benzersiz kavram dedektörü sayısı Places365 için öğrenilir; bunu sırasıyla Places205 ve en son ImageNet izler.</li>
+<li>Benzersiz kavram dedektörlerinin sayısı, eğitim iterasyonlarının sayısı arttıkça artar.</li>
+<li>Kendi kendine denetlenen (self-supervised) görevler üzerinde eğitilmiş ağlar, denetimli (supervised) görevler üzerinde eğitilmiş ağlara kıyasla daha az benzersiz dedektöre sahiptir.</li>
+<li>Transfer öğrenmede (transfer learning), bir kanalın konsepti değişebilir. Örneğin, başlangıçta nesneleri sınıflandırmak için eğitilmiş ve ardından sahneleri sınıflandırmak için ince ayarlanmış (fine-tuned) bir modelde bir köpek dedektörü bir şelale dedektörüne dönüşmüştür.</li>
+<li>Deneylerden birinde yazarlar, kanalları yeni bir döndürülmüş tabana (rotated basis) yansıttılar. Bu, ImageNet üzerinde eğitilmiş VGG ağı için yapıldı. “Döndürülmüş”, görüntünün döndürüldüğü anlamına gelmez. “Döndürülmüş”, conv5 katmanından 256 kanalı alıp orijinal kanalların doğrusal kombinasyonları olarak 256 yeni kanal hesapladığımız anlamına gelir. Bu süreçte kanallar karışır (entangled). Döndürme yorumlanabilirliği azaltır, yani bir kavramla hizalanan kanalların sayısı azalır. Döndürme, modelin performansını aynı tutacak şekilde tasarlandı. Birinci sonuç: CNN’lerin yorumlanabilirliği eksene bağımlıdır (axis-dependent). Bu, rastgele kanal kombinasyonlarının benzersiz kavramları tespit etme olasılığının daha düşük olduğu anlamına gelir. İkinci sonuç: Yorumlanabilirlik, ayırt edici güçten (discriminative power) bağımsızdır. Ayırt edici güç aynı kalırken kanallar ortogonal dönüşümlerle dönüştürülebilir, ancak yorumlanabilirlik azalır.</li>
+</ul>
+<p>Yazarlar ayrıca Üretken Çekişmeli Ağlar (GAN’ler) için de Ağ Diseksiyonu kullandılar. GAN’ler için Ağ Diseksiyonu’nu projenin web sitesinde bulabilirsiniz.</p>
+<hr>
+</section>
+<section id="güçlü-yönler-strengths" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönler-strengths">Güçlü Yönler (Strengths)</h2>
+<ul>
+<li>Özellik görselleştirmeleri, özellikle görüntü tanıma için sinir ağlarının çalışmasına dair benzersiz bir içgörü sağlar. Sinir ağlarının karmaşıklığı ve kapalılığı (opacity) göz önüne alındığında, özellik görselleştirme sinir ağlarını analiz etmek ve tanımlamak için önemli bir adımdır. Özellik görselleştirme sayesinde sinir ağlarının önce basit kenar ve doku dedektörlerini, daha yüksek katmanlarda ise daha soyut parça ve nesne dedektörlerini öğrendiğini öğrendik. Ağ diseksiyonu bu içgörüleri genişletir ve ağ birimlerinin yorumlanabilirliğini ölçülebilir hale getirir.</li>
+<li>Ağ diseksiyonu, birimleri kavramlara otomatik olarak bağlamamıza olanak tanır, bu da son derece uygundur.</li>
+<li>Özellik görselleştirme, sinir ağlarının nasıl çalıştığını teknik olmayan bir şekilde iletmek için harika bir araçtır.</li>
+<li>Ağ diseksiyonu ile sınıflandırma görevindeki sınıfların ötesindeki kavramları da tespit edebiliriz. Ancak piksel düzeyinde etiketlenmiş kavramlar içeren görüntüler içeren veri setlerine ihtiyacımız var.</li>
+<li>Özellik görselleştirme, sınıflandırma için hangi piksellerin önemli olduğunu açıklayan özellik atıf (feature attribution) yöntemleriyle birleştirilebilir. Her iki yöntemin kombinasyonu, bireysel bir sınıflandırmayı, sınıflandırmaya dahil olan öğrenilmiş özelliklerin yerel bir görselleştirmesiyle birlikte açıklamamıza olanak tanır. distill.pub adresinden <em>The Building Blocks of Interpretability</em> makalesine bakın.</li>
+<li>Son olarak, özellik görselleştirmeleri harika masaüstü duvar kağıtları ve tişört baskıları oluşturur.</li>
+</ul>
+<hr>
+</section>
+<section id="sınırlamalar-limitations" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlamalar-limitations">Sınırlamalar (Limitations)</h2>
+<ul>
+<li>Birçok özellik görselleştirme görüntüsü hiç yorumlanamaz nitelikte değildir; bunun yerine kelimelerimizin veya zihinsel kavramımızın olmadığı bazı soyut özellikler içerir. Özellik görselleştirmelerinin eğitim verileriyle birlikte görüntülenmesi yardımcı olabilir. Görüntüler yine de sinir ağının tam olarak neye tepki verdiğini ortaya koymayabilir ve yalnızca “belki de görüntülerde sarı renk olmalı” gibi bir durum belirtebilir. Ağ Diseksiyonu ile bile bazı kanallar insan kavramıyla eşleştirilememektedir. Örneğin, ImageNet üzerinde eğitilmiş VGG’den conv5_3 katmanı, bir insan kavramıyla eşleştirilemeyen 193 kanala (512 kanaldan) sahiptir.</li>
+<li>Yalnızca kanal aktivasyonları “yalnızca” görselleştirildiğinde bile bakılacak çok fazla birim vardır. Örneğin Inception V1 mimarisi için dokuz evrişimli katmandan 5000’den fazla kanal bulunmaktadır. Negatif aktivasyonları artı kanalı maksimum veya minimum düzeyde aktive eden eğitim verilerinden birkaç görüntü (diyelim ki dört pozitif, dört negatif görüntü) göstermek istiyorsanız, zaten 50.000’den fazla görüntü görüntülemeniz gerekir. En azından Ağ Diseksiyonu sayesinde rastgele yönleri incelememiz gerekmediğini biliyoruz.</li>
+<li><strong>Yorumlanabilirlik illüzyonu mu?</strong> Özellik görselleştirmeleri, sinir ağının ne yaptığını anladığımız yönünde bir illüzyon aktarabilir. Ancak sinir ağında olup biteni gerçekten anlıyor muyuz? Yüzlerce hatta binlerce özellik görselleştirmesine baksak bile sinir ağını anlayamayız. Kanallar karmaşık bir şekilde etkileşime girer, pozitif ve negatif aktivasyonlar ilişki dışıdır, birden fazla nöron çok benzer özellikler öğrenebilir ve özelliklerin birçoğu için eşdeğer insan kavramlarına sahip değiliz. Sırf 7. katmandaki 349 numaralı nöronun papatyalar tarafından aktive edildiğine inandığımız için sinir ağlarını tamamen anladığımıza inanma tuzaklarına düşmemeliyiz. Ağ Diseksiyonu, ResNet veya Inception gibi mimarilerin belirli kavramlara tepki veren birimlere sahip olduğunu göstermiştir. Ancak IoU o kadar da harika değildir ve genellikle birçok birim aynı konsepte ve bazıları hiçbir konsepte yanıt vermez. Kanallar tamamen ayrıştırılmamıştır ve onları izole bir şekilde yorumlayamayız.</li>
+<li>Ağ Diseksiyonu için, kavramlarla piksel düzeyinde etiketlenmiş veri setlerine ihtiyacınız vardır. Her pikselin etiketlenmesi gereğinden ötürü bu veri setlerinin toplanması büyük çaba gerektirir, ki bu genellikle görüntüdeki nesnelerin etrafına segmentler çizilerek yapılır.</li>
+<li>Ağ Diseksiyonu, insan kavramlarını kanalların yalnızca pozitif aktivasyonlarıyla hizalar, negatif aktivasyonlarıyla hizalamaz. Özellik görselleştirmelerinin gösterdiği gibi, negatif aktivasyonlar kavramlarla bağlantılı görünmektedir. Bu durum, aktivasyonların alt kuantiline ek olarak bakılarak düzeltilebilir.</li>
+</ul>
+<hr>
+</section>
+<section id="yazılım-ve-ek-materyal-software-and-further-material" class="level2">
+<h2 class="anchored" data-anchor-id="yazılım-ve-ek-materyal-software-and-further-material">Yazılım ve Ek Materyal (Software and further material)</h2>
+<p>Özellik görselleştirmenin <strong>Lucid</strong> adı verilen açık kaynaklı bir uygulaması vardır. Lucid GitHub sayfasında sağlanan defter (notebook) bağlantılarını kullanarak bunu tarayıcınızda rahatça deneyebilirsiniz. Ek bir yazılım gerekmez. Diğer uygulamalar TensorFlow için <code>tf_cnnvis</code>, Keras için <code>Keras Filters</code> ve Caffe için <code>DeepVis</code>’tir.</p>
+<p>Ağ Diseksiyonu harika bir proje web sitesine sahiptir. Web sitesi yayının yanı sıra kod, veri ve aktivasyon maskelerinin görselleştirmeleri gibi ek materyaller barındırır.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

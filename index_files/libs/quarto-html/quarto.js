@@ -35,6 +35,7 @@ const layoutMarginEls = () => {
 };
 
 window.document.addEventListener("DOMContentLoaded", function (_event) {
+  // Recompute the position of margin elements anytime the body size changes
   // Recompute the position of margin elements and re-sync scrollable regions
   // anytime the body size changes. Trailing, so a resize that ends inside the
   // wait is still handled rather than left at a size the page no longer has.
@@ -49,6 +50,10 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
         ) {
           quartoToggleReader();
         }
+      }, 50)
+    );
+    resizeObserver.observe(window.document.body);
+  }
       }, 50, true)
     );
     resizeObserver.observe(window.document.body);
@@ -293,6 +298,25 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
           offsetAbsoluteUrl(window.location.pathname),
           listingHrefs
         );
+        if (nearestListing) {
+          activateCategories(nearestListing);
+        } else {
+          // See if the referrer is a listing page for this item
+          const referredRelativePath = offsetAbsoluteUrl(document.referrer);
+          const referrerListing = listingHrefs.find((listingHref) => {
+            const isListingReferrer =
+              listingHref === referredRelativePath ||
+              listingHref === referredRelativePath + "index.html";
+            return isListingReferrer;
+          });
+
+          if (referrerListing) {
+            // Try to use the referrer if possible
+            activateCategories(referrerListing);
+          } else if (listingHrefs.length > 0) {
+            // Otherwise, just fall back to the first listing
+            activateCategories(listingHrefs[0]);
+          }
 
         // See if the referrer is a listing page for this item. listingHrefs
         // are full pathnames, so compare against the referrer's pathname.
@@ -336,6 +360,22 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
   }
 
   const findNearestParentListing = (href, listingHrefs) => {
+    if (!href || !listingHrefs) {
+      return undefined;
+    }
+    // Look up the tree for a nearby linting and use that if we find one
+    const relativeParts = href.substring(1).split("/");
+    while (relativeParts.length > 0) {
+      const path = relativeParts.join("/");
+      for (const listingHref of listingHrefs) {
+        if (listingHref.startsWith(path)) {
+          return listingHref;
+        }
+      }
+      relativeParts.pop();
+    }
+
+    return undefined;
     if (!href || !listingHrefs?.length) {
       return undefined;
     }
@@ -852,6 +892,16 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
 
 tabsets.init();
 
+function throttle(func, wait) {
+  let waiting = false;
+  return function () {
+    if (!waiting) {
+      func.apply(this, arguments);
+      waiting = true;
+      setTimeout(function () {
+        waiting = false;
+      }, wait);
+    }
 // With `trailing`, a call dropped during the wait runs once the wait ends, so
 // the last event of a burst is never lost.
 function throttle(func, wait, trailing = false) {

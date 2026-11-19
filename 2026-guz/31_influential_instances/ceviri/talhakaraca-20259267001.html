@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Christoph Molnar">
+
+<title>Etkili Örnekler (Influential Instances)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="talhakaraca-20259267001_files/libs/clipboard/clipboard.min.js"></script>
+<script src="talhakaraca-20259267001_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="talhakaraca-20259267001_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="talhakaraca-20259267001_files/libs/quarto-html/popper.min.js"></script>
+<script src="talhakaraca-20259267001_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="talhakaraca-20259267001_files/libs/quarto-html/anchor.min.js"></script>
+<link href="talhakaraca-20259267001_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="talhakaraca-20259267001_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="talhakaraca-20259267001_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="talhakaraca-20259267001_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="talhakaraca-20259267001_files/libs/bootstrap/bootstrap-62e2d20df198e8a01bb734742f2e28cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#silme-diagnostikleri" id="toc-silme-diagnostikleri" class="nav-link active" data-scroll-target="#silme-diagnostikleri"><span class="header-section-number">1</span> Silme Diagnostikleri</a></li>
+  <li><a href="#etki-fonksiyonları" id="toc-etki-fonksiyonları" class="nav-link" data-scroll-target="#etki-fonksiyonları"><span class="header-section-number">2</span> Etki Fonksiyonları</a></li>
+  <li><a href="#güçlü-yönler" id="toc-güçlü-yönler" class="nav-link" data-scroll-target="#güçlü-yönler"><span class="header-section-number">3</span> Güçlü Yönler</a></li>
+  <li><a href="#sınırlılıklar" id="toc-sınırlılıklar" class="nav-link" data-scroll-target="#sınırlılıklar"><span class="header-section-number">4</span> Sınırlılıklar</a></li>
+  <li><a href="#yazılım-ve-alternatifler" id="toc-yazılım-ve-alternatifler" class="nav-link" data-scroll-target="#yazılım-ve-alternatifler"><span class="header-section-number">5</span> Yazılım ve Alternatifler</a></li>
+  <li><a href="#kaynaklar" id="toc-kaynaklar" class="nav-link" data-scroll-target="#kaynaklar">Kaynaklar</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Etkili Örnekler (Influential Instances)</h1>
+<p class="subtitle lead">Bölüm 31 · Çevirmen: Talha Karaca</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Christoph Molnar </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Çeviri kaynağı:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, 3. baskı (2025), <a href="https://christophm.github.io/interpretable-ml-book/influential.html">Bölüm 31: Influential Instances</a>. Özgün bölümdeki R kodlarının ürettiği şekiller ve sayısal değerler, kitabın yayımlanmış sürümünden alınmıştır. Özgün eser CC BY-NC-SA 4.0 lisanslıdır.</p>
+</blockquote>
+<p>Makine öğrenimi modelleri nihayetinde eğitim verilerinin bir ürünüdür ve eğitim örneklerinden birini silmek, ortaya çıkan modeli etkileyebilir. Bir eğitim örneği, eğitim verilerinden silindiğinde modelin parametrelerini veya tahminlerini önemli ölçüde değiştiriyorsa ona “etkili” (influential) diyoruz. Etkili eğitim örneklerini belirleyerek makine öğrenimi modellerinde “hata ayıklayabilir” ve modellerin davranışlarını ve tahminlerini daha iyi açıklayabiliriz.</p>
+<!-- *Anahtar kelimeler: etkili örnekler, etki fonksiyonu, birini-dışarıda-bırak analizi, Cook'un mesafesi, silme diagnostikleri, sağlam istatistik* -->
+<p>Bu bölüm, etkili örnekleri belirlemek için iki yaklaşımı gösterir: silme diagnostikleri (deletion diagnostics) ve etki fonksiyonları (influence functions). Her iki yaklaşım da aykırı değerlerden veya model varsayımlarının ihlallerinden daha az etkilenen istatistiksel yöntemler sunan sağlam istatistiğe (robust statistics) dayanır. Sağlam istatistik ayrıca verilerden elde edilen tahminlerin (örneğin bir ortalama tahmininin veya bir tahmin modelinin ağırlıklarının) ne kadar sağlam olduğunu ölçmek için de yöntemler sağlar.</p>
+<p>Şehrinizdeki insanların ortalama gelirini tahmin etmek istediğinizi ve sokakta rastgele on kişiye ne kadar kazandıklarını sorduğunuzu hayal edin. Örnekleminizin muhtemelen çok kötü olmasını bir kenara bırakırsak, ortalama gelir tahmininiz tek bir kişiden ne kadar etkilenebilir? Bu soruyu yanıtlamak için, yanıtları tek tek dışarıda bırakarak ortalama değeri yeniden hesaplayabilir ya da ortalama değerin nasıl etkilenebileceğini “etki fonksiyonları” aracılığıyla matematiksel olarak türetebilirsiniz. Silme yaklaşımıyla ortalama değeri her seferinde gelir beyanlarından birini dışarıda bırakarak on kez yeniden hesaplar ve ortalama tahmininin ne kadar değiştiğini ölçeriz. Büyük bir değişiklik, bir örneğin çok etkili olduğu anlamına gelir. İkinci yaklaşım, kişilerden birinin ağırlığını sonsuz küçük bir miktar artırır; bu da bir istatistiğin veya modelin birinci türevinin hesaplanmasına karşılık gelir. Bu yaklaşım “sonsuz küçükler yaklaşımı” veya “etki fonksiyonu” olarak da bilinir. Bu arada cevap şudur: Ortalama, tek tek değerlerle doğrusal olarak ölçeklendiği için ortalama tahmininiz tek bir yanıttan çok güçlü bir şekilde etkilenebilir. Daha sağlam bir seçenek medyandır (insanların yarısının daha fazla, diğer yarısının daha az kazandığı değer), çünkü örneklemdeki en yüksek gelirli kişi on kat daha fazla kazansa bile ortaya çıkan medyan değişmez.</p>
+<p>Silme diagnostikleri ve etki fonksiyonları, makine öğrenimi modellerinin parametrelerine veya tahminlerine de uygulanabilir; böylece modellerin davranışını daha iyi anlayabilir ya da bireysel tahminleri açıklayabiliriz. Etkili örnekleri bulmaya yönelik bu iki yaklaşıma geçmeden önce, aykırı değer ile etkili örnek arasındaki farkı inceleyeceğiz.</p>
+<p><strong>Aykırı değer</strong></p>
+<p>Aykırı değer (outlier), veri setindeki diğer örneklerden uzakta olan bir örnektir. “Uzak” olmak, diğer tüm örneklere olan mesafenin (örneğin Öklid mesafesinin) çok büyük olması anlamına gelir. Yenidoğanlardan oluşan bir veri setinde 5 kg ağırlığındaki bir yenidoğan aykırı değer olarak kabul edilir. Çoğunlukla vadesiz hesaplardan oluşan bir banka hesapları veri setinde, özel bir kredi hesabı (büyük negatif bakiye, az sayıda işlem) aykırı değer olarak kabul edilir. <a href="#fig-outlier" class="quarto-xref">Şekil&nbsp;1</a>, 1 boyutlu bir dağılım için bir aykırı değeri göstermektedir.</p>
+<div id="fig-outlier" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-outlier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/fig-outlier-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-outlier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: x özelliği, x=8’de bir aykırı değer bulunan bir Gauss dağılımını izler.
+</figcaption>
+</figure>
+</div>
+<p>Aykırı değerler ilginç veri noktaları olabilir (örneğin Prototipler ve Eleştiriler bölümündeki eleştiriler). Bir aykırı değer modeli etkiliyorsa, aynı zamanda etkili bir örnektir.</p>
+<p><strong>Etkili örnek</strong></p>
+<p>Etkili örnek, çıkarılması eğitilmiş model üzerinde güçlü bir etki yaratan bir veri örneğidir. Model, belirli bir örnek eğitim verilerinden çıkarılarak yeniden eğitildiğinde model parametreleri veya tahminleri ne kadar çok değişiyorsa, o örnek o kadar etkilidir. Bir örneğin eğitilmiş bir model için etkili olup olmadığı, o örneğin hedef y için aldığı değere de bağlıdır. <a href="#fig-influential-point" class="quarto-xref">Şekil&nbsp;2</a>, bir doğrusal regresyon modeli için etkili bir örneği göstermektedir.</p>
+<div id="fig-influential-point" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-influential-point-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/fig-influential-point-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-influential-point-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: Tek özellikli bir doğrusal model. Model bir kez tüm veriyle, bir kez de etkili örnek olmadan eğitilmiştir. Etkili örneğin çıkarılması, uydurulan (fitted) eğimi (ağırlık/katsayı) değiştirir.
+</figcaption>
+</figure>
+</div>
+<p><strong>Etkili örnekler modeli anlamamıza neden yardımcı olur?</strong></p>
+<p>Yorumlanabilirlik açısından etkili örneklerin arkasındaki temel fikir, model parametrelerini ve tahminlerini her şeyin başladığı yere, yani eğitim verilerine kadar geri izlemektir. Öğrenici (learner), yani makine öğrenimi modelini üreten algoritma, <span class="math inline">\(\mathbf{X}\)</span> özelliklerinden ve <span class="math inline">\(\mathbf{y}\)</span> hedef vektöründen oluşan eğitim verisini alıp bir makine öğrenimi modeli üreten bir fonksiyondur; bkz. <a href="#fig-learner" class="quarto-xref">Şekil&nbsp;3</a>. Örneğin bir karar ağacının öğrenicisi, bölünme özelliklerini ve bölünme değerlerini seçen bir algoritmadır. Bir sinir ağının öğrenicisi ise en iyi ağırlıkları bulmak için geri yayılım (backpropagation) kullanır.</p>
+<div id="fig-learner" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-learner-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/learner.jpg" class="img-fluid figure-img" style="width:50.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-learner-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: Öğrenici, eğitim verisinden (özellikler ve hedef) bir model öğrenir. Model, yeni veriler için tahminler yapar.
+</figcaption>
+</figure>
+</div>
+<p>Eğitim sürecinde eğitim verilerinden örnekler çıkarsaydık model parametrelerinin veya tahminlerin nasıl değişeceğini soruyoruz. Bu, kısmi bağımlılık grafikleri (partial dependence plots) veya özellik önemi (feature importance) gibi, tahmin edilecek örneklerin özelliklerini değiştirdiğimizde tahminin nasıl değiştiğini analiz eden diğer yorumlanabilirlik yaklaşımlarından farklıdır. Etkili örneklerde modeli sabit bir şey olarak değil, eğitim verisinin bir fonksiyonu olarak ele alırız. Etkili örnekler, küresel model davranışı ve bireysel tahminler hakkındaki soruları yanıtlamamıza yardımcı olur. Model parametreleri veya tahminler için genel olarak en etkili örnekler hangileriydi? Belirli bir tahmin için en etkili örnekler hangileriydi? Etkili örnekler, modelin hangi örneklerde sorun yaşayabileceğini ve hangi eğitim örneklerinin hatalara karşı kontrol edilmesi gerektiğini söyler, ayrıca modelin sağlamlığı hakkında bir fikir verir. Tek bir örnek model tahminleri ve parametreleri üzerinde güçlü bir etkiye sahipse modele güvenmeyebiliriz. En azından bu durum bizi daha fazla araştırma yapmaya yöneltir.</p>
+<p>Etkili örnekleri nasıl bulabiliriz? Etkiyi ölçmenin iki yolu var: Birinci seçenek, örneği eğitim verilerinden silmek, modeli küçültülmüş eğitim veri seti üzerinde yeniden eğitmek ve model parametrelerindeki veya tahminlerdeki farkı (tek tek ya da tüm veri seti üzerinden) gözlemlemektir. İkinci seçenek, model parametrelerinin gradyanlarına dayanarak parametre değişikliklerine yaklaşıp bir veri örneğinin ağırlığını artırmaktır (upweighting). Silme yaklaşımı daha kolay anlaşılır ve ağırlık artırma yaklaşımına zemin hazırlar; bu yüzden ilkiyle başlıyoruz.</p>
+<section id="silme-diagnostikleri" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="silme-diagnostikleri"><span class="header-section-number">1</span> Silme Diagnostikleri</h2>
+<p>İstatistikçiler, özellikle (genelleştirilmiş) doğrusal regresyon modelleri için, etkili örnekler alanında şimdiden çok sayıda araştırma yapmıştır. “Etkili gözlemler” (influential observations) diye arama yaptığınızda, ilk sonuçlar DFBETA ve Cook’un mesafesi gibi ölçütlerle ilgilidir. <strong>DFBETA</strong>, bir örneğin silinmesinin model parametreleri üzerindeki etkisini ölçer. <strong>Cook’un mesafesi</strong> <span class="citation" data-cites="cook1977detection">(<a href="#ref-cook1977detection" role="doc-biblioref">Cook 1977</a>)</span> ise bir örneğin silinmesinin model tahminleri üzerindeki etkisini ölçer. Her iki ölçüt için de modeli her seferinde tek bir örneği dışarıda bırakarak tekrar tekrar yeniden eğitmemiz gerekir. Tüm örneklerle eğitilmiş modelin parametreleri veya tahminleri, eğitim verilerinden örneklerden biri silinmiş modelin parametreleri veya tahminleriyle karşılaştırılır.</p>
+<p>DFBETA şu şekilde tanımlanır:</p>
+<p><span class="math display">\[DFBETA_{i}=\boldsymbol{\beta}-\boldsymbol{\beta}^{(-i)}\]</span></p>
+<p>Burada <span class="math inline">\(\boldsymbol{\beta}\)</span> model tüm veri örnekleri üzerinde eğitildiğindeki ağırlık vektörü, <span class="math inline">\(\boldsymbol{\beta^{(-i)}}\)</span> ise model <span class="math inline">\(i\)</span> örneği olmadan eğitildiğindeki ağırlık vektörüdür. Oldukça sezgisel, diyebilirim. DFBETA yalnızca lojistik regresyon veya sinir ağları gibi ağırlık parametrelerine sahip modellerde çalışır; karar ağaçları, ağaç toplulukları (tree ensembles), bazı destek vektör makineleri gibi modellerde çalışmaz.</p>
+<p>Cook’un mesafesi doğrusal regresyon modelleri için geliştirilmiştir ve genelleştirilmiş doğrusal regresyon modelleri için yaklaşık biçimleri mevcuttur. Bir eğitim örneği için Cook’un mesafesi, <span class="math inline">\(i\)</span>’inci örnek model eğitiminden çıkarıldığında tahmin edilen sonuçtaki kare farkların (ölçeklendirilmiş) toplamı olarak tanımlanır.</p>
+<p><span class="math display">\[D_i=\frac{\sum_{j=1}^n(\hat{y}_j-\hat{y}_{j}^{(-i)})^2}{p\cdot{}MSE}\]</span></p>
+<p>Burada pay, modelin <span class="math inline">\(i\)</span>’inci örnekle ve bu örnek olmadan yaptığı tahminler arasındaki kare farkın veri seti üzerinden toplamıdır. Payda ise özellik sayısı <span class="math inline">\(p\)</span> ile ortalama kare hatanın (MSE) çarpımıdır. Payda, hangi <span class="math inline">\(i\)</span> örneği çıkarılırsa çıkarılsın tüm örnekler için aynıdır. Cook’un mesafesi, <span class="math inline">\(i\)</span>’inci örneği eğitimden çıkardığımızda bir doğrusal modelin tahmin edilen çıktısının ne kadar değiştiğini söyler.</p>
+<p>Cook’un mesafesini ve DFBETA’yı herhangi bir makine öğrenimi modeli için kullanabilir miyiz? DFBETA model parametreleri gerektirir; bu yüzden bu ölçüt yalnızca parametrik modellerde çalışır. Cook’un mesafesi ise herhangi bir model parametresi gerektirmez. İlginçtir ki Cook’un mesafesine genellikle doğrusal modeller ve genelleştirilmiş doğrusal modeller bağlamı dışında rastlanmaz; oysa belirli bir örneğin çıkarılmasından önceki ve sonraki model tahminleri arasındaki farkı alma fikri son derece geneldir. Cook’un mesafesinin tanımındaki bir sorun MSE’dir; MSE her tür tahmin modeli (örneğin sınıflandırma) için anlamlı değildir.</p>
+<p>Model tahminleri üzerindeki etki için en basit ölçüt şu şekilde yazılabilir:</p>
+<p><span class="math display">\[\text{Influence}^{(-i)}=\frac{1}{n}\sum_{k=1}^{n}\left|\hat{y}_k-\hat{y}_{k}^{(-i)}\right|\]</span></p>
+<p>Bu ifade temelde Cook’un mesafesinin payıdır; tek fark, kare farklar yerine mutlak farkların toplanmasıdır. Bu, sonraki örnekler için mantıklı olduğu için benim yaptığım bir tercihtir. Silme diagnostiği ölçütlerinin genel biçimi, bir ölçüt (örneğin tahmin edilen sonuç) seçmekten ve bu ölçütün tüm örneklerle eğitilmiş model ile örnek silinmiş model arasındaki farkını hesaplamaktan oluşur.</p>
+<p>Etkiyi kolayca parçalara ayırarak, <span class="math inline">\(k\)</span> örneğinin tahmini için <span class="math inline">\(i\)</span>’inci eğitim örneğinin etkisinin ne olduğunu açıklayabiliriz:</p>
+<p><span class="math display">\[\text{Influence}_{k}^{(-i)}=\left|\hat{y}_k - \hat{y}_{k}^{(-i)}\right|\]</span></p>
+<p>Bu, model parametrelerindeki fark veya kayıptaki fark için de işe yarar. Aşağıdaki örnekte bu basit etki ölçütlerini kullanacağız.</p>
+<p><strong>Silme diagnostikleri örneği</strong></p>
+<p>Aşağıdaki örnekte, vücut ölçümlerinden bir penguenin cinsiyetini tahmin etmek için bir rastgele orman (random forest) eğitiyor ve hangi eğitim örneklerinin genel olarak ve belirli bir tahmin için en etkili olduğunu ölçüyoruz. Bu bir sınıflandırma problemi olduğu için etkiyi, dişi olma tahmin olasılığındaki fark olarak ölçüyoruz. Bir örnek, model eğitiminden çıkarıldığında tahmin edilen olasılık veri seti genelinde ortalama olarak güçlü bir şekilde artıyor veya azalıyorsa etkilidir. 222 eğitim örneğinin tamamı için etkiyi ölçmek, modelin bir kez tüm veriyle eğitilmesini ve her seferinde örneklerden biri çıkarılarak 222 kez (= eğitim verisinin boyutu) yeniden eğitilmesini gerektirir.</p>
+<p>En etkili örneğin etki ölçüsü yaklaşık 0,012’dir. 0,012’lik bir etki, 12. örneği çıkarırsak tahmin edilen olasılığın ortalama olarak 1,2 yüzde puan değiştiği anlamına gelir. Bu çok fazla gibi görünmeyebilir, ancak yalnızca 1 veri noktasının çıkarılmasından kaynaklanan, tüm veri üzerinden alınmış bir ortalamadır. Artık model için en etkili veri örneklerinin hangileri olduğunu biliyoruz. Bunu bilmek, verideki hataları ayıklamak için zaten faydalıdır. Sorunlu bir örnek var mı? Ölçüm hataları var mı? Etkili örnekler, hatalara karşı ilk kontrol edilmesi gereken örneklerdir, çünkü bunlardaki her hata model tahminlerini güçlü bir şekilde etkiler.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>En etkili verileri inceleyin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Hata ayıklarken önce en etkili örnekleri inceleyin; böylece zamanınızı tahminler için en çok önem taşıyan verilere verimli bir şekilde ayırırsınız.</p>
+</div>
+</div>
+<p>Model hata ayıklamanın ötesinde, modeli daha iyi anlamak için bir şey öğrenebilir miyiz? Yalnızca en etkili 10 örneği yazdırmak pek faydalı değildir, çünkü bu, çok sayıda özelliği olan örneklerden oluşan bir tablodan ibarettir. Çıktı olarak örnek döndüren tüm yöntemler, ancak bu örnekleri iyi bir şekilde temsil etmenin bir yolu varsa anlamlıdır. Ancak şu soruyu sorduğumuzda ne tür örneklerin etkili olduğunu daha iyi anlayabiliriz: Etkili bir örneği etkisiz bir örnekten ayıran nedir? Bu soruyu bir regresyon problemine dönüştürebilir ve bir örneğin etkisini özellik değerlerinin bir fonksiyonu olarak modelleyebiliriz. İstediğimiz herhangi bir yorumlanabilir modeli seçmekte özgürüz. Bu örnek için, destek vektör makinesi için en etkili verilerin derin gagalı (bill depth değeri yüksek) penguenlere ait olduğunu gösteren bir karar ağacı (<a href="#fig-cooks" class="quarto-xref">Şekil&nbsp;4</a>) seçtim.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<div id="fig-cooks" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/fig-cooks-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cooks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: Örneklerin etkisi ile özellikleri arasındaki ilişkiyi modelleyen bir karar ağacı. Ağacın maksimum derinliği 2 olarak ayarlanmıştır.
+</figcaption>
+</figure>
+</div>
+<p>Bu ilk etki analizi, <em>genel olarak</em> en etkili örneği ortaya çıkardı. Şimdi örneklerden birini, yani 8. örneği seçiyor ve bu örneğin tahminini en etkili eğitim verisi örneklerini bularak açıklamak istiyoruz. Bu, karşıt olgusal (counterfactual) bir soruya benzer: <span class="math inline">\(i\)</span> örneğini eğitim sürecinden çıkarsaydık 8. örneğin tahmini nasıl değişirdi? Bu çıkarma işlemini tüm örnekler için tekrarlarız. Ardından, eğitimden çıkarıldıklarında 8. örneğin tahmininde en büyük değişikliğe yol açan eğitim örneklerini seçer ve bunları modelin o örnek için yaptığı tahmini açıklamak için kullanırız. Örneğin 8. örneğin tahmini için en etkili ilk 10 örneği bir tablo olarak döndürebilirdik. Bu pek kullanışlı olmazdı, çünkü fazla bir şey göremezdik. Yine, özelliklerini analiz ederek etkili örnekleri etkisiz örneklerden neyin ayırdığını bulmak daha anlamlıdır. Özelliklere bakarak etkiyi tahmin etmek üzere eğitilmiş bir karar ağacı kullanıyoruz; ama gerçekte onu bir şey tahmin etmek için değil, yalnızca bir yapı bulmak için (amacı dışında) kullanıyoruz. <a href="#fig-influence-single" class="quarto-xref">Şekil&nbsp;5</a>, 8. örneğin tahmininde ne tür eğitim örneklerinin en etkili olduğunu bir karar ağacıyla gösteriyor. Vücut kütlesi yüksek ve gagası derin penguenlere ait veriler, 8. örneğin tahmini üzerinde daha büyük bir etkiye sahipti.</p>
+<div id="fig-influence-single" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-influence-single-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/fig-influence-single-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-influence-single-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;5: Seçilen örneğin tahmininde hangi örneklerin en etkili olduğunu açıklayan karar ağacı.
+</figcaption>
+</figure>
+</div>
+<p>Bu örnekler, modelin sağlamlığını kontrol etmek için etkili örnekleri belirlemenin ne kadar faydalı olduğunu gösterdi. Önerilen yaklaşımın bir sorunu, modelin her eğitim örneği için yeniden eğitilmesi gerekmesidir. Tüm bu yeniden eğitim süreci oldukça yavaş olabilir, çünkü binlerce eğitim örneğiniz varsa modelinizi binlerce kez yeniden eğitmeniz gerekir. Modelin eğitiminin bir gün sürdüğünü ve 1.000 eğitim örneğiniz olduğunu varsayarsak, etkili örneklerin hesaplanması (paralelleştirme olmadan) neredeyse 3 yıl sürer. Buna kimsenin vakti yok. Bu bölümün geri kalanında, modelin yeniden eğitilmesini gerektirmeyen bir yöntem göstereceğim.</p>
+</section>
+<section id="etki-fonksiyonları" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="etki-fonksiyonları"><span class="header-section-number">2</span> Etki Fonksiyonları</h2>
+<p><em>Sen</em>: Bir eğitim örneğinin belirli bir tahmin üzerindeki etkisini bilmek istiyorum.<br>
+<em>Araştırma</em>: Eğitim örneğini silebilir, modeli yeniden eğitebilir ve tahmindeki farkı ölçebilirsin.<br>
+<em>Sen</em>: Harika! Ama yeniden eğitme gerektirmeyen bir yöntemin var mı? Çok zaman alıyor.<br>
+<em>Araştırma</em>: Parametrelerine göre iki kez türevlenebilir bir kayıp fonksiyonuna sahip bir modelin var mı?<br>
+<em>Sen</em>: Lojistik kayıpla bir sinir ağı eğittim. Yani evet.<br>
+<em>Araştırma</em>: O zaman örneğin model parametreleri ve tahmin üzerindeki etkisine <strong>etki fonksiyonlarıyla</strong> yaklaşabilirsin. Etki fonksiyonu, model parametrelerinin veya tahminlerin bir eğitim örneğine ne kadar güçlü bağlı olduğunun bir ölçüsüdür. Yöntem, örneği silmek yerine kayıp içindeki ağırlığını çok küçük bir adımla artırır. Bu yöntem, gradyan ve Hessian matrisini kullanarak kaybı mevcut model parametreleri civarında yaklaşık olarak ifade etmeyi içerir. Kayıpta ağırlık artırma, örneği silmeye benzer.<br>
+<em>Sen</em>: Harika, tam aradığım şey!</p>
+<p><span class="citation" data-cites="koh2017understanding">Koh ve Liang (<a href="#ref-koh2017understanding" role="doc-biblioref">2017</a>)</span>, bir örneğin model parametrelerini veya tahminleri nasıl etkilediğini ölçmek için sağlam istatistiğin bir yöntemi olan etki fonksiyonlarının kullanılmasını önermiştir. Silme diagnostiklerinde olduğu gibi, etki fonksiyonları da model parametrelerini ve tahminleri sorumlu eğitim örneğine kadar geri izler. Ancak bu yöntem, eğitim örneklerini silmek yerine, örneğin ampirik riskteki (eğitim verisi üzerindeki kaybın toplamı) ağırlığı artırıldığında modelin ne kadar değiştiğine yaklaşır.</p>
+<p>Etki fonksiyonları yöntemi, model parametrelerine (veya tahminlere) göre kayıp gradyanına erişim gerektirir; bu da yalnızca makine öğrenimi modellerinin bir alt kümesi için mümkündür. Lojistik regresyon, sinir ağları ve destek vektör makineleri bu koşulu sağlar; rastgele ormanlar gibi ağaç tabanlı yöntemler ise sağlamaz. Etki fonksiyonları model davranışını anlamaya, modelde hata ayıklamaya ve veri setindeki hataları tespit etmeye yardımcı olur.</p>
+<p>Aşağıdaki bölüm, etki fonksiyonlarının arkasındaki sezgiyi ve matematiği açıklar.</p>
+<p><strong>Etki fonksiyonlarının arkasındaki matematik</strong></p>
+<p>Etki fonksiyonlarının temel fikri, bir eğitim örneğinin kaybının ağırlığını sonsuz küçük bir adım <span class="math inline">\(\epsilon\)</span> kadar artırmaktır; bu da yeni model parametreleriyle sonuçlanır:</p>
+<p><span class="math display">\[\hat{\boldsymbol{\theta}}_{\epsilon, \mathbf{z}} = \arg\min_{\boldsymbol{\theta} \in \Theta} \left(\frac{1}{n}\sum_{i=1}^n L(\mathbf{z}^{(i)}, \boldsymbol{\theta}) + \epsilon L(\mathbf{z}, \boldsymbol{\theta}) \right)\]</span></p>
+<p>Burada <span class="math inline">\(\theta\)</span> model parametre vektörü, <span class="math inline">\(\hat{\boldsymbol{\theta}}_{\epsilon, \mathbf{z}}\)</span> ise <span class="math inline">\(\mathbf{z}\)</span>’nin ağırlığı çok küçük bir <span class="math inline">\(\epsilon\)</span> sayısı kadar artırıldıktan sonraki parametre vektörüdür. <span class="math inline">\(L\)</span> modelin eğitildiği kayıp fonksiyonu, <span class="math inline">\(\mathbf{z}^{(i)}\)</span> eğitim verisi, <span class="math inline">\(\mathbf{z}\)</span> ise çıkarılmasını simüle etmek için ağırlığını artırmak istediğimiz eğitim örneğidir. Bu formülün arkasındaki sezgi şudur: Eğitim verisindeki belirli bir <span class="math inline">\(\mathbf{z}^{(i)}\)</span> örneğinin ağırlığını biraz (<span class="math inline">\(\epsilon\)</span>) artırır ve diğer veri örneklerinin ağırlığını buna göre azaltırsak kayıp ne kadar değişir? Bu yeni birleşik kaybı optimize eden parametre vektörü nasıl görünürdü? Parametrelerin etki fonksiyonu, yani <span class="math inline">\(\mathbf{z}\)</span> eğitim örneğinin ağırlığını artırmanın parametreler üzerindeki etkisi, şu şekilde hesaplanabilir:</p>
+<p><span class="math display">\[I_{\text{up,params}}(\mathbf{z}) = \left.\frac{d \hat{\boldsymbol{\theta}}_{\epsilon, \mathbf{z}}}{d\epsilon}\right|_{\epsilon=0} = -H_{\hat{\boldsymbol{\theta}}}^{-1} \nabla_{\boldsymbol{\theta}} L(\mathbf{z}, \hat{\boldsymbol{\theta}})\]</span></p>
+<p>Son ifade <span class="math inline">\(\nabla_{\boldsymbol{\theta}}L(\mathbf{z}, \hat{\boldsymbol{\theta}})\)</span>, ağırlığı artırılan eğitim örneği için parametrelere göre kayıp gradyanıdır. Gradyan, eğitim örneğinin kaybının değişim hızıdır. Model parametrelerini <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> biraz değiştirdiğimizde kaybın ne kadar değiştiğini söyler. Gradyan vektöründeki pozitif bir eleman, ilgili model parametresindeki küçük bir artışın kaybı artırdığı; negatif bir eleman ise parametredeki artışın kaybı azalttığı anlamına gelir. İlk kısım <span class="math inline">\(H^{-1}_{\hat{\boldsymbol{\theta}}}\)</span>, ters Hessian matrisidir (kaybın model parametrelerine göre ikinci türevi). Hessian matrisi gradyanın değişim hızıdır; kayıp cinsinden ifade edersek, kaybın değişim hızının değişim hızıdır. Şu formülle tahmin edilebilir:</p>
+<p><span class="math display">\[H_{\boldsymbol{\theta}} = \frac{1}{n}\sum_{i=1}^n \nabla^2_{\hat{\boldsymbol{\theta}}}L(\mathbf{z}^{(i)}, \hat{\boldsymbol{\theta}})\]</span></p>
+<p>Daha gayriresmî bir ifadeyle: Hessian matrisi, kaybın belirli bir noktada ne kadar eğri olduğunu kaydeder. Hessian yalnızca bir vektör değil bir matristir, çünkü kaybın eğriliğini tanımlar ve eğrilik baktığımız yöne bağlıdır. Çok sayıda parametreniz varsa Hessian matrisinin fiilen hesaplanması zaman alır. Koh ve Liang, bunu verimli bir şekilde hesaplamak için bazı yöntemler önermiştir; bu yöntemler bu bölümün kapsamı dışındadır. Model parametrelerini yukarıdaki formülde tanımlandığı gibi güncellemek, tahmin edilen model parametreleri etrafında ikinci dereceden bir açılım (quadratic expansion) oluşturduktan sonra tek bir Newton adımı atmaya eşdeğerdir.</p>
+<p>Bu etki fonksiyonu formülünün arkasında nasıl bir sezgi var? Formül, <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> parametreleri etrafında ikinci dereceden bir açılım oluşturmaktan gelir. Bu, <span class="math inline">\(\mathbf{z}\)</span> örneği çıkarıldığında veya ağırlığı artırıldığında kaybının tam olarak nasıl değişeceğini aslında bilmediğimiz ya da bunu hesaplamanın çok karmaşık olduğu anlamına gelir. Fonksiyona, mevcut model parametresi ayarındaki diklik (= gradyan) ve eğrilik (= Hessian matrisi) bilgisini kullanarak yerel olarak yaklaşırız. Bu kayıp yaklaşımıyla, <span class="math inline">\(\mathbf{z}\)</span> örneğinin ağırlığını artırsaydık yeni parametrelerin yaklaşık olarak nasıl görüneceğini hesaplayabiliriz:</p>
+<p><span class="math display">\[\hat{\boldsymbol{\theta}}_{-\mathbf{z}} \approx \hat{\boldsymbol{\theta}} - \frac{1}{n} I_{\text{up,params}}(\mathbf{z})\]</span></p>
+<p>Yaklaşık parametre vektörü, temelde orijinal parametreden, eğrilikle ölçeklenmiş (= ters Hessian matrisiyle çarpılmış) ve <span class="math inline">\(\frac{1}{n}\)</span> ile ölçeklenmiş <span class="math inline">\(\mathbf{z}\)</span> kaybının gradyanının çıkarılmasıyla elde edilir; gradyanı çıkarırız çünkü kaybı azaltmak istiyoruz, <span class="math inline">\(\frac{1}{n}\)</span> ile ölçekleriz çünkü bu tek bir eğitim örneğinin ağırlığıdır.</p>
+<p><a href="#fig-quadratic-expansion" class="quarto-xref">Şekil&nbsp;6</a>, ağırlık artırmanın nasıl çalıştığını göstermektedir. x ekseni <span class="math inline">\(\boldsymbol{\theta}\)</span> parametresinin değerini, y ekseni ise ağırlığı artırılmış <span class="math inline">\(\mathbf{z}\)</span> örneğiyle birlikte kaybın karşılık gelen değerini gösterir. Buradaki model parametresi gösterim amacıyla 1 boyutludur, ancak gerçekte genellikle yüksek boyutludur. <span class="math inline">\(\mathbf{z}\)</span> örneği için kaybın iyileştiği yönde yalnızca <span class="math inline">\(\frac{1}{n}\)</span> kadar ilerleriz. <span class="math inline">\(\mathbf{z}\)</span>’yi sildiğimizde kaybın gerçekte nasıl değişeceğini bilmiyoruz; ancak kaybın birinci ve ikinci türevleriyle mevcut model parametremiz etrafında bu ikinci dereceden yaklaşımı oluşturur ve gerçek kaybın böyle davranacağını varsayarız.</p>
+<div id="fig-quadratic-expansion" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quadratic-expansion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/fig-quadratic-expansion-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quadratic-expansion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;6: Model parametresini (x ekseni), kaybın mevcut model parametresi etrafında ikinci dereceden bir açılımını oluşturarak ve ağırlığı artırılmış <span class="math inline">\(\mathbf{z}\)</span> örneğiyle birlikte kaybın (y ekseni) en çok iyileştiği yöne doğru 1/n kadar ilerleyerek güncelleme. Kayıpta <span class="math inline">\(\mathbf{z}\)</span> örneğinin ağırlığını bu şekilde artırmak, <span class="math inline">\(\mathbf{z}\)</span>’yi silip modeli küçültülmüş veriyle eğitseydik parametrelerin nasıl değişeceğine yaklaşır.
+</figcaption>
+</figure>
+</div>
+<p>Yeni parametreleri fiilen hesaplamamıza gerek yoktur; etki fonksiyonunu doğrudan <span class="math inline">\(\mathbf{z}\)</span>’nin parametreler üzerindeki etkisinin bir ölçüsü olarak kullanabiliriz.</p>
+<p><span class="math inline">\(\mathbf{z}\)</span> eğitim örneğinin ağırlığını artırdığımızda <em>tahminler</em> nasıl değişir? Ya yeni parametreleri hesaplayıp yeni parametrelerle elde edilen modelle tahmin yapabiliriz ya da etkiyi zincir kuralıyla hesaplayabildiğimiz için <span class="math inline">\(\mathbf{z}\)</span> örneğinin tahminler üzerindeki etkisini doğrudan hesaplayabiliriz:</p>
+<p><span class="math display">\[
+\begin{aligned}
+I_{up,loss}(\mathbf{z}, \mathbf{z}_{test}) &amp; = \left.\frac{d L(\mathbf{z}_{test},\hat{\boldsymbol{\theta}}_{\epsilon, \mathbf{z}})}{d\epsilon}\right|_{\epsilon=0} \\
+&amp; = \left.\nabla_{\boldsymbol{\theta}}L(\mathbf{z}_{test},\hat{\boldsymbol{\theta}})^T \frac{d\hat{\boldsymbol{\theta}}_{\epsilon,\mathbf{z}}}{d \epsilon}\right|_{\epsilon=0} \\
+&amp; = -\nabla_{\boldsymbol{\theta}}L(\mathbf{z}_{test}, \hat{\boldsymbol{\theta}})^T H^{-1}_{\boldsymbol{\theta}} \nabla_{\boldsymbol{\theta}} L(\mathbf{z},\hat{\boldsymbol{\theta}})
+\end{aligned}
+\]</span></p>
+<p>Bu denklemin ilk satırı, bir eğitim örneğinin belirli bir tahmin <span class="math inline">\(\mathbf{z}_{test}\)</span> üzerindeki etkisini, <span class="math inline">\(\mathbf{z}\)</span> örneğinin ağırlığını artırıp yeni parametreler <span class="math inline">\(\hat{\theta}_{\epsilon,z}\)</span> elde ettiğimizde test örneğinin kaybındaki değişim olarak ölçtüğümüz anlamına gelir. Denklemin ikinci satırında türevlerde zincir kuralını uyguladık ve test örneğinin kaybının parametrelere göre türevi ile <span class="math inline">\(z\)</span>’nin parametreler üzerindeki etkisinin çarpımını elde ettik. Üçüncü satırda ifadeyi parametreler için etki fonksiyonuyla değiştirdik. Üçüncü satırdaki ilk terim <span class="math inline">\(\nabla_{\boldsymbol{\theta}} L(\mathbf{z}_{test},\hat{\boldsymbol{\theta}})^T\)</span>, test örneğinin model parametrelerine göre gradyanıdır.</p>
+<p>Bir formüle sahip olmak harikadır ve bir şeyi göstermenin bilimsel ve kesin yoludur. Ama bence formülün ne anlama geldiğine dair biraz sezgi edinmek çok önemlidir. <span class="math inline">\(I_{\text{up,loss}}\)</span> formülü, <span class="math inline">\(\mathbf{z}\)</span> eğitim örneğinin bir <span class="math inline">\(\mathbf{z}_{test}\)</span> örneğinin tahmini üzerindeki etki fonksiyonunun, “örneğin model parametrelerindeki bir değişikliğe ne kadar güçlü tepki verdiği” ile “<span class="math inline">\(\mathbf{z}\)</span> örneğinin ağırlığını artırdığımızda parametrelerin ne kadar değiştiğinin” çarpımı olduğunu söyler. Formülü okumanın bir başka yolu: Etki, eğitim ve test kaybının gradyanlarının ne kadar büyük olduğuyla orantılıdır. Eğitim kaybının gradyanı ne kadar yüksekse parametreler üzerindeki etkisi ve dolayısıyla test tahmini üzerindeki etkisi de o kadar yüksek olur. Test tahmininin gradyanı ne kadar yüksekse test örneği o kadar etkilenebilir hâle gelir. Tüm yapı, eğitim örneği ile test örneği arasındaki (modelin öğrendiği şekliyle) benzerliğin bir ölçüsü olarak da görülebilir.</p>
+<p>Teori ve sezgi bu kadar. Sonraki bölüm, etki fonksiyonlarının nasıl uygulanabileceğini açıklar.</p>
+<p><strong>Etki fonksiyonlarının uygulamaları</strong></p>
+<p>Etki fonksiyonlarının pek çok uygulaması vardır; bunların bazıları bu bölümde zaten sunuldu.</p>
+<p><strong>Model davranışını anlamak</strong></p>
+<p>Farklı makine öğrenimi modelleri tahminlerini farklı şekillerde yapar. İki model aynı performansa sahip olsa bile, özelliklerden tahmin üretme biçimleri çok farklı olabilir ve bu nedenle farklı senaryolarda başarısız olabilirler. Etkili örnekleri belirleyerek bir modelin kendine özgü zayıflıklarını anlamak, makine öğrenimi modelinin davranışına dair zihninizde bir “zihinsel model” oluşturmanıza yardımcı olur.</p>
+<p><strong>Alan uyumsuzluklarıyla başa çıkmak / Model hatalarını ayıklamak</strong></p>
+<p>Alan uyumsuzluğuyla (domain mismatch) başa çıkmak, model davranışını daha iyi anlamakla yakından ilişkilidir. Alan uyumsuzluğu, eğitim ve test verilerinin dağılımlarının farklı olması anlamına gelir; bu da modelin test verisinde kötü performans göstermesine yol açabilir. Etki fonksiyonları, hataya neden olan eğitim örneklerini belirleyebilir. Ameliyat olmuş hastaların sonuçlarını tahmin eden bir model eğittiğinizi varsayalım. Bu hastaların hepsi aynı hastaneden geliyor. Şimdi modeli başka bir hastanede kullanıyorsunuz ve birçok hasta için iyi çalışmadığını görüyorsunuz. Elbette iki hastanenin farklı hastalara sahip olduğunu varsayarsınız; verilerine baktığınızda da birçok özellikte farklılık olduğunu görebilirsiniz. Peki modeli “bozan” özellikler veya örnekler hangileri? Burada da etkili örnekler bu soruyu yanıtlamanın iyi bir yoludur. Modelin yanlış tahmin yaptığı yeni hastalardan birini alır, en etkili örnekleri bulur ve analiz edersiniz. Bu, örneğin ikinci hastanenin ortalamada daha yaşlı hastalara sahip olduğunu, eğitim verisindeki en etkili örneklerin ilk hastanedeki az sayıdaki yaşlı hasta olduğunu ve modelin bu alt grubu iyi tahmin etmeyi öğrenecek kadar veriye sahip olmadığını gösterebilir. Varılacak sonuç, modelin ikinci hastanede iyi çalışması için daha fazla yaşlı hasta üzerinde eğitilmesi gerektiği olurdu.</p>
+<p><strong>Eğitim verilerini düzeltmek</strong></p>
+<p>Doğruluğunu kontrol edebileceğiniz eğitim örneği sayısı sınırlıysa, verimli bir seçimi nasıl yaparsınız? En iyi yol en etkili örnekleri seçmektir, çünkü tanımları gereği model üzerinde en fazla etkiye onlar sahiptir. Açıkça yanlış değerler içeren bir örneğiniz olsa bile, bu örnek etkili değilse ve veriye yalnızca tahmin modeli için ihtiyacınız varsa, etkili örnekleri kontrol etmek daha iyi bir seçimdir. Örneğin bir hastanın hastanede kalması mı yoksa erken taburcu edilmesi mi gerektiğini tahmin eden bir model eğitiyorsunuz. Modelin sağlam olduğundan ve doğru tahminler yaptığından gerçekten emin olmak istiyorsunuz, çünkü bir hastanın yanlışlıkla taburcu edilmesi kötü sonuçlar doğurabilir. Hasta kayıtları çok dağınık olabilir; bu yüzden verinin kalitesine tam olarak güvenmezsiniz. Ancak hasta bilgilerini kontrol edip düzeltmek çok zaman alıcı olabilir, çünkü hangi hastaları kontrol etmeniz gerektiğini bildirdiğinizde hastanenin, seçilen hastaların el yazısıyla tutulmuş ve bir arşivde duruyor olabilecek kayıtlarını daha yakından incelemesi için gerçekten birini göndermesi gerekir. Bir hastanın verisini kontrol etmek bir saat veya daha uzun sürebilir. Bu maliyetler göz önüne alındığında yalnızca birkaç önemli veri örneğini kontrol etmek mantıklıdır. En iyi yol, tahmin modeli üzerinde yüksek etkiye sahip hastaları seçmektir. Koh ve Liang (2017), bu tür bir seçimin rastgele seçimden ya da en yüksek kayba veya yanlış sınıflandırmaya sahip olanları seçmekten çok daha iyi sonuç verdiğini göstermiştir.</p>
+</section>
+<section id="güçlü-yönler" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="güçlü-yönler"><span class="header-section-number">3</span> Güçlü Yönler</h2>
+<p>Silme diagnostikleri ve etki fonksiyonları yaklaşımları, SHAP gibi özellik pertürbasyonuna dayalı yaklaşımlardan çok farklıdır. Etkili örneklere bakmak, öğrenme sürecinde eğitim verisinin rolünü öne çıkarır. Bu da etki fonksiyonlarını ve silme diagnostiklerini <strong>makine öğrenimi modelleri için en iyi hata ayıklama araçlarından biri</strong> yapar. Bu kitapta sunulan teknikler arasında, hatalara karşı kontrol edilmesi gereken örnekleri doğrudan belirlemeye yardımcı olan yegâne yöntemler bunlardır.</p>
+<p><strong>Silme diagnostikleri modelden bağımsızdır (model-agnostic)</strong>; yani bu yaklaşım herhangi bir modele uygulanabilir. Ayrıca türevlere dayalı etki fonksiyonları da geniş bir model sınıfına uygulanabilir.</p>
+<p>Bu yöntemleri, yalnızca tahmin performanslarını karşılaştırmanın ötesine geçerek <strong>farklı makine öğrenimi modellerini karşılaştırmak</strong> ve farklı davranışlarını daha iyi anlamak için kullanabiliriz.</p>
+<p>Bu bölümde bu konuya değinmedik, ancak <strong>türevler aracılığıyla etki fonksiyonları, adversarial eğitim verisi oluşturmak için de kullanılabilir</strong>. Bunlar, model bu manipüle edilmiş örnekler üzerinde eğitildiğinde belirli test örneklerini doğru tahmin edemeyecek şekilde manipüle edilmiş örneklerdir. Kötü Amaçlı Örnekler (Adversarial Examples) bölümündeki yöntemlerden farkı, saldırının eğitim sırasında gerçekleşmesidir; bu saldırılar zehirleme saldırıları (poisoning attacks) olarak da bilinir. İlgileniyorsanız Koh ve Liang’ın (2017) makalesini okuyabilirsiniz.</p>
+<p>Silme diagnostikleri ve etki fonksiyonları için tahmindeki farkı, etki fonksiyonu için de kayıptaki artışı ele aldık. Ama aslında <strong>yaklaşım genellenebilir</strong> ve şu biçimdeki herhangi bir soruya uygulanabilir: “<span class="math inline">\(\mathbf{z}\)</span> örneğini sildiğimizde veya ağırlığını artırdığımızda … ne olur?” Burada “…” kısmını modelinizin istediğiniz herhangi bir fonksiyonuyla doldurabilirsiniz. Bir eğitim örneğinin modelin genel kaybını ne kadar etkilediğini analiz edebilirsiniz. Bir eğitim örneğinin özellik önemini ne kadar etkilediğini analiz edebilirsiniz. Bir karar ağacı eğitilirken ilk bölünme için hangi özelliğin seçileceğini bir eğitim örneğinin ne kadar etkilediğini analiz edebilirsiniz.</p>
+<p><strong>Etkili örnek gruplarını belirlemek</strong> de mümkündür <span class="citation" data-cites="koh2019accuracy">(<a href="#ref-koh2019accuracy" role="doc-biblioref">Koh vd. 2019</a>)</span>.</p>
+</section>
+<section id="sınırlılıklar" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sınırlılıklar"><span class="header-section-number">4</span> Sınırlılıklar</h2>
+<p>Silme diagnostiklerinin <strong>hesaplanması çok maliyetlidir</strong>, çünkü yeniden eğitim gerektirir. Ancak tarih, bilgisayar kaynaklarının sürekli arttığını göstermiştir. 20 yıl önce kaynaklar açısından düşünülemeyecek bir hesaplama, bugün akıllı telefonunuzla kolayca yapılabilir. Binlerce eğitim örneği ve yüzlerce parametresi olan modelleri bir dizüstü bilgisayarda saniyeler/dakikalar içinde eğitebilirsiniz. Bu nedenle, silme diagnostiklerinin 10 yıl içinde büyük sinir ağlarıyla bile sorunsuz çalışacağını varsaymak büyük bir sıçrama değildir.</p>
+<p><strong>Etki fonksiyonları silme diagnostiklerine iyi bir alternatiftir, ancak yalnızca sinir ağları gibi kayıp fonksiyonu parametrelerine göre iki kez türevlenebilen modeller için.</strong> Rastgele ormanlar, gradyan artırmalı ağaçlar (boosted trees) veya karar ağaçları gibi ağaç tabanlı yöntemlerde çalışmazlar. Parametreleri ve bir kayıp fonksiyonu olan modelleriniz olsa bile kayıp türevlenebilir olmayabilir. Ancak bu son sorun için bir hile var: Örneğin alttaki model türevlenebilir bir kayıp yerine Hinge kaybını kullanıyorsa, etkiyi hesaplamak için onun yerine türevlenebilir bir kayıp kullanın. Etki fonksiyonları için sorunlu kayıp, onun düzleştirilmiş (smoothed) bir versiyonuyla değiştirilir; ancak model yine de düzgün olmayan kayıpla eğitilebilir.</p>
+<p><strong>Etki fonksiyonları yalnızca yaklaşıktır</strong>, çünkü yaklaşım parametreler etrafında ikinci dereceden bir açılım oluşturur. Yaklaşım yanlış olabilir ve bir örnek çıkarıldığında etkisi aslında daha yüksek veya daha düşük olabilir. Koh ve Liang (2017), bazı örnekler için etki fonksiyonuyla hesaplanan etkinin, örnek silindikten sonra model gerçekten yeniden eğitildiğinde elde edilen etki ölçüsüne yakın olduğunu göstermiştir. Ancak yaklaşımın her zaman bu kadar yakın olacağının garantisi yoktur.</p>
+<p><strong>Bir örneği etkili veya etkisiz olarak nitelendirmek için etki ölçüsünde net bir eşik değeri yoktur.</strong> Örnekleri etkiye göre sıralamak faydalıdır, ancak örnekleri yalnızca sıralamakla kalmayıp etkili ve etkisiz olanları gerçekten ayırt edebilecek araçlara sahip olmak harika olurdu. Örneğin bir test örneği için en etkili 10 eğitim örneğini belirlediğinizde, bunların bazıları aslında etkili olmayabilir; çünkü örneğin yalnızca ilk 3’ü gerçekten etkili olabilir.</p>
+</section>
+<section id="yazılım-ve-alternatifler" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="yazılım-ve-alternatifler"><span class="header-section-number">5</span> Yazılım ve Alternatifler</h2>
+<p>Silme diagnostiklerini uygulamak çok basittir.</p>
+<p>Doğrusal modeller ve genelleştirilmiş doğrusal modeller için Cook’un mesafesi gibi birçok etki ölçüsü R’de <code>stats</code> paketinde uygulanmıştır.</p>
+<p>Koh ve Liang, makalelerindeki etki fonksiyonlarına ait Python kodunu <a href="https://github.com/kohpangwei/influence-release">bir depoda</a> yayımladı. Bu harika! Ne yazık ki bu “yalnızca” makalenin kodudur; bakımı yapılan ve belgelenmiş bir Python modülü değildir. Kod TensorFlow kütüphanesine odaklanmıştır; bu nedenle <code>scikit-learn</code> gibi başka çerçeveler kullanan kara kutu modeller için doğrudan kullanamazsınız.</p>
+</section>
+<section id="kaynaklar" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="kaynaklar">Kaynaklar</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-cook1977detection" class="csl-entry" role="listitem">
+Cook, R. Dennis. 1977. <span>“Detection of <span>Influential Observation</span> in <span>Linear Regression</span>”</span>. <em>Technometrics</em> 19 (1): 15-18. <a href="https://doi.org/10.1080/00401706.1977.10489493">https://doi.org/10.1080/00401706.1977.10489493</a>.
+</div>
+<div id="ref-koh2019accuracy" class="csl-entry" role="listitem">
+Koh, Pang Wei, Kai-Siang Ang, Hubert H. K. Teo, ve Percy Liang. 2019. <span>“On the Accuracy of Influence Functions for Measuring Group Effects”</span>. <em>Proceedings of the 33rd <span>International Conference</span> on <span>Neural Information Processing Systems</span></em> (Red Hook, NY, USA) 32: 5254-64.
+</div>
+<div id="ref-koh2017understanding" class="csl-entry" role="listitem">
+Koh, Pang Wei, ve Percy Liang. 2017. <span>“Understanding Black-Box Predictions via Influence Functions”</span>. <em>Proceedings of the 34th <span>International Conference</span> on <span>Machine Learning</span> - <span>Volume</span> 70</em> (Sydney, NSW, Australia), <span>ICML</span>’17, Ağustos, 1885-94.
+</div>
+</div>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Dipnotlar</h2>
+
+<ol>
+<li id="fn1"><p>Çevirmen notu: Bu örnekte kullanılan model rastgele ormandır; özgün metindeki “destek vektör makinesi” ifadesi, kitabın aynı örneği destek vektör makinesiyle yapan 2. baskısından kalmış görünmektedir.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

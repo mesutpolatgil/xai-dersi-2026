@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mevhibe Begüm Şanlı">
+
+<title>28. Bölüm: Önemlilik Haritaları (Saliency Maps)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="mevhibebegumsanli-20259348001_files/libs/clipboard/clipboard.min.js"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/popper.min.js"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="mevhibebegumsanli-20259348001_files/libs/quarto-html/anchor.min.js"></script>
+<link href="mevhibebegumsanli-20259348001_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="mevhibebegumsanli-20259348001_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="mevhibebegumsanli-20259348001_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="mevhibebegumsanli-20259348001_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="mevhibebegumsanli-20259348001_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#önemlilik-haritaları-saliency-maps" id="toc-önemlilik-haritaları-saliency-maps" class="nav-link active" data-scroll-target="#önemlilik-haritaları-saliency-maps">28. Önemlilik Haritaları (Saliency Maps)</a></li>
+  <li><a href="#referans-görseli-seçin-pick-reference-image" id="toc-referans-görseli-seçin-pick-reference-image" class="nav-link" data-scroll-target="#referans-görseli-seçin-pick-reference-image">Referans Görseli Seçin (Pick Reference Image)</a></li>
+  <li><a href="#vanilla-gradient" id="toc-vanilla-gradient" class="nav-link" data-scroll-target="#vanilla-gradient">Vanilla Gradient</a></li>
+  <li><a href="#deconvnet" id="toc-deconvnet" class="nav-link" data-scroll-target="#deconvnet">DeconvNet</a></li>
+  <li><a href="#grad-cam-gradient-weighted-class-activation-mapping" id="toc-grad-cam-gradient-weighted-class-activation-mapping" class="nav-link" data-scroll-target="#grad-cam-gradient-weighted-class-activation-mapping">Grad-CAM (Gradient-weighted Class Activation Mapping)</a></li>
+  <li><a href="#guided-grad-cam" id="toc-guided-grad-cam" class="nav-link" data-scroll-target="#guided-grad-cam">Guided Grad-CAM</a></li>
+  <li><a href="#smoothgrad" id="toc-smoothgrad" class="nav-link" data-scroll-target="#smoothgrad">SmoothGrad</a></li>
+  <li><a href="#örnekler-examples" id="toc-örnekler-examples" class="nav-link" data-scroll-target="#örnekler-examples">Örnekler (Examples)</a></li>
+  <li><a href="#güçlü-yönler-strengths" id="toc-güçlü-yönler-strengths" class="nav-link" data-scroll-target="#güçlü-yönler-strengths">Güçlü Yönler (Strengths)</a></li>
+  <li><a href="#sınırlamalar-limitations" id="toc-sınırlamalar-limitations" class="nav-link" data-scroll-target="#sınırlamalar-limitations">Sınırlamalar (Limitations)</a></li>
+  <li><a href="#yazılım-software" id="toc-yazılım-software" class="nav-link" data-scroll-target="#yazılım-software">Yazılım (Software)</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">28. Bölüm: Önemlilik Haritaları (Saliency Maps)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mevhibe Begüm Şanlı </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="önemlilik-haritaları-saliency-maps" class="level2">
+<h2 class="anchored" data-anchor-id="önemlilik-haritaları-saliency-maps">28. Önemlilik Haritaları (Saliency Maps)</h2>
+<p>Piksel atama yöntemleri, bir sinir ağı tarafından belirli bir görüntü sınıflandırması için ilgili olan pikselleri vurgular. Şekil 28.1, bunun bir örneğidir.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 28.1:</strong> Piksellerin sınıflandırmaya katkılarına göre renklendirildiği bir önem haritası.</p>
+</blockquote>
+<p>Bu bölümün ilerleyen kısımlarında bu özel görüntüde neler olup bittiğini göreceksiniz. Piksel atıf yöntemleri çeşitli isimler altında bulunabilir: duyarlılık haritası, belirginlik haritası, piksel atıf haritası, gradyan tabanlı atıf yöntemleri, özellik alaka düzeyi, özellik atfı ve özellik katkısı.</p>
+<p>Piksel atfı, özellik atfının özel bir durumudur, ancak görüntüler için geçerlidir. Özellik atfı, her bir girdi özelliğini, tahmini ne kadar değiştirdiğine (olumsuz veya olumlu) göre atfederek bireysel tahminleri açıklar. Özellikler girdi pikselleri, tablo verileri veya kelimeler olabilir. SHAP, Shapley değerleri ve LIME, genel özellik atıf yöntemlerine örneklerdir.</p>
+<p>Tahmin olarak uzunlukta <span class="math inline">\(C\)</span> olan bir vektör üreten sinir ağlarını ele alıyoruz. Bu, regresyonu da içerir (<span class="math inline">\(C = 1\)</span>). Görüntü <span class="math inline">\(x\)</span> için sinir ağının çıktısı şu şekilde adlandırılır: <span class="math inline">\(S(x) = [S_1(x), \dots, S_C(x)]\)</span>. Bu yöntemlerin tümü girdi olarak <span class="math inline">\(p\)</span> özellik içeren <span class="math inline">\(x \in \mathbb{R}^p\)</span> (görüntü pikselleri, tablo verileri, kelimeler, …) alır ve çıktı olarak her bir <span class="math inline">\(p\)</span> giriş özelliği için bir alaka düzeyi puanı veren bir veri seti üretir: <span class="math inline">\(R^c = [R_1^c, \dots, R_p^c]\)</span>. Buradaki <span class="math inline">\(c\)</span>, <span class="math inline">\(c\)</span>. çıktının önemini gösterir.</p>
+<p>Piksel ilişkilendirme yaklaşımlarında kafa karıştırıcı derecede çok sayıda yöntem bulunmaktadır. İki farklı ilişkilendirme yöntemi türü olduğunu anlamak faydalı olacaktır:</p>
+<ul>
+<li><strong>Örtüşme veya bozulma tabanlı:</strong> SHAP ve LIME gibi yöntemler, açıklamalar üretmek için görüntünün belirli kısımlarını manipüle eder (modelden bağımsız).</li>
+<li><strong>Gradyan tabanlı:</strong> Birçok yöntem, tahminin (veya sınıflandırma puanının) girdi özelliklerine göre gradyanını hesaplar. Gradyan tabanlı yöntemler (ki bunların sayısı oldukça fazladır) çoğunlukla gradyanın nasıl hesaplandığı konusunda farklılık gösterir.</li>
+</ul>
+<p>Her iki yaklaşımın da ortak noktası, açıklamanın giriş görüntüsüyle aynı boyutta olması (veya en azından anlamlı bir şekilde üzerine yansıtılabilmesi) ve her piksele, o görüntünün tahminine veya sınıflandırılmasına ilişkin pikselin önemini gösteren bir değer atamalarıdır.</p>
+<p>Piksel atama yöntemleri için bir diğer kullanışlı sınıflandırma ise temel sorudur:</p>
+<ul>
+<li><strong>Sadece gradyan yöntemleri:</strong> Bir pikseldeki değişikliğin tahmini değiştirip değiştirmeyeceğini bize söyler. Örnekler arasında Vanilla Gradient ve Grad-CAM (Selvaraju vd. 2017) yer almaktadır. Sadece gradyan yönteminin yorumu şöyledir: “Pikselin renk değerlerini artırırsam, tahmin edilen sınıf olasılığı artar (pozitif gradyan için) veya azalır (negatif gradyan için).” Gradyanın mutlak değeri ne kadar büyükse, bu pikseldeki değişikliğin etkisi o kadar güçlü olur.</li>
+<li><strong>Yol atama yöntemleri:</strong> Mevcut görüntüyü, tamamen gri bir görüntü gibi yapay bir “sıfır” görüntü olabilen bir referans görüntüyle karşılaştırır. Gerçek ve temel tahmin arasındaki fark pikseller arasında bölünür. Temel görüntü birden fazla görüntü de olabilir: bir görüntü dağılımı. Bu kategori, Deep Taylor ve Entegre Gradyanlar (Sundararajan, Taly ve Yan 2017) gibi modele özgü gradyan tabanlı yöntemlerin yanı sıra LIME ve SHAP gibi modelden bağımsız yöntemleri de içerir. Bazı yol atama yöntemleri “tamamlayıcıdır” (complete), yani tüm girdi özelliklerinin alaka puanlarının toplamı, görüntünün tahmini ile referans görüntünün tahmini arasındaki farktır. Örnekler arasında SHAP ve Entegre Gradyanlar yer alır. Yol atama yöntemlerinde yorumlama her zaman temel görüntüye göre yapılır: Gerçek görüntü ve temel görüntünün sınıflandırma puanları arasındaki fark piksellere atfedilir.</li>
+</ul>
+<hr>
+</section>
+<section id="referans-görseli-seçin-pick-reference-image" class="level2">
+<h2 class="anchored" data-anchor-id="referans-görseli-seçin-pick-reference-image">Referans Görseli Seçin (Pick Reference Image)</h2>
+<p>Referans görselin (dağıtımın) seçimi, açıklamayı büyük ölçüde etkiler. Genellikle “nötr” bir görsel (dağıtım) kullanılması varsayılır. Elbette, en sevdiğiniz özçekimi kullanmanız tamamen mümkün, ancak bunun bir uygulamada mantıklı olup olmadığını kendinize sormanız gerekir. Bu, diğer proje üyeleri arasında kesinlikle bir üstünlük kurma amacı taşıyacaktır.</p>
+<p>Bu noktada normalde bu yöntemlerin nasıl çalıştığına dair sezgisel bir açıklama yapardım, ancak bence en iyisi Vanilla Gradient yöntemiyle başlamak, çünkü bu yöntem diğer birçok yöntemin izlediği genel formülü çok güzel gösteriyor.</p>
+<hr>
+</section>
+<section id="vanilla-gradient" class="level2">
+<h2 class="anchored" data-anchor-id="vanilla-gradient">Vanilla Gradient</h2>
+<p>Simonyan, Vedaldi ve Zisserman (2014) tarafından ilk piksel atama yaklaşımlarından biri olarak tanıtılan Vanilla Gradient fikri, geri yayılımı zaten biliyorsanız oldukça basittir. (Yaklaşımlarına “Görüntüye Özgü Sınıf Belirginliği” adını verdiler, ancak ben Vanilla Gradient’ı daha çok beğeniyorum.) İlgilendiğimiz sınıf için kayıp fonksiyonunun gradyanını giriş piksellerine göre hesaplıyoruz. Bu bize negatiften pozitife değerlerle giriş özelliklerinin boyutunun bir haritasını verir.</p>
+<p>Bu yaklaşımın tarifi şöyledir: 1. İlgili görüntünün ileri doğru pas (forward pass) işlemini gerçekleştirin. 2. İlgili sınıf puanının giriş piksellerine göre gradyanını hesaplayın: <span class="math display">\[E_{\text{grad}}(x_0) = \frac{\partial S_c}{\partial x}\Big|_{x=x_0}\]</span> 3. Burada diğer tüm sınıfların değerini sıfıra ayarlıyoruz. 4. Eğimleri görselleştirin. Mutlak değerleri gösterebilir veya negatif ve pozitif katkıları ayrı ayrı vurgulayabilirsiniz.</p>
+<p>Daha resmi olarak, elimizde bir <span class="math inline">\(x\)</span> görüntüsü ve evrişimli sinir ağının <span class="math inline">\(c\)</span> sınıfı için verdiği <span class="math inline">\(S_c(x)\)</span> puanı vardır. Puan, görüntümüzün oldukça doğrusal olmayan bir fonksiyonudur. Gradyanı kullanmanın ardındaki fikir, bu puanı birinci dereceden bir Taylor açılımı uygulayarak yaklaşık olarak hesaplayabilmemizdir:</p>
+<p><span class="math display">\[S_c(x) \approx w^T x + b\]</span></p>
+<p>burada <span class="math inline">\(w\)</span>, puanımızın türevidir:</p>
+<p><span class="math display">\[w = \frac{\partial S_c}{\partial x}\Big|_{x_0}\]</span></p>
+<p>Şimdi, gradyanların geriye doğru geçişin nasıl yapılacağı konusunda bazı belirsizlikler var, çünkü ReLU (Doğrulanmış Doğrusal Birim - Rectified Linear Unit) gibi doğrusal olmayan birimler işareti “kaldırıyor”. Bu nedenle, geriye doğru geçiş yaptığımızda, pozitif mi yoksa negatif bir aktivasyon mu atayacağımızı bilmiyoruz. İnanılmaz ASCII sanat yeteneğimi kullanarak, ReLU fonksiyonu şöyle görünüyor: <code>_/</code> ve şu şekilde tanımlanıyor: <span class="math inline">\(\text{ReLU}(x_l) = \max(0, x_l)\)</span>. Bu, bir nöronun aktivasyonu sıfır olduğunda hangi değeri geri yayacağımızı bilmediğimiz anlamına gelir. Vanilla Gradient durumunda, bu belirsizlik şu şekilde çözülür:</p>
+<p><span class="math display">\[\frac{\partial f}{\partial x_l} = \frac{\partial f}{\partial x_{l+1}} \cdot \mathbb{I}(x_l &gt; 0)\]</span></p>
+<p>Burada, <span class="math inline">\(\mathbb{I}\)</span>, alt katmandaki aktivasyonun negatif olduğu yerlerde sıfır, pozitif veya sıfır olduğu yerlerde ise bir olan, eleman bazlı gösterge fonksiyonudur (indicator function). Vanilla Gradient, şimdiye kadar katmana kadar geri yaydığımız gradyanı alır ve ardından alt katmandaki aktivasyon negatif olduğunda gradyanları sıfıra ayarlar.</p>
+<p>Katmanların (<span class="math inline">\(x_l\)</span> ve <span class="math inline">\(x_{l+1} = \text{ReLU}(x_l)\)</span>) olduğu bir örneğe bakalım. Kurgusal aktivasyonumuz <span class="math inline">\(x_l\)</span> şudur: <span class="math display">\[\begin{pmatrix} 1 &amp; 0 \\ -1 &amp; -10 \end{pmatrix}\]</span></p>
+<p>Ve bunlar bizim eğimlerimiz <span class="math inline">\(x_{l+1}\)</span>: <span class="math display">\[\begin{pmatrix} 0.4 &amp; 1.1 \\ -0.5 &amp; -0.1 \end{pmatrix}\]</span></p>
+<p>Sonra bizim eğimlerimiz <span class="math inline">\(x_l\)</span> şunlardır: <span class="math display">\[\begin{pmatrix} 0.4 &amp; 0 \\ 0 &amp; 0 \end{pmatrix}\]</span></p>
+<p>Vanilla Gradient’in, Shrikumar, Greenside ve Kundaje’nin (2017) açıkladığı gibi bir <strong>doygunluk problemi (saturation problem)</strong> vardır. ReLU kullanıldığında ve aktivasyon sıfırın altına düştüğünde, aktivasyon sıfırda sabitlenir ve artık değişmez; aktivasyon doygunluğa ulaşır. Örneğin: Katmana giriş, ağırlıkları <span class="math inline">\(-1\)</span> ve <span class="math inline">\(-1\)</span> olan ve yanlılığı (bias) <span class="math inline">\(1\)</span> olan iki nörondur. ReLU katmanından geçerken, her iki nöronun aktivasyonunun toplamı <span class="math inline">\(&lt;1\)</span> ise aktivasyon <span class="math inline">\(\text{nöron}_1 + \text{nöron}_2\)</span> olacaktır. İki girdinin toplamı <span class="math inline">\(1\)</span>’den büyükse, aktivasyon <span class="math inline">\(1\)</span>’de doygun kalacaktır (ağırlıklar negatif olduğundan). Ayrıca, bu noktadaki gradyan sıfır olacak ve Vanilla Gradient bu nöronun önemli olmadığını söyleyecektir.</p>
+<hr>
+</section>
+<section id="deconvnet" class="level2">
+<h2 class="anchored" data-anchor-id="deconvnet">DeconvNet</h2>
+<p>Zeiler ve Fergus’un (2014) DeconvNet’i, Vanilla Gradient ile neredeyse aynıdır. DeconvNet’in amacı bir sinir ağını tersine çevirmektir ve makale, filtreleme, havuzlama ve aktivasyon katmanlarının tersine çevrilmesi işlemlerini önermektedir. Makaleye bakarsanız, Vanilla Gradient’ten çok farklı görünüyor, ancak ReLU katmanının tersine çevrilmesi dışında, DeconvNet, Vanilla Gradient yaklaşımına eşdeğerdir. Vanilla Gradient, DeconvNet’in bir genellemesi olarak görülebilir. DeconvNet, gradyanı ReLU üzerinden geri yaymak için farklı bir seçim yapar:</p>
+<p><span class="math display">\[R_n = R_{n+1} \mathbb{I}(R_{n+1} &gt; 0)\]</span></p>
+<p>burada <span class="math inline">\(R_n\)</span> ve <span class="math inline">\(R_{n+1}\)</span> katman yeniden yapılandırmalarıdır ve <span class="math inline">\(\mathbb{I}\)</span> gösterge fonksiyonudur. Katmandan geri geçiş yapıldığında (<span class="math inline">\(n\)</span>’den <span class="math inline">\(n-1\)</span>’e), DeconvNet, <span class="math inline">\(n\)</span> katmanındaki aktivasyonlardan hangisinin ileri geçişte sıfıra ayarlandığını “hatırlar” ve bunları <span class="math inline">\(n-1\)</span> katmanında da sıfıra ayarlar. <span class="math inline">\(n\)</span> katmanında negatif değere sahip aktivasyonlar <span class="math inline">\(n-1\)</span> katmanında sıfıra ayarlanmıştır. Gradyan <span class="math inline">\(X_n\)</span> önceki örnek için durum şöyle olur: <span class="math display">\[\begin{pmatrix} 0.4 &amp; 1.1 \\ 0 &amp; 0 \end{pmatrix}\]</span></p>
+<hr>
+</section>
+<section id="grad-cam-gradient-weighted-class-activation-mapping" class="level2">
+<h2 class="anchored" data-anchor-id="grad-cam-gradient-weighted-class-activation-mapping">Grad-CAM (Gradient-weighted Class Activation Mapping)</h2>
+<p>Grad-CAM (Selvaraju vd. 2017), CNN kararları için görsel açıklamalar sağlar. Diğer yöntemlerden farklı olarak, gradyan görüntünün tamamına kadar geri yayılmaz, bunun yerine (genellikle) son evrişim katmanına kadar geri yayılır ve görüntünün önemli bölgelerini vurgulayan kaba bir yerelleştirme haritası üretir.</p>
+<p>Grad-CAM, <em>Gradyan Ağırlıklı Sınıf Aktivasyon Haritası</em> anlamına gelir. Adından da anlaşılacağı gibi, sinir ağlarının gradyanına dayanır. Grad-CAM, diğer teknikler gibi, her nörona ilgilenilen karar için bir önem puanı atar. Bu ilgilenilen karar, sınıf tahmini (çıktı katmanında bulduğumuz) olabilir, ancak teorik olarak sinir ağındaki herhangi bir başka katman da olabilir. Grad-CAM bu bilgiyi son evrişim katmanına geri yayar. Grad-CAM, farklı CNN’lerle kullanılabilir: tam bağlantılı katmanlarla, altyazı gibi yapılandırılmış çıktılar ve çoklu görev çıktıları için ve takviyeli öğrenme için.</p>
+<p>Öncelikle Grad-CAM’in sezgisel bir anlayışıyla başlayalım. Grad-CAM’in amacı, bir evrişim katmanının belirli bir sınıflandırma için görüntünün hangi kısımlarına “baktığını” anlamaktır. Hatırlatmak gerekirse, bir CNN’nin ilk evrişim katmanı, girdi olarak görüntüleri alır ve öğrenilen özellikleri kodlayan özellik haritaları üretir (Öğrenilen Özellikler bölümüne bakın). Daha üst düzey evrişim katmanları da aynı şeyi yapar, ancak girdi olarak önceki evrişim katmanlarının özellik haritalarını alır. CNN’nin nasıl karar verdiğini anlamak için Grad-CAM, son evrişim katmanlarının özellik haritalarında hangi bölgelerin etkinleştirildiğini analiz eder. Son evrişim katmanındaki özellik haritalarına <span class="math inline">\(A_1, A_2, \dots, A_k\)</span> diyeceğiz. Özellik haritalarından, evrişimli sinir ağının belirli bir sınıflandırmayı nasıl yaptığını nasıl “görebiliriz”? İlk yaklaşımda, her özellik haritasının ham değerlerini görselleştirebilir, özellik haritaları üzerinde ortalama alabilir ve bunu görüntümüzün üzerine yerleştirebiliriz. Bu, özellik haritaları tüm sınıflar için bilgi kodladığı için faydalı olmazdı, ancak biz belirli bir sınıfla ilgileniyoruz. Grad-CAM, her bir özellik haritasının ilgilendiğimiz sınıf <span class="math inline">\(c\)</span> için ne kadar önemli olduğuna karar vermelidir. İlgilendiğimiz sınıfı belirlemek için, her özellik haritasının her pikselini gradyanla ağırlıklandırmamız ve ardından özellik haritaları üzerinde ortalama almamız gerekiyor. Bu bize, ilgilenilen sınıfı olumlu veya olumsuz yönde etkileyen bölgeleri vurgulayan bir ısı haritası veriyor. Bu ısı haritası, tüm negatif değerleri sıfıra ayarladığımızı söylemenin süslü bir yolu olan ReLU fonksiyonundan geçiriliyor. Grad-CAM, yalnızca seçilen sınıfa katkıda bulunan kısımlarla ilgilendiğimiz argümanıyla bir ReLU fonksiyonu kullanarak tüm negatif değerleri kaldırır ve diğer sınıflara değil. Piksel kelimesi burada yanıltıcı olabilir çünkü özellik haritası görüntüden daha küçüktür (havuzlama birimleri nedeniyle) ancak orijinal görüntüye geri eşlenir. Daha sonra Grad-CAM haritasını <span class="math inline">\([0, 1]\)</span> aralığına ölçeklendiriyoruz. Görselleştirme amacıyla orijinal görüntünün üzerine bindirilir.</p>
+<p>Grad-CAM için tarifi inceleyelim. Amacımız, şu şekilde tanımlanan lokalizasyon haritasını bulmaktır:</p>
+<p><span class="math display">\[L_{\text{Grad-CAM}}^c \in \mathbb{R}^{U \times V} = \text{ReLU}\left(\sum_k \alpha_k^c A_k\right)\]</span></p>
+<p>Burada, <span class="math inline">\(U\)</span> genişliktir, <span class="math inline">\(V\)</span> açıklamanın yüksekliğidir ve <span class="math inline">\(c\)</span> ilgilenilen sınıftır. 1. Giriş görüntüsünü evrişimli sinir ağı üzerinden ileriye doğru yayılımını (forward pass) gerçekleştirin. 2. İlgili sınıf için ham skoru elde edin; yani softmax katmanından önceki nöronun aktivasyonunu. 3. Diğer tüm sınıf etkinleştirmelerini sıfıra ayarlayın. 4. İlgili sınıfın gradyanını, tam bağlantılı katmanlardan önceki son evrişim katmanına geri yayılım yoluyla (backward pass) iletin. 5. Her özellik haritası pikselini sınıfın gradyanına göre ağırlıklandırın. Genişlik <span class="math inline">\(U\)</span> ve yükseklik <span class="math inline">\(V\)</span> ölçüleri için: <span class="math display">\[\alpha_k^c = \frac{1}{Z} \sum_{i=1}^U \sum_{j=1}^V \frac{\partial S_c}{\partial A_{i,j}^k}\]</span> Bu, gradyanların küresel olarak bir araya getirildiği anlamına gelir. 6. Özellik haritalarının ortalamasını, piksel başına gradyan ile ağırlıklandırarak hesaplayın. 7. Ortalama alınmış özellik haritasına ReLU fonksiyonunu uygulayın. 8. Görselleştirme için: Değerleri <span class="math inline">\([0, 1]\)</span> aralığına göre ölçeklendirin. Görüntüyü büyütün ve orijinal görüntünün üzerine yerleştirin. 9. Yönlendirilmiş Grad-CAM (Guided Grad-CAM) için ek adım: Isı haritasını yönlendirilmiş geri yayılım ile çarpın.</p>
+<hr>
+</section>
+<section id="guided-grad-cam" class="level2">
+<h2 class="anchored" data-anchor-id="guided-grad-cam">Guided Grad-CAM</h2>
+<p>Grad-CAM’in açıklamasından da tahmin edebileceğiniz gibi, son evrişimsel özellik haritaları giriş görüntüsüne kıyasla çok daha düşük çözünürlüğe sahip olduğundan, yerelleştirme oldukça kaba bir şekilde yapılır. Buna karşılık, diğer atıf teknikleri giriş piksellerine kadar geri yayılım yapar. Bu nedenle çok daha ayrıntılıdırlar ve bir tahmine en çok katkıda bulunan tek tek kenarları veya noktaları gösterebilirler. Her iki yöntemin birleşimine Yönlendirilmiş Grad-CAM (Guided Grad-CAM) denir ve son derece basittir. Bir görüntü için hem Grad-CAM açıklaması hem de Vanilla Gradient gibi başka bir atıf yönteminden gelen açıklama hesaplanır. Grad-CAM çıktısı daha sonra çift doğrusal enterpolasyon (bilinear interpolation) ile yukarı örneklenir ve ardından her iki harita da eleman bazında çarpılır. Grad-CAM, piksel bazlı atıf haritasının belirli bölümlerine odaklanan bir mercek gibi çalışır.</p>
+<hr>
+</section>
+<section id="smoothgrad" class="level2">
+<h2 class="anchored" data-anchor-id="smoothgrad">SmoothGrad</h2>
+<p>Smilkov ve ark. (2017) tarafından geliştirilen SmoothGrad fikri, gürültü ekleyerek ve bu yapay olarak gürültülü gradyanlar üzerinde ortalama alarak gradyan tabanlı açıklamaları daha az gürültülü hale getirmektir. SmoothGrad, bağımsız bir açıklama yöntemi değil, herhangi bir gradyan tabanlı açıklama yönteminin bir uzantısıdır.</p>
+<p>SmoothGrad aşağıdaki şekilde çalışır: 1. İlgilendiğiniz görüntünün birden fazla versiyonunu, üzerine gürültü ekleyerek oluşturun. 2. Tüm görüntüler için piksel ilişkilendirme haritaları oluşturun. 3. Piksel özellik haritalarının ortalamasını alın.</p>
+<p>Evet, bu kadar basit. Peki bu neden işe yarıyor? Teori şu ki, türev küçük ölçeklerde büyük ölçüde dalgalanıyor. Sinir ağlarının eğitim sırasında gradyanları düzgün tutmak için hiçbir teşviki yoktur; amaçları görüntüleri doğru şekilde sınıflandırmaktır. Birden fazla harita üzerinde ortalama almak bu dalgalanmaları “düzeltir”:</p>
+<p><span class="math display">\[\hat{R}^c(x) = \frac{1}{n} \sum_{i=1}^n R^c(x + \mathcal{N}(0, \sigma^2))\]</span></p>
+<p>Burada, <span class="math inline">\(\mathcal{N}(0, \sigma^2)\)</span> Gauss dağılımından örneklenen gürültü vektörleridir. “İdeal” gürültü seviyesi, giriş görüntüsüne ve ağa bağlıdır. Yazarlar <span class="math inline">\(\%10-20\)</span>’lik bir gürültü seviyesi önermektedir; bu da şu anlama gelir: <span class="math display">\[\sigma = \frac{x_{\max} - x_{\min}}{10} \text{ ile } \frac{x_{\max} - x_{\min}}{5}\]</span> Sınırlar <span class="math inline">\(x_{\max}\)</span> ve <span class="math inline">\(x_{\min}\)</span> görüntünün minimum ve maksimum piksel değerleridir. Diğer parametre ise örnek sayısı <span class="math inline">\(n\)</span>’dir; bunun için <span class="math inline">\(n = 50\)</span> kullanılması önerilmiştir, çünkü bu değerin üzerinde verimlilikte azalmalar söz konusudur.</p>
+<hr>
+</section>
+<section id="örnekler-examples" class="level2">
+<h2 class="anchored" data-anchor-id="örnekler-examples">Örnekler (Examples)</h2>
+<p>Şimdi bu haritaların nasıl göründüğüne ve yöntemlerin niteliksel olarak nasıl karşılaştırıldığına dair bazı örneklere bakalım. İncelenen ağ, ImageNet üzerinde eğitilmiş ve bu nedenle 1.000 sınıfı ayırt edebilen VGG-16’dır (Simonyan ve Zisserman 2015). Aşağıdaki görüntüler için, en yüksek sınıflandırma puanına sahip sınıf için açıklamalar oluşturacağız.</p>
+<p>Şekil 28.2, görüntüleri ve bunların sinir ağı tarafından yapılan sınıflandırmasını göstermektedir:</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 28.2:</strong> Tazı olarak sınıflandırılan bir köpeğin, çorba kasesi olarak sınıflandırılan bir ramen çorbasının ve yılan balığı olarak sınıflandırılan bir ahtapotun görüntüleri.</p>
+</blockquote>
+<p>Soldaki resimde, saygıdeğer köpeğin “Yorumlanabilir Makine Öğrenimi” kitabını koruduğu görülüyor ve bu resim <span class="math inline">\(\%35\)</span> olasılıkla “Tazı” olarak sınıflandırılmış (görünüşe göre “Yorumlanabilir Makine Öğrenimi kitabı” 20.000 sınıf arasında yer almıyordu). Ortadaki resimde lezzetli bir ramen çorbası kasesi gösteriliyor ve bu resim <span class="math inline">\(\%50\)</span> olasılıkla doğru bir şekilde “Çorba Kasesi” olarak sınıflandırılmış. Üçüncü resimde okyanus tabanında bir ahtapot gösteriliyor ve bu resim <span class="math inline">\(\%70\)</span> gibi yüksek bir olasılıkla yanlış bir şekilde “Yılan Balığı” olarak sınıflandırılmış.</p>
+<p>Şekil 28.3, sınıflandırmayı açıklamayı amaçlayan piksel özelliklerini göstermektedir.</p>
+<blockquote class="blockquote">
+<p><strong>Şekil 28.3:</strong> Vanilla Gradient yöntemi, SmoothGrad ve Grad-CAM için piksel atıfları veya belirginlik haritaları.</p>
+</blockquote>
+<p>Ne yazık ki, durum biraz karışık. Ama köpekten başlayarak bireysel açıklamaları inceleyelim. Vanilla Gradient ve SmoothGrad yöntemleri köpeği vurguluyor, bu da mantıklı. Ancak aynı zamanda kitabın etrafındaki bazı alanları da vurguluyorlar, bu da garip. Grad-CAM ise sadece kitap alanını vurguluyor, bu da hiç mantıklı değil. Ve buradan itibaren işler biraz daha karışıyor. Vanilla Gradient yöntemi hem çorba kasesi hem de ahtapot (veya ağın düşündüğü gibi yılan balığı) için başarısız oluyor gibi görünüyor. Her iki görüntü de güneşe çok uzun süre bakmanın ardından oluşan art görüntüler gibi görünüyor (Lütfen güneşe doğrudan bakmayın). SmoothGrad çok yardımcı oluyor; en azından alanlar daha belirgin. Çorba örneğinde, yumurta ve et gibi bazı malzemeler vurgulanıyor, ancak aynı zamanda çubukların etrafındaki alan da vurgulanıyor. Ahtapot görüntüsünde ise çoğunlukla hayvanın kendisi vurgulanıyor. Çorba kasesi için Grad-CAM, yumurta kısmını ve nedense kasein üst kısmını vurguluyor. Grad-CAM’in ahtapotla ilgili açıklamaları ise daha da karmaşık.</p>
+<p>Açıklamalara güvenip güvenmediğimizi değerlendirmedeki zorlukları burada zaten görebilirsiniz. İlk adım olarak, görüntünün hangi kısımlarının görüntünün sınıflandırılmasıyla ilgili bilgi içerdiğini ele almalıyız. Ancak daha sonra sinir ağının sınıflandırma için ne kullanmış olabileceğini de düşünmeliyiz. Belki de SmoothGrad’ın ima ettiği gibi, çorba kasesi yumurta ve çubuk kombinasyonuna göre doğru sınıflandırılmıştır? Ya da belki de Grad-CAM’in önerdiği gibi, sinir ağı kase şeklini ve bazı malzemeleri tanımıştır? Bunu bilmiyoruz.</p>
+<p>İşte tüm bu yöntemlerin en büyük sorunu bu. Açıklamalar için kesin bir gerçeklik verisine (ground truth) sahip değiliz. İlk aşamada, açıkça anlamsız olan açıklamaları ancak reddedebiliriz (ve bu aşamada bile güçlü bir güvene sahip değiliz). Sinir ağındaki tahmin süreci çok karmaşık.</p>
+<hr>
+</section>
+<section id="güçlü-yönler-strengths" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönler-strengths">Güçlü Yönler (Strengths)</h2>
+<ul>
+<li>Açıklamalar görseldir ve görüntüleri hızla tanırız. Özellikle yöntemler yalnızca önemli pikselleri vurguladığında, görüntünün önemli bölgelerini hemen tanımak kolaydır.</li>
+<li>Gradyan tabanlı yöntemler genellikle modelden bağımsız yöntemlere göre daha hızlı hesaplanır. Örneğin, LIME ve SHAP de görüntü sınıflandırmalarını açıklamak için kullanılabilir, ancak hesaplama maliyetleri daha yüksektir.</li>
+<li>Seçilebilecek birçok yöntem var.</li>
+</ul>
+<hr>
+</section>
+<section id="sınırlamalar-limitations" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlamalar-limitations">Sınırlamalar (Limitations)</h2>
+<ul>
+<li>Çoğu yorumlama yönteminde olduğu gibi, bir açıklamanın doğru olup olmadığını bilmek zordur ve değerlendirmenin büyük bir kısmı yalnızca nitelikseldir (“Bu açıklamalar doğru görünüyor, makaleyi artık yayınlayalım”).</li>
+<li>Piksel atama yöntemleri çok kırılgan olabilir. Ghorbani, Abid ve Zou (2019), aynı tahmine yol açan küçük (düşmanca/adversarial) bozulmaların bir görüntüye uygulanmasının, açıklama olarak vurgulanan piksellerin çok farklı olmasına yol açabileceğini göstermiştir.</li>
+<li>Kindermans ve ark. (2019) ayrıca bu piksel atama yöntemlerinin oldukça güvenilmez olabileceğini de gösterdi. Giriş verilerine sabit bir kayma eklediler, yani tüm görüntülere aynı piksel değişikliklerini eklediler. İki ağı karşılaştırdılar: orijinal ağ ve ilk katmanın sapmasının sabit piksel kaymasına uyum sağlamak için değiştirildiği “kaydırılmış” ağ. Her iki ağ da aynı tahminleri üretti. Ayrıca, gradyan her ikisi için de aynıydı. Ancak açıklamalar değişti, bu da istenmeyen bir özelliktir. DeepLift, Vanilla Gradient ve Integrated Gradients’ı incelediler.</li>
+</ul>
+<blockquote class="blockquote">
+<p><strong>Birden fazla yöntemi karşılaştırın:</strong> Yalnızca piksel tabanlı yorumlama yöntemlerine güvenirken dikkatli olun. Giriş verilerindeki küçük değişiklikler, tahminler değişmese bile, tamamen farklı açıklamalara yol açabilir. Sağlamlığı (robustness) sağlamak için açıklamaları her zaman birden fazla yöntemle doğrulayın.</p>
+</blockquote>
+<p>“Önemlilik haritaları için sağlamlık kontrolleri” (Adebayo vd. 2018) başlıklı makale, belirginlik yöntemlerinin model ve verilere duyarsız olup olmadığını araştırmıştır. Duyarsızlık son derece istenmeyen bir durumdur çünkü bu, “açıklamanın” model ve verilerle ilgisiz olduğu anlamına gelir. Model ve eğitim verilerine duyarsız olan yöntemler, kenar dedektörlerine benzer. Kenar dedektörleri, görüntülerdeki güçlü piksel renk değişikliklerini vurgular ve bir tahmin modeli veya görüntünün soyut özellikleriyle ilgisizdir ve eğitim gerektirmez. Test edilen yöntemler Vanilla Gradient, Gradient x Input, Integrated Gradients, Guided Backpropagation, Guided Grad-CAM ve SmoothGrad (Vanilla Gradient ile) idi. Vanilla Gradient ve Grad-CAM duyarsızlık kontrolünden geçerken, Guided Backpropagation ve Guided Grad-CAM başarısız oldu.</p>
+<p>Bununla birlikte, sağlamlık kontrolleri makalesinin kendisi Tomsett vd. (2020) tarafından bazı eleştiriler almıştır. “Önemlilik ölçütleri için sağlamlık kontrolleri” başlıklı bir makale yayınladılar (elbette). Değerlendirme ölçütlerinde tutarlılık eksikliği olduğunu buldular (biliyorum, şimdi biraz meta bir hal alıyor). Yani başladığımız yere geri geldik… Görsel açıklamaları değerlendirmek hâlâ zor. Bu da uygulayıcılar için çok zor bir durum yaratıyor.</p>
+<p>Özetle, bu son derece tatmin edici olmayan bir durumdur. Bu konu hakkında daha fazla araştırma yapılmasını biraz daha beklememiz gerekiyor. Ve lütfen, yeni önem kazanma yöntemleri icat etmek yerine, bunların nasıl değerlendirileceğine dair daha fazla inceleme yapalım.</p>
+<hr>
+</section>
+<section id="yazılım-software" class="level2">
+<h2 class="anchored" data-anchor-id="yazılım-software">Yazılım (Software)</h2>
+<p>Piksel atama yöntemlerinin çeşitli yazılım uygulamaları mevcuttur. Örnek olarak, <code>tf-keras-vis</code> kullanılmıştır. En kapsamlı kütüphanelerden biri, Vanilla Gradient, SmoothGrad, DeconvNet, Guided Backpropagation, PatternNet, LRP (Bach vd. 2015) ve daha fazlasını uygulayan <code>iNNvestigate</code>’tir (Alber vd. 2019). Yöntemlerin çoğu <code>DeepExplain Toolbox</code>’ta uygulanmıştır.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

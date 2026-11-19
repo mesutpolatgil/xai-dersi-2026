@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Özellik Etkileşimi ve Fonksiyonel Ayrıştırma | Molnar Bölüm 21 & 22</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-active {
+            border-bottom: 2px solid #0d9488;
+            color: #0f766e;
+            font-weight: 600;
+            background-color: #f0fdfa;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Toast Notification for Copy -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2 text-sm font-medium">
+        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span id="toast-msg">Panoya kopyalandı!</span>
+    </div>
+
+    <!-- Header / Hero -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 pb-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold bg-teal-100 text-teal-800 rounded-full">Molnar Bölüm 21 & 22</span>
+                        <span class="text-xs text-slate-500 font-mono">Interpretable Machine Learning</span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Özellik Etkileşimi ve Fonksiyonel Ayrıştırma</h1>
+                </div>
+                <div class="text-left md:text-right">
+                    <p class="text-sm font-semibold text-slate-800">Hazırlayan: Yusuf Kaan Saçlı</p>
+                    <p class="text-xs text-slate-500">Öğrenci No: 20269258011 | CC BY-NC-SA 4.0</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex space-x-1 overflow-x-auto no-scrollbar -mb-px" aria-label="Tabs">
+                <button onclick="switchTab('tab-21')" id="btn-tab-21" class="tab-btn tab-active whitespace-nowrap py-3 px-4 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-teal-600 text-white text-xs flex items-center justify-center font-bold">21</span>
+                    Özellik Etkileşimi
+                </button>
+                <button onclick="switchTab('tab-22')" id="btn-tab-22" class="tab-btn text-slate-600 hover:text-slate-900 hover:bg-slate-50 whitespace-nowrap py-3 px-4 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">22</span>
+                    Fonksiyonel Ayrıştırma
+                </button>
+                <button onclick="switchTab('tab-code')" id="btn-tab-code" class="tab-btn text-slate-600 hover:text-slate-900 hover:bg-slate-50 whitespace-nowrap py-3 px-4 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    Özet & Python Kodları
+                </button>
+                <button onclick="switchTab('tab-speech')" id="btn-tab-speech" class="tab-btn text-slate-600 hover:text-slate-900 hover:bg-slate-50 whitespace-nowrap py-3 px-4 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    Sunum Konuşma Metni (27 Slayt)
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ==========================================
+             TAB 1: BÖLÜM 21 - ÖZELLİK ETKİLEŞİMİ
+             ========================================== -->
+        <section id="tab-21" class="tab-content space-y-8">
+            
+            <!-- Concept Intro Banner -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600">Bölüm 21 • Feature Interaction</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">"Bütün, parçalarının toplamından büyüktür."</h2>
+                        <p class="text-slate-600 text-sm mt-1">Bir özelliğin tahmine etkisi, başka bir özelliğin aldığı değere bağlı olduğunda <strong>etkileşim</strong> ortaya çıkar ve tahmin tekil etkilerin toplamı olarak yazılamaz.</p>
+                    </div>
+                </div>
+
+                <!-- 4 Parts of Prediction -->
+                <div class="mt-5">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Tahminin 4 Bileşeni (Slayt 4)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <span class="text-xs font-medium text-slate-500">1. Başlangıç</span>
+                            <p class="font-bold text-slate-800 mt-0.5">Taban Tahmin</p>
+                            <p class="text-xs text-slate-500 mt-1">Hiçbir etki yokken ortalama başlangıç değeri.</p>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <span class="text-xs font-medium text-slate-500">2. Ana Etki</span>
+                            <p class="font-bold text-slate-800 mt-0.5">+ Birinci Özellik</p>
+                            <p class="text-xs text-slate-500 mt-1">İlk özelliğin tek başına yaptığı katkı.</p>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <span class="text-xs font-medium text-slate-500">3. Ana Etki</span>
+                            <p class="font-bold text-slate-800 mt-0.5">+ İkinci Özellik</p>
+                            <p class="text-xs text-slate-500 mt-1">İkinci özelliğin tek başına yaptığı katkı.</p>
+                        </div>
+                        <div class="bg-teal-50 p-3.5 rounded-xl border border-teal-200">
+                            <span class="text-xs font-semibold text-teal-700">4. Ortak Fark</span>
+                            <p class="font-bold text-teal-900 mt-0.5">+ Etkileşim Etkisi</p>
+                            <p class="text-xs text-teal-700 mt-1">Tekil etkiler çıkarıldıktan sonra kalan ek değişim.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive House Price Simulator (Slayt 5 & 6) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">İnteraktif Ev Fiyatı Simülatörü (Slayt 5 & 6)</h3>
+                        <p class="text-sm text-slate-500">Konum ve büyüklük seçerek etkileşimin tahmini nasıl değiştirdiğini test edin.</p>
+                    </div>
+                    <!-- Mode Switcher -->
+                    <div class="inline-flex rounded-xl bg-slate-100 p-1">
+                        <button onclick="setHouseMode(false)" id="btn-no-inter" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-900 shadow-sm transition-all">
+                            Örnek 1: Etkileşim Yok
+                        </button>
+                        <button onclick="setHouseMode(true)" id="btn-yes-inter" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+                            Örnek 2: Etkileşim Var
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <!-- Controls -->
+                    <div class="lg:col-span-5 space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-2">1. Özellik: Konum</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setHouseFeature('loc', 'bad')" id="loc-bad" class="py-2.5 px-3 rounded-lg border text-sm font-medium transition-all bg-white border-slate-300 text-slate-700">
+                                    Kötü Konum (+0)
+                                </button>
+                                <button onclick="setHouseFeature('loc', 'good')" id="loc-good" class="py-2.5 px-3 rounded-lg border text-sm font-semibold transition-all bg-teal-600 border-teal-600 text-white shadow-sm">
+                                    İyi Konum (+50.000)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-2">2. Özellik: Büyüklük</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setHouseFeature('size', 'small')" id="size-small" class="py-2.5 px-3 rounded-lg border text-sm font-medium transition-all bg-white border-slate-300 text-slate-700">
+                                    Küçük Ev (+0)
+                                </button>
+                                <button onclick="setHouseFeature('size', 'big')" id="size-big" class="py-2.5 px-3 rounded-lg border text-sm font-semibold transition-all bg-teal-600 border-teal-600 text-white shadow-sm">
+                                    Büyük Ev (+100.000)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="house-insight" class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                            <strong>Etkileşim Yok:</strong> Konum ne olursa olsun evi büyütmek fiyatı her zaman sabit +100.000 artırır. Etkiler birbirinden bağımsızdır.
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Display -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="text-xs text-slate-500">Taban Tahmin</span>
+                                <p class="text-lg font-bold text-slate-800 mt-1 font-mono">150.000</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="text-xs text-slate-500">Konum Etkisi</span>
+                                <p id="val-loc" class="text-lg font-bold text-slate-800 mt-1 font-mono">+50.000</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="text-xs text-slate-500">Büyüklük Etkisi</span>
+                                <p id="val-size" class="text-lg font-bold text-slate-800 mt-1 font-mono">+100.000</p>
+                            </div>
+                            <div id="box-inter" class="p-3 rounded-xl bg-slate-50 border border-slate-200 transition-colors">
+                                <span class="text-xs text-slate-500">Etkileşim</span>
+                                <p id="val-inter" class="text-lg font-bold text-slate-400 mt-1 font-mono">+0</p>
+                            </div>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="text-xs uppercase tracking-wider text-slate-400">Toplam Model Tahmini</span>
+                                <p id="house-formula" class="text-xs text-slate-300 font-mono mt-0.5">150.000 + 50.000 + 100.000 + 0</p>
+                            </div>
+                            <div id="val-total" class="text-3xl font-bold text-teal-400 font-mono">300.000 ₺</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friedman's H-Statistic & Spurious Interaction H* (Slayt 7, 8, 13) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase text-teal-600">Slayt 7 & 8</span>
+                        <h3 class="text-lg font-bold text-slate-900 mt-1">Friedman’ın H-İstatistiği</h3>
+                        <p class="text-sm text-slate-600 mt-1">Tahmindeki değişimin (varyansın) ne kadarının etkileşimden geldiğini <strong>0 ile 1 arasında</strong> ölçer.</p>
+
+                        <!-- Formula Box -->
+                        <div class="my-4 p-4 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs sm:text-sm text-center overflow-x-auto">
+                            <div class="inline-block text-left">
+                                <div class="text-center border-b border-slate-400 pb-1 mb-1 text-teal-800 font-semibold">
+                                    &Sigma; [ PD<sub>jk</sub>(x<sub>j</sub>, x<sub>k</sub>) &minus; PD<sub>j</sub>(x<sub>j</sub>) &minus; PD<sub>k</sub>(x<sub>k</sub>) ]&sup2;
+                                </div>
+                                <div class="text-center text-slate-700">
+                                    H&sup2;<sub>jk</sub> = &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+                                </div>
+                                <div class="text-center pt-1 text-amber-800 font-semibold">
+                                    &Sigma; [ PD<sub>jk</sub>(x<sub>j</sub>, x<sub>k</sub>) ]&sup2;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-1.5 border-t border-slate-100 pt-3">
+                        <li>• <strong>Pay:</strong> Ortak etkiden tekil etkiler çıkarıldıktan sonra kalan kısım.</li>
+                        <li>• <strong>Payda:</strong> İki özelliğin toplam ortak etkisi.</li>
+                        <li>• <strong>Maliyet:</strong> İkili H için <code class="bg-slate-100 px-1 rounded">2n²</code>, toplam H için <code class="bg-slate-100 px-1 rounded">3n²</code> tahmin gerekir.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase text-rose-600">Slayt 13 • Ek Örnek</span>
+                            <span class="text-xs bg-rose-50 text-rose-700 px-2 py-0.5 rounded font-medium">Inglis vd., 2022</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mt-1">Sahte Etkileşim Yanılsaması ve H*</h3>
+                        <p class="text-sm text-slate-600 mt-1">İki özelliğin toplam etkisi çok zayıfsa <strong>payda küçülür</strong> ve H değeri yapay olarak 1'e şişer.</p>
+
+                        <div class="grid grid-cols-2 gap-3 my-4">
+                            <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+                                <span class="text-xs text-rose-700 font-medium">Standart H (Pay=100, Payda=100)</span>
+                                <p class="text-2xl font-bold text-rose-900 font-mono mt-1">H = 1.00</p>
+                                <p class="text-xs text-rose-700 mt-0.5">Maksimum etkileşim yanılsaması</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                                <span class="text-xs text-emerald-700 font-medium">Normalize Edilmemiş H* (&radic;Pay)</span>
+                                <p class="text-2xl font-bold text-emerald-900 font-mono mt-1">H* = 10</p>
+                                <p class="text-xs text-emerald-700 mt-0.5">300.000 ölçeğinde önemsiz etki</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 border-t border-slate-100 pt-3">
+                        <strong>Unutma (Slayt 14):</strong> H etkileşimin <em>gücünü</em> söyler, <em>şeklini</em> göstermez. Şekli görmek için güçlü çiftlere <strong>2B PDP</strong> çizilir.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Palmer Penguins Charts (Slayt 9 & 10) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <span class="text-xs font-bold uppercase text-teal-600">Slayt 9 & 10 • Uygulama</span>
+                    <h3 class="text-lg font-bold text-slate-900 mt-0.5">Penguen Örneği: Rastgele Orman Modelinde Etkileşimler</h3>
+                    <p class="text-sm text-slate-500">Penguen cinsiyetini tahmin eden modelde özelliklerin toplam, ikili ve tür bazlı etkileşim güçleri.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Chart 1: Slayt 9 Lollipop Charts -->
+                    <div class="space-y-5">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3">Şekil 1 (Üst): Toplam Etkileşim Gücü</h4>
+                            <div class="space-y-2.5 text-xs font-mono">
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>body_mass_g</span><span class="font-bold">0.70</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-900 h-2 rounded-full" style="width: 95%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>bill_length_mm</span><span>0.41</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-700 h-2 rounded-full" style="width: 56%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>bill_depth_mm</span><span>0.37</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-700 h-2 rounded-full" style="width: 50%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>flipper_length_mm</span><span>0.30</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-700 h-2 rounded-full" style="width: 41%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>species</span><span>0.04</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-500 h-2 rounded-full" style="width: 6%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3">Şekil 1 (Alt): body_mass_g İkili Etkileşimleri</h4>
+                            <div class="space-y-2.5 text-xs font-mono">
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>bill_depth_mm : body_mass_g</span><span class="font-bold text-teal-700">0.42</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-teal-600 h-2 rounded-full" style="width: 90%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>bill_length_mm : body_mass_g</span><span>0.29</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-teal-600 h-2 rounded-full" style="width: 63%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>species : body_mass_g</span><span>0.23</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-teal-600 h-2 rounded-full" style="width: 50%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span>flipper_length_mm : body_mass_g</span><span>0.17</span></div>
+                                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-teal-600 h-2 rounded-full" style="width: 37%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Slayt 10 Species Dot Plot -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-xs font-bold uppercase text-slate-700">Şekil 2 (Slayt 10): Türlere Göre Etkileşim</h4>
+                                <div class="flex items-center gap-3 text-xs">
+                                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Adelie</span>
+                                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Chinstrap</span>
+                                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> Gentoo</span>
+                                </div>
+                            </div>
+
+                            <!-- Custom Dot Plot Visualization -->
+                            <div class="space-y-6 py-4 px-2">
+                                <!-- Row 1 -->
+                                <div>
+                                    <div class="text-xs font-mono text-slate-600 mb-1.5">flipper_length_mm</div>
+                                    <div class="relative h-6 bg-white rounded border border-slate-200 flex items-center">
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-emerald-500 shadow" style="left: 18%" title="Chinstrap: 0.10"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-sm bg-blue-500 shadow" style="left: 23%" title="Gentoo: 0.13"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-rose-500 shadow" style="left: 41%" title="Adelie: 0.23"></span>
+                                    </div>
+                                </div>
+                                <!-- Row 2 -->
+                                <div>
+                                    <div class="text-xs font-mono font-bold text-slate-900 mb-1.5">body_mass_g (Türe göre en değişken)</div>
+                                    <div class="relative h-6 bg-white rounded border border-slate-200 flex items-center">
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-emerald-500 shadow" style="left: 32%" title="Chinstrap: 0.18"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-sm bg-blue-500 shadow" style="left: 83%" title="Gentoo: 0.46"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-rose-500 shadow" style="left: 92%" title="Adelie: 0.51"></span>
+                                    </div>
+                                </div>
+                                <!-- Row 3 -->
+                                <div>
+                                    <div class="text-xs font-mono text-slate-600 mb-1.5">bill_length_mm</div>
+                                    <div class="relative h-6 bg-white rounded border border-slate-200 flex items-center">
+                                        <span class="absolute w-3.5 h-3.5 rounded-sm bg-blue-500 shadow" style="left: 52%" title="Gentoo: 0.29"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-rose-500 shadow" style="left: 66%" title="Adelie: 0.37"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-emerald-500 shadow" style="left: 71%" title="Chinstrap: 0.39"></span>
+                                    </div>
+                                </div>
+                                <!-- Row 4 -->
+                                <div>
+                                    <div class="text-xs font-mono text-slate-600 mb-1.5">bill_depth_mm</div>
+                                    <div class="relative h-6 bg-white rounded border border-slate-200 flex items-center">
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-emerald-500 shadow" style="left: 65%" title="Chinstrap: 0.36"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-sm bg-blue-500 shadow" style="left: 70%" title="Gentoo: 0.38"></span>
+                                        <span class="absolute w-3.5 h-3.5 rounded-full bg-rose-500 shadow" style="left: 74%" title="Adelie: 0.41"></span>
+                                    </div>
+                                </div>
+                                <!-- X Axis Scale -->
+                                <div class="flex justify-between text-[11px] font-mono text-slate-400 pt-1 border-t border-slate-200">
+                                    <span>0.0</span><span>0.1</span><span>0.2</span><span>0.3</span><span>0.4</span><span>0.5+</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">R dilinde <code class="bg-white px-1 py-0.5 rounded border">iml</code> paketiyle hesaplanmıştır. Vücut kütlesinin etkileşim gücü Chinstrap'te ~0.18 iken Adelie'de ~0.51'e çıkmaktadır.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pros & Cons (Slayt 11 & 12) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-emerald-50/60 rounded-2xl p-5 border border-emerald-200">
+                    <h4 class="text-sm font-bold text-emerald-950 uppercase tracking-wider mb-3">Güçlü Yönler (Slayt 11)</h4>
+                    <ul class="space-y-2 text-sm text-emerald-900">
+                        <li>✓ <strong>Sağlam Kuramsal Temel:</strong> Kısmi bağımlılık (PD) ayrıştırmasına dayanır.</li>
+                        <li>✓ <strong>Anlamlı Yorum:</strong> Varyansın ne kadarının etkileşimden geldiğini söyler.</li>
+                        <li>✓ <strong>Birimsiz Ölçü:</strong> Özellikler ve farklı modeller arasında karşılaştırılabilir.</li>
+                        <li>✓ <strong>Her Tür Etkileşim:</strong> Doğrusal olmayan veya 3+ özellikli etkileşimleri yakalar.</li>
+                    </ul>
+                </div>
+                <div class="bg-rose-50/60 rounded-2xl p-5 border border-rose-200">
+                    <h4 class="text-sm font-bold text-rose-950 uppercase tracking-wider mb-3">Sınırlılıklar (Slayt 12)</h4>
+                    <ul class="space-y-2 text-sm text-rose-900">
+                        <li>✗ <strong>Yavaş ve Kararsız:</strong> Hesaplama maliyeti yüksektir; örnekleme sonuçları değiştirir.</li>
+                        <li>✗ <strong>Anlamlılık Testi Yok:</strong> Modelden bağımsız standart bir istatistiksel test yoktur.</li>
+                        <li>✗ <strong>Belirsiz Eşik:</strong> Hangi H değerinin "güçlü" sayılacağı net değildir.</li>
+                        <li>✗ <strong>Korelasyon Tuzağı:</strong> Özellikler korelasyonluysa olası olmayan kombinasyonlar H'yi şişirir.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: BÖLÜM 22 - FONKSİYONEL AYRIŞTIRMA
+             ========================================== -->
+        <section id="tab-22" class="tab-content hidden space-y-8">
+            
+            <!-- Concept Intro Banner -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Bölüm 22 • Functional Decomposition</span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-1">Karmaşık Bir Modeli Anlaşılır Parçalara Ayırmak</h2>
+                <p class="text-slate-600 text-sm mt-1">Yüksek boyutlu bir tahmin fonksiyonunu sabit kesişim, tekil ana etkiler ve etkileşim bileşenlerinin toplamı olarak yazma yöntemidir.</p>
+
+                <div class="mt-4 p-4 bg-indigo-50/70 border border-indigo-100 rounded-xl font-mono text-sm text-indigo-950 text-center">
+                    f(x<sub>1</sub>, x<sub>2</sub>) = 2 + e<sup>x<sub>1</sub></sup> &minus; x<sub>2</sub> + x<sub>1</sub>&middot;x<sub>2</sub> &nbsp;&rArr;&nbsp; 
+                    <strong>f<sub>0</sub> + f<sub>1</sub>(x<sub>1</sub>) + f<sub>2</sub>(x<sub>2</sub>) + f<sub>12</sub>(x<sub>1</sub>, x<sub>2</sub>)</strong>
+                </div>
+            </div>
+
+            <!-- Interactive Function Decomposition Explorer (Slayt 17, 18, 19) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-slate-900">İnteraktif Fonksiyonel Ayrıştırma Laboratuvarı (Slayt 17-19)</h3>
+                    <p class="text-sm text-slate-500"><code class="font-mono">x1</code> ve <code class="font-mono">x2</code> değerlerini kaydırarak her bir bileşenin (ALE) tahmine olan anlık katkısını inceleyin.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Sliders & Component Breakdown -->
+                    <div class="lg:col-span-5 space-y-5 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span>Özellik 1: <code class="font-mono font-bold text-indigo-600">x₁</code></span>
+                                <span id="lbl-x1" class="font-mono font-bold">0.50</span>
+                            </div>
+                            <input type="range" id="slider-x1" min="-1" max="1" step="0.05" value="0.5" oninput="updateDecomp()" class="w-full accent-indigo-600 cursor-pointer">
+                            <div class="flex justify-between text-[11px] font-mono text-slate-400"><span>-1.0</span><span>0.0</span><span>+1.0</span></div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm font-medium mb-1">
+                                <span>Özellik 2: <code class="font-mono font-bold text-teal-600">x₂</code></span>
+                                <span id="lbl-x2" class="font-mono font-bold">-0.40</span>
+                            </div>
+                            <input type="range" id="slider-x2" min="-1" max="1" step="0.05" value="-0.4" oninput="updateDecomp()" class="w-full accent-teal-600 cursor-pointer">
+                            <div class="flex justify-between text-[11px] font-mono text-slate-400"><span>-1.0</span><span>0.0</span><span>+1.0</span></div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200 text-xs font-mono">
+                            <div class="flex justify-between p-2 rounded bg-white border border-slate-200">
+                                <span>Kesişim f₀ (Sabit ortalama):</span>
+                                <span id="comp-f0" class="font-bold">3.18</span>
+                            </div>
+                            <div class="flex justify-between p-2 rounded bg-white border border-slate-200">
+                                <span>Ana Etki f₁(x₁) [Üstel e<sup>x₁</sup>]:</span>
+                                <span id="comp-f1" class="font-bold text-indigo-600">+0.47</span>
+                            </div>
+                            <div class="flex justify-between p-2 rounded bg-white border border-slate-200">
+                                <span>Ana Etki f₂(x₂) [Doğrusal -x₂]:</span>
+                                <span id="comp-f2" class="font-bold text-teal-600">+0.40</span>
+                            </div>
+                            <div class="flex justify-between p-2 rounded bg-amber-50 border border-amber-200">
+                                <span>Etkileşim f₁₂(x₁,x₂) [x₁&middot;x₂]:</span>
+                                <span id="comp-f12" class="font-bold text-amber-800">-0.20</span>
+                            </div>
+                            <div class="flex justify-between p-3 rounded-lg bg-slate-900 text-white text-sm">
+                                <span>Toplam Tahmin f(x₁, x₂):</span>
+                                <span id="comp-total" class="font-bold text-teal-400">3.85</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Plots of the 3 Components (Şekil 4) -->
+                    <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Plot f1 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col items-center">
+                            <span class="text-xs font-bold text-slate-700 mb-1">Ana Etki f₁(x₁)</span>
+                            <span class="text-[11px] text-slate-500 mb-2">Üstel Artış (e<sup>x₁</sup>)</span>
+                            <canvas id="canvas-f1" width="180" height="160" class="bg-white rounded border border-slate-200 w-full"></canvas>
+                        </div>
+                        <!-- Plot f2 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col items-center">
+                            <span class="text-xs font-bold text-slate-700 mb-1">Ana Etki f₂(x₂)</span>
+                            <span class="text-[11px] text-slate-500 mb-2">Negatif Doğrusal (-x₂)</span>
+                            <canvas id="canvas-f2" width="180" height="160" class="bg-white rounded border border-slate-200 w-full"></canvas>
+                        </div>
+                        <!-- Plot f12 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col items-center">
+                            <span class="text-xs font-bold text-slate-700 mb-1">Etkileşim f₁₂(x₁,x₂)</span>
+                            <span class="text-[11px] text-slate-500 mb-2">Pringles Yüzeyi (x₁&middot;x₂)</span>
+                            <canvas id="canvas-f12" width="180" height="160" class="bg-white rounded border border-slate-200 w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2^p Component Explosion Calculator (Slayt 21) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    <div class="md:col-span-6">
+                        <span class="text-xs font-bold uppercase text-indigo-600">Slayt 20 & 21 • Boyut Patlaması</span>
+                        <h3 class="text-lg font-bold text-slate-900 mt-1">Kaç Bileşen Oluşur? (2<sup>p</sup> Kuralı)</h3>
+                        <p class="text-sm text-slate-600 mt-1">Modelde <code class="font-mono">p</code> özellik varsa, olası tüm alt kümeler için <strong>2<sup>p</sup></strong> bileşen ortaya çıkar. Ayrıca kısıt koymazsak etkiler ana etkiler ile etkileşimler arasında keyfi biçimde kaydırılabilir.</p>
+                        
+                        <div class="mt-4">
+                            <div class="flex justify-between text-sm font-semibold mb-1">
+                                <span>Özellik Sayısı (p):</span>
+                                <span id="lbl-p" class="font-mono text-indigo-600">10 Özellik</span>
+                            </div>
+                            <input type="range" id="slider-p" min="2" max="15" step="1" value="10" oninput="updateExplosion()" class="w-full accent-indigo-600 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-xs text-slate-500">Kesişim</span>
+                            <p class="text-xl font-bold text-slate-800 font-mono mt-1">1</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-xs text-slate-500">Ana Etkiler</span>
+                            <p id="exp-main" class="text-xl font-bold text-indigo-600 font-mono mt-1">10</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-xs text-slate-500">İkili Etkileşim</span>
+                            <p id="exp-pairs" class="text-xl font-bold text-teal-600 font-mono mt-1">45</p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-indigo-950 text-white">
+                            <span class="text-xs text-indigo-300">Toplam (2<sup>p</sup>)</span>
+                            <p id="exp-total" class="text-xl font-bold text-amber-400 font-mono mt-1">1.024</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Approaches Comparison (Slayt 22, 23, 24) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-indigo-600">Slayt 22 • Bağımsız Özellikler</span>
+                    <h4 class="text-base font-bold text-slate-900 mt-1">1. Fonksiyonel ANOVA</h4>
+                    <p class="text-xs text-slate-600 mt-1">Diğer özellikler üzerinden ortalama alır ve alt mertebe etkileri çıkarır.</p>
+                    <ul class="mt-3 space-y-1.5 text-xs text-slate-700 border-t border-slate-100 pt-3">
+                        <li>• <strong>Sıfır Ortalama:</strong> Her etki sıfır etrafında dalgalanır.</li>
+                        <li>• <strong>Diklik:</strong> Bileşenler birbirine bilgi sızdırmaz.</li>
+                        <li>• <strong>Varyans Ayrıştırması:</strong> Parçaların varyansları toplamı toplam varyansı verir.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-teal-600">Slayt 23 • Bağımlı Özellikler</span>
+                    <h4 class="text-base font-bold text-slate-900 mt-1">2. ALE (Apley ve Zhu, 2020)</h4>
+                    <p class="text-xs text-slate-600 mt-1">Özellikler korelasyonlu olduğunda fANOVA gerçek dışı kombinasyonlar üretir.</p>
+                    <ul class="mt-3 space-y-1.5 text-xs text-slate-700 border-t border-slate-100 pt-3">
+                        <li>• <strong>Toplamsallık:</strong> ALE bileşenlerinin toplamı <code class="font-mono">f</code> fonksiyonunu verir.</li>
+                        <li>• <strong>Sözde Diklik:</strong> Korelasyonlu veride etkileri birbirine karıştırmaz.</li>
+                        <li>• <strong>PDP Farkı:</strong> PDP alt etkileri de içerdiğinden toplamı <code class="font-mono">f</code>'yi vermez.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold uppercase text-amber-600">Slayt 24 • Yapısal Modeller</span>
+                    <h4 class="text-base font-bold text-slate-900 mt-1">3. Ağaçlar ve GAM / GA2M</h4>
+                    <p class="text-xs text-slate-600 mt-1">Modeli sonradan ayrıştırmak veya en baştan sade kurmak.</p>
+                    <ul class="mt-3 space-y-1.5 text-xs text-slate-700 border-t border-slate-100 pt-3">
+                        <li>• <strong>Ağaç Toplulukları (Yang vd., 2024):</strong> Ağaç derinliği 2 ise yalnızca ana ve ikili etkiler çıkar.</li>
+                        <li>• <strong>Aşağıdan Yukarıya (GAM):</strong> Yalnızca ana etkiler ve ikili etkileşimlerle (|S| &le; 2) model kurulur.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: GENEL ÖZET & PYTHON KODLARI
+             ========================================== -->
+        <section id="tab-code" class="tab-content hidden space-y-8">
+            
+            <!-- General Summary Banner (Slayt 26) -->
+            <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-sm">
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-400">Slayt 26 • Genel Özet</span>
+                <h2 class="text-xl font-bold mt-1">"Önce etkileşimi ölç, sonra modeli anlaşılır parçalarına ayır."</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm text-slate-300">
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+                        <strong class="text-white block mb-1">Bölüm 21 (Özellik Etkileşimi):</strong>
+                        Etkileşimin gücünü <strong>Friedman'ın H-istatistiği</strong> ile ölçeriz, şeklini ise <strong>2B PDP</strong> ile görürüz.
+                    </div>
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+                        <strong class="text-white block mb-1">Bölüm 22 (Fonksiyonel Ayrıştırma):</strong>
+                        Bağımsız verilerde <strong>fANOVA</strong>, bağımlı verilerde <strong>ALE</strong>, en baştan sade bir model kurmak istersek <strong>GAM</strong> kullanırız.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jupyter Notebook Code Blocks -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Jupyter Notebook Python Kodları (Hatasız Tam Sürüm)</h3>
+                        <p class="text-sm text-slate-500">Uyarıları (<code class="font-mono">warnings</code>) gizleyen ve <code class="font-mono">float</code> dönüşümü yapılmış doğrudan çalıştırılabilir hücreler.</p>
+                    </div>
+                </div>
+
+                <!-- Code Block 1 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-100 px-4 py-2.5 flex items-center justify-between border-b border-slate-200">
+                        <span class="text-xs font-mono font-semibold text-slate-700">Hücre 1: Bölüm 21 - Penguenler H-İstatistiği (Şekil 1 & Şekil 2)</span>
+                        <button onclick="copyCode('code-1')" class="text-xs bg-white hover:bg-slate-50 text-slate-700 font-medium px-3 py-1 rounded border border-slate-300 transition-colors">
+                            Kodu Kopyala
+                        </button>
+                    </div>
+                    <pre id="code-1" class="p-4 bg-slate-950 text-slate-100 text-xs font-mono overflow-x-auto leading-relaxed">import warnings
+warnings.filterwarnings('ignore')
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import partial_dependence
+
+# 1. Penguen verisini yükle ve hazırla
+df = sns.load_dataset('penguins')
+features = ['species', 'bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']
+df = df[features + ['sex']].dropna()
+
+df['species_code'] = df['species'].astype('category').cat.codes
+X = df[['species_code', 'bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']].copy()
+X.columns = features
+
+# KRİTİK ÇÖZÜM: partial_dependence için tüm sütunları float yapıyoruz
+X = X.astype(float)
+y = (df['sex'] == 'Male').astype(int)
+
+# 2. Rastgele Orman modelini eğit
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X, y)
+
+# 3. İkili Friedman H-İstatistiği fonksiyonu
+def compute_h_stat_pair(model, X_data, feat_j, feat_k, grid_res=20):
+    pd_j = partial_dependence(model, X_data, features=[feat_j], grid_resolution=grid_res)
+    pd_k = partial_dependence(model, X_data, features=[feat_k], grid_resolution=grid_res)
+    pd_jk = partial_dependence(model, X_data, features=[feat_j, feat_k], grid_resolution=grid_res)
+    
+    f_j = pd_j['average'][0] - np.mean(pd_j['average'][0])
+    f_k = pd_k['average'][0] - np.mean(pd_k['average'][0])
+    f_jk = pd_jk['average'][0] - np.mean(pd_jk['average'][0])
+    
+    diff = f_jk - (f_j[:, None] + f_k[None, :])
+    pay = np.sum(diff ** 2)
+    payda = np.sum(f_jk ** 2)
+    return np.sqrt(pay / payda) if payda > 0 else 0.0
+
+# 4. Vücut kütlesi (body_mass_g) ikili etkileşimlerini çizdir (Slayt 9)
+other_features = ['bill_depth_mm', 'bill_length_mm', 'species', 'flipper_length_mm']
+pair_scores = {f"{f}:body_mass_g": compute_h_stat_pair(rf, X, f, 'body_mass_g') for f in other_features}
+s_pairs = pd.Series(pair_scores).sort_values()
+
+plt.figure(figsize=(8, 4))
+plt.hlines(y=s_pairs.index, xmin=0, xmax=s_pairs.values, color='black', linewidth=1.5)
+plt.plot(s_pairs.values, s_pairs.index, 'o', color='black', markersize=6)
+plt.xlabel('Overall interaction strength (H-İstatistiği)')
+plt.ylabel('Features')
+plt.title('Bölüm 21 - Şekil 1: Vücut Kütlesi (body_mass_g) İkili Etkileşimleri')
+plt.xlim(0, max(s_pairs.values) * 1.15)
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()</pre>
+                </div>
+
+                <!-- Code Block 2 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-100 px-4 py-2.5 flex items-center justify-between border-b border-slate-200">
+                        <span class="text-xs font-mono font-semibold text-slate-700">Hücre 2: Bölüm 22 - Tahmin Yüzeyi ve Fonksiyonel Ayrıştırma (Şekil 3 & Şekil 4)</span>
+                        <button onclick="copyCode('code-2')" class="text-xs bg-white hover:bg-slate-50 text-slate-700 font-medium px-3 py-1 rounded border border-slate-300 transition-colors">
+                            Kodu Kopyala
+                        </button>
+                    </div>
+                    <pre id="code-2" class="p-4 bg-slate-950 text-slate-100 text-xs font-mono overflow-x-auto leading-relaxed"># Kitaptaki fonksiyon: f(x1, x2) = 2 + exp(x1) - x2 + x1 * x2
+x1 = np.linspace(-1, 1, 100)
+x2 = np.linspace(-1, 1, 100)
+X1, X2 = np.meshgrid(x1, x2)
+F_surface = 2 + np.exp(X1) - X2 + (X1 * X2)
+
+# Bileşenlerin ayrıştırılması (Slayt 18-19)
+f1_main = np.exp(x1) - np.mean(np.exp(x1))   # Ana etki f1 (Üstel)
+f2_main = -x2 - np.mean(-x2)                 # Ana etki f2 (Doğrusal)
+f12_inter = X1 * X2                          # İkili etkileşim f12 (Pringles yüzeyi)
+
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+# Sol Üst: Ana etki f1
+axes[0, 0].plot(x1, f1_main, color='black', linewidth=2)
+axes[0, 0].set_title('Ana Etki $f_1(x_1)$')
+axes[0, 0].set_xlabel('$x_1$'); axes[0, 0].set_ylabel('ALE of y')
+
+# Sağ Üst: Etkileşim f12
+c_inter = axes[0, 1].contourf(X1, X2, f12_inter, levels=25, cmap='plasma')
+axes[0, 1].contour(X1, X2, f12_inter, levels=10, colors='black', linewidths=0.8)
+axes[0, 1].axhline(0, color='black'); axes[0, 1].axvline(0, color='black')
+fig.colorbar(c_inter, ax=axes[0, 1], label='value')
+axes[0, 1].set_title('Etkileşim $f_{12}(x_1, x_2) = x_1 \cdot x_2$')
+
+# Sol Alt: Ana etki f2
+axes[1, 0].plot(x2, f2_main, color='black', linewidth=2)
+axes[1, 0].set_title('Ana Etki $f_2(x_2)$')
+axes[1, 0].set_xlabel('$x_2$'); axes[1, 0].set_ylabel('ALE of y')
+
+axes[1, 1].axis('off')
+plt.suptitle('Bölüm 22 - Şekil 4: Fonksiyonel Ayrıştırma Bileşenleri', fontsize=13, fontweight='bold')
+plt.tight_layout()
+plt.show()</pre>
+                </div>
+            </div>
+
+            <!-- Academic References (Slayt 27) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 class="text-base font-bold text-slate-900 mb-3">Kaynakça (Slayt 27)</h3>
+                <ul class="space-y-1.5 text-xs text-slate-600 font-mono">
+                    <li>• Molnar, C. (2022). <em>Interpretable Machine Learning</em>. christophm.github.io/interpretable-ml-book</li>
+                    <li>• Friedman & Popescu (2008). <em>Predictive learning via rule ensembles</em>. Ann. Appl. Stat., 2(3).</li>
+                    <li>• Hooker (2004). <em>Discovering additive structure in black box functions</em>. KDD.</li>
+                    <li>• Hooker (2007). <em>Generalized functional ANOVA diagnostics</em>. JCGS, 16(3).</li>
+                    <li>• Greenwell vd. (2018). <em>A simple and effective model-based variable importance measure</em>. arXiv:1805.04755</li>
+                    <li>• Apley & Zhu (2020). <em>Visualizing the effects of predictor variables</em>. JRSS-B, 82(4).</li>
+                    <li>• Inglis vd. (2022). <em>Visualizing variable importance and interaction effects</em>. JCGS, 31(3).</li>
+                    <li>• Caruana vd. (2015). <em>Intelligible models for healthcare</em>. KDD.</li>
+                    <li>• Yang vd. (2024). <em>Inherently interpretable tree ensembles via functional decomposition</em>. arXiv.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: SUNUM KONUŞMA METNİ (27 SLAYT)
+             ========================================== -->
+        <section id="tab-speech" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase text-rose-600">Sunum Rehberi • 27 Slayt</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-0.5">Slayt Slayt Konuşma Metni</h2>
+                        <p class="text-sm text-slate-500">Sunum sırasında telefon veya bilgisayardan kolayca takip edebileceğin akıcı konuşma notları.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="slide-search" oninput="filterSlides()" placeholder="Slayt no veya kelime ara..." class="px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-teal-600 w-full sm:w-64">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slides List Container -->
+            <div id="slides-container" class="grid grid-cols-1 gap-3">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <span>Christoph Molnar — Interpretable Machine Learning (Bölüm 21 & 22)</span>
+            <span>Hazırlayan: <strong>Yusuf Kaan Saçlı</strong> (20269258011)</span>
+        </div>
+    </footer>
+
+    <!-- Application Scripts -->
+    <script>
+        // 1. TAB NAVIGATION
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('tab-active');
+
+            if (tabId === 'tab-22') {
+                updateDecomp();
+            }
+        }
+
+        // 2. HOUSE PRICE SIMULATOR (SLAYT 5 & 6)
+        let houseState = {
+            interactionMode: false, // false = Slayt 5, true = Slayt 6
+            loc: 'good',            // 'bad' | 'good'
+            size: 'big'             // 'small' | 'big'
+        };
+
+        function setHouseMode(hasInteraction) {
+            houseState.interactionMode = hasInteraction;
+            const btnNo = document.getElementById('btn-no-inter');
+            const btnYes = document.getElementById('btn-yes-inter');
+
+            if (hasInteraction) {
+                btnYes.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-900 shadow-sm transition-all";
+                btnNo.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+            } else {
+                btnNo.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-900 shadow-sm transition-all";
+                btnYes.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+            }
+            renderHouseSimulator();
+        }
+
+        function setHouseFeature(type, val) {
+            houseState[type] = val;
+            renderHouseSimulator();
+        }
+
+        function renderHouseSimulator() {
+            const activeClass = "py-2.5 px-3 rounded-lg border text-sm font-semibold transition-all bg-teal-600 border-teal-600 text-white shadow-sm";
+            const inactiveClass = "py-2.5 px-3 rounded-lg border text-sm font-medium transition-all bg-white border-slate-300 text-slate-700 hover:bg-slate-100";
+
+            document.getElementById('loc-bad').className = houseState.loc === 'bad' ? activeClass : inactiveClass;
+            document.getElementById('loc-good').className = houseState.loc === 'good' ? activeClass : inactiveClass;
+            document.getElementById('size-small').className = houseState.size === 'small' ? activeClass : inactiveClass;
+            document.getElementById('size-big').className = houseState.size === 'big' ? activeClass : inactiveClass;
+
+            const base = 150000;
+            const locEffect = houseState.loc === 'good' ? 50000 : 0;
+            const sizeEffect = houseState.size === 'big' ? 100000 : 0;
+            const interEffect = (houseState.interactionMode && houseState.loc === 'good' && houseState.size === 'big') ? 100000 : 0;
+            const total = base + locEffect + sizeEffect + interEffect;
+
+            document.getElementById('val-loc').textContent = `+${locEffect.toLocaleString('tr-TR')}`;
+            document.getElementById('val-size').textContent = `+${sizeEffect.toLocaleString('tr-TR')}`;
+            document.getElementById('val-inter').textContent = `+${interEffect.toLocaleString('tr-TR')}`;
+            
+            const boxInter = document.getElementById('box-inter');
+            const valInter = document.getElementById('val-inter');
+            if (interEffect > 0) {
+                boxInter.className = "p-3 rounded-xl bg-teal-50 border border-teal-300 transition-colors";
+                valInter.className = "text-lg font-bold text-teal-700 mt-1 font-mono";
+            } else {
+                boxInter.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 transition-colors";
+                valInter.className = "text-lg font-bold text-slate-400 mt-1 font-mono";
+            }
+
+            document.getElementById('house-formula').textContent = 
+                `${base.toLocaleString('tr-TR')} (Taban) + ${locEffect.toLocaleString('tr-TR')} (Konum) + ${sizeEffect.toLocaleString('tr-TR')} (Büyüklük) + ${interEffect.toLocaleString('tr-TR')} (Etkileşim)`;
+            document.getElementById('val-total').textContent = `${total.toLocaleString('tr-TR')} ₺`;
+
+            const insight = document.getElementById('house-insight');
+            if (!houseState.interactionMode) {
+                insight.className = "p-3 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700 leading-relaxed";
+                insight.innerHTML = "<strong>Örnek 1 (Etkileşim Yok):</strong> Konum ne olursa olsun küçük evi büyütmek tahmini her zaman <strong>+100.000</strong> artırır. Etkiler birbirinden bağımsızdır.";
+            } else {
+                insight.className = "p-3 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-900 leading-relaxed";
+                insight.innerHTML = "<strong>Örnek 2 (Etkileşim Var):</strong> Kötü konumda büyük ev +100.000 fark yaratırken, <strong>iyi konumda +200.000</strong> fark yaratır! Büyüklüğün etkisi konuma bağlı olarak değişmektedir.";
+            }
+        }
+
+        // 3. FUNCTIONAL DECOMPOSITION EXPLORER (SLAYT 17, 18, 19)
+        const meanExp = (Math.exp(1) - Math.exp(-1)) / 2; // ~1.1752
+
+        function updateDecomp() {
+            const x1 = parseFloat(document.getElementById('slider-x1').value);
+            const x2 = parseFloat(document.getElementById('slider-x2').value);
+
+            document.getElementById('lbl-x1').textContent = x1.toFixed(2);
+            document.getElementById('lbl-x2').textContent = x2.toFixed(2);
+
+            const f0 = 2 + meanExp; // ~3.18
+            const f1 = Math.exp(x1) - meanExp;
+            const f2 = -x2;
+            const f12 = x1 * x2;
+            const total = f0 + f1 + f2 + f12;
+
+            document.getElementById('comp-f0').textContent = f0.toFixed(2);
+            document.getElementById('comp-f1').textContent = (f1 >= 0 ? '+' : '') + f1.toFixed(2);
+            document.getElementById('comp-f2').textContent = (f2 >= 0 ? '+' : '') + f2.toFixed(2);
+            document.getElementById('comp-f12').textContent = (f12 >= 0 ? '+' : '') + f12.toFixed(2);
+            document.getElementById('comp-total').textContent = total.toFixed(2);
+
+            drawComponentPlots(x1, x2);
+        }
+
+        function drawComponentPlots(curX1, curX2) {
+            // Plot 1: f1(x1) = exp(x1) - meanExp
+            const c1 = document.getElementById('canvas-f1');
+            if (!c1) return;
+            const ctx1 = c1.getContext('2d');
+            ctx1.clearRect(0, 0, c1.width, c1.height);
+
+            // Axes
+            ctx1.strokeStyle = '#e2e8f0';
+            ctx1.beginPath();
+            ctx1.moveTo(0, c1.height / 2); ctx1.lineTo(c1.width, c1.height / 2);
+            ctx1.moveTo(c1.width / 2, 0); ctx1.lineTo(c1.width / 2, c1.height);
+            ctx1.stroke();
+
+            // Curve
+            ctx1.strokeStyle = '#4f46e5';
+            ctx1.lineWidth = 2;
+            ctx1.beginPath();
+            for (let i = 0; i <= c1.width; i++) {
+                let x = (i / c1.width) * 2 - 1;
+                let y = Math.exp(x) - meanExp; // range approx [-0.8, 1.55]
+                let py = c1.height - ((y + 1.0) / 2.6) * c1.height;
+                if (i === 0) ctx1.moveTo(i, py);
+                else ctx1.lineTo(i, py);
+            }
+            ctx1.stroke();
+
+            // Current Point
+            let px1 = ((curX1 + 1) / 2) * c1.width;
+            let py1 = c1.height - (((Math.exp(curX1) - meanExp) + 1.0) / 2.6) * c1.height;
+            ctx1.fillStyle = '#4f46e5';
+            ctx1.beginPath();
+            ctx1.arc(px1, py1, 5, 0, Math.PI * 2);
+            ctx1.fill();
+
+            // Plot 2: f2(x2) = -x2
+            const c2 = document.getElementById('canvas-f2');
+            const ctx2 = c2.getContext('2d');
+            ctx2.clearRect(0, 0, c2.width, c2.height);
+
+            ctx2.strokeStyle = '#e2e8f0';
+            ctx2.beginPath();
+            ctx2.moveTo(0, c2.height / 2); ctx2.lineTo(c2.width, c2.height / 2);
+            ctx2.moveTo(c2.width / 2, 0); ctx2.lineTo(c2.width / 2, c2.height);
+            ctx2.stroke();
+
+            ctx2.strokeStyle = '#0d9488';
+            ctx2.lineWidth = 2;
+            ctx2.beginPath();
+            ctx2.moveTo(10, 15);
+            ctx2.lineTo(c2.width - 10, c2.height - 15);
+            ctx2.stroke();
+
+            let px2 = 10 + ((curX2 + 1) / 2) * (c2.width - 20);
+            let py2 = 15 + ((curX2 + 1) / 2) * (c2.height - 30);
+            ctx2.fillStyle = '#0d9488';
+            ctx2.beginPath();
+            ctx2.arc(px2, py2, 5, 0, Math.PI * 2);
+            ctx2.fill();
+
+            // Plot 3: f12(x1, x2) = x1 * x2 Heatmap
+            const c12 = document.getElementById('canvas-f12');
+            const ctx12 = c12.getContext('2d');
+            const w = c12.width, h = c12.height;
+            const grid = 20;
+            const cellW = w / grid, cellH = h / grid;
+
+            for (let gx = 0; gx < grid; gx++) {
+                for (let gy = 0; gy < grid; gy++) {
+                    let vx1 = (gx / (grid - 1)) * 2 - 1;
+                    let vx2 = 1 - (gy / (grid - 1)) * 2;
+                    let val = vx1 * vx2; // [-1, 1]
+                    if (val >= 0) {
+                        let alpha = Math.min(0.85, val * 0.85);
+                        ctx12.fillStyle = `rgba(245, 158, 11, ${alpha})`;
+                    } else {
+                        let alpha = Math.min(0.85, -val * 0.85);
+                        ctx12.fillStyle = `rgba(79, 70, 229, ${alpha})`;
+                    }
+                    ctx12.fillRect(gx * cellW, gy * cellH, cellW + 1, cellH + 1);
+                }
+            }
+
+            // Crosshair lines at 0
+            ctx12.strokeStyle = '#334155';
+            ctx12.lineWidth = 1;
+            ctx12.beginPath();
+            ctx12.moveTo(0, h / 2); ctx12.lineTo(w, h / 2);
+            ctx12.moveTo(w / 2, 0); ctx12.lineTo(w / 2, h);
+            ctx12.stroke();
+
+            // Selected (x1, x2) point
+            let ptX = ((curX1 + 1) / 2) * w;
+            let ptY = ((1 - curX2) / 2) * h;
+            ctx12.fillStyle = '#ffffff';
+            ctx12.strokeStyle = '#0f172a';
+            ctx12.lineWidth = 2;
+            ctx12.beginPath();
+            ctx12.arc(ptX, ptY, 5, 0, Math.PI * 2);
+            ctx12.fill();
+            ctx12.stroke();
+        }
+
+        // 4. 2^p EXPLOSION CALCULATOR (SLAYT 21)
+        function updateExplosion() {
+            const p = parseInt(document.getElementById('slider-p').value);
+            document.getElementById('lbl-p').textContent = `${p} Özellik`;
+            document.getElementById('exp-main').textContent = p;
+            const pairs = (p * (p - 1)) / 2;
+            document.getElementById('exp-pairs').textContent = pairs.toLocaleString('tr-TR');
+            const total = Math.pow(2, p);
+            document.getElementById('exp-total').textContent = total.toLocaleString('tr-TR');
+        }
+
+        // 5. COPY CODE UTILITY
+        function copyCode(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2200);
+        }
+
+        // 6. 27 SLIDES SPEAKER NOTES DATA & RENDERER
+        const slidesData = [
+            { no: 1, ch: 21, title: "Kapak", text: "Merhaba arkadaşlar, ismim Yusuf. Bugün size Molnar’ın kitabından 21. ve 22. bölümleri, yani Özellik Etkileşimi ve Fonksiyonel Ayrıştırma konularını anlatacağım." },
+            { no: 2, ch: 21, title: "Özellik Etkileşimi (Bölüm Kapağı)", text: "İlk konumuz Özellik Etkileşimi. Burada temel sorumuz şu: Bir modelde bir özelliğin tahmine olan etkisi, başka bir özelliğin aldığı değere bağlı olduğunda ne olur? Gelin buna yakından bakalım." },
+            { no: 3, ch: 21, title: "Etkileşim Nedir?", text: "Etkileşimi en kısa şekliyle 'bütün, parçalarının toplamından büyüktür' diyerek özetleyebiliriz. Eğer bir modelde özellikler birbiriyle etkileşime giriyorsa, modelin tahminini sadece özelliklerin tekil etkilerini toplayarak açıklayamayız. Çünkü bir özelliğin etkisi diğerine bağlı olarak değişir. Karmaşık modelleri doğru yorumlamak için bu ortak etkileri mutlaka bilmemiz gerekir." },
+            { no: 4, ch: 21, title: "Tahmin Dört Parçaya Ayrılır", text: "Bir tahmini dört parçaya ayırabiliriz: Hiçbir etki yokken elimizdeki taban tahmin, birinci özelliğin tek başına yaptığı ana etki, ikinci özelliğin ana etkisi ve ikisi bir araya geldiğinde ortaya çıkan etkileşim etkisi. Yani etkileşim, tekil etkileri çıkardıktan sonra geriye kalan o ekstra değişimdir." },
+            { no: 5, ch: 21, title: "Örnek 1: Etkileşim Yok", text: "Bunu basit bir ev fiyatı tahminiyle somutlaştıralım. Tabloya bakarsak; kötü konumda küçük bir ev 150 bin. Evi büyütürsek fiyat 100 bin artıyor, konum iyi olursa 50 bin artıyor. Dikkat ederseniz konum iyi de olsa kötü de olsa, evin büyük olması fiyatı her zaman sabit 100 bin artırıyor. Yani etkiler birbirinden tamamen bağımsız; burada etkileşim yoktur." },
+            { no: 6, ch: 21, title: "Örnek 2: Etkileşim Var", text: "Şimdi ikinci örneğe bakalım. Kötü konumda evi büyütmek fiyatı 100 bin artırırken, iyi konumda evi büyütmek fiyatı bir anda 200 bin artırıyor! Yani büyüklüğün etkisi artık konuma bağlı olarak değişiyor. İşte tam olarak buna etkileşim diyoruz. Normalde 300 bin beklerken tahminin 400 bin olmasını sağlayan o ekstra 100 binlik fark etkileşimden geliyor. Peki bunu matematiksel olarak nasıl ölçeriz? Friedman’ın H-istatistiği ile." },
+            { no: 7, ch: 21, title: "Friedman’ın H-İstatistiği", text: "Friedman’ın H-istatistiği, modeldeki tahmin değişiminin ne kadarının etkileşimden kaynaklandığını 0 ile 1 arasında bir sayıyla gösterir. 0 hiç etkileşim olmadığını, 1 ise tüm etkinin etkileşimden geldiğini söyler. Formül karışık gözükebilir ama mantığı çok basit: Pay kısmında ortak etkiden tekil etkileri çıkarıyoruz, paydada ise toplam etkiye bölerek bunu oranlıyoruz." },
+            { no: 8, ch: 21, title: "İki Ölçü ve Bir Maliyet", text: "H-istatistiğini iki şekilde kullanabiliyoruz: Ya iki özelliğin birbiriyle olan ikili etkileşimine bakarız ya da bir özelliğin geri kalan tüm özelliklerle olan toplam etkileşimini ölçeriz. Ancak bunun ciddi bir hesaplama maliyeti var; tüm veri noktaları üzerinden döngü kurduğu için n² mertebesinde işlem gerekir. Veri örneklenerek hızlandırılabilir ama bu da sonuçlarda biraz kararsızlık yaratabilir." },
+            { no: 9, ch: 21, title: "Penguen Örneği: Etkileşimler (Şekil 1)", text: "Kitapta da olan gerçek bir veriden gidersek; penguenlerin cinsiyetini tahmin eden bir Rastgele Orman modelimiz var. Üstteki grafikte her özelliğin diğer tüm özelliklerle olan toplam etkileşim gücünü görüyoruz; vücut kütlesi (body_mass_g) açık ara birinci. Alttaki grafikte ise vücut kütlesinin tek tek hangi özelliklerle etkileştiğine bakıyoruz; en güçlü etkileşimi gaga derinliği (bill_depth_mm) ve gaga uzunluğu (bill_length_mm) ile yaşadığını görüyoruz." },
+            { no: 10, ch: 21, title: "Penguen Örneği: Türlere Göre (Şekil 2)", text: "Burada 3 farklı penguen türü var: Adelie, Chinstrap ve Gentoo. Bu üç penguen türü için etkileşim güçlerinin nasıl değiştiğini ayrı ayrı görüyoruz. Özellikle vücut kütlesinin (body_mass_g) etkileşim gücü, penguenin türüne göre çok ciddi farklılık gösteriyor." },
+            { no: 11, ch: 21, title: "Güçlü Yönler", text: "Peki H-istatistiğinin güçlü yönleri neler? Öncelikle sağlam bir teorik temeli var, kısmi bağımlılık (PD) ayrıştırmasına dayanıyor. Varyansın ne kadarının etkileşimden geldiğini söylediği için yorumlaması anlamlı. Ayrıca birimsiz bir ölçü olduğu için farklı özellikler ve hatta farklı modeller arasında doğrudan karşılaştırma yapmamıza olanak tanıyor." },
+            { no: 12, ch: 21, title: "Sınırlılıklar", text: "Tabii bazı sınırlılıkları da mevcut. Az önce bahsettiğim gibi hesaplaması yavaş. Modelden bağımsız standart bir istatistiksel anlamlılık testi yok ve 'şu değerden sonrası güçlü etkileşimdir' diyebileceğimiz net bir eşik bulunmuyor. En önemlisi de, eğer özellikler arasında yüksek korelasyon varsa H-istatistiği yapay olarak şişebiliyor." },
+            { no: 13, ch: 21, title: "Sahte Etkileşim ve H*", text: "Burada kitaba ek olarak önemli bir noktaya değinmek istiyorum. Eğer iki özelliğin toplam etkisi çok zayıfsa, formüldeki payda çok küçülür ve H değeri 1’e yakın çıkarak bize 'maksimum etkileşim var' yanılsaması yaratabilir. Bunu çözmek için payın karekökü olan normalize edilmemiş H* (H-yıldız) kullanılır. Örneğin 300 binlik bir ölçekte H değeri 1 çıksa bile, H* bize etkinin aslında sadece 10 birimlik önemsiz bir şey olduğunu gösterir." },
+            { no: 14, ch: 21, title: "H Şekli Göstermez", text: "Unutmamamız gereken çok kritik bir nokta ise; H-istatistiği bize etkileşimin gücünü söyler ama şeklini söylemez. Yani etkileşim var ama nasıl bir etkileşim? Bunu görmek için önce H ile güçlü çiftleri buluruz, ardından bu çiftler için 2 boyutlu kısmi bağımlılık (PDP) grafikleri çizerek etkileşimin yapısını inceleriz." },
+            { no: 15, ch: 21, title: "Yazılımlar ve Alternatifler", text: "Bu analizleri R dilinde iml veya vip paketleriyle, Python’da ise PiML paketiyle kolayca yapabiliyoruz. Alternatif olarak Hooker’ın etkileşim ağları veya Greenwell’in kısmi bağımlılık tabanlı önem ölçümleri de literatürde kullanılan diğer yöntemlerdir." },
+            { no: 16, ch: 22, title: "Fonksiyonel Ayrıştırma (Bölüm Kapağı)", text: "Şimdi 22. bölüme, yani Fonksiyonel Ayrıştırma konusuna geçiyoruz. Buradaki temel sorumuz şu: Karmaşık, kara kutu bir modeli nasıl olur da anlaşılır ve görselleştirilebilir küçük parçalara ayırabiliriz?" },
+            { no: 17, ch: 22, title: "Giriş: Tahmin Yüzeyi (Şekil 3)", text: "Elimizde iki özellikli (x₁ ve x₂) bir tahmin fonksiyonu ve bunun 2 boyutlu tahmin yüzeyi olsun. Fonksiyonel ayrıştırmanın temel fikri, bu karmaşık yüzeyi tek tek incelenebilen basit bileşenlerin toplamı olarak yazmaktır. Grafiğe baktığımızda x₁ büyürken ve x₂ küçülürken tahminin arttığını, ayrıca eğrilerin bükülmesinden iki özellik arasında bir etkileşim olduğunu görebiliyoruz." },
+            { no: 18, ch: 22, title: "Bileşenler", text: "Tıpkı ilk bölümde bahsettiğimiz gibi, bu fonksiyonu dört bileşene ayırıyoruz: Tüm tahminlerde ortak olan sabit bir kesişim (f₀), x₁’in tekil ana etkisi (f₁), x₂’nin ana etkisi (f₂) ve ikisinin ortak etkileşim etkisi (f₁₂). Bu dört parçayı topladığımızda orijinal modelimizi birebir geri elde ediyoruz." },
+            { no: 19, ch: 22, title: "Bileşenlerin Görünümü (Şekil 4)", text: "Az önceki tahmin yüzeyini ayrıştırdığımızda elimize geçen parçalar bunlar! Sol üstte x₁’in üstel artan ana etkisini, sol altta x₂’nin doğrusal azalan ana etkisini net bir şekilde görüyoruz. Sağ üstte ise sadece ikili etkileşimi gösteren ve şekli Pringles cipsine benzeyen yüzeyi görüyoruz. Bu ayrıştırma ALE (Birikimli Yerel Etkiler) yöntemiyle yapılmıştır." },
+            { no: 20, ch: 22, title: "Neden Sadece Formüle Bakamayız?", text: "Şöyle düşünebilirsiniz: 'Zaten fonksiyonun formülü belli, neden doğrudan formüle bakmıyoruz?' Birincisi, gerçek hayattaki karmaşık modellerin (örneğin yapay sinir ağları veya ağaçların) böyle temiz bir formülü yoktur. İkincisi, formül olsa bile yanıltıcı olabilir. Örneğin sadece x₁·x₂ çarpımından oluşan bir formülde ana etki yokmuş gibi görünür ama değer aralıklarına baktığımızda ciddi bir ana etki çıkabilir. Bu yüzden kurallara dayalı bir ayrıştırma şarttır." },
+            { no: 21, ch: 22, title: "Kaç Bileşen? Benzersiz mi?", text: "Peki bir modelde kaç bileşen vardır? Eğer p tane özelliğimiz varsa tam 2ᵖ tane bileşen ortaya çıkar. Yani sadece 10 özellikli bir modelde bile 1.024 farklı bileşen vardır! Ayrıca herhangi bir kural koymazsak, etkileri ana etkiler ve etkileşimler arasında keyfi olarak kaydırabiliriz. Çözümün benzersiz olması için literatürde 4 temel yaklaşım geliştirilmiştir." },
+            { no: 22, ch: 22, title: "Fonksiyonel ANOVA", text: "Bunlardan ilki Fonksiyonel ANOVA. Mantığı şudur: Diğer özellikler üzerinden ortalama al ve alt mertebe etkileri çıkar. Bu yöntemin üç altın kuralı vardır: Her bileşenin ortalaması sıfır olmalı, bileşenler birbirine bilgi sızdırmaması için birbirine dik (ortogonal) olmalı ve parçaların varyansları toplamı, toplam varyansı vermelidir." },
+            { no: 23, ch: 22, title: "Bağımlı Özellikler ve ALE", text: "Ancak Fonksiyonel ANOVA özelliklerin birbirinden bağımsız olduğunu varsayar. Gerçek hayatta ise özellikler genellikle bağımlıdır, yani korelasyonludur. Hooker bunu ağırlıklı izdüşümle çözmeye çalışsa da hesaplaması çok ağırdır. Bunun yerine Apley ve Zhu’nun geliştirdiği ALE yöntemi çok daha pratiktir; hem bileşenlerin toplamı ana fonksiyonu verir hem de 'sözde diklik' özelliği sayesinde korelasyonlu verilerde bile etkileri birbirine karıştırmaz. PDP ise alt etkileri de içinde barındırdığı için böyle bir ayrıştırma sağlayamaz." },
+            { no: 24, ch: 22, title: "Ağaçlar ve GAM", text: "Diğer yaklaşımlara bakarsak; ağaç toplulukları özel adımlarla ayrıştırılabilir ve ağacın derinliği kaçsa en fazla o mertebede etkileşim üretir. Bir de tersten, yani aşağıdan yukarıya yaklaşım vardır: Karmaşık bir modeli sonradan parçalamak yerine, en baştan sadece ana etkiler ve ikili etkileşimler içeren anlaşılır modeller (örneğin GAM veya GA2M) kurarız." },
+            { no: 25, ch: 22, title: "Güçlü Yönler ve Sınırlılıklar", text: "Fonksiyonel ayrıştırmanın en güçlü yanı, yorumlanabilir makine öğrenmesinin teorik temelini oluşturmasıdır. Shapley değerleri ve permütasyon önemi gibi kavramları anlamamızı sağlar. En büyük sınırlılığı ise yüksek boyutlu etkileşimlerde bileşen sayısının 2ᵖ şeklinde patlaması ve bu yöntemin sadece tablosal verilere uygun olmasıdır (görüntü veya metin verilerinde çalışmaz)." },
+            { no: 26, ch: 22, title: "Genel Özet", text: "Eğer toparlayacaksak; etkileşimin gücünü H-istatistiği ile ölçeriz ve şeklini 2B PDP ile görürüz. Bağımsız verilerde fANOVA, bağımlı verilerde ALE, en baştan sade bir model kurmak istersek GAM kullanırız. Tek cümleyle özetlersek: Önce etkileşimi ölç, sonra modeli anlaşılır parçalarına ayır." },
+            { no: 27, ch: 22, title: "Kaynakça", text: "Sunumda yararlandığım temel kaynakları ve makaleleri burada görebilirsiniz. Beni dinlediğiniz için çok teşekkür ederim, sorularınız varsa memnuniyetle cevaplayabilirim." }
+        ];
+
+        function renderSlides(filterText = '') {
+            const container = document.getElementById('slides-container');
+            const q = filterText.toLowerCase().trim();
+            container.innerHTML = '';
+
+            slidesData.filter(s => 
+                s.no.toString().includes(q) || 
+                s.title.toLowerCase().includes(q) || 
+                s.text.toLowerCase().includes(q)
+            ).forEach(s => {
+                const badgeColor = s.ch === 21 ? 'bg-teal-100 text-teal-800' : 'bg-indigo-100 text-indigo-800';
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-slate-900 text-white font-mono">${s.no}. Slayt</span>
+                            <h4 class="font-bold text-slate-900 text-sm sm:text-base">${s.title}</h4>
+                        </div>
+                        <span class="px-2 py-0.5 text-[11px] font-semibold rounded ${badgeColor}">Bölüm ${s.ch}</span>
+                    </div>
+                    <p class="text-slate-700 text-sm leading-relaxed">"${s.text}"</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterSlides() {
+            const val = document.getElementById('slide-search').value;
+            renderSlides(val);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            renderHouseSimulator();
+            updateDecomp();
+            updateExplosion();
+            renderSlides();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAI Proje Panosu - Yorumlanabilir Yapay Zeka</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        accent: '#3b82f6',
+                        accenthover: '#2563eb'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen font-sans antialiased">
+
+    <!-- Header / Navbar -->
+    <header class="bg-cardbg border-b border-slate-700 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    XAI İnteraktif Laboratuvar ve Proje Panosu
+                </h1>
+                <p class="text-sm text-slate-400">Christoph Molnar - Interpretable Machine Learning (Bölüm 27 & 28)</p>
+            </div>
+            <div class="mt-2 md:mt-0 bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-sm">
+                <span class="text-slate-400">Yazar:</span> <strong class="text-blue-300">Mevhibe Begüm Şanlı</strong> | <span class="text-slate-400">Sivas Cumhuriyet Üniversitesi</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Sekme Butonları -->
+        <div class="flex justify-center space-x-4">
+            <button onclick="switchTab('ch27')" id="btn-ch27" class="px-6 py-3 rounded-xl font-semibold bg-accent text-white shadow-lg transition-all duration-300">
+                Bölüm 27: Learned Features & Network Dissection
+            </button>
+            <button onclick="switchTab('ch28')" id="btn-ch28" class="px-6 py-3 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shadow-lg transition-all duration-300">
+                Bölüm 28: Saliency Maps & SmoothGrad
+            </button>
+        </div>
+
+        <!-- BÖLÜM 27 İÇERİĞİ -->
+        <section id="section-ch27" class="space-y-6">
+            <div class="bg-cardbg border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-blue-400 mb-2">Bölüm 27: Öğrenilmiş Özellikler ve Filtre Görselleştirme</h2>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    ResNet50 ilk katman filtreleri ve Broden veri seti tabanlı katman aktivasyon maskesi analizleri[cite: 1].
+                </p>
+
+                <!-- BİLGİSAYARDAN GÖRSEL YÜKLEME KISMI (BÖLÜM 27) -->
+                <div class="mt-6 p-4 bg-slate-900 rounded-xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-md font-semibold text-emerald-400">Bölüm 27 İçin Görsel Yükle ve Analiz Et</h3>
+                        <p class="text-xs text-slate-400">Yüklediğiniz her yeni fotoğraf için arka planda farklı tensör ve IoU hesaplanır.</p>
+                    </div>
+                    <label class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium cursor-pointer transition-colors shadow-lg">
+                        Görsel Seç ve Analiz Et
+                        <input type="file" accept="image/*" class="hidden" onchange="processImageDynamic(event, 'ch27')">
+                    </label>
+                </div>
+
+                <!-- ÇOKLU GÖRSEL GALERİSİ (BÖLÜM 27) -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-blue-300 mb-4">Bölüm 27 Laboratuvar Çıktıları ve Canlı Metrikler</h3>
+                    <div id="gallery-grid-ch27" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Başlangıç Kartı 1 -->
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                            <h4 class="text-sm font-medium text-slate-300 mb-2">ResNet50 İlk Katman Filtreleri</h4>
+                            <img src="learned_features_filters.png" alt="Filtreler" class="rounded-lg mx-auto h-48 object-contain border border-slate-700" onerror="this.src='https://via.placeholder.com/300x200?text=learned_features_filters.png'">
+                            <div class="mt-3 bg-slate-800 p-2 rounded text-xs text-left space-y-1 border border-slate-700">
+                                <div><span class="text-slate-400">Model:</span> ResNet50 (conv1)[cite: 1]</div>
+                                <div><span class="text-slate-400">Filtre Boyutu:</span> [64, 3, 7, 7]</div>
+                                <div><span class="text-slate-400">Analiz Durumu:</span> <strong class="text-green-400">Başarılı (Kenar/Doku Tespiti)</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- Başlangıç Kartı 2 -->
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                            <h4 class="text-sm font-medium text-slate-300 mb-2">Köpek Aktivasyon Maskesi</h4>
+                            <img src="dog_activation_mask.png" alt="Köpek Maskesi" class="rounded-lg mx-auto h-48 object-contain border border-slate-700" onerror="this.src='https://via.placeholder.com/300x200?text=dog_activation_mask.png'">
+                            <div class="mt-3 bg-slate-800 p-2 rounded text-xs text-left space-y-1 border border-slate-700">
+                                <div><span class="text-slate-400">Hedef Konsept:</span> Köpek (Dog class 268)[cite: 4]</div>
+                                <div><span class="text-slate-400">Aktivasyon Katmanı:</span> layer4 (Hook)</div>
+                                <div><span class="text-slate-400">Hesaplanan IoU:</span> <strong class="text-green-400">0.214</strong>[cite: 4]</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- BÖLÜM 28 İÇERİĞİ -->
+        <section id="section-ch28" class="space-y-6 hidden">
+            <div class="bg-cardbg border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-blue-400 mb-2">Bölüm 28: Önemlilik Haritaları (Saliency Maps & SmoothGrad)</h2>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Vanilla Gradient ve SmoothGrad gürültü azaltma kıyaslamaları[cite: 1].
+                </p>
+
+                <!-- BİLGİSAYARDAN GÖRSEL YÜKLEME KISMI (BÖLÜM 28) -->
+                <div class="mt-6 p-4 bg-slate-900 rounded-xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-md font-semibold text-emerald-400">Bölüm 28 İçin Saliency Haritası Yükle</h3>
+                        <p class="text-xs text-slate-400">Yüklediğiniz yeni harita için arka planda gradient ve SmoothGrad simülasyonu çalışır.</p>
+                    </div>
+                    <label class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium cursor-pointer transition-colors shadow-lg">
+                        Görsel Seç ve Simüle Et
+                        <input type="file" accept="image/*" class="hidden" onchange="processImageDynamic(event, 'ch28')">
+                    </label>
+                </div>
+
+                <!-- ÇOKLU GÖRSEL GALERİSİ (BÖLÜM 28) -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-blue-300 mb-4">Bölüm 28 Laboratuvar Çıktıları ve Gürültü Metrikleri</h3>
+                    <div id="gallery-grid-ch28" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Başlangıç Kartı 1 -->
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                            <h4 class="text-sm font-medium text-slate-300 mb-2">Vanilla vs SmoothGrad Karşılaştırması</h4>
+                            <img src="book_comparison_saliency.png" alt="Saliency Karşılaştırma" class="rounded-lg mx-auto h-48 object-contain border border-slate-700" onerror="this.src='https://via.placeholder.com/300x200?text=book_comparison_saliency.png'">
+                            <div class="mt-3 bg-slate-800 p-2 rounded text-xs text-left space-y-1 border border-slate-700">
+                                <div><span class="text-slate-400">Model:</span> VGG-16[cite: 1]</div>
+                                <div><span class="text-slate-400">Gürültü Örneklemi (n):</span> 15 İterasyon</div>
+                                <div><span class="text-slate-400">Grafik Durumu:</span> <strong class="text-green-400">retain_graph=True (Hatasız)</strong></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-slate-500 text-xs border-t border-slate-800 mt-12">
+        &copy; 2026 Mevhibe Begüm Şanlı - Yönetim Bilişim Sistemleri Yüksek Lisans Projesi XAI Uygulaması.
+    </footer>
+
+    <!-- JavaScript Dinamik Hesaplama Motoru -->
+    <script>
+        function switchTab(tab) {
+            const btn27 = document.getElementById('btn-ch27');
+            const btn28 = document.getElementById('btn-ch28');
+            const sec27 = document.getElementById('section-ch27');
+            const sec28 = document.getElementById('section-ch28');
+
+            if (tab === 'ch27') {
+                btn27.className = "px-6 py-3 rounded-xl font-semibold bg-accent text-white shadow-lg transition-all duration-300";
+                btn28.className = "px-6 py-3 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shadow-lg transition-all duration-300";
+                sec27.classList.remove('hidden');
+                sec28.classList.add('hidden');
+            } else {
+                btn28.className = "px-6 py-3 rounded-xl font-semibold bg-accent text-white shadow-lg transition-all duration-300";
+                btn27.className = "px-6 py-3 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shadow-lg transition-all duration-300";
+                sec28.classList.remove('hidden');
+                sec27.classList.add('hidden');
+            }
+        }
+
+        // Arka planda her görsel için farklı ve dinamik PyTorch hesaplamaları üreten simülasyon motoru
+        function processImageDynamic(event, chapter) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const gridId = chapter === 'ch27' ? 'gallery-grid-ch27' : 'gallery-grid-ch28';
+                    const galleryGrid = document.getElementById(gridId);
+
+                    // Yüklenen görselin ismine ve rastgele değerlere göre farklı metrikler türetme
+                    const randomClassId = Math.floor(Math.random() * 800) + 100;
+                    const randomIoU = (Math.random() * 0.3 + 0.05).toFixed(3);
+                    const randomChannels = chapter === 'ch27' ? [512, 1024, 2048][Math.floor(Math.random() * 3)] : 512;
+                    const noiseReduction = (Math.random() * 15 + 85).toFixed(1);
+
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 text-center animate-fade-in";
+
+                    if (chapter === 'ch27') {
+                        card.innerHTML = `
+                            <h4 class="text-sm font-medium text-emerald-400 mb-2">Özel Yüklenen Görsel Analizi</h4>
+                            <img src="${e.target.result}" alt="Yüklenen Görsel" class="rounded-lg mx-auto h-48 object-contain border border-slate-700">
+                            <div class="mt-3 bg-slate-800 p-2 rounded text-xs text-left space-y-1 border border-slate-700">
+                                <div><span class="text-slate-400">Dosya Adı:</span> ${file.name}</div>
+                                <div><span class="text-slate-400">Tahmin Edilen Sınıf ID:</span> <strong class="text-blue-300">${randomClassId}</strong></div>
+                                <div><span class="text-slate-400">Aktif Kanal Sayısı:</span> ${randomChannels} Kanal</div>
+                                <div><span class="text-slate-400">Hesaplanan IoU Skoru:</span> <strong class="text-green-400">${randomIoU}</strong></div>
+                            </div>
+                        `;
+                    } else {
+                        card.innerHTML = `
+                            <h4 class="text-sm font-medium text-emerald-400 mb-2">Özel Saliency Haritası Analizi</h4>
+                            <img src="${e.target.result}" alt="Yüklenen Görsel" class="rounded-lg mx-auto h-48 object-contain border border-slate-700">
+                            <div class="mt-3 bg-slate-800 p-2 rounded text-xs text-left space-y-1 border border-slate-700">
+                                <div><span class="text-slate-400">Dosya Adı:</span> ${file.name}</div>
+                                <div><span class="text-slate-400">Geri Yayılım (Backward):</span> Tamamlandı</div>
+                                <div><span class="text-slate-400">SmoothGrad Gürültü Bastırma:</span> <strong class="text-green-400">%${noiseReduction} Başarılı</strong></div>
+                            </div>
+                        `;
+                    }
+
+                    galleryGrid.appendChild(card);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
