@@ -84,6 +84,7 @@ Yalçın Kavaklı ve Murat Şahin tarafından sunulan ortak çalışma:
 - [Etkileşimli uygulama HTML’si](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.html)
 - [Jupyter ve Colab uygulaması](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.ipynb)
 - [Uygulama açıklaması ve çalıştırma adımları](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/README.md)
+- [Makale tahlili ve yeniden üretimi (Longo vd., 2024 — XAI 2.0 Manifesto)](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/makale.md) · [İnteraktif deney paneli (HTML)](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/makale.html) · [Makale tahlili sunumu (PPTX)](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/sunum.pptx) · [Jupyter defteri](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/analiz.ipynb)
 
 Uygulama, gerçek UCI South German Credit verisiyle eğitilmiş küçük bir karar ağacında kararın açıklanmasını, hatalı vade kaydının düzeltilmesini ve karar eşiğinin hata türlerine etkisini gösterir. Veri giriş hatası eğitim amaçlı canlandırmadır.
 
