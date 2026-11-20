@@ -1,0 +1,5 @@
+﻿Oznitelik_Adi,Gercek_Model_Agirligi_Yuzde,LIME_Raporlanan_Onem_Yuzde_Aldatilmis,SHAP_Raporlanan_Onem_Yuzde_Aldatilmis,XAI2_Popper_Yanlislanabilirlik_Testi_Yuzde
+Hassas_Oznitelik_Önyargı,100.0,6.1,15.9,97.1
+Deneyim_Suresi,0.0,48.1,46.4,0.7
+Sinav_Puani,0.0,42.4,36.1,0.7
+Referans_Skoru,0.0,3.4,1.7,1.5

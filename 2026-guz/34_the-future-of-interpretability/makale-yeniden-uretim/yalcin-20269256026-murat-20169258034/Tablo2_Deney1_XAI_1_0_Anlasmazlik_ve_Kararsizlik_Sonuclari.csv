@@ -1,0 +1,7 @@
+﻿Yontem_Adi,Ortalama_Top3_Ortusme_Yuzdesi,Kararsizlik_Eps_001,Kararsizlik_Eps_003,Kararsizlik_Eps_005,Kararsizlik_Eps_010,Kategori
+LIME,66.4,2.061,1.853,1.713,1.176,XAI 1.0 (Tekil Yöntem)
+KernelSHAP,69.5,1.425,1.315,1.226,0.906,XAI 1.0 (Tekil Yöntem)
+Vanilla_Grad,63.2,2.746,1.474,1.198,0.618,XAI 1.0 (Tekil Yöntem)
+Integrated_Grad,69.0,1.076,0.887,0.818,0.591,XAI 1.0 (Tekil Yöntem)
+Occlusion_Perm,64.1,1.136,1.093,0.977,0.764,XAI 1.0 (Tekil Yöntem)
+XAI2_Portfolio,75.8,0.463,0.304,0.256,0.168,XAI 2.0 (Önerilen Portföy)

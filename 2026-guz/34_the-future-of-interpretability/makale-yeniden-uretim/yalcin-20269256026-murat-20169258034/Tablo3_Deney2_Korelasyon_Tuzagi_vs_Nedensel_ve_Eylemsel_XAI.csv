@@ -1,0 +1,5 @@
+﻿Strateji_Adi,Model_Karar_Degistirme_Yuzdesi,Gercek_Nedensel_Gecerlilik_Yuzdesi,Eylem_Fizibilitesi_Yuzdesi,Dagilim_Ici_Gercekcilik_Plausibility,Normalize_Maliyet,Degerlendirme
+1. XAI 1.0 Korelasyonel (SHAP/LIME Top-1),62.5,28.0,44.0,51.0,0.78,Başarısız (Korelasyon Tuzağı / Clever Hans)
+2. Kısıtsız Karşı-Olgusal (Unconstrained CF),98.0,41.5,32.0,39.0,0.64,Başarısız (Yaş/Geçmiş Gibi Değişmezleri Önerir)
+3. Kısıtlı Korelasyonel CF (Feasibility Only),89.5,68.0,91.0,74.5,0.49,Orta (Fizibil Ama Yan Etkileri İhmal Eder)
+4. XAI 2.0 Nedensel Recourse (Causal SCM + CF),95.0,94.5,98.5,92.0,0.34,Başarılı (XAI 2.0 Bölüm 3.6.4 Hedefi)
