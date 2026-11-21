@@ -60,6 +60,12 @@ Sunumda kullanılan etkileşimli sayfa: bu klasördeki `cam-kutu-laboratuvari.ht
 
 Çevrimiçi: [cam-kutu-laboratuvari.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/06_linear-regression/uygulama/ahmetbatuhankaya-20269348005/cam-kutu-laboratuvari.html)
 
+## Makaleye bağlı uygulama: Seçim Arenası
+
+Hastie, Tibshirani ve Tibshirani (2020) makalesinin yeniden üretimine bağlı etkileşimli sayfa `makale-yeniden-uretim/ahmetbatuhankaya-20269348005/secim-arenasi.html` konumunda. En iyi alt küme, ileri adımsal seçim, lasso ve gevşetilmiş lasso aynı veride yarışıyor.
+
+Çevrimiçi: [secim-arenasi.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/06_linear-regression/makale-yeniden-uretim/ahmetbatuhankaya-20269348005/secim-arenasi.html)
+
 ## Kaynaklar
 
 - Molnar, C. *Interpretable Machine Learning*. https://christophm.github.io/interpretable-ml-book/

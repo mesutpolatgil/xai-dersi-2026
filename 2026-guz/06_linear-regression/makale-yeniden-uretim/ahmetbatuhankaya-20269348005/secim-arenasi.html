@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seçim Arenası</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Düzen: üstte denetimler, ortada "kim neyi seçti" tahtası, altta turnuva ve SNR taraması yan yana */
+:root {
+  --bg: #f5f7f9; --panel: #ffffff; --line: #dfe4ea; --soft: #eef2f6;
+  --ink: #142231; --text: #3b4756; --muted: #6b7684;
+  --accent: #0f5e9c; --accent-soft: #e3eef8;
+  --m1: #2a78d6; --m2: #eb6834; --m3: #1baf7a; --m4: #eda100; --true: #142231;
+  --neg: #b5473a;
+  --display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161c; --panel: #182029; --line: #2a3542; --soft: #1e2833;
+    --ink: #eef2f6; --text: #c6cfd9; --muted: #8d98a6;
+    --accent: #6fb2ec; --accent-soft: #1b3247;
+    --m1: #3987e5; --m2: #d95926; --m3: #199e70; --m4: #c98500; --true: #eef2f6;
+    --neg: #e2786b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161c; --panel: #182029; --line: #2a3542; --soft: #1e2833;
+  --ink: #eef2f6; --text: #c6cfd9; --muted: #8d98a6;
+  --accent: #6fb2ec; --accent-soft: #1b3247;
+  --m1: #3987e5; --m2: #d95926; --m3: #199e70; --m4: #c98500; --true: #eef2f6;
+  --neg: #e2786b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4.6vw, 46px); color: var(--ink); margin: 0; letter-spacing: -0.02em; line-height: 1.05; }
+.sub { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.cite { font-family: var(--mono); font-size: 12.5px; color: var(--muted); text-align: right; }
+h2 { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--ink); margin: 0; text-wrap: balance; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.ph { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.hint { font-size: 13px; color: var(--muted); }
+
+/* denetimler */
+.controls { display: grid; grid-template-columns: minmax(260px, 1.6fr) auto auto auto; gap: 18px 28px; align-items: end; }
+.ctl { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ctl label, .lab { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.snrval { font-family: var(--mono); font-size: 22px; color: var(--ink); }
+.snrval small { font-size: 12px; color: var(--muted); margin-left: 8px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 14px var(--mono); padding: 7px 12px; background: var(--panel); color: var(--text); border: 0; border-right: 1px solid var(--line); cursor: pointer; }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.btn { font: 600 14px var(--body); padding: 9px 16px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--panel); cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:disabled { opacity: .55; cursor: progress; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* tahta */
+.board-scroll { overflow-x: auto; }
+table.board { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 760px; font-variant-numeric: tabular-nums; }
+.board th, .board td { padding: 0; text-align: center; }
+.board thead th { font: 500 12.5px var(--mono); color: var(--muted); padding-bottom: 6px; }
+.board thead th.signal { color: var(--ink); }
+.board th.rowname { text-align: left; font: 500 14px var(--body); color: var(--ink); padding-right: 12px; white-space: nowrap; }
+.board th.rowname i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 0; }
+.board tbody tr + tr td, .board tbody tr + tr th { border-top: 1px solid var(--soft); }
+.cell { height: 46px; position: relative; }
+.cell .zero { position: absolute; left: 6px; right: 6px; top: 50%; border-top: 1px dashed var(--line); }
+.cell .bar { position: absolute; left: 50%; width: 16px; margin-left: -8px; border-radius: 3px; }
+.cell .val { position: absolute; left: 0; right: 0; bottom: 1px; font: 400 10.5px var(--mono); color: var(--muted); }
+.cell.off .val { color: var(--line); }
+.cell.wrong { background: repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in srgb, var(--neg) 14%, transparent) 5px 7px); }
+.stat { font: 500 13.5px var(--mono); color: var(--ink); padding: 0 6px; white-space: nowrap; }
+.stat.best { color: var(--accent); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.sw.hatch { background: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--neg) 45%, transparent) 4px 6px); border: 1px solid var(--line); }
+.verdict { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: 14.5px; color: var(--ink); background: var(--accent-soft); border-radius: 8px; padding: 10px 14px; }
+.chip { font: 600 12px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+
+.duo { display: grid; grid-template-columns: 1fr 1.35fr; gap: 22px; }
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.brow { display: grid; grid-template-columns: 150px 1fr 120px; gap: 10px; align-items: center; font-size: 14px; }
+.brow .track { height: 18px; background: var(--soft); border-radius: 4px; overflow: hidden; }
+.brow .fill { height: 100%; border-radius: 0 4px 4px 0; }
+.brow .num { font: 500 13px var(--mono); color: var(--ink); text-align: right; white-space: nowrap; }
+.progress { height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; }
+.progress div { height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+svg text { font-family: var(--mono); }
+.chart-wrap { position: relative; }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: 12.5px var(--mono); color: var(--ink); box-shadow: 0 4px 14px rgb(0 0 0 / .12); white-space: nowrap; }
+.tip b { font-family: var(--body); }
+.methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.methods div { font-size: 13.5px; }
+.methods h3 { font: 600 14px var(--body); color: var(--ink); margin: 0 0 4px; display: flex; align-items: center; gap: 8px; }
+.methods h3 i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.foot { font-size: 12.5px; color: var(--muted); }
+@media (max-width: 900px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .controls .ctl:first-child { grid-column: 1 / -1; }
+  .duo { grid-template-columns: 1fr; }
+  .methods { grid-template-columns: 1fr 1fr; }
+  .cite { text-align: left; }
+}
+@media (max-width: 520px) {
+  .methods { grid-template-columns: 1fr; }
+  .brow { grid-template-columns: 110px 1fr 92px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .progress div { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Seçim Arenası</h1>
+      <p class="sub">Dört yöntem aynı veri setinde yarışıyor: hangisi gerçek değişkenleri bulacak, hangisi gürültüye kanacak? Sinyal-gürültü oranını değiştirin ve kazananın nasıl yer değiştirdiğini izleyin.</p>
+    </div>
+    <div class="cite">Hastie, Tibshirani ve Tibshirani (2020)<br>Molnar · Bölüm 6 · Ahmet Batuhan Kaya</div>
+  </header>
+
+  <section class="panel" aria-label="Denetimler">
+    <div class="controls">
+      <div class="ctl">
+        <label for="snr">Sinyal-gürültü oranı (SNR)</label>
+        <div class="snrval" id="snrText">1,22<small>en fazla açıklanabilir varyans: %55</small></div>
+        <input id="snr" type="range" min="0" max="9" step="1" value="6" aria-describedby="snrText">
+        <div class="ticks"><span>0,05</span><span>0,25</span><span>1,22</span><span>6</span></div>
+      </div>
+      <div class="ctl">
+        <span class="lab" id="rhoLab">Korelasyon ρ</span>
+        <div class="seg" role="group" aria-labelledby="rhoLab" id="rhoSeg">
+          <button type="button" data-v="0">0</button><button type="button" data-v="0.35" aria-pressed="true">0,35</button><button type="button" data-v="0.7">0,7</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lab" id="betaLab">β tipi</span>
+        <div class="seg" role="group" aria-labelledby="betaLab" id="betaSeg">
+          <button type="button" data-v="1">1</button><button type="button" data-v="2" aria-pressed="true">2</button><button type="button" data-v="3">3</button><button type="button" data-v="5">5</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lab">Veri</span>
+        <button type="button" class="btn" id="newData">Yeni veri çek</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="boardTitle">
+    <div class="ph">
+      <h2 id="boardTitle">Bu veri setinde kim neyi seçti?</h2>
+      <span class="hint">n = 100 eğitim + 100 doğrulama gözlemi, p = 10 değişken. Çubuk: tahmin edilen katsayı.</span>
+    </div>
+    <div class="board-scroll"><table class="board" id="board"></table></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--true)"></i>Gerçek katsayı</span>
+      <span><i class="sw hatch"></i>Gerçekte sıfır olan bir değişkeni seçmiş</span>
+      <span>RTE: göreli test hatası, 1 = mükemmel</span>
+    </div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <div class="duo">
+    <section class="panel" aria-labelledby="tTitle">
+      <div class="ph"><h2 id="tTitle">Turnuva: 50 tur</h2><button type="button" class="btn ghost" id="runT">Yeniden oynat</button></div>
+      <p class="hint" style="margin:0">Aynı ayarlarla 50 yeni veri seti. Çubuk: ortalama göreli test hatasının 1'den fazlası (kısa daha iyi).</p>
+      <div class="progress"><div id="tProg"></div></div>
+      <div class="bars" id="tBars"></div>
+    </section>
+    <section class="panel" aria-labelledby="sTitle">
+      <div class="ph"><h2 id="sTitle">SNR taraması: makalenin Şekil 1'i, canlı</h2><button type="button" class="btn ghost" id="runS">Yeniden üret</button></div>
+      <p class="hint" style="margin:0" id="sHint">Seçili ρ ve β tipiyle, her SNR değerinde 20 tekrar.</p>
+      <div class="progress"><div id="sProg"></div></div>
+      <div class="chart-wrap" id="chartWrap"><svg id="chart" viewBox="0 0 640 330" width="100%" role="img" aria-label="SNR'ye göre göreli test hatası"></svg><div class="tip" id="tip" hidden></div></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-label="Yöntemler">
+    <div class="methods">
+      <div><h3><i style="background:var(--m1)"></i>En iyi alt küme</h3>Her k için 10 değişkenin bütün k'li alt kümelerini dener (toplam 1024 model), en iyisini seçer.</div>
+      <div><h3><i style="background:var(--m2)"></i>İleri adımsal</h3>Boş modelden başlar, her adımda hatayı en çok düşüren değişkeni ekler.</div>
+      <div><h3><i style="background:var(--m3)"></i>Lasso</h3>Katsayıları sıfıra doğru büzer; bazılarını tam sıfır yapar. Büzülmeyi telafi etmek için fazla değişken tutar.</div>
+      <div><h3><i style="background:var(--m4)"></i>Gevşetilmiş lasso</h3>Lasso'nun seçtiği değişkenlerde büzülmeyi γ oranında geri alır. İki dünyanın arasında durur.</div>
+    </div>
+    <p class="foot" style="margin:0">Her yöntem, ayrı bir doğrulama kümesinde ayarlanır (k, adım sayısı, λ ve γ). Değişkenler N(0, Σ), Σᵢⱼ = ρ^|i−j|; gürültü varyansı σ² = βᵀΣβ / SNR. Makalenin bulgusu: düşük SNR'de lasso, yüksek SNR'de en iyi alt küme kazanır; gevşetilmiş lasso iki durumda da iyidir. Bütün hesaplar tarayıcınızda yapılır.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const P = 10, N = 100, S = 5, NLAM = 50, NGAM = 10;
+  const SNRS = Array.from({ length: 10 }, (_, i) => Math.exp(Math.log(0.05) + i * (Math.log(6) - Math.log(0.05)) / 9));
+  const M = ["En iyi alt küme", "İleri adımsal", "Lasso", "Gevşetilmiş lasso"];
+  const MC = ["--m1", "--m2", "--m3", "--m4"];
+  const KISA = ["alt küme", "ileri adımsal", "lasso", "gevşetilmiş lasso"];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const tr = (x, d = 2) => x.toFixed(d).replace(".", ",");
+
+  // ---------- rastgele sayı (tohumlu) ----------
+  function rng(seed) {
+    let a = seed >>> 0;
+    const u = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    let spare = null;
+    return () => { if (spare !== null) { const s = spare; spare = null; return s; }
+      let x, y, r; do { x = 2 * u() - 1; y = 2 * u() - 1; r = x * x + y * y; } while (r >= 1 || r === 0);
+      const f = Math.sqrt(-2 * Math.log(r) / r); spare = y * f; return x * f; };
+  }
+
+  // ---------- doğrusal cebir ----------
+  function chol(A, n) { const L = new Float64Array(n * n);
+    for (let i = 0; i < n; i++) for (let j = 0; j <= i; j++) { let s = A[i * n + j];
+      for (let k = 0; k < j; k++) s -= L[i * n + k] * L[j * n + k];
+      if (i === j) { if (s <= 1e-12) return null; L[i * n + i] = Math.sqrt(s); } else L[i * n + j] = s / L[j * n + j]; }
+    return L; }
+  function cholSolve(L, b, n) { const y = new Float64Array(n);
+    for (let i = 0; i < n; i++) { let s = b[i]; for (let k = 0; k < i; k++) s -= L[i * n + k] * y[k]; y[i] = s / L[i * n + i]; }
+    for (let i = n - 1; i >= 0; i--) { let s = y[i]; for (let k = i + 1; k < n; k++) s -= L[k * n + i] * y[k]; y[i] = s / L[i * n + i]; }
+    return y; }
+  // S indeksli EKK: G_SS b = c_S. Tam boyutlu b ve RSS'deki düşüş (bᵀc_S) döner.
+  function ls(G, c, idx) { const k = idx.length, b = new Float64Array(P); if (!k) return { b, fit: 0 };
+    const A = new Float64Array(k * k), r = new Float64Array(k);
+    for (let i = 0; i < k; i++) { r[i] = c[idx[i]]; for (let j = 0; j < k; j++) A[i * k + j] = G[idx[i] * P + idx[j]]; }
+    const L = chol(A, k); if (!L) return { b, fit: -Infinity };
+    const s = cholSolve(L, r, k); let fit = 0; for (let i = 0; i < k; i++) { b[idx[i]] = s[i]; fit += s[i] * r[i]; }
+    return { b, fit }; }
+
+  // ---------- veri ----------
+  function beta(type) { const b = new Float64Array(P);
+    if (type === 1) [0, 2, 4, 7, 9].forEach(i => b[i] = 1);   // np.linspace(0, 9, 5) yuvarlanmış
+    if (type === 2) for (let i = 0; i < S; i++) b[i] = 1;
+    if (type === 3) for (let i = 0; i < S; i++) b[i] = 10 - i * 9.5 / (S - 1);
+    if (type === 5) { for (let i = 0; i < S; i++) b[i] = 1; for (let i = S; i < P; i++) b[i] = Math.pow(0.5, i - S + 1); }
+    return b; }
+  function sigma(rho) { const A = new Float64Array(P * P); for (let i = 0; i < P; i++) for (let j = 0; j < P; j++) A[i * P + j] = Math.pow(rho, Math.abs(i - j)); return A; }
+  function quad(A, x) { let s = 0; for (let i = 0; i < P; i++) for (let j = 0; j < P; j++) s += x[i] * A[i * P + j] * x[j]; return s; }
+  function makeData(rho, snr, type, seed) {
+    const r = rng(seed), Sg = sigma(rho), L = chol(Sg, P), b = beta(type), s2 = quad(Sg, b) / snr, sd = Math.sqrt(s2);
+    const draw = () => { const X = new Float64Array(N * P), y = new Float64Array(N), z = new Float64Array(P);
+      for (let i = 0; i < N; i++) { for (let k = 0; k < P; k++) z[k] = r();
+        let mu = 0; for (let j = 0; j < P; j++) { let v = 0; for (let k = 0; k <= j; k++) v += L[j * P + k] * z[k]; X[i * P + j] = v; mu += v * b[j]; }
+        y[i] = mu + sd * r(); }
+      return { X, y }; };
+    const tr_ = draw(), va = draw();
+    return { X: tr_.X, y: tr_.y, Xv: va.X, yv: va.y, b, Sg, s2 }; }
+
+  // ---------- yöntemler (hepsi aday katsayı listesi döndürür) ----------
+  function prep(d) { const xm = new Float64Array(P); let ym = 0;
+    for (let i = 0; i < N; i++) { ym += d.y[i]; for (let j = 0; j < P; j++) xm[j] += d.X[i * P + j]; }
+    ym /= N; for (let j = 0; j < P; j++) xm[j] /= N;
+    const G = new Float64Array(P * P), c = new Float64Array(P);
+    for (let i = 0; i < N; i++) { const yi = d.y[i] - ym;
+      for (let j = 0; j < P; j++) { const xj = d.X[i * P + j] - xm[j]; c[j] += xj * yi; for (let k = 0; k <= j; k++) G[j * P + k] += xj * (d.X[i * P + k] - xm[k]); } }
+    for (let j = 0; j < P; j++) for (let k = 0; k < j; k++) G[k * P + j] = G[j * P + k];
+    return { G, c, xm, ym }; }
+
+  function bestSubset(pp) { const best = Array(P + 1).fill(null).map(() => ({ fit: -Infinity, b: null }));
+    best[0] = { fit: 0, b: new Float64Array(P) };
+    for (let m = 1; m < 1 << P; m++) { const idx = []; for (let j = 0; j < P; j++) if (m & (1 << j)) idx.push(j);
+      const r = ls(pp.G, pp.c, idx); if (r.fit > best[idx.length].fit) best[idx.length] = r; }
+    return best.map(r => r.b); }
+  function forward(pp) { const sel = [], out = [new Float64Array(P)];
+    for (let step = 0; step < P; step++) { let bj = -1, br = null;
+      for (let j = 0; j < P; j++) { if (sel.includes(j)) continue; const r = ls(pp.G, pp.c, [...sel, j]); if (!br || r.fit > br.fit) { br = r; bj = j; } }
+      sel.push(bj); out.push(br.b); }
+    return out; }
+  function lassoPath(pp) { const { G, c } = pp; let lmax = 0; for (let j = 0; j < P; j++) lmax = Math.max(lmax, Math.abs(c[j]) / N);
+    const b = new Float64Array(P), out = [];
+    for (let l = 0; l < NLAM; l++) { const lam = lmax * Math.pow(1e-4, l / (NLAM - 1)), t = N * lam;
+      for (let it = 0; it < 2000; it++) { let delta = 0;
+        for (let j = 0; j < P; j++) { let r = c[j]; for (let k = 0; k < P; k++) if (k !== j) r -= G[j * P + k] * b[k];
+          const nb = Math.sign(r) * Math.max(Math.abs(r) - t, 0) / G[j * P + j]; delta = Math.max(delta, Math.abs(nb - b[j])); b[j] = nb; }
+        if (delta < 1e-7) break; }
+      out.push(Float64Array.from(b)); }
+    return out; }
+  function relaxed(pp, path) { const out = [];
+    for (const bl of path) { const idx = []; for (let j = 0; j < P; j++) if (bl[j] !== 0) idx.push(j);
+      const bls = ls(pp.G, pp.c, idx).b;
+      for (let g = 0; g < NGAM; g++) { const gm = 1 - g / (NGAM - 1), b = new Float64Array(P);
+        for (let j = 0; j < P; j++) b[j] = gm * bl[j] + (1 - gm) * bls[j]; out.push(b); } }
+    return out; }
+
+  function pickByValidation(cands, pp, d) { let best = null, be = Infinity;
+    for (const b of cands) { const a = pp.ym - pp.xm.reduce((s, v, j) => s + v * b[j], 0); let e = 0;
+      for (let i = 0; i < N; i++) { let f = a; for (let j = 0; j < P; j++) f += d.Xv[i * P + j] * b[j]; e += (d.yv[i] - f) ** 2; }
+      if (e < be) { be = e; best = b; } }
+    return best; }
+  function rte(b, d) { const df = b.map((v, j) => v - d.b[j]); return (quad(d.Sg, df) + d.s2) / d.s2; }
+
+  function runAll(d) { const pp = prep(d), path = lassoPath(pp);
+    const cands = [bestSubset(pp), forward(pp), path, relaxed(pp, path)];
+    return cands.map(c => { const b = pickByValidation(c, pp, d); return { b, rte: rte(b, d), nz: b.filter(v => Math.abs(v) > 1e-10).length }; }); }
+
+  // ---------- durum ----------
+  const st = { snrI: 6, rho: 0.35, type: 2, seed: 20269348 };
+  const $ = id => document.getElementById(id);
+
+  function renderBoard() {
+    const d = makeData(st.rho, SNRS[st.snrI], st.type, st.seed), res = runAll(d);
+    const scale = Math.max(...d.b.map(Math.abs), ...res.flatMap(r => [...r.b].map(Math.abs)), 1e-9);
+    const H = 34;
+    const barCell = (v, col, isTrue) => {
+      const on = Math.abs(v) > 1e-10, h = Math.max(on ? 2 : 0, Math.abs(v) / scale * (H / 2 - 2));
+      const top = v >= 0 ? 23 - h : 23;
+      const wrong = !isTrue && on && Math.abs(d.b[col.j]) === 0;
+      return `<td class="cell${on ? "" : " off"}${wrong ? " wrong" : ""}" title="${tr(v, 3)}"><span class="zero"></span>${on ? `<span class="bar" style="top:${top}px;height:${h}px;background:var(${col.c})"></span>` : ""}<span class="val">${on ? tr(v, 2) : "0"}</span></td>`; };
+    const bestR = Math.min(...res.map(r => r.rte));
+    let h = `<thead><tr><th></th>${Array.from({ length: P }, (_, j) => `<th class="${d.b[j] !== 0 ? "signal" : ""}">x${j + 1}</th>`).join("")}<th>seçilen</th><th>yanlış</th><th>RTE</th></tr></thead><tbody>`;
+    h += `<tr><th class="rowname"><i style="background:var(--true)"></i>Gerçek β</th>${[...d.b].map((v, j) => barCell(v, { j, c: "--true" }, true)).join("")}<td class="stat">${[...d.b].filter(v => v !== 0).length}</td><td class="stat">–</td><td class="stat">1,000</td></tr>`;
+    res.forEach((r, m) => { const wrong = [...r.b].filter((v, j) => Math.abs(v) > 1e-10 && d.b[j] === 0).length;
+      h += `<tr><th class="rowname"><i style="background:var(${MC[m]})"></i>${M[m]}</th>${[...r.b].map((v, j) => barCell(v, { j, c: MC[m] }, false)).join("")}<td class="stat">${r.nz}</td><td class="stat">${wrong}</td><td class="stat${r.rte === bestR ? " best" : ""}">${tr(r.rte, 3)}</td></tr>`; });
+    $("board").innerHTML = h + "</tbody>";
+    const w = res.findIndex(r => r.rte === bestR);
+    const missed = res.map(r => [...d.b].filter((v, j) => v !== 0 && Math.abs(r.b[j]) < 1e-10).length);
+    $("verdict").innerHTML = `<span class="chip">Bu veri seti</span><span>En düşük test hatası: <b>${M[w]}</b> (RTE ${tr(bestR, 3)}). Lasso ${res[2].nz} değişken tuttu, en iyi alt küme ${res[0].nz}. Gözden kaçan gerçek değişken sayısı: ${missed.map((x, m) => `${KISA[m]} ${x}`).join(" · ")}.</span>`;
+  }
+
+  // ---------- turnuva ----------
+  let tJob = 0;
+  function runTournament() {
+    const job = ++tJob, R = 50, sums = [0, 0, 0, 0], wins = [0, 0, 0, 0]; let i = 0; $("runT").disabled = true;
+    const step = () => { if (job !== tJob) return;
+      const end = Math.min(R, i + 5);
+      for (; i < end; i++) { const res = runAll(makeData(st.rho, SNRS[st.snrI], st.type, 777 + i * 101));
+        res.forEach((r, m) => sums[m] += r.rte); const mn = Math.min(...res.map(r => r.rte));
+          res.forEach((r, m) => { if (r.rte <= mn + 1e-12) wins[m]++; }); }
+      $("tProg").style.width = (100 * i / R) + "%";
+      drawBars(sums.map(s => s / i), wins, i);
+      if (i < R) setTimeout(step, 0); else $("runT").disabled = false; };
+    step(); }
+  function drawBars(avg, wins, n) {
+    const ex = avg.map(a => a - 1), mx = Math.max(...ex, 1e-9), best = Math.min(...avg);
+    $("tBars").innerHTML = avg.map((a, m) => `<div class="brow"><span>${M[m]}</span><span class="track"><span class="fill" style="display:block;width:${100 * ex[m] / mx}%;background:var(${MC[m]})"></span></span><span class="num"${a === best ? ' style="color:var(--accent);font-weight:700"' : ""}>${tr(a, 3)} · ${wins[m]} gal.</span></div>`).join("")
+      + `<p class="hint" style="margin:0">${n} tur · "gal." = o turda en düşük hatayı alan yöntem (eşitlikte ikisi de sayılır; en iyi alt küme ile ileri adımsal sık sık aynı modeli bulur).</p>`
+      + `<div class="verdict"><span class="chip">Ortalamada</span><span>SNR ${tr(SNRS[st.snrI], 2)} için en düşük ortalama hata: <b>${M[avg.indexOf(best)]}</b>. Makaleye göre düşük SNR'de lasso, yüksek SNR'de en iyi alt küme öne çıkar.</span></div>`; }
+
+  // ---------- SNR taraması ----------
+  let sJob = 0, sData = null;
+  function runSweep() {
+    const job = ++sJob, R = 20, tot = SNRS.length * R, sums = SNRS.map(() => [0, 0, 0, 0]); let k = 0; $("runS").disabled = true;
+    $("sHint").textContent = `ρ = ${tr(st.rho, st.rho === 0.35 ? 2 : 1)}, β tipi ${st.type}; her SNR değerinde ${R} tekrar.`;
+    const step = () => { if (job !== sJob) return;
+      const end = Math.min(tot, k + 6);
+      for (; k < end; k++) { const s = Math.floor(k / R), res = runAll(makeData(st.rho, SNRS[s], st.type, 5000 + k * 37)); res.forEach((r, m) => sums[s][m] += r.rte); }
+      $("sProg").style.width = (100 * k / tot) + "%";
+      const done = Math.floor(k / R);
+      sData = sums.slice(0, done).map(r => r.map(v => v / R)); drawChart();
+      if (k < tot) setTimeout(step, 0); else $("runS").disabled = false; };
+    step(); }
+  function drawChart() {
+    const svg = $("chart"), W = 640, H = 330, L = 58, Rm = 150, T = 14, B = 46;
+    const ink = css("--ink"), mut = css("--muted"), line = css("--line");
+    if (!sData || !sData.length) { svg.innerHTML = ""; return; }
+    const all = sData.flat(), lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.08 || 0.01;
+    const y0 = lo - pad, y1 = hi + pad;
+    const X = s => L + (Math.log(SNRS[s]) - Math.log(SNRS[0])) / (Math.log(SNRS[9]) - Math.log(SNRS[0])) * (W - L - Rm);
+    const Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+    let g = "";
+    const nt = 5; for (let i = 0; i <= nt; i++) { const v = y0 + (y1 - y0) * i / nt;
+      g += `<line x1="${L}" x2="${W - Rm}" y1="${Y(v)}" y2="${Y(v)}" stroke="${line}" stroke-width="1"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="${mut}">${tr(v, 3)}</text>`; }
+    [0, 3, 6, 9].forEach(s => g += `<text x="${X(s)}" y="${H - B + 18}" text-anchor="middle" font-size="11" fill="${mut}">${tr(SNRS[s], SNRS[s] < 1 ? 2 : (SNRS[s] < 2 ? 2 : 0))}</text>`);
+    g += `<text x="${(L + W - Rm) / 2}" y="${H - 6}" text-anchor="middle" font-size="11.5" fill="${mut}">SNR (log ölçek)</text>`;
+    g += `<text transform="translate(14 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle" font-size="11.5" fill="${mut}">göreli test hatası</text>`;
+    const ends = [];
+    [0, 1, 2, 3].forEach(m => { const col = css(MC[m]);
+      const pts = sData.map((r, s) => `${X(s)},${Y(r[m])}`).join(" ");
+      g += `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" ${m === 1 ? 'stroke-dasharray="5 3"' : ""} stroke-linejoin="round"/>`;
+      sData.forEach((r, s) => g += `<circle cx="${X(s)}" cy="${Y(r[m])}" r="3.2" fill="${col}" stroke="${css("--panel")}" stroke-width="1.5"/>`);
+      const last = sData.length - 1; ends.push({ m, y: Y(sData[last][m]), x: X(last) }); });
+    ends.sort((a, b) => a.y - b.y); for (let i = 1; i < ends.length; i++) ends[i].ly = Math.max(ends[i].y, (ends[i - 1].ly ?? ends[i - 1].y) + 15); ends[0].ly = ends[0].y;
+    ends.forEach(e => { g += `<line x1="${e.x + 5}" y1="${e.y}" x2="${e.x + 14}" y2="${e.ly}" stroke="${css(MC[e.m])}" stroke-width="1"/><text x="${e.x + 17}" y="${e.ly + 4}" font-size="11.5" fill="${ink}" font-family="IBM Plex Sans, system-ui, sans-serif">${M[e.m]}</text>`; });
+    g += `<line id="cross" y1="${T}" y2="${H - B}" stroke="${mut}" stroke-width="1" stroke-dasharray="2 3" visibility="hidden"/>`;
+    g += `<rect x="${L}" y="${T}" width="${W - L - Rm}" height="${H - T - B}" fill="transparent" id="hit"/>`;
+    svg.innerHTML = g;
+    const hit = svg.querySelector("#hit"), cross = svg.querySelector("#cross"), tip = $("tip");
+    hit.addEventListener("mousemove", ev => { const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      const p = pt.matrixTransform(svg.getScreenCTM().inverse()); let s = 0, bd = Infinity;
+      sData.forEach((_, i) => { const dd = Math.abs(X(i) - p.x); if (dd < bd) { bd = dd; s = i; } });
+      cross.setAttribute("x1", X(s)); cross.setAttribute("x2", X(s)); cross.setAttribute("visibility", "visible");
+      const order = [0, 1, 2, 3].sort((a, b) => sData[s][a] - sData[s][b]);
+      tip.innerHTML = `<b>SNR ${tr(SNRS[s], 2)}</b><br>` + order.map(m => `<span style="color:${css(MC[m])}">●</span> ${M[m]}: ${tr(sData[s][m], 3)}`).join("<br>");
+      tip.hidden = false; const wrap = $("chartWrap").getBoundingClientRect(), r = svg.getBoundingClientRect();
+      const px = (X(s) / W) * r.width; tip.style.left = Math.min(px + 12, wrap.width - tip.offsetWidth - 4) + "px"; tip.style.top = "8px"; });
+    hit.addEventListener("mouseleave", () => { cross.setAttribute("visibility", "hidden"); tip.hidden = true; });
+  }
+
+  // ---------- denetimler ----------
+  function snrLabel() { const s = SNRS[st.snrI]; $("snrText").innerHTML = `${tr(s, 2)}<small>en fazla açıklanabilir varyans: %${Math.round(100 * s / (1 + s))}</small>`; }
+  function seg(id, key) { $(id).addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    st[key] = parseFloat(b.dataset.v); renderBoard(); runTournament(); runSweep(); }); }
+  seg("rhoSeg", "rho"); seg("betaSeg", "type");
+  $("rhoSeg").querySelectorAll("button").forEach(b => { if (!b.hasAttribute("aria-pressed")) b.setAttribute("aria-pressed", "false"); });
+  $("betaSeg").querySelectorAll("button").forEach(b => { if (!b.hasAttribute("aria-pressed")) b.setAttribute("aria-pressed", "false"); });
+  $("snr").addEventListener("input", e => { st.snrI = +e.target.value; snrLabel(); renderBoard(); });
+  $("snr").addEventListener("change", runTournament);
+  $("newData").addEventListener("click", () => { st.seed = (st.seed * 1103515245 + 12345) >>> 0; renderBoard(); });
+  $("runT").addEventListener("click", runTournament);
+  $("runS").addEventListener("click", runSweep);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawChart);
+  new MutationObserver(drawChart).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  snrLabel(); renderBoard(); runTournament(); runSweep();
+  window.__arena = { runAll, makeData, SNRS };
+})();
+</script>
+</html>

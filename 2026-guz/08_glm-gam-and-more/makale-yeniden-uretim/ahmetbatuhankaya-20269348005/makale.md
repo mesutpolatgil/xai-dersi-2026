@@ -1,119 +1,84 @@
-# Makale Yeniden Üretimi: Caruana ve ark. (2015)
+# Makale Yeniden Üretimi: Chang ve ark. (2021)
 
 **Öğrenci:** Ahmet Batuhan Kaya (20269348005)
-**İlgili bölümler:** Molnar, *Interpretable Machine Learning*, Bölüm 7 (Lojistik Regresyon) ve Bölüm 8 (GLM, GAM ve ötesi)
+**İlgili bölüm:** Molnar, *Interpretable Machine Learning*, Bölüm 8: GLM, GAM ve Ötesi
 **İzlencedeki tür:** Seçenek 2: Kıyaslama (Benchmarking)
 
 ## Makale
 
-Caruana, R., Lou, Y., Gehrke, J., Koch, P., Sturm, M., & Elhadad, N. (2015). Intelligible Models for HealthCare: Predicting Pneumonia Risk and Hospital 30-day Readmission. *Proceedings of the 21th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '15)*, 1721–1730. https://doi.org/10.1145/2783258.2788613
+Chang, C.-H., Tan, S., Lengerich, B., Goldenberg, A. ve Caruana, R. (2021). How Interpretable and Trustworthy are GAMs? *Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining (KDD '21)*, 95–105. Ön baskı: <https://arxiv.org/abs/2006.06466>
 
-Makale, çevirdiğim Bölüm 8'in etkileşimler kısmında atıf olarak geçiyor ("Bir diğer seçenek GA2M'dir").
+8. bölüm, doğrusal olmayan etkiler için GAM'leri öneriyor ve bisiklet verisinde sıcaklığın etkisini spline'larla çiziyor. Ama GAM tek bir algoritma değil. Makale, farklı GAM algoritmalarının **aynı doğrulukta farklı şekil fonksiyonları**, yani farklı açıklamalar verdiğini; ağaç tabanlı GAM'lerin seyreklik, sadakat ve doğruluk arasında en iyi dengeyi kurduğunu gösteriyor. Bu çalışma, 8. bölüm için önceki kısa notta kullandığım Caruana ve ark. (2015) makalesinin aynı ekipten devamıdır.
 
-### Makalenin önerdiği model: GA²M
+## Dosyalar
 
-GAM'e (Bölüm 8) en güçlü k ikili etkileşim eklenir:
+| Dosya | İçerik |
+|---|---|
+| `analiz.ipynb` | Yeniden üretimin tamamı: kod, tablolar, şekiller, yorumlar |
+| `sekil-avcisi.html` | Makaleye bağlı etkileşimli uygulama (tarayıcıda açılır) |
+| `gam.py` | Beş GAM (EBM, XGB-GAM, Spline, LR, iLR) ve şekil hatası ölçüsü |
+| `veriler.py` | Breast, COMPAS, Churn, Adult |
+| `bisiklet.py`, `calistir_bisiklet.py` | Bisiklet uzantısı |
+| `calistir.py` | Doğruluk ve yarı-sentetik sadakat deneyleri (~5 dk) |
+| `figurler.py`, `sonuclar/`, `sekiller/` | Şekiller ve hazır sonuçlar |
+| `veri/` | COMPAS (ProPublica), Telco Churn (IBM), Adult (UCI kopyası); Breast scikit-learn içinde |
 
-$$g(\mathbb{E}[y]) = \beta_0 + \sum_j f_j(x_j) + \sum_{i \neq j} f_{ij}(x_i, x_j)$$
+Kurulum: `pip install numpy pandas scikit-learn matplotlib joblib interpret xgboost pygam pyreadr`. Bisiklet verisi 8. bölümün `ceviri/data/bike.RData` dosyasından okunur.
 
-Her $f_j$ ve $f_{ij}$ ayrı ayrı çizilebildiği için model yorumlanabilir kalır.
+## Düzen
 
-### Makalenin iddiaları
+| Model | Tür |
+|---|---|
+| EBM (`interpret`) | Ağaç tabanlı, yoğun: her turda her özniteliğe küçük bir ağaç |
+| XGB-GAM (`xgboost`, derinlik 1) | Ağaç tabanlı: tek bölmeli kütükler |
+| Spline (`pygam`) | Kübik spline + ceza |
+| LR | Doğrusal |
+| iLR | Her öznitelik 32 kantil kutusu, kutular ayrı kodlanır |
 
-1. **Doğruluk:** GA²M, kara kutular kadar doğru olabilir. Makalenin Tablo 2'si (test AUC):
+- **Doğruluk:** 4 veri × 5 rastgele bölme (%80/%20), test AUC.
+- **Sadakat (yarı-sentetik):** Her veri setine EBM, XGB-GAM, Spline veya LR'den biri **üretici** olarak uydurulur; etiketler onun olasılıklarından yeniden çekilir. Her GAM bu etiketlerle eğitilir ve şekil fonksiyonları (merkezlenmiş) üreticininkilerle karşılaştırılır: şekil hatası = Σⱼ ortalama |f̂ⱼ − fⱼ|.
+- **Makaleden farklarımız:** 10 yerine herkese açık 4 veri seti; FLAM ve EBM-BF yok; Adult'tan 12.000 gözlemlik örneklem; her üretici için tek tekrar; yanlılık-varyans ayrıştırması ve alt grup adaleti analizi yok.
 
-| Model | Zatürre | 30 günlük yeniden yatış |
-|---|---|---|
-| Lojistik regresyon | 0,8432 | 0,7523 |
-| GAM | 0,8542 | 0,7795 |
-| GA²M | 0,8576 | 0,7833 |
-| Rastgele orman | 0,8460 | 0,7671 |
-| LogitBoost | 0,8493 | 0,7835 |
+## Sonuçlar
 
-2. **Tehlikeli örüntüler:** Zatürre verisinde modeller "astım ölüm riskini azaltır" sonucunu öğreniyor. Gerçek neden: astımlı hastalar doğrudan yoğun bakıma alındığı için daha iyi tedavi görmüş. Bu modelle hasta önceliklendirilseydi astımlı hastalar zarar görebilirdi. GA²M'nin şekil grafiğinde bu örüntü açıkça görülüyor ve düzeltilebiliyor (terimi çıkarmak ya da uzman bilgisiyle yeniden çizmek). Makale kronik akciğer hastalığı ve göğüs ağrısı için de benzer şüpheler dile getiriyor.
+![Şekil 1](sekiller/sekil1_dogruluk.png)
 
-## Yeniden üretim tasarımı
+**İddia 1: Birçok GAM benzer doğrulukta.** ✔ Breast, COMPAS ve Churn'de EBM, XGB-GAM ve Spline arasındaki farklar 0,003'ün altında. Adult'ta EBM öne çıkıyor (0,916); doğrusal LR her veride biraz geride.
 
-Makalenin verileri hastane verisi olduğu için kamuya açık değil. Makalenin **ikinci görevini (30 günlük yeniden yatış)** kamuya açık bir veride yeniden ürettim.
+![Şekil 2](sekiller/sekil2_sadakat.png)
 
-| | Makale | Bu çalışma |
-|---|---|---|
-| Veri | Büyük bir hastanenin kayıtları (2011–2013) | ABD'deki 130 hastanenin diyabet hastası yatışları, 1999–2008 (Strack ve ark., 2014) |
-| Hasta sayısı | ~296.000 | 71.518 (her hastanın ilk yatışı) |
-| Öznitelik | ~4.000 | 20 |
-| Yeniden yatış oranı | %8,91 | %8,80 |
-| GA²M uygulaması | Yazarların kendi uygulaması | InterpretML EBM (aynı ekibin güncel uygulaması) |
-| Eğitim/test | Zamana göre ayrım | %70/%30 rastgele, tabakalı |
+**İddia 2: Her öğrenicinin önyargısı şekle yansır.** ✔ 16 üretici-veri çiftinin 11'inde en sadık öğrenici, üreticiyle aynı algoritma.
 
-Ön işlem notları:
-- Bağımsızlık varsayımı için her hastanın yalnızca ilk yatışı tutuldu (Strack ve ark. gibi).
-- Tanı kodları (ICD-9) Strack ve ark.'ın gruplamasıyla 9 gruba indirildi.
-- Taburcu ve kabul kodları, UCI'deki kod tablosuna göre okunur kategorilere çevrildi.
-- AUC için test kümesinde 200 bootstrap ile %95 güven aralığı hesaplandı.
+**İddia 3: Spline doğru ama sadakatsiz olabilir.** ✔ Breast'te Spline'ın AUC'si en iyilerle aynı (0,989), ama şekil hatası EBM ürettiğinde ×4,3, XGB-GAM ürettiğinde ×8,1.
 
-## Bulgular
+**İddia 4: Ağaç tabanlı GAM'ler en dengeli.** ✔ En kötü durum sadakati (veri başına 0–100 ölçek, düşük daha iyi): XGB-GAM 55, Spline 58, EBM 64, LR 78, iLR 83. Makale de XGB'yi (FLAM'la birlikte) en iyi buluyor.
 
-### 1. Doğruluk
+## Uzantı: kitabın bisiklet verisi ve "sıcak hava eşiği"
 
-| Model | Test AUC | %95 GA |
-|---|---|---|
-| Lojistik regresyon | 0,644 | 0,634 – 0,658 |
-| GAM (EBM, etkileşimsiz) | 0,643 | 0,629 – 0,657 |
-| GA²M (EBM, 10 etkileşim) | 0,647 | 0,635 – 0,661 |
-| Rastgele orman | 0,651 | 0,637 – 0,664 |
-| Gradient boosting | 0,650 | 0,636 – 0,663 |
+![Şekil 3](sekiller/sekil3_bisiklet.png)
 
-- **Destekleniyor:** Yorumlanabilir modeller kara kutularla aynı düzeyde; güven aralıkları tamamen örtüşüyor.
-- **Farklılaşıyor:** Makalede GAM ve GA²M lojistik regresyonu yaklaşık 3 puan geçiyordu; bizde fark yok. En olası neden, verimizin çok daha küçük ve öznitelik açısından fakir olması (20'ye karşı ~4.000). Doğrusal olmayan etkilerin yakalayacağı fazla sinyal kalmıyor. Mutlak AUC'lerin düşük olması da aynı nedenden; bu veri için literatürde de benzer değerler raporlanıyor.
+- **Gerçek veri:** Beş GAM sıcaklık etkisini farklı çiziyor. Ağaç tabanlılar basamaklı, spline pürüzsüz, doğrusal model ise sıcaklık arttıkça kiralamanın hep arttığını söylüyor.
+- **Yarı-sentetik eşik:** Gerçek sıcaklık etkisine 28 °C üstünde 1.500 bisikletlik ani düşüş eklendi. EBM, XGB-GAM ve Spline'ın test RMSE'si neredeyse aynı (753, 748, 760). Ama yalnız sıcak günlerde gerçeğe uzaklık EBM 166, XGB-GAM 174, **Spline 564**. Spline ani düşüşü yumuşatıp 25 °C'ye doğru yayıyor; ona bakan biri yanlış bir eşik okur.
 
-### 2. Şekil fonksiyonları: doğrusallık nerede çöküyor?
+## Uygulama: Şekil Avcısı
 
-- **Hastanede kalış süresi:** Risk 9–10 güne kadar artıyor, sonra belirgin biçimde düşüyor (ters-U). Lojistik regresyon tek bir eğimle sürekli artış varsayıyor.
-- **Laboratuvar işlemi sayısı:** Yaklaşık 75 işleme kadar hafif artış, sonrasında keskin düşüş.
-- **Önceki yatış sayısı:** En güçlü sayısal yordayıcı; etkisi basamaklı ve doymaya yakın.
-- **Yaş:** 20 yaş altında belirgin biçimde düşük risk, sonra yavaş artış.
+`sekil-avcisi.html`, tek bir öznitelik (sıcaklık) üzerinde gerçek şekli kullanıcının seçtiği bir oyun alanı. Seçenekler: yumuşak tepe, sıcak hava eşiği, çentik ve doğrusal. Gözlem sayısı ve gürültü değiştirilebilir. Dört model tarayıcıda eğitilir ve aynı grafikte gerçek şekille karşılaştırılır:
 
-### 3. Tehlikeli örüntü: "astım riski azaltır"ın bu verideki karşılığı
+- cezalı spline,
+- ağaç tabanlı (tek bölmeli ağaçlarla gradyan artırma),
+- kutulu,
+- doğrusal.
 
-GA²M'ye göre en önemli öznitelik **taburcu durumu**. Model, taburculukta **vefat eden** (1.084 hasta, %0 yeniden yatış) ve **hospise giden** (461 hasta, %3,5) hastaları en düşük riskli grup olarak öğreniyor.
+Skor tablosu test hatasını ve şekil hatasını yan yana gösterir.
 
-Bu, veride doğru ama kavramsal olarak yanıltıcı: Yeniden yatmamak iyileşmek demek değil. Ölüm, yeniden yatışı imkânsız kılan rakip bir olay (competing risk). Ayrıca "vefat" bilgisi sonucun kendisini taşıyan bir sızıntı (leakage). Riski "hastanın ne kadar ağır olduğu" diye okuyan bir karar verici, en ağır hastaları en düşük riskli sanardı. Makaledeki astım bulgusuyla aynı ders: **model veriyi açıklar, dünyayı değil.**
-
-Bölüm 7 ile bağlantı: "Vefat" kategorisinde hiç yeniden yatış olmadığı için bu bir **tam ayrışma** durumu. Lojistik regresyonda katsayı −6,94 (odds oranı 0,001) çıkıyor ve yalnızca L2 cezası sayesinde sonlu kalıyor. EBM'nin katkısı −4,7'de kalıyor, çünkü boosting küçük adımlarla öğreniyor.
-
-**Düzeltme:** Makalenin önerdiği gibi bu hastaları modelden çıkardım (Strack ve ark. da aynısını yapıyor). Vefat/hospis hariç test kümesinde AUC 0,640'tan 0,641'e çıkıyor; doğruluk korunurken kavramsal olarak hatalı kural ortadan kalkıyor.
-
-### 4. Etkileşimler
-
-GA²M'nin seçtiği en güçlü etkileşim: laboratuvar işlemi sayısı × ilaç sayısı. Seçilen 10 etkileşimin 4'ü taburcu durumunu içeriyor; bu da taburcu durumunun modeldeki baskın rolünü doğruluyor.
+Çevrimiçi: [sekil-avcisi.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/08_glm-gam-and-more/makale-yeniden-uretim/ahmetbatuhankaya-20269348005/sekil-avcisi.html)
 
 ## Sonuç
 
-| İddia | Bu çalışmada |
-|---|---|
-| Yorumlanabilir model kara kutu kadar doğru olabilir | **Destekleniyor** |
-| GAM/GA²M lojistik regresyonu geçer | **Desteklenmiyor** (bu veri ve öznitelik setinde) |
-| Yorumlanabilirlik tehlikeli örüntüleri görünür kılar | **Destekleniyor** (taburcu durumu = vefat/hospis) |
-
-## Sınırlılıklar
-
-- Farklı hasta kitlesi (diyabet), farklı dönem ve çok daha az öznitelik.
-- Tek bir eğitim/test ayrımı; makale zamana göre ayrım kullanıyor.
-- EBM, makaledeki GA²M ile aynı fikri uyguluyor ama birebir aynı algoritma değil (etkileşim seçimi ve öğrenme yöntemi farklı).
-
-## Çalıştırma
-
-```bash
-pip install numpy pandas matplotlib scikit-learn interpret
-jupyter notebook analiz.ipynb
-```
-
-Veri ilk çalıştırmada otomatik indirilir (yaklaşık 19 MB) ve aynı klasöre `diabetic_data.csv` olarak kaydedilir. Bu nedenle `veri.csv` ayrıca repoya eklenmedi. Asıl kaynak: UCI Machine Learning Repository, "Diabetes 130-US Hospitals for Years 1999-2008".
+Makalenin dört ana iddiası, herkese açık dört veri setinde yeniden üretildi. 8. bölüm açısından çıkarım şu: GAM seçerken yalnız doğruluğa bakmak yetmez. Spline GAM, kitabın kullandığı yöntem; pürüzsüz ilişkilerde çok iyi ama ani sıçramaları ve eşikleri yumuşatabiliyor. Açıklamada eşik önemliyse ağaç tabanlı bir GAM'le karşılaştırmak gerekir.
 
 ## Kaynaklar
 
-- Caruana, R., Lou, Y., Gehrke, J., Koch, P., Sturm, M., & Elhadad, N. (2015). Intelligible Models for HealthCare: Predicting Pneumonia Risk and Hospital 30-day Readmission. *KDD '15*, 1721–1730.
-- Strack, B., DeShazo, J. P., Gennings, C., Olmo, J. L., Ventura, S., Cios, K. J., & Clore, J. N. (2014). Impact of HbA1c Measurement on Hospital Readmission Rates: Analysis of 70,000 Clinical Database Patient Records. *BioMed Research International*, 2014, 781670.
-- Nori, H., Jenkins, S., Koch, P., & Caruana, R. (2019). InterpretML: A Unified Framework for Machine Learning Interpretability. arXiv:1909.09223.
-- Lou, Y., Caruana, R., Gehrke, J., & Hooker, G. (2013). Accurate Intelligible Models with Pairwise Interactions. *KDD '13*.
-- Molnar, C. *Interpretable Machine Learning*. https://christophm.github.io/interpretable-ml-book/
+- Caruana, R., Lou, Y., Gehrke, J., Koch, P., Sturm, M. ve Elhadad, N. (2015). Intelligible Models for HealthCare. *KDD '15*, 1721–1730.
+- Chang, C.-H., Tan, S., Lengerich, B., Goldenberg, A. ve Caruana, R. (2021). How Interpretable and Trustworthy are GAMs? *KDD '21*, 95–105.
+- Nori, H., Jenkins, S., Koch, P. ve Caruana, R. (2019). InterpretML: A Unified Framework for Machine Learning Interpretability. arXiv:1909.09223.

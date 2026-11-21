@@ -55,6 +55,12 @@ Sunumda kullanılan etkileşimli sayfa: Bölüm 6 uygulama klasöründeki `cam-k
 
 Çevrimiçi: [cam-kutu-laboratuvari.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/06_linear-regression/uygulama/ahmetbatuhankaya-20269348005/cam-kutu-laboratuvari.html)
 
+## Makaleye bağlı uygulama: Şekil Avcısı
+
+Chang ve ark. (2021) makalesinin yeniden üretimine bağlı etkileşimli sayfa `makale-yeniden-uretim/ahmetbatuhankaya-20269348005/sekil-avcisi.html` konumunda. Spline, ağaç tabanlı, kutulu ve doğrusal GAM'lerin gerçek bir şekil fonksiyonunu (ör. 28 °C'de ani düşüş) ne kadar sadık bulduğu tarayıcıda karşılaştırılır.
+
+Çevrimiçi: [sekil-avcisi.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/08_glm-gam-and-more/makale-yeniden-uretim/ahmetbatuhankaya-20269348005/sekil-avcisi.html)
+
 ## Kaynaklar
 
 - Molnar, C. *Interpretable Machine Learning*. https://christophm.github.io/interpretable-ml-book/
