@@ -1,0 +1,193 @@
+---
+title: "Bölüm 4 — Sunum Notları"
+author: "Asasira Martin"
+lang: tr
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+> Bu belge, [martin-4.pptx](martin-4.pptx) sunusunun her slaydına eklenen konuşmacı notlarının GitHub ve tarayıcıda okunabilir sürümüdür. Sununun PDF sürümü: [martin-4.pdf](martin-4.pdf).
+
+
+## Slayt 1
+
+Herkese merhaba, ben Asasira Martin. Bugün Christoph Molnar'ın "Interpretable Machine Learning" kitabının 4. 
+bölümünü, yani "Methods Overview" - Yöntemlere Genel Bakış bölümünü anlatacağım. Bu bölüm aslında kitabın 
+geri kalanı için bir yol haritası. Tek tek yöntemlere geçmeden önce büyük resmi görmemizi sağlıyor. Sağdaki 
+şekle bakarsanız, kitabın temel fikri burada: Gerçek dünyayı veriyle yakalıyoruz, veriden bir model 
+öğreniyoruz, yorumlama yöntemleri de modelden bilgi çıkarıp bunu insanlara aktarıyor. Bugün konuşacağımız her 
+şey bu zincirin "yorumlama yöntemleri" katmanıyla ilgili.
+
+## Slayt 2
+
+Bu ağaç hem bölümün hem de sunumumun iskeleti, o yüzden burada biraz durmak istiyorum. En üstte iki ana yol 
+var. Birincisi "by design", yani tasarım gereği yorumlanabilirlik: Baştan yorumlanabilir bir model 
+eğitiyoruz, mesela rastgele orman yerine lojistik regresyon. İkincisi "post-hoc", yani sonradan 
+yorumlanabilirlik: Model zaten eğitilmiş, biz sonradan bir yöntem uyguluyoruz. Sonradan yöntemler ikiye 
+ayrılıyor: Her modele uygulanabilen "model-agnostic" yöntemler ve sadece belirli model türleri için çalışan 
+"model-specific" yöntemler. Modelden bağımsız yöntemler de tek bir tahmini açıklayan "local" ve ortalama 
+davranışı açıklayan "global" yöntemler olarak ayrılıyor. Ağaçtaki turuncu numaralar sunumun bölümleri: 01 
+tasarım gereği modeller, 02 modelden bağımsız yöntemler, 03 modele özgü yöntemler ve sonunda 04 sentez. Bu 
+arada kitabın ağırlık noktası modelden bağımsız yöntemler.
+
+## Slayt 3
+
+İlk bölümle başlayalım: tasarım gereği yorumlanabilirlik. Sağdaki küçük ağaçta turuncu kutu şu an nerede 
+olduğumuzu gösteriyor. Bu bölümde algoritmanın rolüne, yorumlanabilirliğin kapsamına ve bu modellerin güçlü 
+yönlerine bakacağız.
+
+## Slayt 4
+
+Tasarım gereği yorumlanabilirlik, öğrenme algoritması düzeyinde belirleniyor. Soldaki diyagramı şöyle 
+düşünün: Gri alan olası tüm modeller, yani rastgele ormanlar, boosting, sinir ağları ve diğerleri. İçindeki 
+turkuaz alan ise yorumlanabilir modeller: doğrusal modeller, ağaçlar, kurallar. Yorumlanabilir model 
+istiyorsak algoritmanın sadece bu küçük alanda arama yapması gerekiyor. En basit örnek doğrusal regresyon. 
+Sıradan en küçük kareler yöntemiyle eğittiğimizde algoritma sadece özelliklerde doğrusal olan modelleri 
+bulabiliyor. Bu modellere "intrinsically" ya da "inherently interpretable", yani içsel ya da doğası gereği 
+yorumlanabilir modeller de deniyor. Altta kitabın ele aldığı altı temel yaklaşımı görüyorsunuz: doğrusal 
+regresyon, lojistik regresyon, doğrusal model uzantıları, karar ağaçları, karar kuralları ve RuleFit. RuleFit 
+ilginç bir tanesi: ağaçlardan kurallar çıkarıp bunları Lasso ile birleştiriyor ve seyrek bir model elde 
+ediyor.
+
+## Slayt 5
+
+Yorumlanabilir modeller bu altı temel yaklaşımla sınırlı değil. Kitap dört örnek daha veriyor. ProtoViT, 
+görüntü sınıflandırması için prototip tabanlı bir sinir ağı: Tahmini, eğitim verisindeki prototip 
+görüntülerin ağırlıklı toplamı olarak yapıyor. Yang ve arkadaşlarının yorumlanabilir ağaç toplulukları sığ 
+ağaçlar kullanıyor ve etkileri ana etkiler ve etkileşimler olarak sıralıyor. Model tabanlı boosting, doğrusal 
+etkileri, spline'ları ve ağaç kütüklerini toplayan bir çerçeve. Son olarak, etkileşimleri otomatik bulan 
+genelleştirilmiş toplamsal modeller, yani GAM'ler var. Alttaki nota dikkat edin: Yang'ın yaklaşımı tasarım 
+gereği ve sonradan yorumlanabilirliği bir arada kullanıyor. Yani kategoriler arasındaki sınırlar bulanık. 
+Sunumun sonunda bu konuya geri döneceğim.
+
+## Slayt 6
+
+Peki doğası gereği yorumlanabilir bir model ne kadar yorumlanabilir? Kitap üç kapsam düzeyi ayırıyor. Bunu 
+göstermek için aynı küçük karar ağacını üç kez çizdim, turuncu kısımlar yorumladığımız yeri gösteriyor. 
+Birincisi modelin tamamı. Böyle küçük bir ağacı bütün olarak anlayabiliriz. Ama dikkat: "tamamen 
+yorumlanabilir" iddiası çok güçlü, sadece en basit modeller için kullanılmalı. İkincisi modelin bazı 
+bölümleri. Yüzlerce özelliği olan bir regresyonu bütünüyle kavrayamayız, ama tek bir katsayıyı ya da tek bir 
+kuralı yorumlayabiliriz. Üçüncüsü tek tek tahminler. Burada sadece bir tahmine giden yolu izliyoruz. Kitabın 
+örneğinde görüntüler için k-en yakın komşu var: Tahmini açıklamak için en benzer k görüntüyü göstermek 
+yeterli. Alttaki ipucu önemli: Yeni bir yöntemle karşılaştığımızda "bu yöntem hangi düzeyde açıklıyor?" diye 
+sormalıyız.
+
+## Slayt 7
+
+Tasarım gereği modellerin güçlü ve zayıf yönlerine bakalım. Noktalar ne kadar uygun olduğunu gösteriyor. Hata 
+ayıklama ve iyileştirmede güçlüler, çünkü modelin iç işleyişi görünüyor. Gerekçelendirmede de güçlüler: 
+Tahminin nasıl üretildiğini sadık biçimde açıklıyorlar ve alan uzmanlarıyla kontrol etmek kolay. Tıp 
+araştırmalarında lojistik regresyonun bu kadar yaygın olması da bundan. Ama veri hakkında içgörü söz konusu 
+olduğunda durum karmaşık. Modeli verinin yerine yorumlayabilmek için model yapısının dünyayı yansıttığını 
+varsaymamız gerekiyor. Daha iyi tahmin yapan başka bir model varsa ne olacak? İşte burada Rashomon etkisi 
+devreye giriyor. 1950 yapımı Japon filmi Rashomon'da aynı cinayet dört farklı kişi tarafından anlatılıyor. 
+Her anlatım olayları eşit derecede iyi açıklıyor ama hiçbiri diğeriyle bağdaşmıyor. Makine öğrenmesinde de 
+benzer performanslı ama farklı yorumlara sahip birden fazla model bulunabiliyor. O zaman hangisini 
+yorumlamalıyız? Bu sorunun kolay bir cevabı yok.
+
+## Slayt 8
+
+İkinci bölüme geçiyoruz: modelden bağımsız yöntemler. Ağaçta turuncu yol, sonradan yorumlanabilirlikten 
+modelden bağımsız yöntemlere ve onların yerel ve genel dallarına iniyor. Kitabın asıl odağı burası. Önce SIPA 
+ilkesine, sonra esnekliğe, ardından yerel ve genel yöntemlere bakacağız.
+
+## Slayt 9
+
+Modelden bağımsız yöntemlerin hepsi aynı ilkeyle çalışıyor: SIPA. Sample, Intervene, Predict, Aggregate, yani 
+örnekle, müdahale et, tahmin al, birleştir. Kitabın örneği permütasyon özellik önemi, kısaca PFI. Küçük 
+tablolar adımları gösteriyor. Birinci adımda test verisinden bir örneklem alıyoruz, turkuaz satırlar bu. 
+İkinci adımda müdahale ediyoruz: Bir özelliğin, yani turuncu sütunun değerlerini karıştırıyoruz. Üçüncü 
+adımda değiştirilmiş veriyle modelden yeni tahminler alıyoruz, bu da en sağdaki turkuaz ŷ sütunu. Dördüncü 
+adımda kaybı yeniden hesaplayıp özgün kayıpla karşılaştırıyoruz. Kayıp çok artıyorsa o özellik model için 
+önemliymiş demektir. Burada önemli olan şu: Hiçbir adımda modelin içine bakmadık, katsayı ya da ağırlık 
+okumadık. Sadece girdi verip çıktı aldık. Bu yöntemleri modelden bağımsız yapan da bu.
+
+## Slayt 10
+
+Modelden bağımsız yorumlamanın en büyük avantajı esneklik. Soldaki katmanlar kitabın büyük resim şeklinden 
+geliyor: Veriden model öğreniyoruz, yorumlama yöntemleri modelden bilgi çıkarıyor ve bu bilgi insanları 
+bilgilendiriyor. Gri katmanlar, yani model ve yorumlama yöntemi birbirinden ayrı ve her biri diğerine 
+dokunmadan değiştirilebilir. Kitabın örneği şu: Bir XGBoost modelini kısmi bağımlılık grafiği, yani PDP ile 
+görselleştirdiğimizi düşünelim. Modeli rastgele orman ile değiştirsek bile PDP kullanmaya devam edebiliriz. 
+Ya da PDP'yi beğenmezsek XGBoost'u yeniden eğitmeden ALE'ye geçebiliriz. Hatta gösterimi bile 
+değiştirebiliriz: Görüntüleri pikseller yerine görüntü parçalarıyla açıklamak gibi. Karşılaştırma için: 
+Doğrusal regresyonun katsayılarını yorumluyorsak ve kural tabanlı bir modele geçersek, yorumlama aracımız da 
+tamamen değişir.
+
+## Slayt 11
+
+Yerel yöntemler tek bir tahmini açıklıyor ve aslında bir yelpaze oluşturuyorlar. Oklar bunu gösteriyor. Sol 
+uçta duyarlılık yöntemleri var: Ceteris paribus grafikleri ve ICE eğrileri. Soru şu: Tek bir özelliği 
+değiştirirsek tahmin nasıl tepki verir? ICE aynı şeyi birçok veri noktası için yapıyor. Sağ uçta atıf 
+yöntemleri var: LIME, Shapley değerleri ve SHAP. Bunlar tahmini özellik etkilerinin toplamı olarak açıklıyor, 
+yani tahmini özellikler arasında paylaştırıyor. Ortada karşı-olgusal açıklamalar ve anchors var. Bunlar 
+özelliklerin bir alt kümesine dayanıyor. Karşı-olgusal açıklama "istediğim sonuca ulaşmak için en az neyi 
+değiştirmeliyim?" sorusunu soruyor. Alttaki iki kutu hedefleri gösteriyor. Hata ayıklamada yerel yöntemler en 
+kötü tahmine "yakınlaşmamızı" sağlıyor: Zor bir veri noktası mı, model mi yetersiz, yoksa etiket mi yanlış? 
+Gerekçelendirmede ise ceteris paribus ve karşı-olgusal açıklamalar ham tahminleri sadık biçimde yansıtıyor. 
+SHAP ve LIME ise modelin üstünde bir tür ek model olduğu için Rudin'e göre yüksek riskli kararlarda daha az 
+uygun.
+
+## Slayt 12
+
+Genel yöntemler modelin veri kümesi üzerindeki ortalama davranışını açıklıyor ve iki gruba ayrılıyor. Soldaki 
+grup özellik etkileri: PDP, ALE, H-istatistiği ve fonksiyonel ayrıştırma. Bunlar bir girdi değiştiğinde 
+çıktının nasıl değiştiğini gösteriyor, yandaki eğri gibi. ALE özellikle birbiriyle ilişkili özellikler için 
+tasarlanmış, H-istatistiği de etkileşimlerin gücünü ölçüyor. Sağdaki grup özellik önemi: PFI, LOFO ve SHAP 
+önemi. Bunlar özellikleri sıralıyor, yandaki çubuklar gibi. Her yöntem önemi farklı tanımlıyor. Mesela LOFO 
+özelliği tamamen çıkarıp modeli yeniden eğitiyor, bu yüzden özellik seçimiyle yakından ilişkili. Bu küçük 
+grafikler sadece şematik, gerçek veri değil. Ayrıca vekil modeller ve prototipler de bu gruba giriyor. Bir 
+ipucu: Genel yöntemleri verinin alt kümelerine uygularsak "grup bazlı" ya da "bölgesel" yorumlar elde ederiz. 
+Kitapta bunun örneklerini göreceğiz.
+
+## Slayt 13
+
+Üçüncü bölüm: modele özgü yöntemler. Bunlar da sonradan uygulanıyor, ama sadece belirli model türleri için 
+çalışıyor. Ağaçta turuncu yol bu sefer sağ dala gidiyor. Kitap bu kısımda sinir ağlarına odaklanıyor.
+
+## Slayt 14
+
+Modele özgü yöntemlere örnek olarak rastgele ormanlardaki Gini önemini ya da lojistik regresyondaki odds 
+oranlarını verebiliriz. Ama kitap bu kısımda sinir ağlarına odaklanıyor. Neden sinir ağları? Çünkü tek bir 
+tahmin milyonlarca çarpma içerebiliyor. Girdiden tahmine giden yolu elle takip etmemiz imkânsız. Öte yandan 
+sinir ağları gizli katmanlarında özellikler ve kavramlar öğreniyor, bu yüzden yorumlamak için çok ilginç bir 
+hedef. Gradyanları kullanarak verimli yöntemler de geliştirebiliyoruz. Kitap beş soruyu ele alıyor: Ağ hangi 
+özellikleri öğrendi? Her piksel tahmine nasıl katkı verdi, bunlara belirginlik haritası, yani saliency map 
+deniyor. Ağ hangi kavramları öğrendi? Ağı nasıl yanıltabiliriz, yani çekişmeli örnekler. Ve hangi eğitim 
+noktası tahmini en çok etkiledi? Bir uyarı: Veri hakkında içgörü için bu yöntemler de tasarım gereği 
+modellerle aynı sorunu yaşıyor. Modelin yorumunun veriyi yansıttığını göstermek için kuramsal bir gerekçeye 
+ihtiyaç var.
+
+## Slayt 15
+
+Şimdi her şeyi bir araya getirelim. Bu tablo bölümdeki değerlendirmeleri özetliyor. Satırlar yaklaşımlar, 
+sütunlar hedefler: hata ayıklama, gerekçelendirme ve veri hakkında içgörü. Üç dolu nokta güçlü, iki nokta 
+kısmen, turuncu tek nokta da dikkatli kullanılmalı demek. Tasarım gereği modeller hata ayıklama ve 
+gerekçelendirmede güçlü, ama veri içgörüsü için model yapısının dünyayı yansıttığını varsaymamız gerekiyor. 
+Yerel yöntemler yakınlaştırılmış bir bakış sunuyor, gerekçelendirmedeki değerleri ise yönteme göre değişiyor. 
+Genel yöntemler hata ayıklamada ve verideki mekanizmaları anlamada güçlü. Modele özgü yöntemler model 
+hakkında çok şey söylüyor ama veri içgörüsü için yine kuramsal gerekçe istiyor. Unutmayalım: Modelden 
+bağımsız yorumlamanın değeri modelin performansına bağlı. Kötü bir modeli yorumlarsak kötü sonuçlar çıkarırız.
+
+## Slayt 16
+
+Bu kategoriler çok düzenli görünüyor, ama gerçekte aralarındaki sınırlar bulanık. Kitap üç örnek veriyor. 
+Birincisi: Lojistik regresyon gerçekten tasarım gereği mi yorumlanabilir? Odds oranlarını okumak için 
+katsayıları sonradan işlememiz gerekiyor. Olasılık düzeyinde yorum için de marjinal etkileri hesaplıyoruz, bu 
+da aslında sonradan bir yöntem sayılabilir. İkincisi: Boost edilmiş ağaçlar kara kutu kabul ediliyor. Ama 
+azami ağaç derinliğini 1 yaparsak ağaç kütükleri elde ediyoruz ve sonuç genelleştirilmiş toplamsal modele çok 
+benziyor. Üçüncüsü: Doğrusal regresyonda her özellik değerini katsayısıyla çarpıp ortalama etkiyi çıkarırsak, 
+normalde modelden bağımsız kabul edilen Shapley değerlerini hesaplamış oluyoruz. Alttaki çizgi de bunu 
+gösteriyor: Bu üç örnek iki uç arasında bir yerde duruyor.
+
+## Slayt 17
+
+Bölümün ana mesajı şu: Yorumlanabilirlik bulanık bir kavram. Bu belirsizliği kabul etmeliyiz, tek bir 
+yaklaşıma fazla bağlanmamalıyız ve ihtiyacımıza göre yaklaşımları birleştirmeliyiz. Sağda üç bölümün özeti 
+var: Tasarım gereği modeller hata ayıklama ve gerekçelendirmede güçlü ama Rashomon etkisine dikkat etmek 
+lazım. Modelden bağımsız yöntemler SIPA ilkesiyle çalışıyor ve model ile yöntem birbirinden bağımsız 
+değiştirilebiliyor. Modele özgü yöntemler de sinir ağlarının ne öğrendiğini ortaya çıkarıyor. Dinlediğiniz 
+için teşekkür ederim. Sorularınız varsa memnuniyetle cevaplarım.
+

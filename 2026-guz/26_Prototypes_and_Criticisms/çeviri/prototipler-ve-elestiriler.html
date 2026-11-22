@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Prototipler ve Eleştiriler (Prototypes and Criticisms)</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="prototipler-ve-elestiriler_files/libs/clipboard/clipboard.min.js"></script>
+<script src="prototipler-ve-elestiriler_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="prototipler-ve-elestiriler_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="prototipler-ve-elestiriler_files/libs/quarto-html/popper.min.js"></script>
+<script src="prototipler-ve-elestiriler_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="prototipler-ve-elestiriler_files/libs/quarto-html/anchor.min.js"></script>
+<link href="prototipler-ve-elestiriler_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="prototipler-ve-elestiriler_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="prototipler-ve-elestiriler_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="prototipler-ve-elestiriler_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="prototipler-ve-elestiriler_files/libs/bootstrap/bootstrap-c2e55264ed47ce3b2e0326a2269f9400.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#sec-proto" id="toc-sec-proto" class="nav-link active" data-scroll-target="#sec-proto">Prototipler ve Eleştiriler</a>
+  <ul class="collapse">
+  <li><a href="#teori" id="toc-teori" class="nav-link" data-scroll-target="#teori">Teori</a></li>
+  <li><a href="#örnekler" id="toc-örnekler" class="nav-link" data-scroll-target="#örnekler">Örnekler</a></li>
+  <li><a href="#güçlü-yönler" id="toc-güçlü-yönler" class="nav-link" data-scroll-target="#güçlü-yönler">Güçlü Yönler</a></li>
+  <li><a href="#sınırlamalar" id="toc-sınırlamalar" class="nav-link" data-scroll-target="#sınırlamalar">Sınırlamalar</a></li>
+  <li><a href="#yazılım-ve-alternatifler" id="toc-yazılım-ve-alternatifler" class="nav-link" data-scroll-target="#yazılım-ve-alternatifler">Yazılım ve Alternatifler</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Prototipler ve Eleştiriler (Prototypes and Criticisms)</h1>
+<p class="subtitle lead">Yorumlanabilir Makine Öğrenmesi, Bölüm 26 — Türkçe çeviri</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Not
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Bu metin, Christoph Molnar’ın <em>Interpretable Machine Learning</em> kitabının “Prototypes and Criticisms” bölümünün Türkçe çevirisidir. Kaynak: <a href="https://christophm.github.io/interpretable-ml-book/proto.html" class="uri">https://christophm.github.io/interpretable-ml-book/proto.html</a>. Kitap CC BY-NC-SA lisansı altındadır; çeviri de aynı lisans koşullarına tabidir. Orijinal metindeki matematiksel ifadeler çıkarılmış olduğundan, aşağıdaki formüller bağlama göre yeniden yazılmıştır.</p>
+</div>
+</div>
+<section id="sec-proto" class="level1">
+<h1>Prototipler ve Eleştiriler</h1>
+<p><strong>Prototip</strong>, tüm verinin temsilcisi olan bir veri örneğidir. <strong>Eleştiri (criticism)</strong> ise prototip kümesi tarafından iyi temsil edilmeyen bir veri örneğidir. Eleştirilerin amacı, özellikle prototiplerin iyi temsil etmediği veri noktaları için prototiplerle birlikte içgörü sağlamaktır. Prototipler ve eleştiriler, veriyi betimlemek için bir makine öğrenmesi modelinden bağımsız olarak kullanılabilir; ayrıca yorumlanabilir bir model oluşturmak veya bir kara kutu modeli yorumlanabilir hale getirmek için de kullanılabilir.</p>
+<p>Bu bölümde, bir örneğin aynı zamanda her özelliğin bir boyut olduğu bir koordinat sisteminde bir nokta olduğu yorumunu vurgulamak için “veri noktası” ifadesini kullanıyorum. Şekil 26.1, bazı örneklerin prototip, bazılarının eleştiri olarak seçildiği simüle edilmiş bir veri dağılımını göstermektedir. Küçük noktalar veriyi, büyük noktalar eleştirileri, büyük kareler ise prototipleri temsil eder. Bu durumda prototipler, veri dağılımının merkezlerini kapsayacak şekilde (elle) seçilmiştir; eleştiriler ise prototipi olmayan bir kümedeki noktalardır. Prototipler ve eleştiriler her zaman verideki gerçek örneklerdir.</p>
+<div id="fig-proto-intro" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-proto-intro-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/proto-intro-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-proto-intro-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: <strong>Şekil 26.1:</strong> <span class="math inline">\(x_1\)</span> ve <span class="math inline">\(x_2\)</span> olmak üzere iki özelliğe sahip bir veri dağılımı için prototipler ve eleştiriler.
+</figcaption>
+</figure>
+</div>
+<p>Prototipleri elle seçtim; bu yöntem iyi ölçeklenmez ve muhtemelen kötü sonuçlara yol açar. Veride prototip bulmak için birçok yaklaşım vardır. Bunlardan biri, k-ortalamalar (k-means) algoritmasıyla ilişkili bir kümeleme algoritması olan <strong>k-medoids</strong>’tir. Küme merkezleri olarak gerçek veri noktalarını döndüren herhangi bir kümeleme algoritması prototip seçimi için uygundur. Ancak bu yöntemlerin çoğu yalnızca prototip bulur, eleştiri bulmaz. Bu bölüm, Kim, Khanna ve Koyejo (2016) tarafından geliştirilen ve prototipleri ile eleştirileri tek bir çerçevede birleştiren <strong>MMD-critic</strong> yaklaşımını sunmaktadır.</p>
+<p>MMD-critic, verinin dağılımı ile seçilen prototiplerin dağılımını karşılaştırır. Bu, MMD-critic yöntemini anlamak için temel kavramdır. MMD-critic, iki dağılım arasındaki farkı en aza indiren prototipleri seçer. Yoğunluğun yüksek olduğu bölgelerdeki veri noktaları, özellikle farklı “veri kümelerinden” seçildiklerinde, iyi prototiplerdir. Prototipler tarafından iyi açıklanmayan bölgelerdeki veri noktaları ise eleştiri olarak seçilir.</p>
+<section id="teori" class="level2">
+<h2 class="anchored" data-anchor-id="teori">Teori</h2>
+<p>MMD-critic prosedürü üst düzeyde kısaca şöyle özetlenebilir:</p>
+<ol type="1">
+<li>Bulmak istediğiniz prototip ve eleştiri sayısını seçin.</li>
+<li>Açgözlü (greedy) aramayla prototipleri bulun. Prototipler, prototiplerin dağılımı veri dağılımına yakın olacak şekilde seçilir.</li>
+<li>Açgözlü aramayla eleştirileri bulun. Prototiplerin dağılımının verinin dağılımından farklı olduğu noktalar eleştiri olarak seçilir.</li>
+</ol>
+<p>MMD-critic ile bir veri kümesi için prototip ve eleştiri bulmak üzere birkaç bileşene ihtiyacımız var. En temel bileşen olarak, veri yoğunluklarını tahmin etmek için bir <strong>çekirdek fonksiyonuna (kernel)</strong> ihtiyacımız var. Çekirdek, iki veri noktasını birbirlerine yakınlığına göre ağırlıklandıran bir fonksiyondur. Yoğunluk tahminlerine dayanarak, iki dağılımın birbirinden ne kadar farklı olduğunu söyleyen bir ölçüye de ihtiyacımız var; böylece seçtiğimiz prototiplerin dağılımının veri dağılımına yakın olup olmadığını belirleyebiliriz. Bu, <strong>maksimum ortalama sapma (maximum mean discrepancy, MMD)</strong> ölçülerek çözülür. Ayrıca çekirdek fonksiyonuna dayanarak, iki dağılımın belirli bir veri noktasında ne kadar farklı olduğunu söyleyen <strong>tanık fonksiyonuna (witness function)</strong> ihtiyacımız var. Tanık fonksiyonuyla eleştirileri, yani prototiplerin ve verinin dağılımlarının birbirinden ayrıştığı ve tanık fonksiyonunun mutlak değerce büyük değerler aldığı veri noktalarını seçebiliriz. Son bileşen, iyi prototipler ve eleştiriler için bir arama stratejisidir; bu da basit bir açgözlü aramayla çözülür.</p>
+<p>İki dağılım arasındaki sapmayı ölçen maksimum ortalama sapma (MMD) ile başlayalım. Prototiplerin seçimi, prototiplerin bir yoğunluk dağılımını oluşturur. Prototip dağılımının veri dağılımından farklı olup olmadığını değerlendirmek istiyoruz. İkisini de çekirdek yoğunluk fonksiyonlarıyla tahmin ederiz. Maksimum ortalama sapma, iki dağılım arasındaki farkı ölçer; bu, bir fonksiyon uzayı üzerinde, iki dağılıma göre alınan beklentiler arasındaki farkların supremumudur. Her şey net mi? Şahsen bu kavramları, bir şeyin veriyle nasıl hesaplandığını gördüğümde çok daha iyi anlıyorum. Aşağıdaki formül, kare MMD ölçüsünün (<span class="math inline">\(MMD^2\)</span>) nasıl hesaplanacağını gösterir:</p>
+<p><span class="math display">\[MMD^2 = \frac{1}{m^2} \sum_{i,j=1}^{m} k(z_i, z_j) - \frac{2}{mn} \sum_{i=1}^{m} \sum_{j=1}^{n} k(z_i, x_j) + \frac{1}{n^2} \sum_{i,j=1}^{n} k(x_i, x_j)\]</span></p>
+<p><span class="math inline">\(k\)</span>, iki noktanın benzerliğini ölçen bir çekirdek fonksiyonudur; bunun ayrıntılarına biraz sonra değineceğiz. <span class="math inline">\(m\)</span> prototip sayısı, <span class="math inline">\(n\)</span> ise orijinal veri kümemizdeki <span class="math inline">\(x\)</span> veri noktalarının sayısıdır. <span class="math inline">\(z\)</span> prototipleri, <span class="math inline">\(x\)</span> veri noktalarından yapılan bir seçimdir. Her nokta çok boyutludur, yani birden fazla özelliğe sahip olabilir. MMD-critic’in amacı <span class="math inline">\(MMD^2\)</span>’yi en aza indirmektir. <span class="math inline">\(MMD^2\)</span> sıfıra ne kadar yakınsa, prototiplerin dağılımı veriye o kadar iyi uyar. <span class="math inline">\(MMD^2\)</span>’yi sıfıra indirmenin anahtarı, ortadaki terimdir; bu terim prototipler ile diğer tüm veri noktaları arasındaki ortalama yakınlığı (2 ile çarpılmış olarak) hesaplar. Bu terim, birinci terim (prototiplerin birbirlerine ortalama yakınlığı) ile son terimin (veri noktalarının birbirlerine ortalama yakınlığı) toplamına eşit olursa, prototipler veriyi mükemmel biçimde açıklar. Tüm <span class="math inline">\(n\)</span> veri noktasını prototip olarak kullansaydınız formüle ne olacağını deneyin.</p>
+<p>Şekil 26.2, <span class="math inline">\(MMD^2\)</span> ölçüsünü göstermektedir. İlk grafik, iki özelliğe sahip veri noktalarını gösterir; veri yoğunluğunun tahmini gölgeli bir arka planla görüntülenir. Diğer grafiklerin her biri farklı prototip seçimlerini gösterir ve ölçü grafik başlıklarında yer alır. Prototipler büyük noktalardır ve dağılımları eş eğri çizgileriyle gösterilir. Bu senaryolarda veriyi en iyi kapsayan prototip seçimi (sol altta) en düşük sapma değerine sahiptir.</p>
+<div id="fig-proto-mmd" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-proto-mmd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/proto-mmd-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-proto-mmd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: <strong>Şekil 26.2:</strong> İki özelliğe sahip bir veri kümesi ve farklı prototip seçimleri için kare maksimum ortalama sapma ölçüsü (<span class="math inline">\(MMD^2\)</span>).
+</figcaption>
+</figure>
+</div>
+<p>Çekirdek için bir seçenek, <strong>radyal tabanlı fonksiyon (RBF) çekirdeğidir</strong>:</p>
+<p><span class="math display">\[k(x, x') = \exp\left(-\gamma \, \lVert x - x' \rVert^2\right)\]</span></p>
+<p>Burada <span class="math inline">\(\lVert x - x' \rVert\)</span> iki nokta arasındaki Öklid uzaklığı, <span class="math inline">\(\gamma\)</span> ise bir ölçekleme parametresidir. Çekirdeğin değeri iki nokta arasındaki uzaklıkla azalır ve sıfır ile bir arasında değişir: İki nokta sonsuz uzaklıktaysa sıfır, iki nokta eşitse bir.</p>
+<p><span class="math inline">\(MMD^2\)</span> ölçüsünü, çekirdeği ve açgözlü aramayı prototip bulmak için bir algoritmada birleştiriyoruz:</p>
+<ol type="1">
+<li>Boş bir prototip listesiyle başlayın.</li>
+<li>Prototip sayısı seçilen <span class="math inline">\(m\)</span> sayısının altında olduğu sürece:
+<ul>
+<li>Veri kümesindeki her nokta için, o nokta prototip listesine eklendiğinde <span class="math inline">\(MMD^2\)</span>’nin ne kadar azaldığını kontrol edin. <span class="math inline">\(MMD^2\)</span>’yi en çok azaltan veri noktasını listeye ekleyin.</li>
+</ul></li>
+<li>Prototip listesini döndürün.</li>
+</ol>
+<p>Eleştirileri bulmak için kalan bileşen, iki yoğunluk tahmininin belirli bir noktada ne kadar farklı olduğunu söyleyen tanık fonksiyonudur. Şu şekilde tahmin edilebilir:</p>
+<p><span class="math display">\[\text{witness}(x) = \frac{1}{n} \sum_{i=1}^{n} k(x, x_i) - \frac{1}{m} \sum_{j=1}^{m} k(x, z_j)\]</span></p>
+<p>Tanık fonksiyonu, (aynı özelliklere sahip) iki veri kümesi için, <span class="math inline">\(x\)</span> noktasının hangi ampirik dağılıma daha iyi uyduğunu değerlendirme olanağı verir. Eleştirileri bulmak için tanık fonksiyonunun hem negatif hem de pozitif yöndeki uç değerlerini ararız. Tanık fonksiyonundaki ilk terim, <span class="math inline">\(x\)</span> noktası ile veri arasındaki ortalama yakınlıktır; ikinci terim ise sırasıyla <span class="math inline">\(x\)</span> noktası ile prototipler arasındaki ortalama yakınlıktır. Bir <span class="math inline">\(x\)</span> noktası için tanık fonksiyonu sıfıra yakınsa, verinin ve prototiplerin yoğunluk fonksiyonları birbirine yakındır; yani <span class="math inline">\(x\)</span> noktasında prototiplerin dağılımı verinin dağılımına benzer. <span class="math inline">\(x\)</span> noktasında negatif bir tanık fonksiyonu, prototip dağılımının veri dağılımını olduğundan fazla tahmin ettiği anlamına gelir (örneğin bir prototip seçtik ama yakında yalnızca birkaç veri noktası var); <span class="math inline">\(x\)</span> noktasında pozitif bir tanık fonksiyonu ise prototip dağılımının veri dağılımını olduğundan az tahmin ettiği anlamına gelir (örneğin <span class="math inline">\(x\)</span> çevresinde çok sayıda veri noktası var ama yakınında hiç prototip seçmedik).</p>
+<p>Daha fazla sezgi kazandırmak için, daha önceki grafikten en düşük <span class="math inline">\(MMD^2\)</span> değerine sahip prototipleri yeniden kullanalım ve tanık fonksiyonunu elle seçilmiş birkaç nokta için gösterelim. Şekil 26.3’teki etiketler, üçgenlerle işaretlenmiş çeşitli noktalar için tanık fonksiyonunun değerini gösterir. Yalnızca ortadaki nokta yüksek mutlak değere sahiptir ve dolayısıyla eleştiri için iyi bir adaydır.</p>
+<div id="fig-proto-witness" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-proto-witness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/proto-witness-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-proto-witness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: <strong>Şekil 26.3:</strong> Tanık fonksiyonunun farklı noktalardaki değerleri.
+</figcaption>
+</figure>
+</div>
+<p>Tanık fonksiyonu, prototipler tarafından iyi temsil edilmeyen veri örneklerini açıkça aramamıza olanak tanır. Eleştiriler, tanık fonksiyonunda yüksek mutlak değere sahip noktalardır. Prototipler gibi eleştiriler de açgözlü aramayla bulunur. Ancak toplam <span class="math inline">\(MMD^2\)</span>’yi azaltmak yerine, tanık fonksiyonunu ve bir düzenleyici (regularizer) terimi içeren bir maliyet fonksiyonunu maksimize eden noktaları ararız. Optimizasyon fonksiyonundaki ek terim, noktaların çeşitliliğini zorunlu kılar; bu, noktaların farklı kümelerden gelmesi için gereklidir.</p>
+<p>Bu ikinci adım, prototiplerin nasıl bulunduğundan bağımsızdır. Bazı prototipleri elle seçip burada anlatılan prosedürle eleştirileri öğrenebilirdim. Ya da prototipler k-medoids gibi herhangi bir kümeleme prosedüründen gelebilirdi.</p>
+<p>MMD-critic teorisinin önemli kısımları bu kadar. Bir soru kalıyor: MMD-critic yorumlanabilir makine öğrenmesi için nasıl kullanılabilir?</p>
+<p>MMD-critic yorumlanabilirliği üç yolla artırabilir: Veri dağılımını daha iyi anlamaya yardımcı olarak; yorumlanabilir bir model oluşturarak; bir kara kutu modeli yorumlanabilir hale getirerek.</p>
+<p>Prototip ve eleştiri bulmak için MMD-critic’i verinize uygularsanız, özellikle uç durumlar içeren karmaşık bir veri dağılımına sahipseniz, veriyi anlamanız gelişecektir. Ama MMD-critic ile daha fazlasını başarabilirsiniz!</p>
+<p>Örneğin yorumlanabilir bir tahmin modeli oluşturabilirsiniz: “en yakın prototip modeli” olarak adlandırılan model. Tahmin fonksiyonu şöyle tanımlanır:</p>
+<p><span class="math display">\[\hat{f}(x) = \arg\max_{i \in S} \, k(x, x_i)\]</span></p>
+<p>Bu, <span class="math inline">\(S\)</span> prototip kümesinden, çekirdek fonksiyonunun en yüksek değerini vermesi anlamında yeni veri noktasına en yakın olan <span class="math inline">\(i\)</span> prototipini seçtiğimiz anlamına gelir. Tahmin için açıklama olarak prototipin kendisi döndürülür. Bu prosedürün üç ayar parametresi vardır: Çekirdeğin türü, çekirdek ölçekleme parametresi ve prototip sayısı. Tüm parametreler bir çapraz doğrulama döngüsü içinde optimize edilebilir. Bu yaklaşımda eleştiriler kullanılmaz.</p>
+<p>Üçüncü seçenek olarak, MMD-critic’i herhangi bir makine öğrenmesi modelini, prototiplere ve eleştirilere model tahminleriyle birlikte bakarak global olarak açıklanabilir kılmak için kullanabiliriz. Prosedür şöyledir:</p>
+<ol type="1">
+<li>MMD-critic ile prototipleri ve eleştirileri bulun.</li>
+<li>Bir makine öğrenmesi modelini her zamanki gibi eğitin.</li>
+<li>Makine öğrenmesi modeliyle prototipler ve eleştiriler için sonuçları tahmin edin.</li>
+<li>Tahminleri analiz edin: Algoritma hangi durumlarda yanlıştı? Artık veriyi iyi temsil eden ve makine öğrenmesi modelinin zayıflıklarını bulmanıza yardımcı olan bir dizi örneğiniz var.</li>
+</ol>
+<p>Bu nasıl yardımcı olur? Google’ın görüntü sınıflandırıcısının siyahi insanları goril olarak tanımladığı zamanı hatırlayın. Belki görüntü tanıma modellerini kullanıma sunmadan önce burada anlatılan prosedürü uygulamalıydılar. Yalnızca modelin performansını kontrol etmek yeterli değildir; çünkü model %99 doğru olsa bile bu sorun kalan %1’in içinde olabilir. Etiketler de yanlış olabilir! Tüm eğitim verisini gözden geçirip tahminin sorunlu olup olmadığını kontrol etmek sorunu ortaya çıkarabilirdi, ancak bu uygulanabilir olmazdı. Fakat — diyelim ki birkaç bin — prototip ve eleştiri seçmek uygulanabilirdir ve veriyle ilgili bir sorunu ortaya çıkarabilirdi: Koyu tenli insanların görüntülerinin eksik olduğunu gösterebilirdi; bu da veri kümesinin çeşitliliğinde bir sorun olduğuna işaret eder. Ya da koyu tenli bir veya daha fazla kişinin görüntüsünü, kötü şöhretli “goril” sınıflandırmasıyla birlikte bir prototip ya da (büyük olasılıkla) eleştiri olarak gösterebilirdi. MMD-critic’in bu tür hataları kesinlikle yakalayacağına dair söz vermiyorum, ama iyi bir sağlık kontrolüdür.</p>
+</section>
+<section id="örnekler" class="level2">
+<h2 class="anchored" data-anchor-id="örnekler">Örnekler</h2>
+<p>MMD-critic’in aşağıdaki örneği, el yazısı rakamlardan oluşan bir veri kümesi kullanır. Şekil 26.4’teki gerçek prototiplere baktığınızda, rakam başına düşen görüntü sayısının farklı olduğunu fark edebilirsiniz. Bunun nedeni, sınıf başına sabit bir sayı yerine tüm veri kümesi genelinde sabit sayıda prototip aranmış olmasıdır. Beklendiği gibi prototipler, rakamların farklı yazılış biçimlerini gösterir.</p>
+<div id="fig-proto-digits" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-proto-digits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/proto-digits-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-proto-digits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: <strong>Şekil 26.4:</strong> El yazısı rakamlar veri kümesi için prototipler.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="güçlü-yönler" class="level2">
+<h2 class="anchored" data-anchor-id="güçlü-yönler">Güçlü Yönler</h2>
+<p>Bir kullanıcı çalışmasında MMD-critic’in yazarları, katılımcılara görüntüler verdi ve katılımcıların bunları iki sınıftan birini (örneğin iki köpek ırkı) temsil eden iki görüntü kümesinden biriyle görsel olarak eşleştirmeleri gerekiyordu. Katılımcılar, kümeler bir sınıfın rastgele görüntüleri yerine prototipleri ve eleştirileri gösterdiğinde en iyi performansı sergiledi.</p>
+<p>Prototip ve eleştiri sayısını seçmekte özgürsünüz.</p>
+<p>MMD-critic, verinin yoğunluk tahminleriyle çalışır. Bu, her tür veri ve her tür makine öğrenmesi modeliyle çalışır.</p>
+<p>Algoritmanın uygulanması kolaydır.</p>
+<p>MMD-critic, yorumlanabilirliği artırmak için kullanılma biçiminde esnektir. Karmaşık veri dağılımlarını anlamak için kullanılabilir. Yorumlanabilir bir makine öğrenmesi modeli oluşturmak için kullanılabilir. Ya da bir kara kutu makine öğrenmesi modelinin karar vermesine ışık tutabilir.</p>
+<p>Eleştirilerin bulunması, prototiplerin seçim sürecinden bağımsızdır. Ancak prototipleri MMD-critic’e göre seçmek mantıklıdır; çünkü böylece hem prototipler hem de eleştiriler, prototipleri ve veri yoğunluklarını karşılaştırmanın aynı yöntemi kullanılarak oluşturulur.</p>
+</section>
+<section id="sınırlamalar" class="level2">
+<h2 class="anchored" data-anchor-id="sınırlamalar">Sınırlamalar</h2>
+<p>Matematiksel olarak prototipler ve eleştiriler farklı tanımlansa da, aralarındaki ayrım bir kesme değerine (prototip sayısına) dayanır. Veri dağılımını kapsamak için çok düşük sayıda prototip seçtiğinizi varsayın. Eleştiriler, pek iyi açıklanmayan bölgelerde yer alırdı. Ancak daha fazla prototip ekleseydiniz, onlar da aynı bölgelerde yer alırdı. Her yorum, eleştirilerin mevcut prototiplere ve prototip sayısı için belirlenen (keyfi) kesme değerine güçlü biçimde bağlı olduğunu hesaba katmalıdır.</p>
+<p>Prototip ve eleştiri sayısını sizin seçmeniz gerekir. Bu ne kadar güzel bir olanak olsa da bir dezavantajdır. Gerçekte kaç prototip ve eleştiriye ihtiyacımız var? Ne kadar çoksa o kadar iyi mi? Ne kadar azsa o kadar iyi mi? Bir çözüm, insanların görüntülere bakma görevi için ne kadar zamanları olduğunu ölçerek prototip ve eleştiri sayısını seçmektir; bu, ilgili uygulamaya bağlıdır. Yalnızca MMD-critic’i bir sınıflandırıcı oluşturmak için kullandığımızda onu doğrudan optimize etme olanağımız vardır. Bir çözüm, x ekseninde prototip sayısını, y ekseninde <span class="math inline">\(MMD^2\)</span> ölçüsünü gösteren bir <strong>scree grafiği</strong> olabilir. <span class="math inline">\(MMD^2\)</span> eğrisinin düzleştiği yerdeki prototip sayısını seçerdik.</p>
+<p>Diğer parametreler çekirdeğin seçimi ve çekirdek ölçekleme parametresidir. Prototip ve eleştiri sayısında olduğu gibi aynı sorunla karşı karşıyayız: Bir çekirdeği ve ölçekleme parametresini nasıl seçeriz? Yine, MMD-critic’i en yakın prototip sınıflandırıcısı olarak kullandığımızda çekirdek parametrelerini ayarlayabiliriz. Ancak MMD-critic’in gözetimsiz kullanım durumları için bu belirsizdir. (Belki burada biraz sert davranıyorum, çünkü tüm gözetimsiz yöntemlerde bu sorun vardır.)</p>
+<p>Bazı özelliklerin ilgilenilen sonucu tahmin etmek için ilgisiz olabileceği gerçeğini göz ardı ederek tüm özellikleri girdi olarak alır. Bir çözüm, yalnızca ilgili özellikleri kullanmaktır; örneğin ham pikseller yerine görüntü gömmeleri (embeddings). Bu, orijinal örneği yalnızca ilgili bilgiyi içeren bir temsile projekte etmenin bir yoluna sahip olduğumuz sürece işe yarar.</p>
+<p>Kullanılabilir bir miktar kod var, ancak henüz düzgün paketlenmiş ve belgelenmiş bir yazılım olarak uygulanmış değil.</p>
+</section>
+<section id="yazılım-ve-alternatifler" class="level2">
+<h2 class="anchored" data-anchor-id="yazılım-ve-alternatifler">Yazılım ve Alternatifler</h2>
+<p>MMD-critic’in bir uygulaması yazarların GitHub deposunda bulunabilir. Bir başka Python uygulaması <code>mmd-critic</code>’tir ve bu <code>pip</code> ile kurulabilir.</p>
+<p>Yakın zamanda MMD-critic’in bir uzantısı geliştirildi: <strong>Protodash</strong>. Yazarlar, yayınlarında MMD-critic’e göre avantajları olduğunu iddia etmektedir. Protodash uygulaması IBM AIX360 aracında mevcuttur.</p>
+<p>Prototip bulmanın en basit alternatifi, Rdusseeun ve Kaufman (1987) tarafından geliştirilen k-medoids’tir.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

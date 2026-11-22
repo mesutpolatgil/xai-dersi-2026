@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bölüm 23: Permütasyon Özellik Önemi (PFI) İnteraktif Uygulaması</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .shuffled-cell {
+      animation: pulseHighlight 1.1s ease-out;
+    }
+    @keyframes pulseHighlight {
+      0% { background-color: #fef08a; transform: scale(1.02); }
+      100% { background-color: transparent; transform: scale(1); }
+    }
+    .fade-slide-in {
+      animation: fadeSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Üst Başlık -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 rounded-full">
+            Bölüm 23 • İnteraktif Uygulama
+          </span>
+          <span class="text-xs text-slate-400 mono">Yunus Emre Yazarlı • 20269258002</span>
+        </div>
+        <h1 class="text-lg sm:text-xl font-bold tracking-tight mt-1">
+          Permütasyon Özellik Önemi (Permutation Feature Importance - PFI)
+        </h1>
+      </div>
+
+      <!-- Sadeleştirilmiş 3 Ana Sekme -->
+      <nav class="flex flex-wrap gap-1.5 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700" aria-label="Bölüm 23 Modülleri">
+        <button id="tabBtnMainPfi" type="button" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow">
+          1. Temel PFI &amp; Canlı Karıştırma
+        </button>
+        <button id="tabBtnCondSampling" type="button" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/60">
+          2. Koşullu Örnekleme Seçenekleri (Animasyonlu)
+        </button>
+        <button id="tabBtnGroupPfi" type="button" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/60">
+          3. Grup Bazlı PFI: Penguenler (Şekil 23.3 - 23.4)
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- ==================== SEKME 1: TEMEL PFI SİMÜLATÖRÜ ==================== -->
+    <section id="viewMainPfi" class="space-y-6 fade-slide-in">
+      <!-- Özet ve Formül -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-center">
+          <div class="lg:col-span-2 space-y-1.5">
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">
+              Modeli Yeniden Eğitmeden Özellik Önemi Ölçümü (Şekil 23.1 &amp; 23.2)
+            </h2>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              Test verisindeki bir <span class="mono text-indigo-700 font-semibold">j</span> özelliğinin değerlerini rastgele karıştırarak özellik ile gerçek sonuç <span class="mono font-semibold">y</span> arasındaki bağı koparırız. Karıştırma sonrası model hatası (<span class="mono font-semibold">e<sub>perm,j</sub></span>) orijinal hataya (<span class="mono font-semibold">e<sub>orig</sub></span>) göre ne kadar artarsa, o özellik tahmin için o kadar önemlidir.
+            </p>
+          </div>
+          <div class="bg-slate-900 text-slate-100 rounded-xl p-4 mono text-xs space-y-1 border border-slate-800">
+            <div class="text-indigo-300 font-semibold">// PFI Formülü</div>
+            <div>e<sub>orig</sub> = (1/n) ∑ L(y<sup>(i)</sup>, f̂(x<sup>(i)</sup>))</div>
+            <div>e<sub>perm,j</sub> = (1/n) ∑ L(y<sup>(i)</sup>, f̂(x<sub>perm,j</sub><sup>(i)</sup>))</div>
+            <div id="pfiFormulaDisplay" class="pt-1 text-emerald-400 font-semibold border-t border-slate-800">
+              FI<sub>j</sub> = e<sub>perm,j</sub> / e<sub>orig</sub> (Oran)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sol Kontroller -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Kontrol Paneli</h3>
+
+          <div class="space-y-1.5">
+            <label for="pfiDatasetSelect" class="block text-xs font-semibold text-slate-700">Kitap Örneği / Veri Seti</label>
+            <select id="pfiDatasetSelect" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="bike">Şekil 23.1: Bisiklet Kiralama (SVM - MAE)</option>
+              <option value="penguins">Şekil 23.2: Penguen Cinsiyeti (Lojistik Reg. - Log Loss)</option>
+            </select>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-slate-700">Önem Hesaplama Türü</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="pfiModeRatioBtn" type="button" class="px-3 py-2 rounded-xl text-xs font-semibold border bg-indigo-50 border-indigo-600 text-indigo-700 transition">
+                Oran (e<sub>perm</sub> / e<sub>orig</sub>)
+              </button>
+              <button id="pfiModeDiffBtn" type="button" class="px-3 py-2 rounded-xl text-xs font-semibold border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+                Fark (e<sub>perm</sub> − e<sub>orig</sub>)
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <label for="pfiRepeatsInput" class="font-semibold text-slate-700">Permütasyon Tekrar Sayısı (K)</label>
+              <span id="pfiRepeatsVal" class="mono font-bold text-indigo-600">10 tekrar</span>
+            </div>
+            <input id="pfiRepeatsInput" type="range" min="1" max="50" value="10" class="w-full accent-indigo-600 cursor-pointer" />
+            <p class="text-[11px] text-slate-500">
+              Tekrar sayısı arttıkça grafikteki siyah hata çubukları (%5–%95 kantil aralığı) daralır ve ölçüm kararlı hale gelir.
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 space-y-1.5">
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-xs font-bold text-amber-900">Korelasyonlu Özellik Ekle (<span class="mono">temp_9am</span>)</span>
+              <input id="pfiAddCorrToggle" type="checkbox" class="w-4 h-4 accent-amber-600 rounded cursor-pointer" />
+            </label>
+            <p class="text-[11px] text-amber-800 leading-relaxed">
+              Sabah 8:00 sıcaklığının yanına korelasyonlu sabah 9:00 sıcaklığı eklendiğinde önem iki özellik arasında bölünür!
+            </p>
+          </div>
+
+          <button id="pfiReshuffleBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition">
+            🔀 Yeni Rastgele Permütasyon Uygula
+          </button>
+        </div>
+
+        <!-- Sağ Grafik + Canlı Tablo -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div>
+                <h3 id="pfiChartTitle" class="text-base font-bold text-slate-900">
+                  Şekil 23.1: Bisiklet Sayısı Tahmininde Permütasyon Özellik Önemi (SVM)
+                </h3>
+                <p id="pfiChartSubtitle" class="text-xs text-slate-500">
+                  Beyaz nokta ortalama önemi, siyah yatay çizgiler ise tekrarlanan permütasyonlardaki %5 ve %95 kantil aralığını gösterir.
+                </p>
+              </div>
+            </div>
+
+            <div class="relative h-72 w-full">
+              <canvas id="pfiChartCanvas"></canvas>
+            </div>
+
+            <!-- Canlı Sonuç Yorumu -->
+            <div id="pfiInterpBody" class="mt-4 p-4 rounded-xl bg-indigo-50/80 border border-indigo-200 text-xs text-slate-800 space-y-1.5 leading-relaxed"></div>
+          </div>
+
+          <!-- Canlı Sütun Karıştırma Tablosu -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Canlı Veri Karıştırma (Shuffle) Deneyi</h3>
+                <p class="text-xs text-slate-500">Bir sütuna tıklayarak değerlerini karıştırın ve hatanın nasıl değiştiğini görün:</p>
+              </div>
+              <button id="pfiResetTableBtn" type="button" class="self-start sm:self-auto px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition">
+                ↺ Orijinal Veriye Dön
+              </button>
+            </div>
+
+            <div id="pfiColumnButtons" class="flex flex-wrap gap-2"></div>
+            <div id="pfiShuffleCommentary" class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 leading-relaxed"></div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead id="pfiTableHead" class="bg-slate-100 text-slate-700 uppercase mono text-[11px]"></thead>
+                <tbody id="pfiTableBody" class="divide-y divide-slate-200 mono"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 2: KOŞULLU ÖRNEKLEME SEÇENEKLERİ (CANLI ANİMASYON) ==================== -->
+    <section id="viewCondSampling" class="space-y-6 hidden fade-slide-in">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900">
+          Koşullu Özellik Önemi: 4 Koşullu Örnekleme Seçeneği Simülatörü (Bölüm 23.3)
+        </h2>
+        <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+          Özellikler korelasyonlu olduğunda standart PFI (<span class="mono font-semibold text-rose-600">P(X<sub>j</sub>)</span>) gerçekçi olmayan kırmızı veri noktaları (ör. 2 metre boyunda 30 kg bir kişi) üretir. Kitaptaki <strong>4 koşullu örnekleme yönteminden (<span class="mono">P(X<sub>j</sub> | X<sub>−j</sub>)</span>)</strong> birini seçerek noktaların nasıl hareket ettiğini canlı animasyonla izleyin.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sol: Yöntem Seçimi -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Örnekleme Yöntemi Seçin</h3>
+
+          <button id="condBtnMarginal" type="button" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+            <div class="text-xs font-bold text-rose-700">0. Standart Marjinal PFI — P(X<sub>j</sub>)</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Korelasyonu yok sayar; imkansız kırmızı noktalar üretir.</div>
+          </button>
+
+          <button id="condBtnSubgroups" type="button" class="w-full text-left p-3 rounded-xl border-2 border-purple-600 bg-purple-50/70 transition">
+            <div class="text-xs font-bold text-purple-950">1. Koşullu Alt Gruplar (Molnar ve ark. 2023)</div>
+            <div class="text-[11px] text-purple-800 mt-0.5">Veriyi alt gruplara böler ve her grubu kendi içinde karıştırır.</div>
+          </button>
+
+          <button id="condBtnMatching" type="button" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+            <div class="text-xs font-bold text-slate-800">2. Eşleştirme &amp; Atama (Fisher ve ark. 2019)</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">En yakın komşu (k-NN) gözlemlerin değerlerini birbiriyle değiştirir.</div>
+          </button>
+
+          <button id="condBtnKnockoffs" type="button" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+            <div class="text-xs font-bold text-slate-800">3. Knockoff İkizler (Watson &amp; Wright 2021)</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Kovaryans yapısını koruyan sentetik X̃<sub>j</sub> ~ P(X<sub>j</sub> | X<sub>−j</sub>) üretir.</div>
+          </button>
+
+          <button id="condBtnRfGrid" type="button" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+            <div class="text-xs font-bold text-slate-800">4. Rastgele Orman Izgarası (Debeer &amp; Strobl 2020)</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Ağaç bölünmelerinin oluşturduğu koşullu hücreler içinde karıştırır.</div>
+          </button>
+
+          <div class="pt-2 border-t border-slate-200 space-y-2">
+            <div class="flex justify-between text-xs">
+              <label for="condCorrSlider" class="font-semibold text-slate-700">Özellik Korelasyonu (r)</label>
+              <span id="condCorrVal" class="mono font-bold text-purple-700">r = 0.86</span>
+            </div>
+            <input id="condCorrSlider" type="range" min="20" max="96" value="86" class="w-full accent-purple-600 cursor-pointer" />
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button id="condPlayAnimBtn" type="button" class="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-sm transition">
+                ▶️ Tekrar Canlandır
+              </button>
+              <button id="condResetAnimBtn" type="button" class="py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition">
+                ↺ Orijinal Konum
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sağ: Canlı 2B Animasyon + Yorum -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 id="condCanvasTitle" class="text-base font-bold text-slate-900">
+                Canlı Örnekleme Animasyonu: 1. Koşullu Alt Gruplar (Molnar ve ark. 2023)
+              </h3>
+              <p class="text-xs text-slate-500">
+                Gri halkalar orijinal gözlemleri, renkli noktalar ise örnekleme sonrası yeni konumları gösterir.
+              </p>
+            </div>
+            <span id="condExtrapolationBadge" class="self-start sm:self-auto px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs mono">
+              İmkansız Örnek: %4
+            </span>
+          </div>
+
+          <div class="relative w-full h-80 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+            <canvas id="condScatterCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none text-[11px] mono">
+              <span class="px-2 py-0.5 rounded bg-slate-900/80 text-slate-300 border border-slate-700">⚪ Orijinal (x₁, x₂)</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-700/60">🟢 Doğal Koridorda</span>
+              <span class="px-2 py-0.5 rounded bg-rose-950/90 text-rose-300 border border-rose-700/60">🔴 İmkansız Örnek (Ekstrapolasyon)</span>
+            </div>
+          </div>
+
+          <div id="condLiveCommentary" class="p-4 rounded-xl bg-purple-50/90 border border-purple-200 text-xs text-slate-800 space-y-1.5 leading-relaxed"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 3: GRUP BAZLI PFI (ŞEKİL 23.3 & 23.4) ==================== -->
+    <section id="viewGroupPfi" class="space-y-6 hidden fade-slide-in">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900">
+          Grup Bazlı PFI Örneği: Penguen Türlerine Göre Karıştırma (Şekil 23.3 &amp; 23.4)
+        </h2>
+        <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+          Vücut kütlesini tüm penguenler genelinde karıştırdığımızda ağır bir <strong>Gentoo</strong> pengueninin kütlesi hafif bir <strong>Adelie</strong> penguenine atanır (<span class="mono font-semibold">r = 0.87</span>). Veriyi türe (<span class="mono font-semibold">species</span>) göre bölüp her türü kendi içinde karıştırarak korelasyonun nasıl düştüğünü ve türe özgü PFI değerlerini inceleyin.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sol Kontroller -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-5">
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">1. Karıştırma Yöntemi</h3>
+            <button id="grpModeBySpeciesBtn" type="button" class="w-full text-left p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/70 transition">
+              <div class="text-xs font-bold text-emerald-950">✅ Türe Göre Grup İçi Karıştır (Şekil 23.4)</div>
+              <div class="text-[11px] text-emerald-800 mt-0.5">Her penguen türü kendi içinde karıştırılır; türler arası karışma %0 olur.</div>
+            </button>
+            <button id="grpModeUnconditionalBtn" type="button" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+              <div class="text-xs font-bold text-rose-700">❌ Grupsuz Karıştır (Tüm Türler Birlikte)</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Gentoo kütlesi Adelie penguenine atanır; gerçekçi olmayan örnekler oluşur.</div>
+            </button>
+          </div>
+
+          <div class="space-y-2 pt-2 border-t border-slate-200">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">2. Penguen Türü Seçimi (Şekil 23.3)</h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="speciesBtnAll" type="button" class="p-2.5 rounded-xl border-2 border-indigo-600 bg-indigo-50/70 text-left transition">
+                <div class="text-xs font-bold text-indigo-950">Tüm Türler</div>
+                <div class="text-[10px] mono font-semibold text-indigo-700">Genel r = 0.87</div>
+              </button>
+              <button id="speciesBtnGentoo" type="button" class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition">
+                <div class="text-xs font-bold text-emerald-800">🟢 Gentoo</div>
+                <div class="text-[10px] mono font-semibold text-slate-600">Grup r = 0.70</div>
+              </button>
+              <button id="speciesBtnAdelie" type="button" class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition">
+                <div class="text-xs font-bold text-indigo-800">🔵 Adelie</div>
+                <div class="text-[10px] mono font-semibold text-slate-600">Grup r = 0.47</div>
+              </button>
+              <button id="speciesBtnChinstrap" type="button" class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition">
+                <div class="text-xs font-bold text-amber-800">🟠 Chinstrap</div>
+                <div class="text-[10px] mono font-semibold text-slate-600">Grup r = 0.64</div>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+            <button id="grpPlayShuffleAnimBtn" type="button" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition">
+              ▶️ Tekrar Canlandır
+            </button>
+            <button id="grpResetPenguinsBtn" type="button" class="py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition">
+              ↺ Orijinal Penguenler
+            </button>
+          </div>
+        </div>
+
+        <!-- Sağ: Şekil 23.3 Animasyon + Şekil 23.4 Çubuk Grafik -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h3 class="text-sm sm:text-base font-bold text-slate-900">
+                Şekil 23.3: Yüzgeç Uzunluğu ve Vücut Kütlesi Korelasyonu &amp; Canlı Permütasyon
+              </h3>
+              <span id="grpCrossSpeciesBadge" class="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs mono">
+                Türler Arası Hata: %0
+              </span>
+            </div>
+
+            <div class="relative w-full h-64 bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+              <canvas id="groupPenguinScatterCanvas" class="w-full h-full block"></canvas>
+            </div>
+
+            <div id="groupPfiInterpretation" class="p-3.5 rounded-xl bg-emerald-50/90 border border-emerald-200 text-xs text-slate-800 space-y-1 leading-relaxed"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-3">
+              Şekil 23.4: Penguen Türlerine Göre PFI Karşılaştırması
+            </h3>
+            <div class="relative h-60 w-full">
+              <canvas id="groupPfiChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const PFI_DATASETS = {
+      bike: {
+        title: "Şekil 23.1: Bisiklet Sayısı Tahmininde Permütasyon Özellik Önemi (SVM)",
+        subtitle: "Beyaz nokta ortalama önemi, siyah yatay çizgiler ise tekrarlanan permütasyonlardaki %5 ve %95 kantil aralığını gösterir.",
+        origError: 584.2,
+        unit: "MAE",
+        features: [
+          { name: "cnt_2d_bfr", label: "cnt_2d_bfr (2 Gün Önceki Sayı)", baseRatio: 2.38, spread: 0.18 },
+          { name: "temp", label: "temp (Sıcaklık)", baseRatio: 1.68, spread: 0.12 },
+          { name: "hum", label: "hum (Nem)", baseRatio: 1.31, spread: 0.07 },
+          { name: "windspeed", label: "windspeed (Rüzgar Hızı)", baseRatio: 1.19, spread: 0.05 },
+          { name: "season", label: "season (Mevsim)", baseRatio: 1.15, spread: 0.04 },
+          { name: "weathersit", label: "weathersit (Hava Durumu)", baseRatio: 1.11, spread: 0.04 },
+          { name: "workingday", label: "workingday (İş Günü)", baseRatio: 1.04, spread: 0.02 },
+          { name: "holiday", label: "holiday (Tatil)", baseRatio: 1.00, spread: 0.01 }
+        ],
+        sampleRows: [
+          { id: 1, cnt_2d_bfr: 4511, temp: "24.3°C", hum: "52%", windspeed: "12.1", holiday: 0, trueY: 4820 },
+          { id: 2, cnt_2d_bfr: 1890, temp: "8.1°C",  hum: "81%", windspeed: "24.5", holiday: 0, trueY: 1650 },
+          { id: 3, cnt_2d_bfr: 6210, temp: "27.8°C", hum: "44%", windspeed: "9.4",  holiday: 0, trueY: 6490 },
+          { id: 4, cnt_2d_bfr: 3120, temp: "15.2°C", hum: "68%", windspeed: "18.0", holiday: 1, trueY: 2980 },
+          { id: 5, cnt_2d_bfr: 5340, temp: "21.9°C", hum: "55%", windspeed: "11.2", holiday: 0, trueY: 5410 }
+        ],
+        tableCols: ["cnt_2d_bfr", "temp", "hum", "windspeed", "holiday"]
+      },
+      penguins: {
+        title: "Şekil 23.2: Penguen Cinsiyeti Sınıflandırması İçin PFI (Lojistik Regresyon)",
+        subtitle: "3 Lojistik Regresyon modeli için Log Loss bazlı permütasyon özellik önemi (1.0 = Değişim Yok).",
+        origError: 0.312,
+        unit: "Log Loss",
+        features: [
+          { name: "body_mass_g", label: "body_mass_g (Vücut Kütlesi)", baseRatio: 15.40, spread: 1.45 },
+          { name: "bill_depth_mm", label: "bill_depth_mm (Gaga Derinliği)", baseRatio: 7.20, spread: 0.85 },
+          { name: "species", label: "species (Penguen Türü)", baseRatio: 6.10, spread: 0.70 },
+          { name: "bill_length_mm", label: "bill_length_mm (Gaga Uzunluğu)", baseRatio: 3.45, spread: 0.42 },
+          { name: "flipper_length_mm", label: "flipper_length_mm (Yüzgeç Uzunluğu)", baseRatio: 1.05, spread: 0.08 }
+        ],
+        sampleRows: [
+          { id: 1, body_mass_g: 5550, bill_depth_mm: 17.0, species: "Gentoo",    bill_length_mm: 49.5, flipper_length_mm: 225, trueY: "Erkek" },
+          { id: 2, body_mass_g: 3400, bill_depth_mm: 17.8, species: "Adelie",    bill_length_mm: 37.2, flipper_length_mm: 186, trueY: "Dişi" },
+          { id: 3, body_mass_g: 4650, bill_depth_mm: 14.2, species: "Gentoo",    bill_length_mm: 45.1, flipper_length_mm: 214, trueY: "Dişi" },
+          { id: 4, body_mass_g: 4050, bill_depth_mm: 19.5, species: "Chinstrap", bill_length_mm: 50.8, flipper_length_mm: 197, trueY: "Erkek" },
+          { id: 5, body_mass_g: 3950, bill_depth_mm: 18.9, species: "Adelie",    bill_length_mm: 41.4, flipper_length_mm: 192, trueY: "Erkek" }
+        ],
+        tableCols: ["body_mass_g", "bill_depth_mm", "species", "bill_length_mm", "flipper_length_mm"]
+      }
+    };
+
+    const GROUP_SPECIES_DATA = {
+      labels: ["body_mass_g", "bill_depth_mm", "bill_length_mm", "flipper_length_mm"],
+      Gentoo: [8.4, 3.6, 2.2, 1.05],
+      Adelie: [4.2, 5.1, 2.8, 1.02],
+      Chinstrap: [2.1, 4.7, 3.9, 1.01]
+    };
+
+    const state = {
+      datasetKey: "bike",
+      mode: "ratio",
+      repeats: 10,
+      addCorrelatedTemp: false,
+      noiseSeed: 1,
+      shuffledCol: null,
+      currentRows: []
+    };
+
+    let pfiChart = null;
+    let groupChart = null;
+
+    function pseudoRandom(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function getComputedPfiFeatures() {
+      const ds = PFI_DATASETS[state.datasetKey];
+      let list = ds.features.map(f => ({ ...f }));
+
+      if (state.addCorrelatedTemp) {
+        if (state.datasetKey === "bike") {
+          list = list.map(f => f.name === "temp" ? { ...f, label: "temp (Sabah 08:00 Sıcaklığı)", baseRatio: 1.29 } : f);
+          list.push({ name: "temp_9am", label: "temp_9am (Sabah 09:00 - Korelasyonlu)", baseRatio: 1.26, spread: 0.09 });
+        } else {
+          list[0] = { ...list[0], baseRatio: 8.40 };
+          list.push({ name: "mass_copy", label: "body_mass_copy (Korelasyonlu Kütle)", baseRatio: 7.90, spread: 0.6 });
+        }
+      }
+
+      const kFactor = Math.sqrt(10 / Math.max(1, state.repeats));
+      const computed = list.map((f, idx) => {
+        const jitter = (pseudoRandom(state.noiseSeed * 31 + idx * 17) - 0.5) * f.spread * kFactor;
+        const ratio = Math.max(0.98, f.baseRatio + jitter);
+        const permErr = ds.origError * ratio;
+        const val = state.mode === "ratio" ? ratio : (permErr - ds.origError);
+        const lowRatio = Math.max(0.95, ratio - f.spread * kFactor);
+        const highRatio = ratio + f.spread * kFactor;
+        return {
+          ...f,
+          ratio,
+          permErr,
+          val,
+          q05: state.mode === "ratio" ? lowRatio : (ds.origError * (lowRatio - 1)),
+          q95: state.mode === "ratio" ? highRatio : (ds.origError * (highRatio - 1))
+        };
+      });
+
+      computed.sort((a, b) => b.val - a.val);
+      return computed;
+    }
+
+    function renderPfiChart() {
+      const ds = PFI_DATASETS[state.datasetKey];
+      const features = getComputedPfiFeatures();
+      const isRatio = state.mode === "ratio";
+
+      document.getElementById("pfiChartTitle").textContent = ds.title;
+      document.getElementById("pfiChartSubtitle").textContent = ds.subtitle;
+      document.getElementById("pfiFormulaDisplay").innerHTML = isRatio
+        ? "FI<sub>j</sub> = e<sub>perm,j</sub> / e<sub>orig</sub> (Oran)"
+        : "FI<sub>j</sub> = e<sub>perm,j</sub> − e<sub>orig</sub> (Fark)";
+
+      const topF = features[0];
+      const bottomF = features[features.length - 1];
+      const corrMsg = state.addCorrelatedTemp
+        ? `<p class="text-purple-900 font-medium">• <strong>⚠️ Korelasyonlu Özellik Bölünmesi:</strong> Korelasyonlu ikinci özellik eklendiğinde model bilgiyi iki özellik arasında paylaştırdı ve tekil önem sıralamaları geriye düştü.</p>`
+        : `<p>• <strong>Önem Sıralaması:</strong> En önemli özellik <span class="mono font-bold text-indigo-700">${topF.name}</span> (${isRatio ? topF.val.toFixed(2) + "x" : "+" + topF.val.toFixed(1) + " " + ds.unit}), en önemsiz özellik ise <span class="mono font-semibold">${bottomF.name}</span> (${isRatio ? bottomF.val.toFixed(2) + "x" : "+" + bottomF.val.toFixed(2) + " " + ds.unit}) olmuştur.</p>`;
+
+      document.getElementById("pfiInterpBody").innerHTML = `
+        <div class="font-bold text-indigo-950 text-sm">💡 Canlı Sonuç Yorumu:</div>
+        ${corrMsg}
+        <p>• <strong>Tekrar Sayısı (K = ${state.repeats}) &amp; Formül:</strong> ${state.repeats < 8 ? "Düşük tekrar sayısında %5–%95 kantil çubukları geniştir (yüksek rastgelelik)." : "Yeterli tekrar sayısıyla %5–%95 kantil aralığı daralmış ve önem tahmini dengelenmiştir."} ${isRatio ? "Oran formülü farklı problemler arasında doğrudan kıyaslama sağlar." : "Fark formülü doğrudan " + ds.unit + " cinsinden kayıp artışını gösterir."}</p>
+      `;
+
+      const errorWhiskerPlugin = {
+        id: "errorWhiskerPlugin",
+        afterDatasetsDraw(chart) {
+          const { ctx: c, scales: { x } } = chart;
+          const meta = chart.getDatasetMeta(0);
+          c.save();
+          meta.data.forEach((bar, i) => {
+            const item = features[i];
+            if (!item) return;
+            const xLow = x.getPixelForValue(item.q05);
+            const xHigh = x.getPixelForValue(item.q95);
+            const xMean = x.getPixelForValue(item.val);
+            const yPos = bar.y;
+            c.strokeStyle = "#0f172a";
+            c.lineWidth = 2;
+            c.beginPath();
+            c.moveTo(xLow, yPos);
+            c.lineTo(xHigh, yPos);
+            c.moveTo(xLow, yPos - 4);
+            c.lineTo(xLow, yPos + 4);
+            c.moveTo(xHigh, yPos - 4);
+            c.lineTo(xHigh, yPos + 4);
+            c.stroke();
+            c.fillStyle = "#ffffff";
+            c.beginPath();
+            c.arc(xMean, yPos, 4, 0, Math.PI * 2);
+            c.fill();
+            c.stroke();
+          });
+          c.restore();
+        }
+      };
+
+      const ctx = document.getElementById("pfiChartCanvas").getContext("2d");
+      if (pfiChart) pfiChart.destroy();
+
+      pfiChart = new Chart(ctx, {
+        type: "bar",
+        plugins: [errorWhiskerPlugin],
+        data: {
+          labels: features.map(f => f.label),
+          datasets: [{
+            data: features.map(f => Number(f.val.toFixed(3))),
+            backgroundColor: features.map(f =>
+              f.name === state.shuffledCol
+                ? "rgba(245, 158, 11, 0.9)"
+                : (f.name.includes("9am") || f.name.includes("copy") ? "rgba(168, 85, 247, 0.85)" : "rgba(79, 70, 229, 0.85)")
+            ),
+            borderRadius: 6,
+            barThickness: 22
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              min: isRatio ? (state.datasetKey === "bike" ? 0.9 : 0) : 0,
+              title: {
+                display: true,
+                text: isRatio ? "Hata Artış Oranı (1.0 = Değişim Yok)" : `Hata Artışı (${ds.unit})`,
+                font: { size: 12, weight: "600" }
+              }
+            },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function initPfiTableData() {
+      const ds = PFI_DATASETS[state.datasetKey];
+      state.currentRows = ds.sampleRows.map(r => ({ ...r }));
+      state.shuffledCol = null;
+      renderPfiTable();
+    }
+
+    function shuffleColumnInTable(colName) {
+      const ds = PFI_DATASETS[state.datasetKey];
+      state.currentRows = ds.sampleRows.map(r => ({ ...r }));
+      const vals = state.currentRows.map(r => r[colName]);
+      const shifted = vals.slice(1).concat(vals[0]);
+      state.currentRows.forEach((row, idx) => { row[colName] = shifted[idx]; });
+      state.shuffledCol = colName;
+      renderPfiTable();
+      renderPfiChart();
+    }
+
+    function renderPfiTable() {
+      const ds = PFI_DATASETS[state.datasetKey];
+      const cols = ds.tableCols;
+      const features = getComputedPfiFeatures();
+
+      const btnContainer = document.getElementById("pfiColumnButtons");
+      btnContainer.innerHTML = "";
+      cols.forEach(col => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = state.shuffledCol === col
+          ? "px-3 py-1.5 rounded-lg text-xs font-semibold mono bg-amber-500 text-slate-950 shadow-sm transition"
+          : "px-3 py-1.5 rounded-lg text-xs font-semibold mono bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition";
+        btn.textContent = `🔀 ${col} Karıştır`;
+        btn.addEventListener("click", () => shuffleColumnInTable(col));
+        btnContainer.appendChild(btn);
+      });
+
+      const shufEl = document.getElementById("pfiShuffleCommentary");
+      if (!state.shuffledCol) {
+        shufEl.innerHTML = `<strong>🔍 Tablo Durumu (Orijinal Veri):</strong> Başlangıç model hatası <span class="mono font-bold">e<sub>orig</sub> = ${ds.origError} ${ds.unit}</span>. Yukarıdaki butonlardan birine tıklayarak bir özelliği karıştırın.`;
+      } else {
+        const found = features.find(f => f.name === state.shuffledCol) || features[0];
+        const pct = ((found.ratio - 1) * 100).toFixed(1);
+        shufEl.innerHTML = found.ratio > 1.15
+          ? `💡 <strong>${state.shuffledCol} Karıştırıldı (Önemli Özellik!):</strong> Bu sütunun satırları yer değiştirdiğinde model hatası <strong>%${pct} (${found.ratio.toFixed(2)} kat)</strong> artarak <span class="mono font-bold">${found.permErr.toFixed(2)} ${ds.unit}</span> oldu; çünkü model tahmin yaparken bu özelliğe güveniyordu.`
+          : `💡 <strong>${state.shuffledCol} Karıştırıldı (Önemsiz Özellik):</strong> Değerler karıştırılmasına rağmen model hatası neredeyse hiç değişmedi (<span class="mono">${ds.origError} → ${found.permErr.toFixed(2)} ${ds.unit}</span>). Model bu özelliği tahminlerinde görmezden gelmiştir.`;
+      }
+
+      document.getElementById("pfiTableHead").innerHTML = `
+        <tr>
+          <th class="p-2.5 border-b border-slate-200">#</th>
+          ${cols.map(c => `<th class="p-2.5 border-b border-slate-200 ${state.shuffledCol === c ? 'bg-amber-200/80 text-slate-950 font-bold' : ''}">${c}</th>`).join("")}
+          <th class="p-2.5 border-b border-slate-200 font-bold">Gerçek Hedef (y)</th>
+        </tr>
+      `;
+
+      document.getElementById("pfiTableBody").innerHTML = state.currentRows.map(row => `
+        <tr>
+          <td class="p-2.5 text-slate-400 font-semibold">${row.id}</td>
+          ${cols.map(c => `<td class="p-2.5 ${state.shuffledCol === c ? 'bg-amber-100/70 font-bold text-amber-950 shuffled-cell' : 'text-slate-700'}">${row[c]}</td>`).join("")}
+          <td class="p-2.5 font-semibold text-emerald-700">${row.trueY}</td>
+        </tr>
+      `).join("");
+    }
+
+    // ==================== SEKME 2: KOŞULLU ÖRNEKLEME CANLI ANİMASYON ====================
+    const condState = {
+      method: "subgroups",
+      corr: 0.86,
+      points: [],
+      animFrameId: null
+    };
+
+    function generateCorrelatedPoints() {
+      const n = 40;
+      const r = condState.corr;
+      const pts = [];
+      for (let i = 0; i < n; i++) {
+        const u1 = ((i + 0.5) / n - 0.5) * 3.2;
+        const u2 = (pseudoRandom(i * 73 + 19) - 0.5) * 2.8;
+        const x1 = u1;
+        const x2 = r * u1 + Math.sqrt(Math.max(0.01, 1 - r * r)) * u2;
+        pts.push({ x1, origX2: x2, startX2: x2, targetX2: x2, currX2: x2, isExtrapolated: false });
+      }
+      condState.points = pts;
+      computeConditionalTargets(false);
+    }
+
+    function computeConditionalTargets(animate = true) {
+      const pts = condState.points;
+      const n = pts.length;
+      const r = condState.corr;
+      const threshold = 1.9 * Math.sqrt(Math.max(0.04, 1 - r * r));
+      const sorted = [...pts].sort((a, b) => a.x1 - b.x1);
+
+      if (condState.method === "marginal") {
+        pts.forEach((p, i) => {
+          const partner = pts[(i * 11 + 7) % n];
+          p.startX2 = animate ? p.currX2 : partner.origX2;
+          p.targetX2 = partner.origX2;
+        });
+      } else if (condState.method === "subgroups" || condState.method === "rfgrid") {
+        const kGroups = condState.method === "subgroups" ? 3 : 4;
+        const gSize = Math.ceil(n / kGroups);
+        for (let g = 0; g < kGroups; g++) {
+          const slice = sorted.slice(g * gSize, (g + 1) * gSize);
+          slice.forEach((p, idx) => {
+            const partner = slice[(idx + 2) % slice.length];
+            p.startX2 = animate ? p.currX2 : partner.origX2;
+            p.targetX2 = partner.origX2;
+          });
+        }
+      } else if (condState.method === "matching") {
+        sorted.forEach((p, idx) => {
+          const nIdx = idx % 2 === 0 ? Math.min(n - 1, idx + 1) : Math.max(0, idx - 1);
+          p.startX2 = animate ? p.currX2 : sorted[nIdx].origX2;
+          p.targetX2 = sorted[nIdx].origX2;
+        });
+      } else if (condState.method === "knockoffs") {
+        const sdCond = Math.sqrt(Math.max(0.02, 1 - r * r));
+        pts.forEach((p, i) => {
+          const knockX2 = r * p.x1 + sdCond * ((pseudoRandom(i * 97 + 41) - 0.5) * 2.1);
+          p.startX2 = animate ? p.currX2 : knockX2;
+          p.targetX2 = knockX2;
+        });
+      }
+
+      let extrapCount = 0;
+      pts.forEach(p => {
+        p.isExtrapolated = Math.abs(p.targetX2 - r * p.x1) > threshold;
+        if (p.isExtrapolated) extrapCount++;
+      });
+
+      const pct = Math.round((extrapCount / n) * 100);
+      const badge = document.getElementById("condExtrapolationBadge");
+      badge.textContent = `İmkansız Örnek: %${pct} (${extrapCount}/${n})`;
+      badge.className = pct > 20
+        ? "self-start sm:self-auto px-3 py-1 rounded-lg bg-rose-100 border border-rose-300 text-rose-900 font-bold text-xs mono"
+        : "self-start sm:self-auto px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs mono";
+
+      const descriptions = {
+        marginal: {
+          title: "0. Standart Marjinal PFI — P(X_j)",
+          body: `<strong>🚨 Marjinal PFI Yorumu (%${pct} İmkansız Nokta):</strong> Noktalar <span class="mono">X₁</span> değerine bakılmadan tüm veri genelinde karıştırıldı ve <strong>${extrapCount} nokta</strong> yeşil doğal dağılım koridorunun dışına (kırmızı ekstrapolasyon bölgesine) düştü. Model eğitim sırasında bu bölgede hiç veri görmediği için PFI ölçümü yanlı (biased) hale gelir.`
+        },
+        subgroups: {
+          title: "1. Koşullu Alt Gruplar (Molnar ve ark. 2023)",
+          body: `<strong>✅ Alt Gruplar Yaklaşımı Yorumu (%${pct} İmkansız Nokta):</strong> Veri dikey kesikli çizgilerle <strong>3 koşullu alt gruba</strong> bölündü ve noktalar yalnızca kendi alt grubu içinde yer değiştirdi. Molnar'ın favori yöntemi olan bu yaklaşım, marjinal PFI'nın kolay yorumlanabilirliğini korurken imkansız örnekleri büyük ölçüde engeller.`
+        },
+        matching: {
+          title: "2. Eşleştirme ve Değer Atama (Fisher, Rudin & Dominici 2019)",
+          body: `<strong>✅ Eşleştirme (Matching) Yorumu (%${pct} İmkansız Nokta):</strong> Her gözlem, <span class="mono">X₁</span> değeri kendisine en yakın komşusuyla eşleştirilerek karıştırıldı. Noktalar yalnızca çok kısa dikey adımlarla yer değiştirdiği için tamamı doğal koridor içinde kaldı.`
+        },
+        knockoffs: {
+          title: "3. Knockoff İkiz Değişkenler (Watson & Wright 2021)",
+          body: `<strong>✅ Knockoff Yorumu (%${pct} İmkansız Nokta):</strong> Satırları karıştırmak yerine, orijinal korelasyon yapısını koruyan <span class="mono">P(X₂ | X₁)</span> koşullu dağılımından sentetik ikiz değerler üretildi.`
+        },
+        rfgrid: {
+          title: "4. Rastgele Orman Koşullu Izgara (Debeer & Strobl 2020)",
+          body: `<strong>✅ Rastgele Orman Koşullu Önemi Yorumu (%${pct} İmkansız Nokta):</strong> Karar ağacı bölünmelerinin oluşturduğu 4 koşullu ızgara hücresi içinde permütasyon yapılarak korelasyon yanlılığı giderildi.`
+        }
+      };
+
+      document.getElementById("condCanvasTitle").textContent = `Canlı Örnekleme Animasyonu: ${descriptions[condState.method].title}`;
+      document.getElementById("condLiveCommentary").innerHTML = `💡 ${descriptions[condState.method].body}`;
+
+      if (animate) {
+        if (condState.animFrameId) cancelAnimationFrame(condState.animFrameId);
+        const start = performance.now();
+        const step = (now) => {
+          const t = Math.min(1, (now - start) / 850);
+          const ease = 1 - Math.pow(1 - t, 3);
+          pts.forEach(p => { p.currX2 = p.startX2 + (p.targetX2 - p.startX2) * ease; });
+          drawCondScatterCanvas();
+          if (t < 1) condState.animFrameId = requestAnimationFrame(step);
+        };
+        condState.animFrameId = requestAnimationFrame(step);
+      } else {
+        pts.forEach(p => { p.currX2 = p.targetX2; });
+        drawCondScatterCanvas();
+      }
+    }
+
+    function drawCondScatterCanvas() {
+      const canvas = document.getElementById("condScatterCanvas");
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const padL = 45, padR = 20, padT = 34, padB = 32;
+      const plotW = w - padL - padR, plotH = h - padT - padB;
+      const toX = (v) => padL + ((v + 2.0) / 4.0) * plotW;
+      const toY = (v) => padT + plotH - ((v + 2.0) / 4.0) * plotH;
+
+      const r = condState.corr;
+      const bandHalf = 1.9 * Math.sqrt(Math.max(0.04, 1 - r * r));
+      ctx.fillStyle = "rgba(16, 185, 129, 0.11)";
+      ctx.beginPath();
+      ctx.moveTo(toX(-1.8), toY(r * -1.8 + bandHalf));
+      ctx.lineTo(toX(1.8), toY(r * 1.8 + bandHalf));
+      ctx.lineTo(toX(1.8), toY(r * 1.8 - bandHalf));
+      ctx.lineTo(toX(-1.8), toY(r * -1.8 - bandHalf));
+      ctx.closePath();
+      ctx.fill();
+
+      if (condState.method === "subgroups" || condState.method === "rfgrid") {
+        const k = condState.method === "subgroups" ? 3 : 4;
+        ctx.strokeStyle = "rgba(168, 85, 247, 0.65)";
+        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = 1.5;
+        for (let i = 1; i < k; i++) {
+          const sx = -1.6 + (3.2 * i) / k;
+          ctx.beginPath();
+          ctx.moveTo(toX(sx), padT);
+          ctx.lineTo(toX(sx), padT + plotH);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
+
+      condState.points.forEach(p => {
+        const px = toX(p.x1), oy = toY(p.origX2), cy = toY(p.currX2);
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.4)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(px, oy, 3.8, 0, Math.PI * 2);
+        ctx.stroke();
+
+        if (Math.abs(cy - oy) > 2) {
+          ctx.strokeStyle = p.isExtrapolated ? "rgba(244, 63, 94, 0.6)" : "rgba(52, 211, 153, 0.45)";
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(px, oy);
+          ctx.lineTo(px, cy);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = p.isExtrapolated ? "#f43f5e" : "#10b981";
+        ctx.beginPath();
+        ctx.arc(px, cy, p.isExtrapolated ? 5.4 : 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function selectCondMethod(m) {
+      condState.method = m;
+      const btnMap = {
+        marginal: document.getElementById("condBtnMarginal"),
+        subgroups: document.getElementById("condBtnSubgroups"),
+        matching: document.getElementById("condBtnMatching"),
+        knockoffs: document.getElementById("condBtnKnockoffs"),
+        rfgrid: document.getElementById("condBtnRfGrid")
+      };
+      Object.keys(btnMap).forEach(k => {
+        btnMap[k].className = k === m
+          ? "w-full text-left p-3 rounded-xl border-2 border-purple-600 bg-purple-50/70 transition"
+          : "w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition";
+      });
+      computeConditionalTargets(true);
+    }
+
+    // ==================== SEKME 3: GRUP BAZLI PFI (ŞEKİL 23.3 & 23.4) ====================
+    const grpState = {
+      permMode: "species",
+      selectedSpecies: "all",
+      penguins: [],
+      animFrameId: null
+    };
+
+    const SPECIES_META = {
+      Adelie:    { color: "#6366f1", meanFlip: 190, sdFlip: 6.5, meanMass: 3700, sdMass: 450, r: 0.47 },
+      Chinstrap: { color: "#f59e0b", meanFlip: 196, sdFlip: 7.0, meanMass: 3730, sdMass: 380, r: 0.64 },
+      Gentoo:    { color: "#10b981", meanFlip: 217, sdFlip: 6.5, meanMass: 5076, sdMass: 500, r: 0.70 }
+    };
+
+    function generatePenguinPopulation() {
+      const list = [];
+      let idCounter = 0;
+      ["Adelie", "Chinstrap", "Gentoo"].forEach((sp, sIdx) => {
+        const meta = SPECIES_META[sp];
+        for (let i = 0; i < 15; i++) {
+          const u1 = ((i + 0.5) / 15 - 0.5) * 2.7;
+          const u2 = (pseudoRandom((idCounter + 1) * 53 + sIdx * 19) - 0.5) * 2.3;
+          const flip = Math.round(meta.meanFlip + u1 * meta.sdFlip);
+          const mass = Math.round(meta.meanMass + meta.sdMass * (meta.r * u1 + Math.sqrt(1 - meta.r * meta.r) * u2));
+          list.push({ id: idCounter++, species: sp, flipper: flip, origMass: mass, startMass: mass, targetMass: mass, currMass: mass, isCrossError: false });
+        }
+      });
+      grpState.penguins = list;
+      computeGroupPenguinPermutation(false);
+    }
+
+    function computeGroupPenguinPermutation(animate = true) {
+      const pts = grpState.penguins;
+      const n = pts.length;
+      let crossCount = 0;
+
+      if (grpState.permMode === "unconditional") {
+        pts.forEach((p, idx) => {
+          const donor = pts[(idx * 17 + 11) % n];
+          p.startMass = animate ? p.currMass : donor.origMass;
+          p.targetMass = donor.origMass;
+          p.isCrossError = donor.species !== p.species && Math.abs(donor.origMass - p.origMass) > 750;
+          if (p.isCrossError) crossCount++;
+        });
+      } else {
+        ["Adelie", "Chinstrap", "Gentoo"].forEach(sp => {
+          const group = pts.filter(p => p.species === sp);
+          group.forEach((p, idx) => {
+            const donor = group[(idx + 3) % group.length];
+            p.startMass = animate ? p.currMass : donor.origMass;
+            p.targetMass = donor.origMass;
+            p.isCrossError = false;
+          });
+        });
+      }
+
+      const crossPct = Math.round((crossCount / n) * 100);
+      const badge = document.getElementById("grpCrossSpeciesBadge");
+      badge.textContent = `Türler Arası Hata: %${crossPct}`;
+      badge.className = crossPct > 0
+        ? "self-start sm:self-auto px-2.5 py-1 rounded-lg bg-rose-100 border border-rose-300 text-rose-900 font-bold text-xs mono"
+        : "self-start sm:self-auto px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs mono";
+
+      if (animate) {
+        if (grpState.animFrameId) cancelAnimationFrame(grpState.animFrameId);
+        const start = performance.now();
+        const frame = (now) => {
+          const t = Math.min(1, (now - start) / 850);
+          const ease = 1 - Math.pow(1 - t, 3);
+          pts.forEach(p => { p.currMass = p.startMass + (p.targetMass - p.startMass) * ease; });
+          drawGroupPenguinScatter();
+          if (t < 1) grpState.animFrameId = requestAnimationFrame(frame);
+        };
+        grpState.animFrameId = requestAnimationFrame(frame);
+      } else {
+        pts.forEach(p => { p.currMass = p.targetMass; });
+        drawGroupPenguinScatter();
+      }
+      renderGroupPfiChart();
+    }
+
+    function drawGroupPenguinScatter() {
+      const canvas = document.getElementById("groupPenguinScatterCanvas");
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const padL = 52, padR = 20, padT = 24, padB = 28;
+      const plotW = w - padL - padR, plotH = h - padT - padB;
+      const toX = (f) => padL + ((f - 172) / 66) * plotW;
+      const toY = (m) => padT + plotH - ((m - 2600) / 3800) * plotH;
+
+      ["Adelie", "Chinstrap", "Gentoo"].forEach(sp => {
+        if (grpState.selectedSpecies !== "all" && grpState.selectedSpecies !== sp) return;
+        const meta = SPECIES_META[sp];
+        const x1 = meta.meanFlip - 1.8 * meta.sdFlip, x2 = meta.meanFlip + 1.8 * meta.sdFlip;
+        const slope = meta.r * (meta.sdMass / meta.sdFlip);
+        ctx.strokeStyle = meta.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(toX(x1), toY(meta.meanMass + slope * (x1 - meta.meanFlip)));
+        ctx.lineTo(toX(x2), toY(meta.meanMass + slope * (x2 - meta.meanFlip)));
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      grpState.penguins.forEach(p => {
+        const active = grpState.selectedSpecies === "all" || grpState.selectedSpecies === p.species;
+        ctx.save();
+        ctx.globalAlpha = active ? 1.0 : 0.15;
+        const meta = SPECIES_META[p.species];
+        const px = toX(p.flipper), oy = toY(p.origMass), cy = toY(p.currMass);
+
+        if (Math.abs(cy - oy) > 2) {
+          ctx.strokeStyle = p.isCrossError ? "rgba(244, 63, 94, 0.7)" : "rgba(148, 163, 184, 0.4)";
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(px, oy);
+          ctx.lineTo(px, cy);
+          ctx.stroke();
+        }
+        ctx.fillStyle = p.isCrossError ? "#f43f5e" : meta.color;
+        ctx.beginPath();
+        ctx.arc(px, cy, p.isCrossError ? 5.5 : 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    function renderGroupPfiChart() {
+      const ctx = document.getElementById("groupPfiChartCanvas").getContext("2d");
+      if (groupChart) groupChart.destroy();
+
+      const mult = grpState.permMode === "unconditional" ? 1.35 : 1.0;
+      const gVals = GROUP_SPECIES_DATA.Gentoo.map(v => Number((1 + (v - 1) * mult).toFixed(2)));
+      const aVals = GROUP_SPECIES_DATA.Adelie.map(v => Number((1 + (v - 1) * mult).toFixed(2)));
+      const cVals = GROUP_SPECIES_DATA.Chinstrap.map(v => Number((1 + (v - 1) * mult).toFixed(2)));
+
+      const datasets = [];
+      if (grpState.selectedSpecies === "all" || grpState.selectedSpecies === "Gentoo") {
+        datasets.push({ label: "Gentoo (r = 0.70)", data: gVals, backgroundColor: "rgba(16, 185, 129, 0.88)", borderRadius: 5 });
+      }
+      if (grpState.selectedSpecies === "all" || grpState.selectedSpecies === "Adelie") {
+        datasets.push({ label: "Adelie (r = 0.47)", data: aVals, backgroundColor: "rgba(99, 102, 241, 0.88)", borderRadius: 5 });
+      }
+      if (grpState.selectedSpecies === "all" || grpState.selectedSpecies === "Chinstrap") {
+        datasets.push({ label: "Chinstrap (r = 0.64)", data: cVals, backgroundColor: "rgba(245, 158, 11, 0.88)", borderRadius: 5 });
+      }
+
+      const modeText = grpState.permMode === "unconditional"
+        ? `<strong>🚨 Grupsuz Karıştırma:</strong> Ağır Gentoo penguenlerinin kütlesi hafif Adelie penguenlerine atandığı için kırmızı imkansız örnekler oluştu ve önem değerleri yapay olarak şişti.`
+        : `<strong>✅ Türe Göre Grup İçi Karıştırma (Şekil 23.3 &amp; 23.4):</strong> Her tür kendi içinde karıştırıldığında Pearson korelasyonu <strong>0.87'den 0.47–0.70 aralığına</strong> düşer. Vücut kütlesi (<span class="mono">body_mass_g</span>) Gentoo için çok önemliyken (${gVals[0]}x), Adelie (${aVals[0]}x) ve Chinstrap (${cVals[0]}x) için gaga ölçümlerinin gerisinde kalır.`;
+
+      document.getElementById("groupPfiInterpretation").innerHTML = `💡 ${modeText}`;
+
+      groupChart = new Chart(ctx, {
+        type: "bar",
+        data: { labels: GROUP_SPECIES_DATA.labels, datasets },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "top" } },
+          scales: {
+            x: { min: 0, title: { display: true, text: "Türe Göre PFI Oranı (e_perm / e_orig)", font: { size: 11.5, weight: "600" } } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function selectSpeciesFilter(sp) {
+      grpState.selectedSpecies = sp;
+      const map = {
+        all: document.getElementById("speciesBtnAll"),
+        Gentoo: document.getElementById("speciesBtnGentoo"),
+        Adelie: document.getElementById("speciesBtnAdelie"),
+        Chinstrap: document.getElementById("speciesBtnChinstrap")
+      };
+      Object.keys(map).forEach(k => {
+        map[k].className = k === sp
+          ? "p-2.5 rounded-xl border-2 border-indigo-600 bg-indigo-50/70 text-left transition"
+          : "p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition";
+      });
+      drawGroupPenguinScatter();
+      renderGroupPfiChart();
+    }
+
+    function activateTab(tab) {
+      const views = {
+        main: document.getElementById("viewMainPfi"),
+        cond: document.getElementById("viewCondSampling"),
+        group: document.getElementById("viewGroupPfi")
+      };
+      const btns = {
+        main: document.getElementById("tabBtnMainPfi"),
+        cond: document.getElementById("tabBtnCondSampling"),
+        group: document.getElementById("tabBtnGroupPfi")
+      };
+      Object.keys(views).forEach(k => {
+        if (k === tab) {
+          views[k].classList.remove("hidden");
+          btns[k].className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow";
+        } else {
+          views[k].classList.add("hidden");
+          btns[k].className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/60";
+        }
+      });
+      if (tab === "main") renderPfiChart();
+      else if (tab === "cond") {
+        if (condState.points.length === 0) generateCorrelatedPoints();
+        computeConditionalTargets(true);
+      } else if (tab === "group") {
+        if (grpState.penguins.length === 0) generatePenguinPopulation();
+        computeGroupPenguinPermutation(true);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("tabBtnMainPfi").addEventListener("click", () => activateTab("main"));
+      document.getElementById("tabBtnCondSampling").addEventListener("click", () => activateTab("cond"));
+      document.getElementById("tabBtnGroupPfi").addEventListener("click", () => activateTab("group"));
+
+      document.getElementById("pfiDatasetSelect").addEventListener("change", (e) => {
+        state.datasetKey = e.target.value;
+        initPfiTableData();
+        renderPfiChart();
+      });
+
+      document.getElementById("pfiModeRatioBtn").addEventListener("click", () => {
+        state.mode = "ratio";
+        document.getElementById("pfiModeRatioBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-indigo-50 border-indigo-600 text-indigo-700 transition";
+        document.getElementById("pfiModeDiffBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition";
+        renderPfiChart();
+        renderPfiTable();
+      });
+
+      document.getElementById("pfiModeDiffBtn").addEventListener("click", () => {
+        state.mode = "diff";
+        document.getElementById("pfiModeDiffBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-indigo-50 border-indigo-600 text-indigo-700 transition";
+        document.getElementById("pfiModeRatioBtn").className = "px-3 py-2 rounded-xl text-xs font-semibold border bg-white border-slate-200 text-slate-600 hover:bg-slate-50 transition";
+        renderPfiChart();
+        renderPfiTable();
+      });
+
+      document.getElementById("pfiRepeatsInput").addEventListener("input", (e) => {
+        state.repeats = Number(e.target.value);
+        document.getElementById("pfiRepeatsVal").textContent = `${state.repeats} tekrar`;
+        renderPfiChart();
+      });
+
+      document.getElementById("pfiAddCorrToggle").addEventListener("change", (e) => {
+        state.addCorrelatedTemp = e.target.checked;
+        renderPfiChart();
+      });
+
+      document.getElementById("pfiReshuffleBtn").addEventListener("click", () => {
+        state.noiseSeed += 1;
+        renderPfiChart();
+      });
+
+      document.getElementById("pfiResetTableBtn").addEventListener("click", () => {
+        initPfiTableData();
+        renderPfiChart();
+      });
+
+      // Sekme 2 dinleyicileri
+      document.getElementById("condBtnMarginal").addEventListener("click", () => selectCondMethod("marginal"));
+      document.getElementById("condBtnSubgroups").addEventListener("click", () => selectCondMethod("subgroups"));
+      document.getElementById("condBtnMatching").addEventListener("click", () => selectCondMethod("matching"));
+      document.getElementById("condBtnKnockoffs").addEventListener("click", () => selectCondMethod("knockoffs"));
+      document.getElementById("condBtnRfGrid").addEventListener("click", () => selectCondMethod("rfgrid"));
+
+      document.getElementById("condCorrSlider").addEventListener("input", (e) => {
+        condState.corr = Number(e.target.value) / 100;
+        document.getElementById("condCorrVal").textContent = `r = ${condState.corr.toFixed(2)}`;
+        generateCorrelatedPoints();
+        computeConditionalTargets(true);
+      });
+
+      document.getElementById("condPlayAnimBtn").addEventListener("click", () => {
+        condState.points.forEach(p => { p.currX2 = p.origX2; });
+        computeConditionalTargets(true);
+      });
+
+      document.getElementById("condResetAnimBtn").addEventListener("click", () => {
+        condState.points.forEach(p => { p.startX2 = p.currX2; p.targetX2 = p.origX2; p.isExtrapolated = false; });
+        computeConditionalTargets(true);
+      });
+
+      // Sekme 3 dinleyicileri
+      document.getElementById("grpModeBySpeciesBtn").addEventListener("click", () => {
+        grpState.permMode = "species";
+        document.getElementById("grpModeBySpeciesBtn").className = "w-full text-left p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/70 transition";
+        document.getElementById("grpModeUnconditionalBtn").className = "w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition";
+        computeGroupPenguinPermutation(true);
+      });
+
+      document.getElementById("grpModeUnconditionalBtn").addEventListener("click", () => {
+        grpState.permMode = "unconditional";
+        document.getElementById("grpModeUnconditionalBtn").className = "w-full text-left p-3 rounded-xl border-2 border-rose-600 bg-rose-50/70 transition";
+        document.getElementById("grpModeBySpeciesBtn").className = "w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition";
+        computeGroupPenguinPermutation(true);
+      });
+
+      document.getElementById("speciesBtnAll").addEventListener("click", () => selectSpeciesFilter("all"));
+      document.getElementById("speciesBtnGentoo").addEventListener("click", () => selectSpeciesFilter("Gentoo"));
+      document.getElementById("speciesBtnAdelie").addEventListener("click", () => selectSpeciesFilter("Adelie"));
+      document.getElementById("speciesBtnChinstrap").addEventListener("click", () => selectSpeciesFilter("Chinstrap"));
+
+      document.getElementById("grpPlayShuffleAnimBtn").addEventListener("click", () => {
+        grpState.penguins.forEach(p => { p.currMass = p.origMass; });
+        computeGroupPenguinPermutation(true);
+      });
+
+      document.getElementById("grpResetPenguinsBtn").addEventListener("click", () => {
+        grpState.penguins.forEach(p => { p.startMass = p.currMass; p.targetMass = p.origMass; p.isCrossError = false; });
+        drawGroupPenguinScatter();
+      });
+
+      initPfiTableData();
+      renderPfiChart();
+    });
+  </script>
+</body>
+</html>

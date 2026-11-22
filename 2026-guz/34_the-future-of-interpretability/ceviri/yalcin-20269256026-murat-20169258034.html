@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Yalçın Kavaklı">
+<meta name="author" content="Murat Şahin">
+
+<title>Bölüm 34 Yorumlanabilirliğin Geleceği</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="yalcin-20269256026-murat-20169258034_files/libs/clipboard/clipboard.min.js"></script>
+<script src="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/popper.min.js"></script>
+<script src="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/anchor.min.js"></script>
+<link href="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="yalcin-20269256026-murat-20169258034_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="yalcin-20269256026-murat-20169258034_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="yalcin-20269256026-murat-20169258034_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="yalcin-20269256026-murat-20169258034_files/libs/bootstrap/bootstrap-4f411e114d711e524ac8968afe1debc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#future" id="toc-future" class="nav-link active" data-scroll-target="#future">Yorumlanabilirliğin Geleceği</a>
+  <ul class="collapse">
+  <li><a href="#makine-öğrenmesinin-geleceği" id="toc-makine-öğrenmesinin-geleceği" class="nav-link" data-scroll-target="#makine-öğrenmesinin-geleceği">Makine öğrenmesinin geleceği</a></li>
+  <li><a href="#yorumlanabilirliğin-geleceği" id="toc-yorumlanabilirliğin-geleceği" class="nav-link" data-scroll-target="#yorumlanabilirliğin-geleceği">Yorumlanabilirliğin geleceği</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bölüm 34 Yorumlanabilirliğin Geleceği</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Yazarlar</div>
+  <div class="quarto-title-meta-heading">Kurumsal Üyelikler</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Yalçın Kavaklı </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Öğrenci numarası 20269256026
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Murat Şahin </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Öğrenci numarası 20169258034
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Özgün eser:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, <a href="https://christophm.github.io/interpretable-ml-book/future.html">future</a>.</p>
+<p><strong>Türkçe çeviriyi sunanlar:</strong> Yalçın Kavaklı (20269256026) ve Murat Şahin (20169258034).</p>
+<p><strong>Çeviri bilgisi:</strong> Eğitim amacıyla hazırlanmıştır. Kaynak metin Türkçeye çevrilmiş, bölüm içeriği özetlenmemiştir. Kaynak sürümü: <a href="https://github.com/christophM/interpretable-ml-book/blob/8f470c85e5ed4ebd69de74425cb9832f1bdc25eb/manuscript/future.qmd">8f470c85e5ed4ebd69de74425cb9832f1bdc25eb</a>. Lisans: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>. Bu çeviri de aynı lisansla paylaşılır. Kaynaktaki görüşler ve öngörüler özgün yazara aittir.</p>
+<section id="future" class="level1">
+<h1>Yorumlanabilirliğin Geleceği</h1>
+<p>Yorumlanabilir makine öğrenmesinin geleceği nasıl olacak? Bu bölüm, yorumlanabilir makine öğrenmesinin nasıl gelişeceğine ilişkin spekülatif bir düşünce alıştırması ve öznel bir tahmindir.</p>
+<p>Öngörülerimi üç öncüle dayandırıyorum:</p>
+<ol type="1">
+<li><p><strong>Dijitalleşme: İlgi çekici her bilgi dijitalleştirilecektir.</strong> Elektronik parayı ve çevrimiçi işlemleri düşünün. Elektronik kitapları, müziği ve videoları düşünün. Çevremiz, insan davranışları, endüstriyel üretim süreçleri ve benzerleri hakkındaki bütün sensör verilerini düşünün. Her şeyin dijitalleşmesini sağlayan etkenler; ucuz bilgisayarlar, sensörler ve depolama, ölçek etkileri (kazanan her şeyi alır), yeni iş modelleri, modüler değer zincirleri, maliyet baskısı ve çok daha fazlasıdır.</p></li>
+<li><p><strong>Otomasyon: Bir görev otomatikleştirilebiliyorsa ve otomasyonun maliyeti görevi zaman içinde yerine getirmenin maliyetinden düşükse görev otomatikleştirilecektir.</strong> Bilgisayarın ortaya çıkışından önce bile belirli ölçüde otomasyon vardı. Örneğin dokuma makinesi dokumayı, buhar makinesi ise at gücünü otomatikleştirdi. Ancak bilgisayarlar ve dijitalleşme, otomasyonu bir sonraki düzeye taşıyor. Yalnızca <code>for</code> döngüleri programlayabilmeniz, Excel makroları yazabilmeniz, e-posta yanıtlarını otomatikleştirebilmeniz ve benzerleri bile bir kişinin ne kadar çok şeyi otomatikleştirebileceğini gösteriyor. Bilet makineleri tren bileti satın almayı (artık gişe görevlisine gerek kalmaz), çamaşır makineleri çamaşır yıkamayı, düzenli ödeme talimatları ödeme işlemlerini otomatikleştirir. Görevlerin otomatikleştirilmesi zaman ve para kazandırır; dolayısıyla işleri otomatikleştirmek için çok güçlü ekonomik ve kişisel teşvikler vardır. Şu anda dil çevirisinin, araç kullanmanın ve küçük ölçüde de olsa bilimsel keşfin bile otomatikleşmesine tanık oluyoruz.</p></li>
+<li><p><strong>Yanlış belirtim: Bir hedefi bütün kısıtlarıyla birlikte kusursuz biçimde tanımlayamıyoruz.</strong> Dileklerinizi her zaman kelimesi kelimesine yerine getiren şişedeki cini düşünün:<br>
+“Dünyanın en zengin insanı olmak istiyorum!” → En zengin kişi olursunuz, ancak bir yan etki olarak elinizdeki para birimi enflasyon nedeniyle çöker.<br>
+“Hayatımın geri kalanında mutlu olmak istiyorum!” → Sonraki beş dakika boyunca çok mutlu hissedersiniz, ardından cin sizi öldürür.<br>
+“Dünya barışı diliyorum!” → Cin bütün insanları öldürür.<br>
+Bütün kısıtları bilmediğimiz veya ölçemediğimiz için hedefleri yanlış tanımlarız. Hedefin kusurlu biçimde tanımlanmasına örnek olarak şirketlere bakalım. Bir şirketin basit hedefi hissedarlarına para kazandırmaktır. Ancak bu tanım, gerçekte ulaşmak istediğimiz asıl hedefi bütün kısıtlarıyla kapsamaz. Örneğin bir şirketin para kazanmak için insanları öldürmesini, nehirleri zehirlemesini veya kendi parasını basmasını hoş karşılamayız. Hedef tanımındaki kusurları gidermek için yasalar, düzenlemeler, yaptırımlar, uyum prosedürleri, işçi sendikaları ve daha fazlasını oluşturduk. Kendiniz deneyimleyebileceğiniz başka bir örnek, mümkün olduğunca çok ataç üretme hedefi olan bir makineyi oynadığınız <a href="http://www.decisionproblem.com/paperclips/index2.html">Paperclips</a> oyunudur. UYARI: Bağımlılık yapar. Çok fazla ipucu vermek istemiyorum ama işlerin çok çabuk kontrolden çıktığını söyleyebiliriz. Makine öğrenmesinde hedef tanımındaki kusurlar; kusurlu veri soyutlamalarından (yanlı popülasyonlar, ölçüm hataları vb.), kısıtsız kayıp fonksiyonlarından, kısıtlar hakkındaki bilgi eksikliğinden, eğitim verileri ile uygulama verileri arasındaki dağılım değişiminden ve daha birçok etkenden kaynaklanır.</p></li>
+</ol>
+<p>Dijitalleşme otomasyonu hızlandırır. Hedefin kusurlu biçimde tanımlanması otomasyonla çatışır. Bu çatışmanın yorumlama yöntemleriyle kısmen giderildiğini ileri sürüyorum.</p>
+<p>Tahminlerimiz için sahne kuruldu, kristal küre hazır. Şimdi alanın nereye gidebileceğine bakalım!</p>
+<section id="makine-öğrenmesinin-geleceği" class="level2">
+<h2 class="anchored" data-anchor-id="makine-öğrenmesinin-geleceği">Makine öğrenmesinin geleceği</h2>
+<p>Makine öğrenmesi olmadan yorumlanabilir makine öğrenmesi de olamaz. Bu nedenle yorumlanabilirlikten söz etmeden önce makine öğrenmesinin nereye gittiğini tahmin etmemiz gerekiyor.</p>
+<p>Makine öğrenmesi (veya “yapay zekâ”), birçok vaat ve beklentiyle ilişkilendiriliyor. Ama daha az iyimser bir gözlemle başlayalım. Bilim pek çok etkileyici makine öğrenmesi aracı geliştirirken, deneyimlerime göre bunları mevcut süreçlere ve ürünlere entegre etmek oldukça zor. Olanaksız olduğu için değil, şirketlerin ve kurumların bu gelişmelere yetişmesi zaman aldığı için. Yapay zekâya yönelik mevcut heyecanın yarattığı altına hücum ortamında şirketler “Yapay Zekâ Laboratuvarları”, “Makine Öğrenmesi Birimleri” açıp “Veri Bilimcileri”, “Makine Öğrenmesi Uzmanları”, “Yapay Zekâ Mühendisleri” ve benzerlerini işe alıyor; ancak deneyimlerime göre gerçeklik oldukça hayal kırıklığı yaratıcı. Şirketlerin çoğu zaman gerekli biçimde verisi bile olmuyor ve veri bilimcileri aylarca boşta bekliyor. Bazen şirketler medyanın etkisiyle yapay zekâdan ve veri biliminden öylesine yüksek beklentilere giriyor ki veri bilimcilerinin bunları karşılaması olanaksızlaşıyor. Çoğu zaman da kimse veri bilimcilerinin mevcut yapılara nasıl entegre edileceğini bilmiyor; daha pek çok sorun da var. Bu durum beni ilk tahminime götürüyor.</p>
+<p><strong>Makine öğrenmesi yavaş ama istikrarlı biçimde olgunlaşacak.</strong></p>
+<p>Dijitalleşme ilerliyor ve otomatikleştirmenin cazibesi sürekli kendini hissettiriyor. Makine öğrenmesini benimseme yolu yavaş ilerlese ve engellerle dolu olsa da makine öğrenmesi bilimden iş süreçlerine, ürünlere ve gerçek dünya uygulamalarına doğru sürekli taşınıyor.</p>
+<p>Hangi tür sorunların makine öğrenmesi problemi olarak ifade edilebileceğini uzman olmayanlara daha iyi anlatmamız gerektiğine inanıyorum. Makine öğrenmesi uygulamak yerine Excel hesaplamaları yapan veya raporlama ve SQL sorgularıyla klasik iş zekâsı çalışmaları yürüten, yüksek ücretli birçok veri bilimci tanıyorum. Bununla birlikte büyük internet şirketleri başta olmak üzere bazı şirketler makine öğrenmesini şimdiden başarıyla kullanıyor. Makine öğrenmesini süreçlere ve ürünlere entegre etmenin daha iyi yollarını bulmalı, insanları eğitmeli ve kullanımı kolay makine öğrenmesi araçları geliştirmeliyiz. Makine öğrenmesinin kullanımının çok daha kolaylaşacağına inanıyorum. Örneğin bulut hizmetleri aracılığıyla makine öğrenmesinin daha erişilebilir hâle geldiğini şimdiden görebiliyoruz (birkaç moda terim kullanmış olmak için “hizmet olarak makine öğrenmesi” diyelim). Makine öğrenmesi olgunlaştığında, ki bu küçük çocuk ilk adımlarını çoktan attı, bir sonraki tahminim şu:</p>
+<p><strong>Makine öğrenmesi pek çok şeye güç verecek.</strong></p>
+<p>“Otomatikleştirilebilen her şey otomatikleştirilecektir” ilkesinden yola çıkarak, mümkün olan her durumda görevlerin tahmin problemleri olarak ifade edilip makine öğrenmesiyle çözüleceği sonucuna varıyorum. Makine öğrenmesi bir otomasyon biçimidir veya en azından otomasyonun parçası olabilir. Şu anda insanların yaptığı pek çok görevin yerini makine öğrenmesi alıyor. Aşağıda, bazı kısımları makine öğrenmesiyle otomatikleştirilen görevlere örnekler var:</p>
+<ul>
+<li>Belgelerin sınıflandırılması, belgeler hakkında karar verilmesi veya belgelerin tamamlanması (örneğin sigorta şirketlerinde, hukuk sektöründe veya danışmanlık firmalarında)</li>
+<li>Kredi başvuruları gibi veriye dayalı kararlar</li>
+<li>İlaç keşfi</li>
+<li>Montaj hatlarında kalite kontrolü</li>
+<li>Sürücüsüz otomobiller</li>
+<li>Hastalıkların teşhisi</li>
+<li>Çeviri. Bu kitapta cümlelerimi iyileştirmek için, derin sinir ağlarıyla çalışan <a href="https://deepl.com">DeepL</a> adlı bir çeviri hizmeti kullanarak onları İngilizceden Almancaya ve ardından yeniden İngilizceye çevirdim.</li>
+<li>…</li>
+</ul>
+<p>Makine öğrenmesindeki atılım yalnızca daha iyi bilgisayarlarla, daha çok veriyle veya daha iyi yazılımlarla gerçekleşmez. Bir başka etken de şudur:</p>
+<p><strong>Yorumlanabilirlik araçları makine öğrenmesinin benimsenmesini hızlandırır.</strong></p>
+<p>Bir makine öğrenmesi modelinin hedefinin hiçbir zaman kusursuz biçimde tanımlanamayacağı öncülünden, yanlış tanımlanmış hedef ile gerçek hedef arasındaki açığı kapatmak için yorumlanabilir makine öğrenmesinin gerekli olduğu sonucu çıkar. Birçok alanda ve sektörde yorumlanabilirlik, makine öğrenmesinin benimsenmesini hızlandıran etken olacaktır. Gündelik gözlemlere dayalı bazı kanıtlar vereyim. Konuştuğum pek çok kişi, modelleri başkalarına açıklayamadığı için makine öğrenmesi kullanmıyor. Yorumlanabilirliğin bu sorunu ele alacağına ve makine öğrenmesini bir miktar şeffaflık talep eden kuruluşlar ve kişiler için çekici hâle getireceğine inanıyorum. Problemin yanlış tanımlanmasının yanı sıra birçok sektör, hukuki nedenlerle, riskten kaçınmak için veya ele alınan görevin özüne ilişkin içgörü kazanmak amacıyla yorumlanabilirliğe ihtiyaç duyar. Makine öğrenmesi modelleme sürecini otomatikleştirerek insanı veriden ve ele alınan görevden biraz daha uzaklaştırır. Bu durum deney tasarımı, eğitim dağılımının seçimi, örnekleme, veri kodlama, özellik mühendisliği ve benzeri konulardaki sorunların riskini artırır. Yorumlama araçları bu sorunların belirlenmesini kolaylaştırır.</p>
+</section>
+<section id="yorumlanabilirliğin-geleceği" class="level2">
+<h2 class="anchored" data-anchor-id="yorumlanabilirliğin-geleceği">Yorumlanabilirliğin geleceği</h2>
+<p>Makine öğrenmesinde yorumlanabilirliğin olası geleceğine bakalım.</p>
+<p><strong>Odak, modelden bağımsız yorumlanabilirlik araçlarında olacak.</strong></p>
+<p>Yorumlanabilirliği, altta yatan makine öğrenmesi modelinden ayırdığımızda otomatikleştirmek çok daha kolaydır. Modelden bağımsız yorumlanabilirliğin avantajı modülerliğindedir. Altta yatan makine öğrenmesi modelini kolayca değiştirebiliriz. Yorumlama yöntemini de aynı kolaylıkla değiştirebiliriz. Bu nedenlerle modelden bağımsız yöntemler çok daha iyi ölçeklenecektir. Dolayısıyla uzun vadede modelden bağımsız yöntemlerin daha baskın hâle geleceğine inanıyorum. Ancak doğası gereği yorumlanabilir yöntemlerin de bir yeri olacak.</p>
+<p><strong>Makine öğrenmesi ve onunla birlikte yorumlanabilirlik otomatikleştirilecek.</strong></p>
+<p>Model eğitiminin otomatikleştirilmesi, şimdiden görülen bir eğilimdir. Buna otomatik özellik mühendisliği ve seçimi, otomatik hiperparametre optimizasyonu, farklı modellerin karşılaştırılması ve modellerin topluluk veya yığma yöntemleriyle birleştirilmesi dâhildir. Sonuç, mümkün olan en iyi tahmin modelidir. Modelden bağımsız yorumlama yöntemleri kullandığımızda, bunları otomatik makine öğrenmesi sürecinden çıkan herhangi bir modele otomatik olarak uygulayabiliriz. Bir bakıma bu ikinci adımı da otomatikleştirebiliriz: Özellik önemini otomatik hesaplamak, kısmi bağımlılık grafiğini çizmek, bir vekil model eğitmek ve benzeri işlemler. Bütün bu model yorumlarını otomatik olarak hesaplamanıza engel olan bir şey yok. Asıl yorumlama ise hâlâ insan gerektiriyor. Şunu hayal edin: Bir veri kümesi yüklüyorsunuz, tahmin hedefini belirliyorsunuz ve bir düğmeye bastığınızda en iyi tahmin modeli eğitiliyor; program da modelin bütün yorumlarını üretiyor. İlk ürünler şimdiden var ve birçok uygulama için bu otomatik makine öğrenmesi hizmetlerini kullanmanın yeterli olacağını savunuyorum. Bugün herkes HTML, CSS ve JavaScript bilmeden web sitesi kurabiliyor ama hâlâ çok sayıda web geliştiricisi var. Benzer biçimde, herkesin programlama bilmeden makine öğrenmesi modelleri eğitebileceğine ve yine de makine öğrenmesi uzmanlarına ihtiyaç duyulacağına inanıyorum.</p>
+<p><strong>Verileri değil, modelleri analiz ediyoruz.</strong></p>
+<p>Ham verinin kendisi her zaman yararsızdır. (Bilerek abartıyorum. Gerçekte anlamlı bir analiz yapabilmek için veriyi derinlemesine anlamanız gerekir.) Benim için önemli olan verinin kendisi değil, içinde bulunan bilgidir. Yorumlanabilir makine öğrenmesi, veriden bilgiyi damıtmanın harika bir yoludur. Modeli kapsamlı biçimde sorgulayabilirsiniz; model, özelliklerin tahmin için önemli olup olmadığını ve nasıl önemli olduğunu otomatik olarak belirler (birçok modelin yerleşik özellik seçimi vardır), ilişkilerin nasıl temsil edildiğini otomatik olarak saptayabilir ve doğru eğitilmişse ortaya çıkan model gerçekliğin çok iyi bir yaklaşık temsilidir.</p>
+<p>Pek çok analiz aracı zaten veri modellerine dayanır; çünkü dağılım varsayımları üzerine kuruludur:</p>
+<ul>
+<li>Student’ın t-testi gibi basit hipotez testleri</li>
+<li>Karıştırıcı değişkenler için düzeltme yapılan hipotez testleri (genellikle genelleştirilmiş doğrusal modeller, GLM’ler)</li>
+<li>Varyans analizi (ANOVA)</li>
+<li>Korelasyon katsayısı (standartlaştırılmış doğrusal regresyon katsayısı, Pearson korelasyon katsayısıyla ilişkilidir)</li>
+<li>…</li>
+</ul>
+<p>Burada anlattıklarım aslında yeni değil. Öyleyse neden varsayımlara dayanan şeffaf modelleri analiz etmekten, varsayımsız kara kutu modellerini analiz etmeye geçelim? Çünkü bütün bu varsayımları yapmak sorunludur. Bunlar genellikle yanlıştır (dünyanın büyük bölümünün Gauss dağılımına uyduğuna inanmıyorsanız), sınanmaları zordur, çok esnek değildirler ve otomatikleştirilmeleri güçtür. Birçok alanda varsayımlara dayanan modeller, daha önce kullanılmamış test verilerinde genellikle kara kutu makine öğrenmesi modellerinden daha düşük tahmin performansı gösterir. Bu yalnızca büyük veri kümeleri için geçerlidir; çünkü iyi varsayımlara sahip yorumlanabilir modeller, küçük veri kümelerinde çoğu zaman kara kutu modellerinden daha iyi performans gösterir. Kara kutu makine öğrenmesi yaklaşımı iyi çalışmak için çok miktarda veri gerektirir. Her şeyin dijitalleşmesiyle gittikçe daha büyük veri kümelerine sahip olacağız ve bu nedenle makine öğrenmesi yaklaşımı daha çekici hâle gelecek. Varsayımlar yapmıyoruz; gerçekliğe olabildiğince yaklaşıyoruz (eğitim verisine aşırı uyumdan kaçınarak). İstatistikte soruları yanıtlamak için kullandığımız bütün araçları (hipotez testleri, korelasyon ölçüleri, etkileşim ölçüleri, görselleştirme araçları, güven aralıkları, p-değerleri, tahmin aralıkları, olasılık dağılımları) geliştirip kara kutu modelleri için yeniden yazmamız gerektiğini savunuyorum. Bir bakıma bu zaten gerçekleşiyor:</p>
+<ul>
+<li>Klasik bir doğrusal modeli ele alalım: Standartlaştırılmış regresyon katsayısı zaten bir özellik önemi ölçüsüdür. <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html">Permütasyon özellik önemi ölçüsü</a> ile her modelde çalışan bir aracımız var.</li>
+<li>Doğrusal bir modelde katsayılar, tek bir özelliğin tahmin edilen sonuç üzerindeki etkisini ölçer. Bunun genelleştirilmiş hâli <a href="https://christophm.github.io/interpretable-ml-book/pdp.html">kısmi bağımlılık grafiğidir</a>.</li>
+<li>A’nın mı B’nin mi daha iyi olduğunu sınamak: Bunun için de kısmi bağımlılık fonksiyonlarını kullanabiliriz. Henüz sahip olmadığımız şey ise, bildiğim kadarıyla, herhangi bir kara kutu modeline uygulanabilen istatistiksel testlerdir.</li>
+</ul>
+<p><strong>Veri bilimcileri kendilerini otomatikleştirecek.</strong></p>
+<p>Veri bilimcilerinin sonunda birçok analiz ve tahmin görevi bakımından işlerinin büyük bölümünü otomatikleştireceklerine inanıyorum. Bunun gerçekleşmesi için görevler iyi tanımlanmış olmalı ve bunlara ilişkin bazı süreçler ve rutinler bulunmalıdır. Bugün bu rutinler ve süreçler eksik ama veri bilimcileri ve meslektaşları bunlar üzerinde çalışıyor. Makine öğrenmesi birçok sektörün ve kurumun ayrılmaz bir parçası hâline geldikçe pek çok görev otomatikleştirilecek.</p>
+<p><strong>Robotlar ve programlar kendilerini açıklayacak.</strong></p>
+<p>Makine öğrenmesini yoğun biçimde kullanan makineler ve programlar için daha sezgisel arayüzlere ihtiyacımız var. Bazı örnekler: Neden aniden durduğunu bildiren sürücüsüz bir otomobil (“Bir çocuğun yola çıkma olasılığı yüzde 70”); bir banka çalışanına kredi başvurusunun neden reddedildiğini açıklayan bir kredi temerrüdü programı (“Başvuru sahibinin çok fazla kredi kartı var ve istikrarsız bir işte çalışıyor.”); bir ürünü taşıma bandından çöp kutusuna neden taşıdığını açıklayan bir robot kol (“Ürünün alt kısmında ince bir çatlak var.”).</p>
+<p>Sonuçta bunların hepsi birer öngörü; geleceğin gerçekten ne getireceğini görmemiz gerekiyor. Kendi görüşünüzü oluşturun ve öğrenmeye devam edin!</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Kaydırılabilir kod","output":"Kaydırılabilir çıktı"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

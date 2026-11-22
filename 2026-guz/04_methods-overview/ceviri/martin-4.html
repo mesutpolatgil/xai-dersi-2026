@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="tr" xml:lang="tr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Asasira Martin">
+
+<title>Yöntemlere Genel Bakış</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="martin-4_files/libs/clipboard/clipboard.min.js"></script>
+<script src="martin-4_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="martin-4_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="martin-4_files/libs/quarto-html/popper.min.js"></script>
+<script src="martin-4_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="martin-4_files/libs/quarto-html/anchor.min.js"></script>
+<link href="martin-4_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="martin-4_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="martin-4_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="martin-4_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="martin-4_files/libs/bootstrap/bootstrap-194536991d9633e74e84a110f49a696f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">İçindekiler</h2>
+   
+  <ul>
+  <li><a href="#tasarım-gereği-yorumlanabilir-modeller" id="toc-tasarım-gereği-yorumlanabilir-modeller" class="nav-link active" data-scroll-target="#tasarım-gereği-yorumlanabilir-modeller"><span class="header-section-number">1</span> Tasarım gereği yorumlanabilir modeller</a></li>
+  <li><a href="#sonradan-yorumlanabilirlik" id="toc-sonradan-yorumlanabilirlik" class="nav-link" data-scroll-target="#sonradan-yorumlanabilirlik"><span class="header-section-number">2</span> Sonradan yorumlanabilirlik</a>
+  <ul class="collapse">
+  <li><a href="#modelden-bağımsız-sonradan-yöntemler" id="toc-modelden-bağımsız-sonradan-yöntemler" class="nav-link" data-scroll-target="#modelden-bağımsız-sonradan-yöntemler"><span class="header-section-number">2.1</span> Modelden bağımsız sonradan yöntemler</a></li>
+  <li><a href="#modele-özgü-sonradan-yöntemler" id="toc-modele-özgü-sonradan-yöntemler" class="nav-link" data-scroll-target="#modele-özgü-sonradan-yöntemler"><span class="header-section-number">2.2</span> Modele özgü sonradan yöntemler</a></li>
+  </ul></li>
+  <li><a href="#sınırlar-bulanıktır" id="toc-sınırlar-bulanıktır" class="nav-link" data-scroll-target="#sınırlar-bulanıktır"><span class="header-section-number">3</span> Sınırlar bulanıktır</a></li>
+  <li><a href="#kaynakça" id="toc-kaynakça" class="nav-link" data-scroll-target="#kaynakça"><span class="header-section-number">4</span> Kaynakça</a></li>
+  <li><a href="#kaynakça-bilgisi" id="toc-kaynakça-bilgisi" class="nav-link" data-scroll-target="#kaynakça-bilgisi"><span class="header-section-number">5</span> Kaynakça bilgisi</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Yöntemlere Genel Bakış</h1>
+<p class="subtitle lead">Bölüm 4</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Yazar</div>
+    <div class="quarto-title-meta-contents">
+             <p>Asasira Martin </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Çeviri kaynağı:</strong> Christoph Molnar, <em>Interpretable Machine Learning</em>, 3. baskı (2025), <a href="https://christophm.github.io/interpretable-ml-book/overview.html">Bölüm 4: Methods Overview</a>. Özgün eser CC BY-NC-SA 4.0 lisanslıdır. Teknik terimler, gerekli olduğu yerlerde İngilizce karşılıklarıyla birlikte verilmiştir.</p>
+</blockquote>
+<p>Bu bölüm, yorumlanabilirlik yaklaşımlarına genel bir bakış sunar. Amaç, tek tek modellere ve yöntemlere geçtiğinizde büyük resmi görebilmeniz için bir yol haritası vermektir. Şekil <a href="#fig-taxonomy" class="quarto-xref">Şekil&nbsp;1</a>, farklı yaklaşımların bir sınıflandırmasını sunar.</p>
+<div id="fig-taxonomy" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-taxonomy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://christophm.github.io/interpretable-ml-book/images/taxonomy.jpg" class="img-fluid figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-taxonomy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;1: Kitabın yapısını yansıtan yorumlanabilirlik yöntemlerinin kısa sınıflandırması.
+</figcaption>
+</figure>
+</div>
+<p>Genel olarak, <strong>tasarım gereği yorumlanabilirlik</strong> (<em>interpretability by design</em>) ile <strong>sonradan yorumlanabilirlik</strong> (<em>post-hoc interpretability</em>) arasında ayrım yapabiliriz. Tasarım gereği yorumlanabilirlik, rastgele orman yerine lojistik regresyon kullanmak gibi, doğası gereği yorumlanabilir modeller eğittiğimiz anlamına gelir. Sonradan yorumlanabilirlik ise model eğitildikten sonra bir yorumlama yönteminin uygulanmasıdır.</p>
+<p>Sonradan yorumlama yöntemleri, permütasyon özellik önemi gibi <strong>modelden bağımsız</strong> (<em>model-agnostic</em>) ya da sinir ağının öğrendiği özelliklerin incelenmesi gibi <strong>modele özgü</strong> (<em>model-specific</em>) olabilir. Modelden bağımsız yöntemler ayrıca, tek tek tahminleri açıklayan <strong>yerel</strong> (<em>local</em>) ve veri kümelerine odaklanan <strong>genel</strong> (<em>global</em>) yöntemlere ayrılır. Bu kitap ağırlıkla sonradan uygulanan modelden bağımsız yöntemlere odaklanır; bununla birlikte tasarım gereği yorumlanabilir temel modelleri ve sinir ağlarına özgü yöntemleri de ele alır.</p>
+<p>Şimdi yorumlanabilirliğin her kategorisini, yorumlama hedefleri bakımından güçlü ve zayıf yönleriyle inceleyelim.</p>
+<section id="tasarım-gereği-yorumlanabilir-modeller" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="tasarım-gereği-yorumlanabilir-modeller"><span class="header-section-number">1</span> Tasarım gereği yorumlanabilir modeller</h2>
+<p>Tasarım gereği yorumlanabilirlik, makine öğrenmesi <strong>algoritması</strong> düzeyinde belirlenir. Yorumlanabilir modeller üreten bir makine öğrenmesi algoritması istiyorsanız, algoritmanın model aramasını yorumlanabilir modellerle sınırlaması gerekir. En basit örnek doğrusal regresyondur: Bir doğrusal regresyon modelini sıradan en küçük kareler yöntemiyle uyarladığınız/eğittiğinizde, girdi özellikleri bakımından doğrusal modeller bulan bir algoritma kullanmış olursunuz. Tasarım gereği yorumlanabilir modellere <strong>içsel</strong> (<em>intrinsic</em>) veya <strong>doğası gereği</strong> (<em>inherently</em>) yorumlanabilir modeller de denir; bkz. Şekil <a href="#fig-inherently" class="quarto-xref">Şekil&nbsp;2</a>.</p>
+<div id="fig-inherently" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-inherently-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://christophm.github.io/interpretable-ml-book/images/interpretable-box.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-inherently-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;2: Tasarım gereği yorumlanabilirlik, doğası gereği yorumlanabilir modeller üreten makine öğrenmesi algoritmalarının kullanılması demektir.
+</figcaption>
+</figure>
+</div>
+<p>Bu kitap, tasarım gereği yorumlanabilirliğe ilişkin en temel yaklaşımları kapsar:</p>
+<ul>
+<li><strong>Doğrusal regresyon:</strong> Kareli hataların toplamını en aza indirerek doğrusal bir model uyarlar.</li>
+<li><strong>Lojistik regresyon:</strong> Doğrusal regresyonu, doğrusal olmayan bir dönüşüm kullanarak sınıflandırmaya genişletir.</li>
+<li><strong>Doğrusal model uzantıları:</strong> Daha fazla esneklik için ceza terimleri, etkileşimler ve doğrusal olmayan terimler ekler.</li>
+<li><strong>Karar ağaçları:</strong> Ağaç tabanlı modeller oluşturmak için veriyi özyinelemeli biçimde böler.</li>
+<li><strong>Karar kuralları:</strong> Veriden eğer-ise kuralları çıkarır.</li>
+<li><strong>RuleFit:</strong> Seyrek, kural tabanlı modeller öğrenmek üzere ağaç tabanlı kuralları Lasso regresyonuyla birleştirir.</li>
+</ul>
+<p>Yorumlanabilir modeller için, bu temel yaklaşımların uzantılarından çok özel yöntemlere kadar uzanan çok daha fazla seçenek vardır. Hepsini ele almak olanaksız olduğundan burada temel yaklaşımlara odaklanılmıştır. Tasarım gereği yorumlanabilir diğer yaklaşımlara örnekler şunlardır:</p>
+<ul>
+<li>Görüntü sınıflandırması için prototip tabanlı sinir ağları olan <strong>ProtoViT</strong> <span class="citation" data-cites="ma2024">(<a href="#ref-ma2024" role="doc-biblioref">Ma vd. 2024</a>)</span>. Bu ağlar, görüntü sınıflandırmasının prototiplerin (eğitim verisinden özel görüntülerin) ve alt prototiplerin ağırlıklı toplamı olacağı şekilde eğitilir.</li>
+<li>Yang ve arkadaşları <span class="citation" data-cites="yang2024">(<a href="#ref-yang2024" role="doc-biblioref">Yang vd. 2024</a>)</span>, düşük azami ağaç derinliği gibi ayarlanmış hiperparametrelere, özellik etkilerini ana etkiler ve etkileşimler olarak sıralayan farklı bir gösterime ve etkilerin budanmasına sahip doğası gereği yorumlanabilir ağaç toplulukları önermiştir. Bu yaklaşım, tasarım gereği ve sonradan yorumlanabilirliği bir araya getirir.</li>
+<li>Model tabanlı boosting, toplamsal bir modelleme çerçevesidir. Eğitilmiş model; doğrusal etkilerin, spline’ların, ağaç kütüklerinin (<em>tree stumps</em>) ve diğer zayıf öğrenicilerin ağırlıklı toplamıdır <span class="citation" data-cites="buhlmann2007">(<a href="#ref-buhlmann2007" role="doc-biblioref">Bühlmann ve Hothorn 2007</a>)</span>.</li>
+<li>Otomatik etkileşim tespitine sahip genelleştirilmiş toplamsal modeller <span class="citation" data-cites="caruana2015">(<a href="#ref-caruana2015" role="doc-biblioref">Caruana vd. 2015</a>)</span>.</li>
+</ul>
+<p>Peki, doğası gereği yorumlanabilir modeller ne kadar yorumlanabilirdir? Yorumlanabilir model yaklaşımları ve bunların yorumları büyük ölçüde farklılaşır. Yaklaşımları sınıflandırmaya yardımcı olan yorumlanabilirliğin kapsamını ele alalım:</p>
+<ul>
+<li><strong>Modelin tamamı yorumlanabilirdir.</strong> Küçük bir karar ağacı görselleştirilebilir ve kolayca anlaşılabilir; çok fazla katsayısı olmayan doğrusal regresyon için de aynı durum geçerlidir. Ancak “tamamen yorumlanabilir” zorlu ve aynı zamanda belirsiz bir gerekliliktir. Bu terim, kullanılacaksa, yalnızca çok seyrek doğrusal regresyonlar veya çok kısa ağaçlar gibi en basit modeller için kullanılmalıdır.</li>
+<li><strong>Modelin bazı bölümleri yorumlanabilirdir.</strong> Yüzlerce özelliğe sahip bir regresyon modeli tamamen yorumlanabilir olmayabilir; fakat özelliklerle ilişkili tek tek katsayılar yine de yorumlanabilir. Büyük bir karar listesinde de tek tek kurallar incelenebilir.</li>
+<li><strong>Model tahminleri yorumlanabilirdir.</strong> Bazı yaklaşımlar tek tek tahminleri yorumlamamızı sağlar. Örneğin, görüntüler için <span class="math inline">\(k\)</span>-en yakın komşuya benzer bir algoritma geliştirdiğinizi düşünün. Bir görüntüyü sınıflandırmak için en benzer <span class="math inline">\(k\)</span> görüntüyü alır ve en sık görülen sınıfı döndürürsünüz. Tahmin, bu <span class="math inline">\(k\)</span> benzer görüntü gösterilerek tamamen açıklanır. Karar ağaçlarında ise tahmine götüren karar listesi döndürülerek tahmin açıklanabilir.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Yorumlanabilirlik kapsamını değerlendirin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Yeni bir yorumlanabilirlik yaklaşımını incelerken kapsamını değerlendirin. Yaklaşımın hangi düzeylerde çalıştığını sorun: modelin tamamı, modelin bir bölümü ya da tek tek tahminler yorumlanabilir mi?</p>
+</div>
+</div>
+<p>Tasarım gereği yorumlanabilir modeller, iç işleyişleri hakkında içgörü sağladıkları için genellikle daha kolay hata ayıklanır ve geliştirilir.</p>
+<p>Bu modeller, tahminlerin nasıl üretildiğini çoğu zaman sadık biçimde açıkladıkları için modelleri ve çıktıları gerekçelendirmede de öne çıkar. Ayrıca alan uzmanlarıyla modellerin alan bilgisiyle tutarlı olup olmadığını kontrol etmeyi kolaylaştırırlar. Tıp araştırmalarında lojistik regresyon örneğinde olduğu gibi, veri odaklı birçok alanda yerleşik yorumlanabilir modelleme yaklaşımları zaten vardır.</p>
+<p>İçgörü keşfi söz konusu olduğunda yorumlanabilir modellerin durumu karmaşıktır. Modellerin kendisi hakkında içgörü çıkarmayı kolaylaştırırlar. Fakat veri hakkında içgörü söz konusu olduğunda, model yapısı ile veri arasında kuramsal bir bağ kurulması gerektiği için durum zorlaşır. Modeli verinin yerine yorumlamak için model yapısının dünyayı yansıttığını varsaymanız gerekir; istatistikçiler bunun için çok çalışır ve çok sayıda varsayıma ihtiyaç duyar. Peki daha iyi tahmin performansına sahip başka bir model varsa? Yorumlanabilir modelin tahmin performansı daha düşük olsa bile veriyi doğru temsil ettiğini savunmanız gerekir. Ayrıca, benzer performanslı fakat farklı yorumlara sahip birden çok model bulunabilir. Buna <strong>Rashomon etkisi</strong> denir. Bu model çokluğu, hangi modelin yorumlanması gerektiğini belirsizleştirir.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Not</span>Rashomon
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>1950 tarihli Japon filmi <em>Rashomon</em>, bir cinayet olayının birbirinden farklı dört anlatımını sunar. Her anlatım olayları eşit derecede iyi açıklayabilse de anlatımlar birbirleriyle bağdaşmaz. Bu olguya Rashomon etkisi adı verilmiştir.</p>
+</div>
+</div>
+</section>
+<section id="sonradan-yorumlanabilirlik" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="sonradan-yorumlanabilirlik"><span class="header-section-number">2</span> Sonradan yorumlanabilirlik</h2>
+<p>Sonradan yöntemler, model eğitildikten sonra uygulanır. Bu yöntemler modelden bağımsız veya modele özgü olabilir:</p>
+<ul>
+<li><strong>Modelden bağımsız:</strong> Modelin <em>içinde</em> ne olduğunu göz ardı eder, yalnızca özellik girdilerindeki değişikliklere göre model çıktısının nasıl değiştiğini analiz ederiz. Örneğin, bir özelliği permüte eder ve model hatasının ne kadar arttığını ölçeriz.</li>
+<li><strong>Modele özgü:</strong> Modeli daha iyi anlamak için modelin bazı bölümlerini analiz ederiz. Bir sinir ağındaki nöronun en çok hangi tür görüntülere tepki verdiğini ya da rastgele ormanlardaki Gini önemini incelemek buna örnektir.</li>
+</ul>
+<section id="modelden-bağımsız-sonradan-yöntemler" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="modelden-bağımsız-sonradan-yöntemler"><span class="header-section-number">2.1</span> Modelden bağımsız sonradan yöntemler</h3>
+<p>Modelden bağımsız yöntemler SIPA ilkesiyle çalışır: veriden <strong>örnekleme</strong> (<em>sample</em>) yapılır, veriye bir <strong>müdahale</strong> (<em>intervention</em>) uygulanır, değiştirilmiş veri için <strong>tahminler</strong> (<em>predictions</em>) alınır ve sonuçlar <strong>birleştirilir</strong> (<em>aggregate</em>) <span class="citation" data-cites="scholbeck2020">(<a href="#ref-scholbeck2020" role="doc-biblioref">Scholbeck vd. 2020</a>)</span>. Permütasyon özellik önemi buna örnektir: veri örneklemi alınır, veri permüte edilerek müdahale edilir, model tahminleri elde edilir; ardından model hatası yeniden hesaplanır ve özgün kayıpla karşılaştırılır (birleştirme). Bu yöntemleri modelden bağımsız yapan şey, Şekil <a href="#fig-black-box" class="quarto-xref">Şekil&nbsp;3</a>’ta gösterildiği gibi, katsayıları veya ağırlıkları okumak için modelin “içine” bakmalarını gerektirmemesidir.</p>
+<div id="fig-black-box" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-black-box-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://christophm.github.io/interpretable-ml-book/images/agnostic-black-box.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-black-box-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;3: Modelden bağımsız yorumlama yöntemleri girdiler ve çıktılarla çalışır; modelin iç işleyişini göz ardı eder.
+</figcaption>
+</figure>
+</div>
+<p>Modelden bağımsız yorumlama, model yorumlamasını model eğitiminden ayırır. Daha üst düzeyden bakıldığında modelleme sürecine yeni bir katman eklenir: Gerçek dünyayla başlarız, onu veri biçiminde yakalar ve veriden bir model öğreniriz. Modelin üzerinde ise insanların kullanacağı yorumlanabilirlik yöntemleri bulunur; bkz. Şekil <a href="#fig-big-picture" class="quarto-xref">Şekil&nbsp;4</a>. Modelden bağımsız yöntemlerde bu ayrım vardır; tasarım gereği yorumlanabilirlikte ise model ve yorumlanabilirlik katmanları tek bir yapıda birleşir.</p>
+<div id="fig-big-picture" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-big-picture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://christophm.github.io/interpretable-ml-book/images/big-picture.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-big-picture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;4: Modelden bağımsız yorumlanabilir makine öğrenmesinin büyük resmi: gerçek dünya, açıklamalar biçiminde insana ulaşana kadar birçok katmandan geçer.
+</figcaption>
+</figure>
+</div>
+<p>Açıklamaları makine öğrenmesi modelinden ayırmanın (yani modelden bağımsız yorumlama yöntemlerinin) bazı avantajları vardır <span class="citation" data-cites="ribeiro2016">(<a href="#ref-ribeiro2016" role="doc-biblioref">Ribeiro vd. 2016</a>)</span>. En büyük avantaj, hem model hem de yorumlama yöntemi seçimindeki esnekliktir. Örneğin, bir XGBoost modelinin özellik etkilerini kısmi bağımlılık grafiğiyle (PDP) görselleştiriyorsanız, temel modeli değiştirip aynı yorumlama türünü kullanabilirsiniz. PDP’yi artık uygun bulmazsanız, temel XGBoost modelini değiştirmeden birikimli yerel etkileri (ALE) kullanabilirsiniz. Buna karşılık doğrusal regresyon kullanıp katsayıları yorumluyorsanız, kural tabanlı bir sınıflandırıcıya geçmek yorumlama aracını da değiştirir. Bazı modelden bağımsız yöntemler, açıklama oluştururken kullanılan özellik gösteriminde bile esneklik sağlar: Örneğin, görüntü sınıflandırıcı çıktısını açıklarken pikseller yerine görüntü parçalarına dayalı açıklamalar oluşturabilirsiniz.</p>
+<p>Modelden bağımsız yorumlama yöntemleri yerel ve genel yöntemlere ayrılabilir. <a href="#yerel-modelden-bağımsız-sonradan-yöntemler">Yerel yöntemler</a> <strong>tek tek tahminleri</strong> açıklamayı amaçlar; <a href="#genel-modelden-bağımsız-sonradan-yöntemler">genel yöntemler</a> ise özelliklerin tahminleri <strong>ortalama olarak</strong> nasıl etkilediğini açıklar.</p>
+<section id="yerel-modelden-bağımsız-sonradan-yöntemler" class="level4" data-number="2.1.1">
+<h4 data-number="2.1.1" class="anchored" data-anchor-id="yerel-modelden-bağımsız-sonradan-yöntemler"><span class="header-section-number">2.1.1</span> Yerel modelden bağımsız sonradan yöntemler</h4>
+<p>Yerel yorumlama yöntemleri tek tek tahminleri açıklar. Bu kategorideki yaklaşımlar oldukça çeşitlidir:</p>
+<ul>
+<li><strong>Ceteris paribus grafikleri</strong>, bir özelliği değiştirmenin tahmini nasıl değiştirdiğini gösterir.</li>
+<li><strong>Bireysel koşullu beklenti (ICE) eğrileri</strong>, tek bir özelliği değiştirmenin birden çok veri noktasının tahminini nasıl değiştirdiğini gösterir.</li>
+<li><strong>Yerel vekil modeller (LIME)</strong>, karmaşık modeli yerel olarak yorumlanabilir bir modelle değiştirerek tahmini açıklar.</li>
+<li><strong>Kapsamlı kurallar (anchors)</strong>, hangi özellik değerlerinin bir tahmini “sabitlediğini” açıklar: diğer özelliklerin kaç tanesi değiştirilirse değiştirilsin tahmin sabit kalır.</li>
+<li><strong>Karşı-olgusal açıklamalar</strong>, istenen bir tahmine ulaşmak için hangi özelliklerin değiştirilmesi gerektiğini inceleyerek tahmini açıklar.</li>
+<li><strong>Shapley değerleri</strong>, tahmini tek tek özelliklere adil biçimde paylaştırır.</li>
+<li><strong>SHAP</strong>, Shapley değerleri için bir hesaplama yöntemidir; ayrıca veri genelindeki Shapley değerlerinin bileşimlerine dayalı genel yorumlama yöntemleri de önerir.</li>
+</ul>
+<p>LIME ve Shapley değerleri (ve SHAP), bir veri noktasının tahminini özellik etkilerinin toplamı olarak açıklayan atıf yöntemleridir. Ceteris paribus ve ICE gibi diğer yöntemler tek tek özelliklere ve tahmin fonksiyonunun bu özelliklere ne kadar duyarlı olduğuna odaklanır. Karşı-olgusal açıklamalar ve anchors gibi yöntemler ise açıklama için özelliklerin bir alt kümesine dayanarak bu iki yaklaşım arasında yer alır.</p>
+<p>Model hata ayıklamada yerel yöntemler, sınır durumları anlamak veya sıra dışı tahminleri incelemek için yararlı olabilecek “yakınlaştırılmış” bir görünüm sağlar. Örneğin, tahmin hatası en yüksek olan tahminin açıklamasına bakıp bunun yalnızca tahmin edilmesi zor bir veri noktası mı olduğunu, modelin yetersiz mi kaldığını ya da veri noktasının yanlış etiketlenip etiketlenmediğini inceleyebilirsiniz. Bunun ötesinde, modeli geliştirmek için genel modelden bağımsız yöntemler daha kullanışlıdır.</p>
+<p>Yerel yorumlama yöntemleriyle tek tek tahminleri gerekçelendirme açısından yararları farklılaşır. Ceteris paribus ve karşı-olgusal açıklamalar, ham model tahminlerini sadık biçimde yansıttıkları için çok yararlı olabilir. SHAP veya LIME gibi atıf yöntemleri ise açıklanan modelin üzerinde bir tür “model” (ya da en azından daha karmaşık bir kestirim) olduğundan, yüksek riskli gerekçelendirme amaçları için daha az uygun olabilir <span class="citation" data-cites="rudin2019">(<a href="#ref-rudin2019" role="doc-biblioref">Rudin 2019</a>)</span>.</p>
+<p>Yerel yöntemler veri içgörüleri için de yararlı olabilir. Shapley değerleri gibi atıf yöntemleri bir referans veri kümesiyle çalışır; dolayısıyla mevcut tahminin farklı alt kümelerle karşılaştırılmasına ve farklı sorular sorulmasına olanak tanır. Genel olarak hem yerel hem de genel modelden bağımsız yorumlamanın yararı model performansına bağlıdır. Ceteris paribus grafikleri ve ICE de model içgörüleri için faydalıdır.</p>
+</section>
+<section id="genel-modelden-bağımsız-sonradan-yöntemler" class="level4" data-number="2.1.2">
+<h4 data-number="2.1.2" class="anchored" data-anchor-id="genel-modelden-bağımsız-sonradan-yöntemler"><span class="header-section-number">2.1.2</span> Genel modelden bağımsız sonradan yöntemler</h4>
+<p>Genel yöntemler, bir makine öğrenmesi modelinin veri kümesi üzerindeki ortalama davranışını açıklar. Bu kitapta aşağıdaki modelden bağımsız genel yorumlama tekniklerini öğreneceksiniz:</p>
+<ul>
+<li><strong>Kısmi bağımlılık grafiği (PDP)</strong>, bir özellik etkisi yöntemidir.</li>
+<li><strong>Birikimli yerel etki (ALE) grafikleri</strong>, korelasyonlu özellikler için de tasarlanmış özellik etkilerini görselleştirir.</li>
+<li><strong>Özellik etkileşimi (H-istatistiği)</strong>, tahminin özelliklerin ortak etkilerinden ne ölçüde kaynaklandığını nicelleştirir.</li>
+<li><strong>Fonksiyonel ayrıştırma</strong>, tahmin fonksiyonlarını daha küçük parçalara ayırmak için kullanılan merkezi bir yorumlanabilirlik fikri ve tekniğidir.</li>
+<li><strong>Permütasyon özellik önemi (PFI)</strong>, bir özellik permüte edildiğinde kayıptaki artış olarak özelliğin önemini ölçer.</li>
+<li><strong>Bir özelliği dışarıda bırakma (LOFO)</strong>, bir özelliği çıkarır ve model o özellik olmadan yeniden eğitildikten sonra kayıptaki artışı ölçer.</li>
+<li><strong>Vekil modeller</strong>, yorumlama için özgün modelin yerine daha basit bir model koyar.</li>
+<li><strong>Prototipler ve eleştiriler</strong>, bir dağılımın temsilî veri noktalarıdır ve yorumlanabilirliği iyileştirmek için kullanılabilir.</li>
+</ul>
+<p>Genel modelden bağımsız yöntemlerde iki geniş kategori vardır: <strong>özellik etkileri</strong> ve <strong>özellik önemi</strong>. Özellik etkileri (PDP, ALE, H-istatistiği, ayrıştırma), girdiler ile çıktılar arasındaki ilişkiyi göstermeye yöneliktir. Özellik önemi (PFI, LOFO, SHAP önemi vb.) ise özellikleri önemlerine göre sıralamaya yöneliktir; önem tanımı her yöntemde farklıdır.</p>
+<p>Genel yorumlama yöntemleri ortalama davranışı açıkladığı için, özellikle modelleyenin hata ayıklamak istediği durumlarda faydalıdır. Özellikle LOFO, özellik seçimi yöntemleriyle ilişkilidir ve modeli iyileştirmek için çok kullanışlıdır.</p>
+<p>Modelleri paydaşlara gerekçelendirmek için genel yöntemler, hangi özelliklerin ilgili olduğu gibi geniş bir çerçeve sunabilir. Genel yöntemleri doğası gereği yorumlanabilir modellerle birlikte de kullanabilirsiniz. Örneğin karar kural listeleri tek tek tahminleri gerekçelendirmeyi kolaylaştırsa da, özelliklerin genel olarak ne kadar önemli olduğunu göstererek modelin kendisini de gerekçelendirmek isteyebilirsiniz.</p>
+<p>Genel yöntemler çoğunlukla veri dağılımına dayalı beklenen değerler olarak ifade edilir. Örneğin bir özellik etkisi grafiği olan PDP, diğer tüm özellikler marjinalleştirildiğinde elde edilen beklenen tahmindir. Bu, yöntemleri verideki genel mekanizmaları anlamak için çok yararlı kılar. PDP ve PFI’nin veri üretim sürecinin özellikleri hakkında çıkarım yapmak için nasıl kullanılabileceği incelenmiştir <span class="citation" data-cites="molnar2023 freiesleben2024">(<a href="#ref-molnar2023" role="doc-biblioref">Molnar vd. 2023</a>; <a href="#ref-freiesleben2024" role="doc-biblioref">Freiesleben vd. 2024</a>)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">İpucu</span>Genelden grup-temelli yoruma geçin
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Genel yöntemleri verinizin alt kümelerine uygulayarak genel yöntemleri “grup-temelli” veya “bölgesel” yöntemlere dönüştürebilirsiniz. Kitaptaki örneklerde bunu göreceğiz.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="modele-özgü-sonradan-yöntemler" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="modele-özgü-sonradan-yöntemler"><span class="header-section-number">2.2</span> Modele özgü sonradan yöntemler</h3>
+<p>Adından da anlaşılacağı gibi, sonradan uygulanan modele özgü yöntemler model eğitildikten sonra uygulanır; ancak yalnızca belirli makine öğrenmesi modelleri için çalışır (Şekil <a href="#fig-model-specific" class="quarto-xref">Şekil&nbsp;5</a>). Rastgele ormanlar için Gini öneminden lojistik regresyonda odds oranlarının hesaplanmasına kadar pek çok örnek vardır. Bu kitap, sinir ağları için sonradan yorumlama yöntemlerine odaklanır.</p>
+<div id="fig-model-specific" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-specific-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://christophm.github.io/interpretable-ml-book/images/specific-black-box.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-specific-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Şekil&nbsp;5: Modele özgü yöntemler, karmaşık modelleri modelleri analiz ederek daha yorumlanabilir hâle getirir.
+</figcaption>
+</figure>
+</div>
+<p>Sinir ağıyla tahmin yapmak için girdi verisi, öğrenilmiş ağırlıklarla çok sayıda çarpma katmanından ve doğrusal olmayan dönüşümlerden geçirilir. Bir sinir ağının mimarisine bağlı olarak tek bir tahmin milyonlarca çarpma içerebilir. İnsanlar olarak verinin girdiden tahmine tam eşlemesini izlememiz mümkün değildir. Bir sinir ağının tahminini anlamak için karmaşık biçimde etkileşen milyonlarca ağırlığı hesaba katmamız gerekir. Bu nedenle sinir ağlarının davranışını ve tahminlerini yorumlamak için özel yorumlama yöntemlerine ihtiyaç duyarız. Sinir ağları, gizli katmanlarında özellikler ve kavramlar öğrendikleri için yorumlama açısından ilgi çekici bir hedeftir. Ayrıca hesaplama açısından verimli yöntemler için ağların gradyanlarından yararlanabiliriz.</p>
+<p>Sinir ağları bölümü, farklı soruları yanıtlayan şu teknikleri kapsar:</p>
+<ul>
+<li><strong>Öğrenilmiş özellikler:</strong> Sinir ağı hangi özellikleri öğrendi?</li>
+<li><strong>Belirginlik haritaları (saliency maps):</strong> Her piksel belirli bir tahmine nasıl katkıda bulundu?</li>
+<li><strong>Kavramlar:</strong> Sinir ağı hangi kavramları öğrendi?</li>
+<li><strong>Çekişmeli örnekler (adversarial examples):</strong> Sinir ağını nasıl yanıltabiliriz?</li>
+<li><strong>Etkili örnekler (influential instances):</strong> Bir eğitim veri noktası verilen tahmin için ne kadar etkiliydi?</li>
+</ul>
+<p>Genel olarak, modele özgü yöntemlerin en büyük gücü modellerin kendileri hakkında bilgi edinme olanağı sağlamasıdır. Bu, modeli iyileştirmeye ve başkalarına gerekçelendirmeye de yardımcı olabilir. Veri içgörüleri söz konusu olduğunda modele özgü yöntemler, doğası gereği yorumlanabilir modellerle benzer sorunlar yaşar: Model yorumunun veriyi yansıttığını göstermek için kuramsal bir gerekçeye ihtiyaç duyarlar.</p>
+</section>
+</section>
+<section id="sınırlar-bulanıktır" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sınırlar-bulanıktır"><span class="header-section-number">3</span> Sınırlar bulanıktır</h2>
+<p>Burada düzenli kategoriler sunduk. Oysa gerçekte tasarım gereği ve sonradan yorumlanabilirlik arasındaki sınırlar belirsizdir. Birkaç örnek:</p>
+<ul>
+<li>Lojistik regresyon doğası gereği yorumlanabilir bir model midir? Odds oranlarını yorumlamak için katsayıları sonradan işlemelisiniz. Etkileri olasılık düzeyinde yorumlamak isterseniz marjinal etkileri hesaplamanız gerekir; bu işlem, başka modellere de uygulanabilen sonradan yorumlama yöntemi olarak görülebilir.</li>
+<li>Boost edilmiş ağaç toplulukları yorumlanabilir kabul edilmez. Ancak azami ağaç derinliğini 1 olarak ayarlarsanız boost edilmiş ağaç kütükleri elde edersiniz; bu da genelleştirilmiş toplamsal modele benzer bir yapı verir.</li>
+<li>Doğrusal regresyon tahminini açıklamak için her özellik değerini kendi katsayısıyla çarpabilirsiniz; bunlara etkiler denir. Ayrıca her etkiden verideki ortalama etkiyi çıkarabilirsiniz. Bu işlemleri yaptığınızda, genellikle modelden bağımsız kabul edilen Shapley değerlerini hesaplamış olursunuz.</li>
+</ul>
+<p>Bu bölümün ana mesajı şudur: Yorumlanabilirlik bulanık bir kavramdır. Bu belirsizliği kabul edin; tek bir yaklaşıma gereğinden fazla bağlanmayın, yaklaşımları ihtiyacınıza göre birleştirmekten çekinmeyin.</p>
+</section>
+<section id="kaynakça" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="kaynakça"><span class="header-section-number">4</span> Kaynakça</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-buhlmann2007" class="csl-entry" role="listitem">
+Bühlmann, Peter, ve Torsten Hothorn. 2007. <span>“Boosting Algorithms: Regularization, Prediction and Model Fitting”</span>. <em>Statistical Science</em> 22 (4): 477-505. <a href="https://doi.org/10.1214/07-STS242">https://doi.org/10.1214/07-STS242</a>.
+</div>
+<div id="ref-caruana2015" class="csl-entry" role="listitem">
+Caruana, Rich, Yin Lou, Johannes Gehrke, Paul Koch, Marc Sturm, ve Noemie Elhadad. 2015. <span>“Intelligible Models for HealthCare: Predicting Pneumonia Risk and Hospital 30-Day Readmission”</span>. <em>Proceedings of the 21st ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 1721-30. <a href="https://doi.org/10.1145/2783258.2788613">https://doi.org/10.1145/2783258.2788613</a>.
+</div>
+<div id="ref-freiesleben2024" class="csl-entry" role="listitem">
+Freiesleben, Timo, Gunnar König, Christoph Molnar, ve Álvaro Tejero-Cantero. 2024. <span>“Scientific Inference with Interpretable Machine Learning: Analyzing Models to Learn About Real-World Phenomena”</span>. <em>Minds and Machines</em> 34 (3): 32. <a href="https://doi.org/10.1007/s11023-024-09691-z">https://doi.org/10.1007/s11023-024-09691-z</a>.
+</div>
+<div id="ref-ma2024" class="csl-entry" role="listitem">
+Ma, Chiyu, Jon Donnelly, Wenjun Liu, Soroush Vosoughi, Cynthia Rudin, ve Chaofan Chen. 2024. <span>“Interpretable Image Classification with Adaptive Prototype-based Vision Transformers”</span>. <em>arXiv preprint arXiv:2410.20722</em>. <a href="http://arxiv.org/abs/2410.20722">http://arxiv.org/abs/2410.20722</a>.
+</div>
+<div id="ref-molnar2023" class="csl-entry" role="listitem">
+Molnar, Christoph, Timo Freiesleben, Gunnar König, vd. 2023. <span>“Relating the Partial Dependence Plot and Permutation Feature Importance to the Data Generating Process”</span>. Içinde <em>Explainable Artificial Intelligence</em>. <a href="https://doi.org/10.1007/978-3-031-44064-9_24">https://doi.org/10.1007/978-3-031-44064-9_24</a>.
+</div>
+<div id="ref-ribeiro2016" class="csl-entry" role="listitem">
+Ribeiro, Marco Tulio, Sameer Singh, ve Carlos Guestrin. 2016. <span>“Model-Agnostic Interpretability of Machine Learning”</span>. <em>arXiv preprint arXiv:1606.05386</em>.
+</div>
+<div id="ref-rudin2019" class="csl-entry" role="listitem">
+Rudin, Cynthia. 2019. <span>“Stop Explaining Black Box Machine Learning Models for High Stakes Decisions and Use Interpretable Models Instead”</span>. <em>Nature Machine Intelligence</em> 1 (5): 206-15. <a href="https://doi.org/10.1038/s42256-019-0048-x">https://doi.org/10.1038/s42256-019-0048-x</a>.
+</div>
+<div id="ref-scholbeck2020" class="csl-entry" role="listitem">
+Scholbeck, Christian A., Christoph Molnar, Christian Heumann, Bernd Bischl, ve Giuseppe Casalicchio. 2020. <span>“Sampling, Intervention, Prediction, Aggregation: A Generalized Framework for Model-Agnostic Interpretations”</span>. <em>Machine Learning and Knowledge Discovery in Databases</em>, 205-16. <a href="https://doi.org/10.1007/978-3-030-43823-4_18">https://doi.org/10.1007/978-3-030-43823-4_18</a>.
+</div>
+<div id="ref-yang2024" class="csl-entry" role="listitem">
+Yang, Zebin, Agus Sudjianto, Xiaoming Li, ve Aijun Zhang. 2024. <span>“Inherently Interpretable Tree Ensemble Learning”</span>. <em>arXiv preprint arXiv:2410.19098</em>, advance online publication. <a href="https://doi.org/10.48550/arXiv.2410.19098">https://doi.org/10.48550/arXiv.2410.19098</a>.
+</div>
+</div>
+</section>
+<section id="kaynakça-bilgisi" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="kaynakça-bilgisi"><span class="header-section-number">5</span> Kaynakça bilgisi</h2>
+<p>Bu çeviri aşağıdaki özgün bölüm esas alınarak hazırlanmıştır: Molnar, C. (2025). “Methods Overview.” <em>Interpretable Machine Learning</em>, 3. baskı. https://christophm.github.io/interpretable-ml-book/overview.html</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopyalandı");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopyalandı");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

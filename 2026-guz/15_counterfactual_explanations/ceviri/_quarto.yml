@@ -1,0 +1,11 @@
+# Ana klasördeki website projesinden bağımsız render edilir.
+project:
+  type: default
+  output-dir: .
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    embed-resources: false
+lang: tr

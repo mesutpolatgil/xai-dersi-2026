@@ -40,3 +40,21 @@ xai-dersi-2026/
       └── 34_the-future-of-interpretability/
           └── (aynı yapı)
 ```
+
+
+---
+
+## 📄 Render Kuralı (Zorunlu)
+
+Her öğrenci `.qmd` dosyasını **kendi bilgisayarında** render etmek zorundadır:
+
+
+Bu komut aynı klasöre şunları üretir:
+- `dosya.html` → GitHub'da görüntülenebilir site
+- `dosya_files/` → CSS, görsel, font klasörü
+
+**PR'a hem `.qmd` hem `.html` hem `dosya_files/` klasörü eklenmelidir.**
+
+Sadece `.qmd` gönderen PR reddedilir — çünkü GitHub `.qmd`'yi ham metin olarak gösterir.
+
+**Quarto kurulumu:** https://quarto.org/docs/get-started/

@@ -1,0 +1,116 @@
+---
+title: "Bölüm 34 Yorumlanabilirliğin Geleceği"
+author:
+  - name: "Yalçın Kavaklı"
+    affiliation: "Öğrenci numarası 20269256026"
+  - name: "Murat Şahin"
+    affiliation: "Öğrenci numarası 20169258034"
+lang: tr
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-title: "İçindekiler"
+    toc-depth: 3
+    embed-resources: false
+    number-sections: false
+execute:
+  enabled: false
+---
+
+**Özgün eser:** Christoph Molnar, *Interpretable Machine Learning*, [future](https://christophm.github.io/interpretable-ml-book/future.html).
+
+**Türkçe çeviriyi sunanlar:** Yalçın Kavaklı (20269256026) ve Murat Şahin (20169258034).
+
+**Çeviri bilgisi:** Eğitim amacıyla hazırlanmıştır. Kaynak metin Türkçeye çevrilmiş, bölüm içeriği özetlenmemiştir. Kaynak sürümü: [8f470c85e5ed4ebd69de74425cb9832f1bdc25eb](https://github.com/christophM/interpretable-ml-book/blob/8f470c85e5ed4ebd69de74425cb9832f1bdc25eb/manuscript/future.qmd). Lisans: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Bu çeviri de aynı lisansla paylaşılır. Kaynaktaki görüşler ve öngörüler özgün yazara aittir.
+
+# Yorumlanabilirliğin Geleceği {#future}
+
+Yorumlanabilir makine öğrenmesinin geleceği nasıl olacak? Bu bölüm, yorumlanabilir makine öğrenmesinin nasıl gelişeceğine ilişkin spekülatif bir düşünce alıştırması ve öznel bir tahmindir.
+
+Öngörülerimi üç öncüle dayandırıyorum:
+
+1. **Dijitalleşme: İlgi çekici her bilgi dijitalleştirilecektir.** Elektronik parayı ve çevrimiçi işlemleri düşünün. Elektronik kitapları, müziği ve videoları düşünün. Çevremiz, insan davranışları, endüstriyel üretim süreçleri ve benzerleri hakkındaki bütün sensör verilerini düşünün. Her şeyin dijitalleşmesini sağlayan etkenler; ucuz bilgisayarlar, sensörler ve depolama, ölçek etkileri (kazanan her şeyi alır), yeni iş modelleri, modüler değer zincirleri, maliyet baskısı ve çok daha fazlasıdır.
+
+2. **Otomasyon: Bir görev otomatikleştirilebiliyorsa ve otomasyonun maliyeti görevi zaman içinde yerine getirmenin maliyetinden düşükse görev otomatikleştirilecektir.** Bilgisayarın ortaya çıkışından önce bile belirli ölçüde otomasyon vardı. Örneğin dokuma makinesi dokumayı, buhar makinesi ise at gücünü otomatikleştirdi. Ancak bilgisayarlar ve dijitalleşme, otomasyonu bir sonraki düzeye taşıyor. Yalnızca `for` döngüleri programlayabilmeniz, Excel makroları yazabilmeniz, e-posta yanıtlarını otomatikleştirebilmeniz ve benzerleri bile bir kişinin ne kadar çok şeyi otomatikleştirebileceğini gösteriyor. Bilet makineleri tren bileti satın almayı (artık gişe görevlisine gerek kalmaz), çamaşır makineleri çamaşır yıkamayı, düzenli ödeme talimatları ödeme işlemlerini otomatikleştirir. Görevlerin otomatikleştirilmesi zaman ve para kazandırır; dolayısıyla işleri otomatikleştirmek için çok güçlü ekonomik ve kişisel teşvikler vardır. Şu anda dil çevirisinin, araç kullanmanın ve küçük ölçüde de olsa bilimsel keşfin bile otomatikleşmesine tanık oluyoruz.
+
+3. **Yanlış belirtim: Bir hedefi bütün kısıtlarıyla birlikte kusursuz biçimde tanımlayamıyoruz.** Dileklerinizi her zaman kelimesi kelimesine yerine getiren şişedeki cini düşünün:  
+   “Dünyanın en zengin insanı olmak istiyorum!” → En zengin kişi olursunuz, ancak bir yan etki olarak elinizdeki para birimi enflasyon nedeniyle çöker.  
+   “Hayatımın geri kalanında mutlu olmak istiyorum!” → Sonraki beş dakika boyunca çok mutlu hissedersiniz, ardından cin sizi öldürür.  
+   “Dünya barışı diliyorum!” → Cin bütün insanları öldürür.  
+   Bütün kısıtları bilmediğimiz veya ölçemediğimiz için hedefleri yanlış tanımlarız. Hedefin kusurlu biçimde tanımlanmasına örnek olarak şirketlere bakalım. Bir şirketin basit hedefi hissedarlarına para kazandırmaktır. Ancak bu tanım, gerçekte ulaşmak istediğimiz asıl hedefi bütün kısıtlarıyla kapsamaz. Örneğin bir şirketin para kazanmak için insanları öldürmesini, nehirleri zehirlemesini veya kendi parasını basmasını hoş karşılamayız. Hedef tanımındaki kusurları gidermek için yasalar, düzenlemeler, yaptırımlar, uyum prosedürleri, işçi sendikaları ve daha fazlasını oluşturduk. Kendiniz deneyimleyebileceğiniz başka bir örnek, mümkün olduğunca çok ataç üretme hedefi olan bir makineyi oynadığınız [Paperclips](http://www.decisionproblem.com/paperclips/index2.html) oyunudur. UYARI: Bağımlılık yapar. Çok fazla ipucu vermek istemiyorum ama işlerin çok çabuk kontrolden çıktığını söyleyebiliriz. Makine öğrenmesinde hedef tanımındaki kusurlar; kusurlu veri soyutlamalarından (yanlı popülasyonlar, ölçüm hataları vb.), kısıtsız kayıp fonksiyonlarından, kısıtlar hakkındaki bilgi eksikliğinden, eğitim verileri ile uygulama verileri arasındaki dağılım değişiminden ve daha birçok etkenden kaynaklanır.
+
+Dijitalleşme otomasyonu hızlandırır. Hedefin kusurlu biçimde tanımlanması otomasyonla çatışır. Bu çatışmanın yorumlama yöntemleriyle kısmen giderildiğini ileri sürüyorum.
+
+Tahminlerimiz için sahne kuruldu, kristal küre hazır. Şimdi alanın nereye gidebileceğine bakalım!
+
+## Makine öğrenmesinin geleceği
+
+Makine öğrenmesi olmadan yorumlanabilir makine öğrenmesi de olamaz. Bu nedenle yorumlanabilirlikten söz etmeden önce makine öğrenmesinin nereye gittiğini tahmin etmemiz gerekiyor.
+
+Makine öğrenmesi (veya “yapay zekâ”), birçok vaat ve beklentiyle ilişkilendiriliyor. Ama daha az iyimser bir gözlemle başlayalım. Bilim pek çok etkileyici makine öğrenmesi aracı geliştirirken, deneyimlerime göre bunları mevcut süreçlere ve ürünlere entegre etmek oldukça zor. Olanaksız olduğu için değil, şirketlerin ve kurumların bu gelişmelere yetişmesi zaman aldığı için. Yapay zekâya yönelik mevcut heyecanın yarattığı altına hücum ortamında şirketler “Yapay Zekâ Laboratuvarları”, “Makine Öğrenmesi Birimleri” açıp “Veri Bilimcileri”, “Makine Öğrenmesi Uzmanları”, “Yapay Zekâ Mühendisleri” ve benzerlerini işe alıyor; ancak deneyimlerime göre gerçeklik oldukça hayal kırıklığı yaratıcı. Şirketlerin çoğu zaman gerekli biçimde verisi bile olmuyor ve veri bilimcileri aylarca boşta bekliyor. Bazen şirketler medyanın etkisiyle yapay zekâdan ve veri biliminden öylesine yüksek beklentilere giriyor ki veri bilimcilerinin bunları karşılaması olanaksızlaşıyor. Çoğu zaman da kimse veri bilimcilerinin mevcut yapılara nasıl entegre edileceğini bilmiyor; daha pek çok sorun da var. Bu durum beni ilk tahminime götürüyor.
+
+**Makine öğrenmesi yavaş ama istikrarlı biçimde olgunlaşacak.**
+
+Dijitalleşme ilerliyor ve otomatikleştirmenin cazibesi sürekli kendini hissettiriyor. Makine öğrenmesini benimseme yolu yavaş ilerlese ve engellerle dolu olsa da makine öğrenmesi bilimden iş süreçlerine, ürünlere ve gerçek dünya uygulamalarına doğru sürekli taşınıyor.
+
+Hangi tür sorunların makine öğrenmesi problemi olarak ifade edilebileceğini uzman olmayanlara daha iyi anlatmamız gerektiğine inanıyorum. Makine öğrenmesi uygulamak yerine Excel hesaplamaları yapan veya raporlama ve SQL sorgularıyla klasik iş zekâsı çalışmaları yürüten, yüksek ücretli birçok veri bilimci tanıyorum. Bununla birlikte büyük internet şirketleri başta olmak üzere bazı şirketler makine öğrenmesini şimdiden başarıyla kullanıyor. Makine öğrenmesini süreçlere ve ürünlere entegre etmenin daha iyi yollarını bulmalı, insanları eğitmeli ve kullanımı kolay makine öğrenmesi araçları geliştirmeliyiz. Makine öğrenmesinin kullanımının çok daha kolaylaşacağına inanıyorum. Örneğin bulut hizmetleri aracılığıyla makine öğrenmesinin daha erişilebilir hâle geldiğini şimdiden görebiliyoruz (birkaç moda terim kullanmış olmak için “hizmet olarak makine öğrenmesi” diyelim). Makine öğrenmesi olgunlaştığında, ki bu küçük çocuk ilk adımlarını çoktan attı, bir sonraki tahminim şu:
+
+**Makine öğrenmesi pek çok şeye güç verecek.**
+
+“Otomatikleştirilebilen her şey otomatikleştirilecektir” ilkesinden yola çıkarak, mümkün olan her durumda görevlerin tahmin problemleri olarak ifade edilip makine öğrenmesiyle çözüleceği sonucuna varıyorum. Makine öğrenmesi bir otomasyon biçimidir veya en azından otomasyonun parçası olabilir. Şu anda insanların yaptığı pek çok görevin yerini makine öğrenmesi alıyor. Aşağıda, bazı kısımları makine öğrenmesiyle otomatikleştirilen görevlere örnekler var:
+
+- Belgelerin sınıflandırılması, belgeler hakkında karar verilmesi veya belgelerin tamamlanması (örneğin sigorta şirketlerinde, hukuk sektöründe veya danışmanlık firmalarında)
+- Kredi başvuruları gibi veriye dayalı kararlar
+- İlaç keşfi
+- Montaj hatlarında kalite kontrolü
+- Sürücüsüz otomobiller
+- Hastalıkların teşhisi
+- Çeviri. Bu kitapta cümlelerimi iyileştirmek için, derin sinir ağlarıyla çalışan [DeepL](https://deepl.com) adlı bir çeviri hizmeti kullanarak onları İngilizceden Almancaya ve ardından yeniden İngilizceye çevirdim.
+- …
+
+Makine öğrenmesindeki atılım yalnızca daha iyi bilgisayarlarla, daha çok veriyle veya daha iyi yazılımlarla gerçekleşmez. Bir başka etken de şudur:
+
+**Yorumlanabilirlik araçları makine öğrenmesinin benimsenmesini hızlandırır.**
+
+Bir makine öğrenmesi modelinin hedefinin hiçbir zaman kusursuz biçimde tanımlanamayacağı öncülünden, yanlış tanımlanmış hedef ile gerçek hedef arasındaki açığı kapatmak için yorumlanabilir makine öğrenmesinin gerekli olduğu sonucu çıkar. Birçok alanda ve sektörde yorumlanabilirlik, makine öğrenmesinin benimsenmesini hızlandıran etken olacaktır. Gündelik gözlemlere dayalı bazı kanıtlar vereyim. Konuştuğum pek çok kişi, modelleri başkalarına açıklayamadığı için makine öğrenmesi kullanmıyor. Yorumlanabilirliğin bu sorunu ele alacağına ve makine öğrenmesini bir miktar şeffaflık talep eden kuruluşlar ve kişiler için çekici hâle getireceğine inanıyorum. Problemin yanlış tanımlanmasının yanı sıra birçok sektör, hukuki nedenlerle, riskten kaçınmak için veya ele alınan görevin özüne ilişkin içgörü kazanmak amacıyla yorumlanabilirliğe ihtiyaç duyar. Makine öğrenmesi modelleme sürecini otomatikleştirerek insanı veriden ve ele alınan görevden biraz daha uzaklaştırır. Bu durum deney tasarımı, eğitim dağılımının seçimi, örnekleme, veri kodlama, özellik mühendisliği ve benzeri konulardaki sorunların riskini artırır. Yorumlama araçları bu sorunların belirlenmesini kolaylaştırır.
+
+## Yorumlanabilirliğin geleceği
+
+Makine öğrenmesinde yorumlanabilirliğin olası geleceğine bakalım.
+
+**Odak, modelden bağımsız yorumlanabilirlik araçlarında olacak.**
+
+Yorumlanabilirliği, altta yatan makine öğrenmesi modelinden ayırdığımızda otomatikleştirmek çok daha kolaydır. Modelden bağımsız yorumlanabilirliğin avantajı modülerliğindedir. Altta yatan makine öğrenmesi modelini kolayca değiştirebiliriz. Yorumlama yöntemini de aynı kolaylıkla değiştirebiliriz. Bu nedenlerle modelden bağımsız yöntemler çok daha iyi ölçeklenecektir. Dolayısıyla uzun vadede modelden bağımsız yöntemlerin daha baskın hâle geleceğine inanıyorum. Ancak doğası gereği yorumlanabilir yöntemlerin de bir yeri olacak.
+
+**Makine öğrenmesi ve onunla birlikte yorumlanabilirlik otomatikleştirilecek.**
+
+Model eğitiminin otomatikleştirilmesi, şimdiden görülen bir eğilimdir. Buna otomatik özellik mühendisliği ve seçimi, otomatik hiperparametre optimizasyonu, farklı modellerin karşılaştırılması ve modellerin topluluk veya yığma yöntemleriyle birleştirilmesi dâhildir. Sonuç, mümkün olan en iyi tahmin modelidir. Modelden bağımsız yorumlama yöntemleri kullandığımızda, bunları otomatik makine öğrenmesi sürecinden çıkan herhangi bir modele otomatik olarak uygulayabiliriz. Bir bakıma bu ikinci adımı da otomatikleştirebiliriz: Özellik önemini otomatik hesaplamak, kısmi bağımlılık grafiğini çizmek, bir vekil model eğitmek ve benzeri işlemler. Bütün bu model yorumlarını otomatik olarak hesaplamanıza engel olan bir şey yok. Asıl yorumlama ise hâlâ insan gerektiriyor. Şunu hayal edin: Bir veri kümesi yüklüyorsunuz, tahmin hedefini belirliyorsunuz ve bir düğmeye bastığınızda en iyi tahmin modeli eğitiliyor; program da modelin bütün yorumlarını üretiyor. İlk ürünler şimdiden var ve birçok uygulama için bu otomatik makine öğrenmesi hizmetlerini kullanmanın yeterli olacağını savunuyorum. Bugün herkes HTML, CSS ve JavaScript bilmeden web sitesi kurabiliyor ama hâlâ çok sayıda web geliştiricisi var. Benzer biçimde, herkesin programlama bilmeden makine öğrenmesi modelleri eğitebileceğine ve yine de makine öğrenmesi uzmanlarına ihtiyaç duyulacağına inanıyorum.
+
+**Verileri değil, modelleri analiz ediyoruz.**
+
+Ham verinin kendisi her zaman yararsızdır. (Bilerek abartıyorum. Gerçekte anlamlı bir analiz yapabilmek için veriyi derinlemesine anlamanız gerekir.) Benim için önemli olan verinin kendisi değil, içinde bulunan bilgidir. Yorumlanabilir makine öğrenmesi, veriden bilgiyi damıtmanın harika bir yoludur. Modeli kapsamlı biçimde sorgulayabilirsiniz; model, özelliklerin tahmin için önemli olup olmadığını ve nasıl önemli olduğunu otomatik olarak belirler (birçok modelin yerleşik özellik seçimi vardır), ilişkilerin nasıl temsil edildiğini otomatik olarak saptayabilir ve doğru eğitilmişse ortaya çıkan model gerçekliğin çok iyi bir yaklaşık temsilidir.
+
+Pek çok analiz aracı zaten veri modellerine dayanır; çünkü dağılım varsayımları üzerine kuruludur:
+
+- Student'ın t-testi gibi basit hipotez testleri
+- Karıştırıcı değişkenler için düzeltme yapılan hipotez testleri (genellikle genelleştirilmiş doğrusal modeller, GLM'ler)
+- Varyans analizi (ANOVA)
+- Korelasyon katsayısı (standartlaştırılmış doğrusal regresyon katsayısı, Pearson korelasyon katsayısıyla ilişkilidir)
+- …
+
+Burada anlattıklarım aslında yeni değil. Öyleyse neden varsayımlara dayanan şeffaf modelleri analiz etmekten, varsayımsız kara kutu modellerini analiz etmeye geçelim? Çünkü bütün bu varsayımları yapmak sorunludur. Bunlar genellikle yanlıştır (dünyanın büyük bölümünün Gauss dağılımına uyduğuna inanmıyorsanız), sınanmaları zordur, çok esnek değildirler ve otomatikleştirilmeleri güçtür. Birçok alanda varsayımlara dayanan modeller, daha önce kullanılmamış test verilerinde genellikle kara kutu makine öğrenmesi modellerinden daha düşük tahmin performansı gösterir. Bu yalnızca büyük veri kümeleri için geçerlidir; çünkü iyi varsayımlara sahip yorumlanabilir modeller, küçük veri kümelerinde çoğu zaman kara kutu modellerinden daha iyi performans gösterir. Kara kutu makine öğrenmesi yaklaşımı iyi çalışmak için çok miktarda veri gerektirir. Her şeyin dijitalleşmesiyle gittikçe daha büyük veri kümelerine sahip olacağız ve bu nedenle makine öğrenmesi yaklaşımı daha çekici hâle gelecek. Varsayımlar yapmıyoruz; gerçekliğe olabildiğince yaklaşıyoruz (eğitim verisine aşırı uyumdan kaçınarak). İstatistikte soruları yanıtlamak için kullandığımız bütün araçları (hipotez testleri, korelasyon ölçüleri, etkileşim ölçüleri, görselleştirme araçları, güven aralıkları, p-değerleri, tahmin aralıkları, olasılık dağılımları) geliştirip kara kutu modelleri için yeniden yazmamız gerektiğini savunuyorum. Bir bakıma bu zaten gerçekleşiyor:
+
+- Klasik bir doğrusal modeli ele alalım: Standartlaştırılmış regresyon katsayısı zaten bir özellik önemi ölçüsüdür. [Permütasyon özellik önemi ölçüsü](https://christophm.github.io/interpretable-ml-book/feature-importance.html) ile her modelde çalışan bir aracımız var.
+- Doğrusal bir modelde katsayılar, tek bir özelliğin tahmin edilen sonuç üzerindeki etkisini ölçer. Bunun genelleştirilmiş hâli [kısmi bağımlılık grafiğidir](https://christophm.github.io/interpretable-ml-book/pdp.html).
+- A'nın mı B'nin mi daha iyi olduğunu sınamak: Bunun için de kısmi bağımlılık fonksiyonlarını kullanabiliriz. Henüz sahip olmadığımız şey ise, bildiğim kadarıyla, herhangi bir kara kutu modeline uygulanabilen istatistiksel testlerdir.
+
+**Veri bilimcileri kendilerini otomatikleştirecek.**
+
+Veri bilimcilerinin sonunda birçok analiz ve tahmin görevi bakımından işlerinin büyük bölümünü otomatikleştireceklerine inanıyorum. Bunun gerçekleşmesi için görevler iyi tanımlanmış olmalı ve bunlara ilişkin bazı süreçler ve rutinler bulunmalıdır. Bugün bu rutinler ve süreçler eksik ama veri bilimcileri ve meslektaşları bunlar üzerinde çalışıyor. Makine öğrenmesi birçok sektörün ve kurumun ayrılmaz bir parçası hâline geldikçe pek çok görev otomatikleştirilecek.
+
+**Robotlar ve programlar kendilerini açıklayacak.**
+
+Makine öğrenmesini yoğun biçimde kullanan makineler ve programlar için daha sezgisel arayüzlere ihtiyacımız var. Bazı örnekler: Neden aniden durduğunu bildiren sürücüsüz bir otomobil (“Bir çocuğun yola çıkma olasılığı yüzde 70”); bir banka çalışanına kredi başvurusunun neden reddedildiğini açıklayan bir kredi temerrüdü programı (“Başvuru sahibinin çok fazla kredi kartı var ve istikrarsız bir işte çalışıyor.”); bir ürünü taşıma bandından çöp kutusuna neden taşıdığını açıklayan bir robot kol (“Ürünün alt kısmında ince bir çatlak var.”).
+
+Sonuçta bunların hepsi birer öngörü; geleceğin gerçekten ne getireceğini görmemiz gerekiyor. Kendi görüşünüzü oluşturun ve öğrenmeye devam edin!

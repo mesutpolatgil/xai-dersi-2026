@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>makale</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="makale_files/libs/clipboard/clipboard.min.js"></script>
+<script src="makale_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="makale_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="makale_files/libs/quarto-html/popper.min.js"></script>
+<script src="makale_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="makale_files/libs/quarto-html/anchor.min.js"></script>
+<link href="makale_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="makale_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="makale_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="makale_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="makale_files/libs/bootstrap/bootstrap-c2e55264ed47ce3b2e0326a2269f9400.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#açıklamalar-kandırılabilir-mi" id="toc-açıklamalar-kandırılabilir-mi" class="nav-link active" data-scroll-target="#açıklamalar-kandırılabilir-mi">Açıklamalar Kandırılabilir mi?</a>
+  <ul class="collapse">
+  <li><a href="#problem-açıklamaya-neden-güveniyoruz" id="toc-problem-açıklamaya-neden-güveniyoruz" class="nav-link" data-scroll-target="#problem-açıklamaya-neden-güveniyoruz">1. Problem: Açıklamaya neden güveniyoruz?</a></li>
+  <li><a href="#arka-plan-lime-nasıl-çalışır" id="toc-arka-plan-lime-nasıl-çalışır" class="nav-link" data-scroll-target="#arka-plan-lime-nasıl-çalışır">2. Arka plan: LIME nasıl çalışır?</a>
+  <ul class="collapse">
+  <li><a href="#tablo-verisinde-örnekleme-ayrıntısı-saldırının-anahtarı" id="toc-tablo-verisinde-örnekleme-ayrıntısı-saldırının-anahtarı" class="nav-link" data-scroll-target="#tablo-verisinde-örnekleme-ayrıntısı-saldırının-anahtarı">Tablo verisinde örnekleme ayrıntısı (saldırının anahtarı)</a></li>
+  </ul></li>
+  <li><a href="#arka-plan-kernel-shap-nasıl-çalışır" id="toc-arka-plan-kernel-shap-nasıl-çalışır" class="nav-link" data-scroll-target="#arka-plan-kernel-shap-nasıl-çalışır">3. Arka plan: Kernel SHAP nasıl çalışır?</a></li>
+  <li><a href="#zafiyetin-kaynağı-dağılım-dışı-örnekler" id="toc-zafiyetin-kaynağı-dağılım-dışı-örnekler" class="nav-link" data-scroll-target="#zafiyetin-kaynağı-dağılım-dışı-örnekler">4. Zafiyetin kaynağı: Dağılım dışı örnekler</a></li>
+  <li><a href="#tehdit-modeli-ve-iskele-saldırısı" id="toc-tehdit-modeli-ve-iskele-saldırısı" class="nav-link" data-scroll-target="#tehdit-modeli-ve-iskele-saldırısı">5. Tehdit modeli ve iskele saldırısı</a>
+  <ul class="collapse">
+  <li><a href="#oyuncular-ve-varsayımlar" id="toc-oyuncular-ve-varsayımlar" class="nav-link" data-scroll-target="#oyuncular-ve-varsayımlar">5.1 Oyuncular ve varsayımlar</a></li>
+  <li><a href="#iskele-scaffolding-model" id="toc-iskele-scaffolding-model" class="nav-link" data-scroll-target="#iskele-scaffolding-model">5.2 İskele (scaffolding) model</a></li>
+  <li><a href="#neden-açıklama-ψyi-gösterir-sezgisel-analiz" id="toc-neden-açıklama-ψyi-gösterir-sezgisel-analiz" class="nav-link" data-scroll-target="#neden-açıklama-ψyi-gösterir-sezgisel-analiz">5.3 Neden açıklama ψ’yi gösterir? (Sezgisel analiz)</a></li>
+  <li><a href="#ood-dedektörünün-eğitimi" id="toc-ood-dedektörünün-eğitimi" class="nav-link" data-scroll-target="#ood-dedektörünün-eğitimi">5.4 OOD dedektörünün eğitimi</a></li>
+  <li><a href="#ψ-nasıl-seçilir" id="toc-ψ-nasıl-seçilir" class="nav-link" data-scroll-target="#ψ-nasıl-seçilir">5.5 ψ nasıl seçilir?</a></li>
+  </ul></li>
+  <li><a href="#deney-düzeni" id="toc-deney-düzeni" class="nav-link" data-scroll-target="#deney-düzeni">6. Deney düzeni</a>
+  <ul class="collapse">
+  <li><a href="#veri-setleri" id="toc-veri-setleri" class="nav-link" data-scroll-target="#veri-setleri">6.1 Veri setleri</a></li>
+  <li><a href="#modeller" id="toc-modeller" class="nav-link" data-scroll-target="#modeller">6.2 Modeller</a></li>
+  <li><a href="#açıklama-yöntemleri-ve-ayarları" id="toc-açıklama-yöntemleri-ve-ayarları" class="nav-link" data-scroll-target="#açıklama-yöntemleri-ve-ayarları">6.3 Açıklama yöntemleri ve ayarları</a></li>
+  <li><a href="#değerlendirme-ölçütleri" id="toc-değerlendirme-ölçütleri" class="nav-link" data-scroll-target="#değerlendirme-ölçütleri">6.4 Değerlendirme ölçütleri</a></li>
+  </ul></li>
+  <li><a href="#sonuçlar-ve-yorumları" id="toc-sonuçlar-ve-yorumları" class="nav-link" data-scroll-target="#sonuçlar-ve-yorumları">7. Sonuçlar ve yorumları</a>
+  <ul class="collapse">
+  <li><a href="#ana-sonuçlar" id="toc-ana-sonuçlar" class="nav-link" data-scroll-target="#ana-sonuçlar">7.1 Ana sonuçlar</a></li>
+  <li><a href="#shap-neden-daha-dirençli" id="toc-shap-neden-daha-dirençli" class="nav-link" data-scroll-target="#shap-neden-daha-dirençli">7.2 SHAP neden daha dirençli?</a></li>
+  <li><a href="#dedektör-ne-kadar-iyi-olmalı-makalenin-şekil-5i" id="toc-dedektör-ne-kadar-iyi-olmalı-makalenin-şekil-5i" class="nav-link" data-scroll-target="#dedektör-ne-kadar-iyi-olmalı-makalenin-şekil-5i">7.3 Dedektör ne kadar iyi olmalı? (makalenin Şekil 5’i)</a></li>
+  <li><a href="#hiperparametrelere-dayanıklılık" id="toc-hiperparametrelere-dayanıklılık" class="nav-link" data-scroll-target="#hiperparametrelere-dayanıklılık">7.4 Hiperparametrelere dayanıklılık</a></li>
+  <li><a href="#örnek-açıklamalar" id="toc-örnek-açıklamalar" class="nav-link" data-scroll-target="#örnek-açıklamalar">7.5 Örnek açıklamalar</a></li>
+  </ul></li>
+  <li><a href="#makalenin-konumu-sınırları-ve-sonrası" id="toc-makalenin-konumu-sınırları-ve-sonrası" class="nav-link" data-scroll-target="#makalenin-konumu-sınırları-ve-sonrası">8. Makalenin konumu, sınırları ve sonrası</a>
+  <ul class="collapse">
+  <li><a href="#literatürdeki-yeri" id="toc-literatürdeki-yeri" class="nav-link" data-scroll-target="#literatürdeki-yeri">8.1 Literatürdeki yeri</a></li>
+  <li><a href="#yazarların-vardığı-sonuç" id="toc-yazarların-vardığı-sonuç" class="nav-link" data-scroll-target="#yazarların-vardığı-sonuç">8.2 Yazarların vardığı sonuç</a></li>
+  <li><a href="#eleştirel-değerlendirme-kendi-yorumum" id="toc-eleştirel-değerlendirme-kendi-yorumum" class="nav-link" data-scroll-target="#eleştirel-değerlendirme-kendi-yorumum">8.3 Eleştirel değerlendirme (kendi yorumum)</a></li>
+  </ul></li>
+  <li><a href="#kendi-yeniden-üretimimde-gözlenenler" id="toc-kendi-yeniden-üretimimde-gözlenenler" class="nav-link" data-scroll-target="#kendi-yeniden-üretimimde-gözlenenler">9. Kendi yeniden üretimimde gözlenenler</a></li>
+  <li><a href="#terim-sözlüğü" id="toc-terim-sözlüğü" class="nav-link" data-scroll-target="#terim-sözlüğü">10. Terim sözlüğü</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="açıklamalar-kandırılabilir-mi" class="level1">
+<h1>Açıklamalar Kandırılabilir mi?</h1>
+<p><strong>Slack ve ark. (2020), <em>Fooling LIME and SHAP</em> üzerine ayrıntılı Türkçe anlatım</strong></p>
+<p>Makale: D. Slack, S. Hilgard, E. Jia, S. Singh, H. Lakkaraju. AIES 2020. doi:10.1145/3375627.3375830 · arXiv:1911.02508<br>
+Hazırlayan: İlker Uğur Kaya · Açıklanabilir Yapay Zeka dersi, makale yeniden üretimi</p>
+<blockquote class="blockquote">
+<p>Bu belge makalenin çevirisi değildir. Makalenin akışını izleyerek fikirlerini, yöntemini ve deneylerini kendi anlatımımla ve ek açıklamalarla aktarır. Yeniden üretim bulguları (Bölüm 9) ve terim sözlüğü (Bölüm 10) bana aittir. Kesin ifadeler ve şekiller için orijinal makaleye başvurulmalıdır.</p>
+</blockquote>
+<p><strong>İçindekiler</strong></p>
+<ol type="1">
+<li>Problem: Açıklamaya neden güveniyoruz?</li>
+<li>Arka plan: LIME nasıl çalışır?</li>
+<li>Arka plan: Kernel SHAP nasıl çalışır?</li>
+<li>Zafiyetin kaynağı: Dağılım dışı örnekler</li>
+<li>Tehdit modeli ve iskele saldırısı</li>
+<li>Deney düzeni</li>
+<li>Sonuçlar ve yorumları</li>
+<li>Makalenin konumu, sınırları ve sonrası</li>
+<li>Kendi yeniden üretimimde gözlenenler</li>
+<li>Terim sözlüğü</li>
+</ol>
+<section id="problem-açıklamaya-neden-güveniyoruz" class="level2">
+<h2 class="anchored" data-anchor-id="problem-açıklamaya-neden-güveniyoruz">1. Problem: Açıklamaya neden güveniyoruz?</h2>
+<p>Kredi onayı, suç tekrarı riski ya da tıbbi tanı gibi alanlarda kullanılan modellerin çoğu karmaşık ve çoğu zaman ticari olarak kapalıdır. Bir denetçi, düzenleyici kurum ya da alan uzmanı bu modelin içine bakamaz. Bakabilse bile milyonlarca parametreden anlamlı bir sonuç çıkaramaz. Bu boşluğu dolduran araçlar <strong>sonradan (post hoc) açıklama yöntemleridir</strong>: Modeli değiştirmeden, yalnızca girdi verip çıktı alarak “bu karar hangi özelliklere dayanıyor?” sorusunu cevaplamaya çalışırlar.</p>
+<p>Bu araçların en yaygın kullanım amaçlarından biri <strong>önyargı denetimidir</strong>. Bir denetçi, modelin kararlarını açıklatır ve ırk, cinsiyet gibi hassas özelliklerin öne çıkıp çıkmadığına bakar. Çıkmıyorsa modeli “makul” kabul eder. Bu iş akışının gizli bir varsayımı vardır: <strong>Açıklama, modelin gerçek davranışını yansıtır.</strong></p>
+<p>Makalenin sorduğu soru bu varsayımın kırılgan olup olmadığıdır. Yazarların cevabı açık: Model sahibi kötü niyetliyse ve denetçinin LIME ya da SHAP kullanacağını biliyorsa, açıklamayı istediği gibi şekillendirebilir. Model gerçek müşterilere ayrımcılık yapmaya devam ederken, açıklama tamamen masum bir tablo çizer. Bu yüzden makale yalnızca bir “saldırı” önermiyor, aynı zamanda açıklama tabanlı denetim pratiğinin güvenilirliğini sorguluyor.</p>
+<blockquote class="blockquote">
+<p><strong>Tek cümlelik özet:</strong> LIME ve SHAP modeli gerçek veri noktalarında değil, kendi ürettikleri yapay noktalarda sorgular. Bu noktalar gerçek veriden ayırt edilebildiği için model, “denetlendiğini” anlayıp o anda farklı davranabilir.</p>
+</blockquote>
+</section>
+<section id="arka-plan-lime-nasıl-çalışır" class="level2">
+<h2 class="anchored" data-anchor-id="arka-plan-lime-nasıl-çalışır">2. Arka plan: LIME nasıl çalışır?</h2>
+<p>LIME’ın (Ribeiro ve ark., 2016) temel fikri şudur: Karmaşık bir model <em>f</em> genel olarak doğrusal olmasa da, tek bir örnek <em>x</em>’in çok yakın çevresinde basit bir modelle yaklaşık olarak temsil edilebilir. LIME bu yerel modeli, genellikle doğrusal bir <em>g</em>’yi, şu amaçla bulur:</p>
+<p><span class="math display">\[
+\xi(x) = \arg\min_{g \in G} \; L(f, g, \pi_x) + \Omega(g)
+\]</span></p>
+<p>Burada <em>L</em>, <em>g</em>’nin <em>f</em>’yi <em>x</em>’in çevresinde ne kadar kötü taklit ettiğini ölçer. π<sub><em>x</em></sub>, bir noktanın <em>x</em>’e ne kadar yakın olduğuna göre verilen ağırlıktır. Ω(<em>g</em>) ise açıklamanın karmaşıklığına verilen cezadır (örneğin kullanılan özellik sayısı). Uygulamada bu problem şu adımlarla çözülür:</p>
+<ol type="1">
+<li><strong>Örnekleme:</strong> <em>x</em>’in çevresinde çok sayıda yapay nokta <em>z</em> üretilir (varsayılan 5000).</li>
+<li><strong>Sorgulama:</strong> Her nokta kara kutu modele verilir ve <em>f</em>(<em>z</em>) kaydedilir.</li>
+<li><strong>Ağırlıklandırma:</strong> Her noktaya <em>x</em>’e uzaklığına göre bir ağırlık verilir. Tablo verisinde varsayılan çekirdek, uzaklık <em>d</em> için exp(−<em>d</em>²/σ²) biçimindedir (kütüphane bunun karekökünü kullanır). Varsayılan genişlik σ = 0.75·√<em>M</em>, burada <em>M</em> özellik sayısıdır.</li>
+<li><strong>Yerel model:</strong> Bu ağırlıklarla bir ağırlıklı doğrusal regresyon (ridge) kurulur. Katsayılar açıklama olarak sunulur.</li>
+</ol>
+<section id="tablo-verisinde-örnekleme-ayrıntısı-saldırının-anahtarı" class="level3">
+<h3 class="anchored" data-anchor-id="tablo-verisinde-örnekleme-ayrıntısı-saldırının-anahtarı">Tablo verisinde örnekleme ayrıntısı (saldırının anahtarı)</h3>
+<p>Görüntü ya da metinde LIME, girdinin parçalarını açıp kapatarak örnek üretir. Tablo verisinde ise durum farklıdır ve saldırıyı mümkün kılan da budur. <code>lime_tabular</code>’ın varsayılan davranışında:</p>
+<ul>
+<li>Sayısal özellikler, eğitim verisindeki ortalama ve standart sapmaya göre <strong>her özellik için ayrı ayrı</strong> normal dağılımdan çekilir.</li>
+<li>Kategorik özellikler, eğitim verisindeki kategori sıklıklarına göre yine <strong>birbirinden bağımsız</strong> çekilir.</li>
+</ul>
+<p>Bu bağımsız örnekleme, özellikler arasındaki ilişkileri tamamen yok sayar. Gerçek veride 22 yaşında birinin 30 yıllık iş deneyimi olamaz, kredi süresi ile tutarı birlikte artma eğilimindedir, bazı değişkenler yalnızca tam sayı değer alır. LIME’ın ürettiği noktalar ise bu kuralları bilmez. Sonuç: Üretilen noktaların önemli bir kısmı gerçek hayatta karşılaşılmayacak, <strong>veri manifoldunun dışında</strong> kalan noktalardır.</p>
+</section>
+</section>
+<section id="arka-plan-kernel-shap-nasıl-çalışır" class="level2">
+<h2 class="anchored" data-anchor-id="arka-plan-kernel-shap-nasıl-çalışır">3. Arka plan: Kernel SHAP nasıl çalışır?</h2>
+<p>SHAP (Lundberg ve Lee, 2017) açıklamayı oyun teorisindeki <strong>Shapley değerlerine</strong> dayandırır. Özellikleri bir oyunun oyuncuları, modelin tahminini de oyunun kazancı gibi düşünür. Bir özelliğin katkısı, onun olası tüm özellik koalisyonlarına eklendiğinde yarattığı ortalama farktır:</p>
+<p><span class="math display">\[
+\phi_i = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F| - |S| - 1)!}{|F|!} \left[ v(S \cup \{i\}) - v(S) \right]
+\]</span></p>
+<p>Burada <em>F</em> tüm özellikler kümesi, <em>v</em>(<em>S</em>) ise yalnızca <em>S</em>’deki özellikler “biliniyorken” modelin beklenen çıktısıdır. Pratikte bir özelliğin “bilinmemesi”, o özelliğin değerinin bir <strong>arka plan dağılımından</strong> gelen değerlerle değiştirilmesi demektir. Makalede arka plan olarak eğitim verisinin 10 kümeli k-means merkezleri kullanılır.</p>
+<p><strong>Kernel SHAP</strong>, bu toplamı tüm koalisyonlar üzerinden hesaplamak yerine koalisyonları örnekler ve özel bir ağırlıklandırmayla LIME’a benzer bir ağırlıklı doğrusal regresyon çözer. Dolayısıyla SHAP da LIME gibi modeli <strong>yapay, karışık noktalarda</strong> sorgular. Örneğin bir müşterinin yaşı ve cinsiyeti korunup diğer tüm özellikleri bir küme merkezinden alınabilir.</p>
+<p>SHAP’ın LIME’dan ayrılan önemli bir özelliği <strong>yerel doğruluktur (local accuracy)</strong>:</p>
+<p><span class="math display">\[
+\phi_0 + \sum_i \phi_i = f(x)
+\]</span></p>
+<p>Yani katkıların toplamı, tahminin arka plan ortalamasından farkına tam olarak eşit olmak zorundadır. Bu kısıt, saldırıya karşı SHAP’ı kısmen dirençli yapan özelliktir (bkz. Bölüm 7).</p>
+</section>
+<section id="zafiyetin-kaynağı-dağılım-dışı-örnekler" class="level2">
+<h2 class="anchored" data-anchor-id="zafiyetin-kaynağı-dağılım-dışı-örnekler">4. Zafiyetin kaynağı: Dağılım dışı örnekler</h2>
+<p>Makalenin ilk gözlemi basit ama güçlüdür. Yazarlar COMPAS verisini ve LIME tarzı bozulmuş kopyalarını birlikte PCA ile iki boyuta indirir (makalenin Şekil 1’i). İki nokta bulutu belirgin biçimde farklı yerlere düşer. Gözle bile görülebilen bu fark, basit bir sınıflandırıcının “bu nokta gerçek mi yoksa bir açıklama yönteminin ürettiği yapay nokta mı?” sorusunu yüksek doğrulukla cevaplayabileceğini gösterir.</p>
+<p>Bu noktada durum şöyle özetlenebilir: Açıklama yöntemi modele “bu bölgede nasıl davranıyorsun?” diye sorar, ama soruyu gerçekçi olmayan noktalar üzerinden sorar. Model bu noktaları tanıyabiliyorsa, gerçek verideki davranışından bağımsız bir cevap verebilir. Açıklama yöntemi bu cevabı modelin gerçek davranışı sanır.</p>
+<blockquote class="blockquote">
+<p><strong>Benzetme:</strong> Bir sürücünün hız sınırına uyup uymadığını yalnızca radar levhasının hemen önünde ölçtüğünüzü düşünün. Levhayı tanıyan sürücü yalnızca orada yavaşlar. Ölçüm doğru çalışıyordur, ama ölçtüğü şey sürücünün gerçek davranışı değildir.</p>
+</blockquote>
+</section>
+<section id="tehdit-modeli-ve-iskele-saldırısı" class="level2">
+<h2 class="anchored" data-anchor-id="tehdit-modeli-ve-iskele-saldırısı">5. Tehdit modeli ve iskele saldırısı</h2>
+<section id="oyuncular-ve-varsayımlar" class="level3">
+<h3 class="anchored" data-anchor-id="oyuncular-ve-varsayımlar">5.1 Oyuncular ve varsayımlar</h3>
+<ul>
+<li><strong>Saldırgan (model sahibi):</strong> Taraflı bir model <em>f</em>’yi kullanıma almak istiyor. Bu model örneğin yalnızca ırka göre karar veriyor. Saldırgan, denetçinin LIME ya da SHAP kullanacağını biliyor ve eğitim verisine erişimi var.</li>
+<li><strong>Denetçi:</strong> Modele yalnızca kara kutu olarak erişiyor (girdi verip çıktı alıyor). Modelin önyargılı olup olmadığına açıklamalara bakarak karar veriyor.</li>
+<li><strong>Saldırganın hedefi:</strong> (1) Gerçek veride <em>f</em> gibi davranmak, yani önyargıdan vazgeçmemek. (2) Açıklamalarda hassas özelliğin görünmemesini sağlamak.</li>
+</ul>
+</section>
+<section id="iskele-scaffolding-model" class="level3">
+<h3 class="anchored" data-anchor-id="iskele-scaffolding-model">5.2 İskele (scaffolding) model</h3>
+<p>Saldırgan, <em>f</em>’nin etrafına bir “iskele” kurar. Bu iskele üç parçadan oluşur: taraflı model <em>f</em>, masum görünen bir model <em>ψ</em> ve bir dağılım dışı (OOD) dedektörü. Ortaya çıkan saldırgan model <em>e</em> şöyle çalışır:</p>
+<p><span class="math display">\[
+e(x) = \begin{cases} f(x) &amp; \text{dedektör } x\text{'i gerçek veri sayarsa} \\ \psi(x) &amp; \text{dedektör } x\text{'i yapay nokta sayarsa} \end{cases}
+\]</span></p>
+<p><em>ψ</em>, hassas özellikle ilişkisiz özelliklere dayanır. Böylece LIME’ın ya da SHAP’ın sorguladığı yapay noktaların neredeyse tamamında cevabı <em>ψ</em> verir ve açıklama <em>ψ</em>’nin mantığını yansıtır. Gerçek müşteriler ise dedektör tarafından “gerçek” sayıldıkları için <em>f</em> ile değerlendirilir.</p>
+</section>
+<section id="neden-açıklama-ψyi-gösterir-sezgisel-analiz" class="level3">
+<h3 class="anchored" data-anchor-id="neden-açıklama-ψyi-gösterir-sezgisel-analiz">5.3 Neden açıklama ψ’yi gösterir? (Sezgisel analiz)</h3>
+<p>LIME’ın yerel regresyonuna giren 5000 noktadan yalnızca biri (açıklanan örneğin kendisi) kesin olarak gerçektir. Geri kalanlar bağımsız örneklemeyle üretildiği için dedektör onları büyük oranda “yapay” olarak işaretler. Bu yüzden regresyonun gördüğü etiketlerin neredeyse tamamı <em>ψ</em>’den gelir. Doğrusal model de doğal olarak <em>ψ</em>’nin baktığı özelliğe büyük, hassas özelliğe ise sıfıra yakın bir katsayı verir. Açıklanan örnek en yüksek ağırlığı alsa bile binlerce noktanın içinde tek başına sonucu değiştiremez.</p>
+</section>
+<section id="ood-dedektörünün-eğitimi" class="level3">
+<h3 class="anchored" data-anchor-id="ood-dedektörünün-eğitimi">5.4 OOD dedektörünün eğitimi</h3>
+<p>Dedektör, basit bir ikili sınıflandırma problemi olarak eğitilir:</p>
+<ol type="1">
+<li>Eğitim verisi <em>X</em> alınır ve her örnek bozularak yapay bir küme <em>X</em><sub>p</sub> üretilir. LIME için bozma, özelliklere rastgele gürültü eklemektir. SHAP için ise bazı özelliklerin arka plan değerleriyle değiştirilmesidir. Yani bozma, saldırılan yöntemin örnekleme biçimini taklit eder.</li>
+<li><em>X</em>’teki örnekler “gerçek”, <em>X</em><sub>p</sub>’dekiler “yapay” diye etiketlenir.</li>
+<li><em>X</em> ∪ <em>X</em><sub>p</sub> üzerinde bir sınıflandırıcı eğitilir. Makalede bu, 100 ağaçlı bir random forest’tır.</li>
+</ol>
+<blockquote class="blockquote">
+<p><strong>Uygulama ayrıntıları (orijinal koddan):</strong> LIME saldırısında gürültünün standart sapması 0.3’tür ve her gerçek örnek için 30 bozulmuş kopya üretilir. Makale metninde gürültü 𝒩(0, 1) olarak anılır; aradaki fark savunmada sorulabilir. Ayrıca LIME saldırısında dedektör yalnızca sayısal sütunlara bakar, kategorik sütunlar dedektöre girmez.</p>
+</blockquote>
+</section>
+<section id="ψ-nasıl-seçilir" class="level3">
+<h3 class="anchored" data-anchor-id="ψ-nasıl-seçilir">5.5 ψ nasıl seçilir?</h3>
+<ul>
+<li><strong>Sentetik ilişkisiz özellik (COMPAS, CC):</strong> Veriye hassas özellikle korelasyonu sıfır olan rastgele bir sütun eklenir. <em>ψ</em> bu sütuna göre karar verir. Denetçi açıklamada anlamsız bir özellik görür ama bu en azından ayrımcı görünmez.</li>
+<li><strong>İki ilişkisiz özellik ve XOR:</strong> <em>ψ</em> iki sentetik sütunun XOR’una göre karar verir. Burada amaç tek bir özelliğin açıklamayı tek başına domine etmemesi, önemin iki özelliğe paylaştırılmasıdır.</li>
+<li><strong>Mevcut gerçek bir özellik (German):</strong> Yapay sütun eklemek yerine verideki makul bir özellik kullanılır: kredi taksitinin gelire oranı. Bu senaryo daha gerçekçi ve daha tehlikelidir, çünkü açıklama yalnızca masum değil, aynı zamanda <strong>inandırıcıdır</strong>. Bir denetçi “model taksit/gelir oranına bakıyor” açıklamasını büyük ihtimalle kabul eder.</li>
+</ul>
+</section>
+</section>
+<section id="deney-düzeni" class="level2">
+<h2 class="anchored" data-anchor-id="deney-düzeni">6. Deney düzeni</h2>
+<section id="veri-setleri" class="level3">
+<h3 class="anchored" data-anchor-id="veri-setleri">6.1 Veri setleri</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 29%">
+<col style="width: 30%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Veri seti</th>
+<th>Bağlam</th>
+<th>Hassas özellik</th>
+<th>Etiket</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>COMPAS (ProPublica)</td>
+<td>Ceza adaleti, suç tekrarı riski</td>
+<td>Irk</td>
+<td>Yüksek / düşük risk</td>
+</tr>
+<tr class="even">
+<td>Communities and Crime (UCI)</td>
+<td>1994 ABD topluluğunun sosyoekonomik ve suç verisi</td>
+<td>Beyaz nüfus yüzdesi (yaklaşık %2.7 ile %99.6 arası)</td>
+<td>Şiddet suçu oranı medyanın üstünde mi</td>
+</tr>
+<tr class="odd">
+<td>German Credit (UCI)</td>
+<td>Yaklaşık 1000 kredi başvurusu</td>
+<td>Cinsiyet (%69 erkek)</td>
+<td>İyi / kötü müşteri (%70 iyi)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="modeller" class="level3">
+<h3 class="anchored" data-anchor-id="modeller">6.2 Modeller</h3>
+<ul>
+<li><strong><em>f</em>:</strong> Kasıtlı olarak “mükemmel ayrımcı” kurulur. COMPAS ve CC’de yalnızca ırka, German’da yalnızca cinsiyete bakar. Bu aşırı uç seçim bilinçlidir: Önyargı bu kadar açıkken bile gizlenebiliyorsa, daha ince önyargılar haydi haydi gizlenebilir.</li>
+<li><strong><em>ψ</em>:</strong> Bölüm 5.5’teki seçenekler.</li>
+<li><strong>Dedektör:</strong> 100 ağaçlı random forest.</li>
+</ul>
+</section>
+<section id="açıklama-yöntemleri-ve-ayarları" class="level3">
+<h3 class="anchored" data-anchor-id="açıklama-yöntemleri-ve-ayarları">6.3 Açıklama yöntemleri ve ayarları</h3>
+<ul>
+<li><strong>LIME:</strong> Varsayılan tablo açıklayıcısı, sürekli özellikleri ayrıklaştırmadan.</li>
+<li><strong>SHAP:</strong> Varsayılan Kernel SHAP, 10 kümeli k-means arka planı.</li>
+<li><strong>Bölme:</strong> Rastgele %90 eğitim ve %10 test. Saldırı eğitim kümesiyle kurulur, test kümesinde değerlendirilir.</li>
+</ul>
+</section>
+<section id="değerlendirme-ölçütleri" class="level3">
+<h3 class="anchored" data-anchor-id="değerlendirme-ölçütleri">6.4 Değerlendirme ölçütleri</h3>
+<ul>
+<li><strong>Sıralama ölçütü:</strong> Her test örneği için özellikler, açıklamadaki katsayının mutlak değerine göre sıralanır. Ardından her özelliğin 1., 2. ve 3. sırada kaç örnekte göründüğü yüzde olarak raporlanır. Saldırı başarılıysa hassas özellik 1. sıradan kaybolur, <em>ψ</em>’nin özelliği oraya yerleşir.</li>
+<li><strong>Sadakat (fidelity):</strong> Test kümesindeki gerçek örneklerde <em>e</em>’nin <em>f</em> ile aynı kararı verme oranı. Bu oranın yüksek olması, saldırganın gerçek dünyada önyargıdan vazgeçmediğini gösterir. Sadakat düşükse saldırı “önyargıyı gizlemiş” değil, kısmen “önyargıyı kaldırmış” olur.</li>
+</ul>
+</section>
+</section>
+<section id="sonuçlar-ve-yorumları" class="level2">
+<h2 class="anchored" data-anchor-id="sonuçlar-ve-yorumları">7. Sonuçlar ve yorumları</h2>
+<section id="ana-sonuçlar" class="level3">
+<h3 class="anchored" data-anchor-id="ana-sonuçlar">7.1 Ana sonuçlar</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 73%">
+<col style="width: 6%">
+<col style="width: 13%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Durum</th>
+<th>COMPAS</th>
+<th>Comm. &amp; Crime</th>
+<th>German</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LIME, tek ilişkisiz özellik: önemin hassas özellikten ψ’nin özelliğine kayma oranı</td>
+<td>%100</td>
+<td>%100</td>
+<td>%91</td>
+</tr>
+<tr class="even">
+<td>SHAP, tek ilişkisiz özellik</td>
+<td>%84</td>
+<td>%100</td>
+<td>%85</td>
+</tr>
+<tr class="odd">
+<td>SHAP, iki ilişkisiz özellik: hassas özelliğin 1. sıradan çıkarılma oranı</td>
+<td>%67</td>
+<td>%71</td>
+<td>–</td>
+</tr>
+<tr class="even">
+<td>Sadakat, LIME saldırısı</td>
+<td>%100</td>
+<td>%100</td>
+<td>%100</td>
+</tr>
+<tr class="odd">
+<td>Sadakat, SHAP saldırısı</td>
+<td>%91</td>
+<td>%75</td>
+<td>%80</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LIME tamamen kandırılıyor.</strong> Tek ilişkisiz özellikli saldırıda hassas özellik 1. sıradan neredeyse hep kayboluyor. 2. ve 3. sıralarda da diğer sıradan özelliklerden daha sık görünmüyor; yani açıklamaya bakan biri onu “önemsiz özelliklerden biri” olarak algılıyor. Üstelik sadakat %100: Saldırgan gerçek veride hiçbir şeyden ödün vermiyor.</p>
+<p><strong>SHAP kandırılıyor ama daha zor.</strong> Tek özellikli saldırıda başarı yüksek (%84–100), iki özellikli XOR saldırısında belirgin biçimde düşüyor (%67–71). Sadakat de LIME saldırısındakinden düşük (%75–91), yani SHAP’ı kandırmak için saldırgan gerçek veride bir miktar ödün vermek zorunda kalıyor.</p>
+</section>
+<section id="shap-neden-daha-dirençli" class="level3">
+<h3 class="anchored" data-anchor-id="shap-neden-daha-dirençli">7.2 SHAP neden daha dirençli?</h3>
+<p>İki neden öne çıkıyor. Birincisi <strong>yerel doğruluk</strong> kısıtı: Katkıların toplamı tahmin farkına eşit olmak zorunda. <em>ψ</em> iki özelliğin XOR’una bakıyorsa, hiçbir tekil özellik bu farkı tek başına açıklayamaz. SHAP katkıyı birden fazla özelliğe yaymak zorunda kalır ve bu yayılma sırasında hassas özellik de pay alabilir. İkincisi <strong>örnekleme biçimi</strong>: SHAP’ın yapay noktaları, bazı özellikleri gerçek değerinde tutup diğerlerini küme merkezlerinden aldığı için gerçek veriye LIME’ın noktalarından daha çok benzer. Bu da dedektörün işini zorlaştırır ve sadakat düşer.</p>
+</section>
+<section id="dedektör-ne-kadar-iyi-olmalı-makalenin-şekil-5i" class="level3">
+<h3 class="anchored" data-anchor-id="dedektör-ne-kadar-iyi-olmalı-makalenin-şekil-5i">7.3 Dedektör ne kadar iyi olmalı? (makalenin Şekil 5’i)</h3>
+<p>Yazarlar COMPAS’ta farklı doğruluklarda dedektörler eğitip saldırının başarısını dedektörün F1 skoruna göre çizer. Dedektör zayıfken (gerçek ve yapay noktaları ayıramıyorken) iki yöntem de ırkı en önemli özellik olarak bulur, yani saldırı başarısız olur. Yöntemler arasında ilginç bir fark var:</p>
+<ul>
+<li><strong>LIME:</strong> Daha iyi bir dedektöre ihtiyaç duyar, ama F1 yaklaşık 0.8’i geçtiği anda çok hızlı ve neredeyse tamamen çöker. Geçiş keskindir.</li>
+<li><strong>SHAP:</strong> Daha zayıf bir dedektörle (F1 ≈ 0.45) bile etkilenmeye başlar, ama etki kademelidir. Önyargıyı tamamen gizlemek için çok isabetli bir dedektör gerekir.</li>
+</ul>
+<p>Çıkarım: Saldırının pratikte uygulanabilmesi için gereken tek koşul, yapay noktaların gerçek noktalardan “makul” doğrulukla ayırt edilebilmesidir. Bağımsız örnekleme yapan yöntemlerde bu koşul kolayca sağlanır.</p>
+</section>
+<section id="hiperparametrelere-dayanıklılık" class="level3">
+<h3 class="anchored" data-anchor-id="hiperparametrelere-dayanıklılık">7.4 Hiperparametrelere dayanıklılık</h3>
+<ul>
+<li><strong>Yöntemler arası aktarım:</strong> LIME’a göre kurulmuş bir saldırı SHAP’ı kandıramıyor, çünkü dedektör LIME’ın gürültüsünü tanımak üzere eğitilmiş, SHAP’ın karışık noktalarını tanımıyor. SHAP’a göre kurulmuş saldırının LIME üzerindeki etkisi ise değişken. Bu, saldırganın denetçinin hangi yöntemi kullanacağını bilmesinin önemli olduğunu gösteriyor.</li>
+<li><strong>LIME çekirdek genişliği:</strong> Denetçi çekirdeği 0.15·√<em>M</em> ile 0.95·√<em>M</em> arasında değiştirse de, ya da uzaklık ölçüsünü ℓ<sub>1</sub>’e çevirse de saldırı aynı derecede etkili kalıyor. Yani denetçinin ayarlarla oynayarak saldırıyı fark etmesi kolay değil.</li>
+<li><strong>SHAP arka planı:</strong> Saldırı 10 kümeli arka planla kurulmuş olsa bile, test sırasında 5 ya da 15 küme kullanmak saldırıyı zayıflatmıyor. Arka planı tamamen sıfırlardan oluşturmak ise saldırıyı daha da belirgin hâle getiriyor.</li>
+</ul>
+</section>
+<section id="örnek-açıklamalar" class="level3">
+<h3 class="anchored" data-anchor-id="örnek-açıklamalar">7.5 Örnek açıklamalar</h3>
+<p>COMPAS’tan tek bir örnek için LIME katsayıları (makalenin Tablo 2’si) etkiyi çarpıcı biçimde gösterir. Saldırıdan önce ırkın katsayısı −0.42, ilişkisiz özelliğinki 0’dır. Saldırıdan sonra tablo tamamen yer değiştirir: ırk 0, ilişkisiz özellik 0.42. Katsayının büyüklüğü neredeyse aynen yeni özelliğe aktarılmıştır. SHAP’ta (makalenin Şekil 6’sı) ırkın katkısı belirgin biçimde küçülür ama LIME’daki gibi tamamen sıfırlanmaz. Bu da Bölüm 7.2’deki direnç açıklamasıyla uyumludur.</p>
+</section>
+</section>
+<section id="makalenin-konumu-sınırları-ve-sonrası" class="level2">
+<h2 class="anchored" data-anchor-id="makalenin-konumu-sınırları-ve-sonrası">8. Makalenin konumu, sınırları ve sonrası</h2>
+<section id="literatürdeki-yeri" class="level3">
+<h3 class="anchored" data-anchor-id="literatürdeki-yeri">8.1 Literatürdeki yeri</h3>
+<p>Makale birkaç araştırma çizgisinin kesişiminde duruyor:</p>
+<ul>
+<li><strong>Sonradan açıklamalara yönelik eleştiriler:</strong> Rudin, yüksek riskli kararlarda kara kutuyu açıklamaya çalışmak yerine baştan yorumlanabilir model kullanılması gerektiğini savunur. Ghorbani ve ark. açıklamaların küçük girdi değişikliklerine aşırı duyarlı olabildiğini gösterir. Mittelstadt ve ark. ise LIME/SHAP’ın yapay noktalarının tablo verisinde sezgisel olmadığına dikkat çeker. Bu makale son gözlemi alıp bir saldırıya dönüştürür.</li>
+<li><strong>Açıklamalara saldırılar:</strong> Önceki çalışmalar (Dombrowski ve ark., Heo ve ark.) görüntü sınıflandırmada saliency haritalarının manipüle edilebildiğini göstermişti. Bu makale saldırıyı tablo verisine ve modelden bağımsız yöntemlere taşır.</li>
+<li><strong>Yorumlanabilirlik ve adalet:</strong> Aïvodji ve ark.’nın “fairwashing” kavramı, yani açıklamaların haksız kararları meşrulaştırmak için kullanılması, bu makalenin motivasyonuyla doğrudan ilişkilidir.</li>
+</ul>
+</section>
+<section id="yazarların-vardığı-sonuç" class="level3">
+<h3 class="anchored" data-anchor-id="yazarların-vardığı-sonuç">8.2 Yazarların vardığı sonuç</h3>
+<p>Bozmaya dayalı sonradan açıklama yöntemleri, hassas uygulamalarda ayrımcılığı tespit etmek için tek başına yeterli değildir. LIME, SHAP’tan daha savunmasızdır. Yazarlar iki gelecek yön önerir: gradyan tabanlı yöntemlerin benzer saldırılara açık olup olmadığını incelemek ve bu tür saldırılara dayanıklı açıklama yöntemleri geliştirmek.</p>
+</section>
+<section id="eleştirel-değerlendirme-kendi-yorumum" class="level3">
+<h3 class="anchored" data-anchor-id="eleştirel-değerlendirme-kendi-yorumum">8.3 Eleştirel değerlendirme (kendi yorumum)</h3>
+<ul>
+<li><strong>Güçlü varsayımlar:</strong> Saldırgan, denetçinin hangi yöntemi ve hangi örnekleme ayarlarını kullanacağını biliyor. Yöntemler arası aktarımın zayıf olması, bu bilginin saldırı için kritik olduğunu gösteriyor.</li>
+<li><strong>Uç modeller:</strong> <em>f</em> yalnızca tek bir özelliğe bakıyor. Gerçek önyargılar daha dağınıktır; bu durumda saldırının nasıl davranacağı ayrıca incelenmeli.</li>
+<li><strong>Denetçinin başka araçları:</strong> Denetçi modeli yalnızca yapay noktalarda değil, gerçek veri noktalarında da sorgularsa (örneğin gerçek bir müşterinin yalnızca cinsiyetini değiştirip kararın değişip değişmediğine bakarsa) önyargı ortaya çıkabilir. Karşı olgusal açıklamaların ve basit “eşleştirilmiş test” yaklaşımının değeri buradan gelir. Ancak aynı ekibin 2021 tarihli <em>Counterfactual Explanations Can Be Manipulated</em> çalışması, karşı olgusal açıklamaların da manipüle edilebildiğini gösterir.</li>
+<li><strong>Savunma yönleri:</strong> Veri dağılımına sadık örnekleme (özellikler arası ilişkiyi koruyan ya da gerçek veriden yararlanan örnekleme), açıklamaları farklı yöntemlerle çapraz kontrol etmek ve modelin dağılım dışı girdilerde gerçek veridekinden belirgin biçimde farklı davranıp davranmadığını test etmek.</li>
+</ul>
+</section>
+</section>
+<section id="kendi-yeniden-üretimimde-gözlenenler" class="level2">
+<h2 class="anchored" data-anchor-id="kendi-yeniden-üretimimde-gözlenenler">9. Kendi yeniden üretimimde gözlenenler</h2>
+<p>Saldırının LIME kısmını, orijinal kodun mantığını izleyerek kendi kodumla yeniden uyguladım (<code>analiz.ipynb</code>; veri: <code>veri.csv</code>). İki veri üzerinde çalıştım: makalenin kullandığı önişlenmiş German Credit verisi ve uygulamamda kullandığım Kaggle German Credit sürümü. Kaggle sürümünde makalenin <em>ψ</em> özelliği (taksit/gelir oranı) bulunmadığı için <em>ψ</em> olarak kredi süresini (<code>Duration</code>, cinsiyetle korelasyonu 0.08) kullandım.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 36%">
+<col style="width: 14%">
+<col style="width: 30%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Ölçüm</th>
+<th>Makale (German)</th>
+<th>Orijinal veri, 5 bölme (ort. ± std)</th>
+<th>Kendi verim (Kaggle)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Taraflı modelde hassas özellik 1. sırada</td>
+<td>~%100</td>
+<td>%100 ± 0</td>
+<td>%100</td>
+</tr>
+<tr class="even">
+<td>Saldırgan modelde hassas özellik 1. sırada</td>
+<td>~%0</td>
+<td>%0 ± 0</td>
+<td>%0 (ilk 3’te %1)</td>
+</tr>
+<tr class="odd">
+<td>Saldırgan modelde ψ’nin özelliği 1. sırada</td>
+<td>%91</td>
+<td>%95.4 ± 6.4</td>
+<td>%97</td>
+</tr>
+<tr class="even">
+<td>Sadakat</td>
+<td>%100</td>
+<td>%100 ± 0</td>
+<td>%99</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Ana bulgu yeniden üretildi.</strong> Bölmelere göre ψ oranı %84 ile %99 arasında değişti; makalenin tek bölmeyle raporladığı %91 bu aralığın içinde.</li>
+<li><strong>Dedektör eşiği:</strong> Kendi verimde F1 ≤ 0.75 iken saldırı başarısız, F1 ≥ 0.92 iken tamamen başarılı. Makaledeki keskin geçiş burada da görülüyor. Bu veride dedektörün kolay başarılı olmasının muhtemel nedeni, yaş ve meslek gibi tam sayı değerli özelliklerin gürültüyle bu yapısını kaybetmesi.</li>
+<li><strong>Çekirdek genişliği:</strong> 0.15·√<em>M</em> ile 0.95·√<em>M</em> arasındaki tüm değerlerde hassas özellik 1. sırada hiç çıkmadı. Küçük bir fark: En dar çekirdekte ψ’nin özelliği %58’e düştü; gizleme başarılı kaldı ama sahte gerekçe daha az öne çıktı.</li>
+<li><strong>Karşı olgusal uzantı:</strong> Saldırgan modelin “kötü” dediği 30 müşterinin 27’sinde en küçük karşı olgusal değişiklik cinsiyeti değiştirmekti ve bu noktaların hepsi gerçek veri sayıldı. Yani karşı olgusal sorgu, LIME’ın gizlediği önyargıyı ortaya çıkardı. Kalan 3 müşteride ise arama, dedektörün “yapay” saydığı küçük bir sayısal değişiklik buldu ve bu yanıltıcı bir karşı olgusal açıklama üretti. Bu sonuç, karşı olgusal açıklamaların da aynı zafiyete açık olabileceğini gösteriyor.</li>
+</ul>
+</section>
+<section id="terim-sözlüğü" class="level2">
+<h2 class="anchored" data-anchor-id="terim-sözlüğü">10. Terim sözlüğü</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>İngilizce</th>
+<th>Türkçe</th>
+<th>Kısa açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Post hoc explanation</td>
+<td>Sonradan açıklama</td>
+<td>Eğitilmiş modeli değiştirmeden kararlarını açıklayan yöntemler</td>
+</tr>
+<tr class="even">
+<td>Perturbation</td>
+<td>Bozma / pertürbasyon</td>
+<td>Girdiyi değiştirerek yapay örnek üretme</td>
+</tr>
+<tr class="odd">
+<td>Out-of-distribution (OOD)</td>
+<td>Dağılım dışı</td>
+<td>Eğitim verisinin dağılımına uymayan örnek</td>
+</tr>
+<tr class="even">
+<td>Data manifold</td>
+<td>Veri manifoldu</td>
+<td>Gerçek verinin yer aldığı (genellikle düşük boyutlu) bölge</td>
+</tr>
+<tr class="odd">
+<td>Scaffolding</td>
+<td>İskele</td>
+<td>Taraflı modeli saran ve girdiye göre f ile ψ arasında geçiş yapan yapı</td>
+</tr>
+<tr class="even">
+<td>Adversarial classifier</td>
+<td>Saldırgan sınıflandırıcı</td>
+<td>İskele ile kurulan e modeli</td>
+</tr>
+<tr class="odd">
+<td>Innocuous model</td>
+<td>Masum model</td>
+<td>Açıklamada gösterilmek üzere seçilen ψ</td>
+</tr>
+<tr class="even">
+<td>Sensitive attribute</td>
+<td>Hassas özellik</td>
+<td>Irk, cinsiyet gibi ayrımcılığa konu olabilecek özellik</td>
+</tr>
+<tr class="odd">
+<td>Fidelity</td>
+<td>Sadakat</td>
+<td>Gerçek veride e ile f’nin aynı kararı verme oranı</td>
+</tr>
+<tr class="even">
+<td>Local accuracy</td>
+<td>Yerel doğruluk</td>
+<td>SHAP katkılarının toplamının tahmin farkına eşit olması</td>
+</tr>
+<tr class="odd">
+<td>Background distribution</td>
+<td>Arka plan dağılımı</td>
+<td>SHAP’ta “eksik” özelliklerin değerlerinin alındığı dağılım</td>
+</tr>
+<tr class="even">
+<td>Kernel width</td>
+<td>Çekirdek genişliği</td>
+<td>LIME’da uzaklığa göre ağırlığın ne kadar hızlı azaldığını belirler</td>
+</tr>
+<tr class="odd">
+<td>Fairwashing</td>
+<td>Adalet aklama</td>
+<td>Haksız bir modeli açıklamalarla adil gösterme</td>
+</tr>
+<tr class="even">
+<td>Counterfactual explanation</td>
+<td>Karşı olgusal açıklama</td>
+<td>Kararın değişmesi için girdide gereken en küçük değişiklik</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>Kaynak: D. Slack, S. Hilgard, E. Jia, S. Singh, H. Lakkaraju. “Fooling LIME and SHAP: Adversarial Attacks on Post hoc Explanation Methods.” Proceedings of the 2020 AAAI/ACM Conference on AI, Ethics, and Society (AIES ’20). ACM. doi:10.1145/3375627.3375830 · Orijinal kod: github.com/dylan-slack/Fooling-LIME-SHAP</p>
+<p>Diğer anılan çalışmalar: Ribeiro ve ark. 2016 (LIME); Lundberg ve Lee 2017 (SHAP); Slack ve ark. 2021, “Counterfactual Explanations Can Be Manipulated” (NeurIPS).</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
