@@ -1,0 +1,55 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interpretable ML Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: short title block, then two equal entry cards (paper, slides) that stack on phones. */
+:root{ --bg:#eef1f5; --card:#ffffff; --ink:#15213a; --muted:#5a6478; --hair:#d6dce6; --accent:#1f4e79; --orange:#ef8a2a;
+  --serif:"STIX Two Text","Times New Roman",serif; --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light }
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.55}
+.wrap{max-width:1280px; margin:0 auto; padding-block:56px 64px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; font-weight:600}
+h1{font-family:var(--serif); font-weight:600; font-size:clamp(26px,4vw,38px); line-height:1.2; margin:0 0 12px}
+.lede{color:var(--muted); margin:0 0 6px}
+.by{margin:0 0 36px; font-size:14.5px}
+.by b{font-weight:600}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:24px}
+a.card{display:flex; flex-direction:column; background:var(--card); border:1px solid var(--hair); border-radius:10px; overflow:hidden; color:inherit; text-decoration:none; transition:border-color .15s, transform .15s}
+a.card:hover{border-color:var(--accent)}
+a.card:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+@media (prefers-reduced-motion:no-preference){ a.card:hover{transform:translateY(-2px)} }
+.thumb{aspect-ratio:16/9; max-width:100%; background:#fff; display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--hair); overflow:hidden}
+.thumb img{width:100%; height:100%; object-fit:cover}
+.thumb.paper img{object-fit:contain; padding:14px}
+.body{padding:18px 20px 20px; display:flex; flex-direction:column; gap:6px; min-width:0}
+.kind{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--orange); font-weight:600}
+.body h2{margin:0; font-size:19px; font-weight:600}
+.body p{margin:0; color:var(--muted); font-size:14.5px}
+.go{margin-top:8px; color:var(--accent); font-weight:500; font-size:14.5px}
+footer{margin-top:40px; color:var(--muted); font-size:13px; border-top:1px solid var(--hair); padding-top:16px}
+</style>
+<div class="wrap">
+  <p class="eyebrow">Explainable Artificial Intelligence · Sivas Cumhuriyet University · November 2026</p>
+  <h1>Interpretable Machine Learning: A Critical Review</h1>
+  <p class="lede">Explanation methods, feature dependence, and model complexity, read through Chapters 4 and 5 of C. Molnar's <em>Interpretable Machine Learning</em>.</p>
+  <p class="by"><b>Asasira Martin</b> · MSc Artificial Intelligence and Data Science</p>
+  <div class="grid">
+    <a class="card" href="makale.html">
+      <div class="thumb paper"><img src="figures/image2.svg" alt="Fig. 1 from the paper: taxonomy of interpretability approaches"></div>
+      <div class="body"><span class="kind">Paper · IEEE style</span><h2>Read the paper</h2>
+        <p>The full 15-page paper exactly as typeset in Word, page by page, with zoom and the original PDF.</p>
+        <span class="go">Open paper →</span></div>
+    </a>
+    <a class="card" href="sunum.html">
+      <div class="thumb"><img src="slides/slide-01.jpg" alt="Title slide: Methods Overview, Data and Models"></div>
+      <div class="body"><span class="kind">Presentation · 16 slides</span><h2>View the slides</h2>
+        <p>The original PowerPoint deck, slide for slide, with speaker notes and fullscreen mode.</p>
+        <span class="go">Open slides →</span></div>
+    </a>
+  </div>
+  <footer>Figures 1–2 adapt material from C. Molnar, <em>Interpretable Machine Learning</em> (CC BY-NC-SA 4.0) and are shared under the same license.</footer>
+</div>
