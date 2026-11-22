@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XAI 2.0 Manifestosu (Longo vd., 2024) — İnteraktif Makale Tahlili ve Deney Paneli</title>
+<style>
+  :root { --bg:#F6F8FB; --card:#FFFFFF; --ink:#0F172A; --muted:#334155; --line:#CBD5E1; --teal:#0D9488; --indigo:#4F46E5; --rose:#E11D48; }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); font-family:'Segoe UI',system-ui,sans-serif; margin:0; padding:28px; line-height:1.65; }
+  .container { max-width:1280px; margin:0 auto; }
+  .header { background:linear-gradient(120deg,#0F4A49 0%,#0F766E 60%,#115E59 100%); color:#FFFFFF; border-radius:14px; padding:28px 32px; margin-bottom:28px; box-shadow:0 4px 16px rgba(15,23,42,.08); }
+  h1 { margin:10px 0 8px 0; font-size:28px; color:#FFFFFF; }
+  h2 { color:#0F172A; border-bottom:3px solid #99F6E4; padding-bottom:8px; margin-top:34px; font-size:22px; }
+  .badge { display:inline-block; background:rgba(255,255,255,.16); color:#E6FFFA; border:1px solid rgba(255,255,255,.35); padding:4px 13px; border-radius:999px; font-size:12.5px; font-weight:700; margin-right:8px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(560px, 1fr)); gap:22px; margin-top:18px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(15,23,42,.04); }
+  .card h3 { margin-top:0; color:var(--ink); font-size:18px; }
+  .card p { color:var(--muted); font-size:14.5px; }
+  .card img { width:100%; border-radius:8px; border:1px solid var(--line); margin-top:10px; background:#FFFFFF; }
+  table { width:100%; border-collapse:collapse; margin-top:14px; background:var(--card); border-radius:10px; overflow:hidden; border:1px solid var(--line); }
+  th, td { padding:10px 12px; border:1px solid var(--line); text-align:left; font-size:14px; }
+  th { background:#E6F1EE; color:#0B2A2E; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="badge">Q1 • INFORMATION FUSION (IF: 14.7)</span>
+    <span class="badge">LUCA LONGO VD. (HAZİRAN 2024)</span>
+    <span class="badge">BÖLÜM 33–34 MAKALE TAHLİLİ • YALÇIN KAVAKLI &amp; MURAT ŞAHİN</span>
+    <h1>Explainable Artificial Intelligence (XAI) 2.0: A Manifesto of Open Challenges</h1>
+    <p style="color:#E2F8F5; margin:6px 0 0 0;">Orijinal Makale, Türkçe Akademik Tam Çeviri, Aydınlık Sunum Diyagramları ve 6 Ampirik Deney Çıktısı İnteraktif Özeti</p>
+  </div>
+
+  <h2>1. Makalenin Orijinal Mimari Şeması ve Sunum Diyagramları</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Orijinal Makale Şekil 1: XAI 2.0 Manifestosu 9 Ana Kategorisi</h3>
+      <p>Makalenin 6. sayfasında yer alan ve veri, model, XAI tekniği ile 9 araştırma bölümünü (Bölüm 3.1 – 3.9) ilişkilendiren orijinal mimari şema.</p>
+      <img src="gorseller/Makale_Sekil1_XAI_2_0_Manifesto_Semasi.png" alt="Şekil 1">
+    </div>
+    <div class="card">
+      <h3>Sunum Diyagramı: Korelasyondan Nedenselliğe ve Eylemselliğe Geçiş</h3>
+      <p>XAI 1.0 (SHAP/LIME korelasyonu: %28 geçerlilik) → XAI 2.0 Nedensellik (Causal Graphs) → Eylemsel Başvuru (Actionable Recourse: %94,5 geçerlilik).</p>
+      <img src="gorseller/vis_paper_causal.png" alt="Nedensellik">
+    </div>
+  </div>
+
+  <h2>2. Gerçekleştirilen 6 Deney Çalışması ve Yüksek Çözünürlüklü Çıktılar</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Deney 1: XAI 1.0 Anlaşmazlık Matrisi ve Girdi Kararsızlığı (Bölüm 3.2.1 &amp; 3.2.3)</h3>
+      <p>Aynı kara kutu modelde LIME, SHAP, Gradient ve Integrated Gradients arasındaki uyuşmazlık (%63–%69) ve XAI 2.0 Portföy Uzlaşımıyla %77 daha yüksek kararlılık (2.061 → 0.463).</p>
+      <img src="gorseller/Deney1_XAI1_Anlasmazlik_Matrisi_ve_Girdi_Kararsizligi.png" alt="Deney 1">
+    </div>
+    <div class="card">
+      <h3>Deney 2: Korelasyon Tuzağı vs. Nedensel Eylemsel Başvuru (Bölüm 3.6.4)</h3>
+      <p>Yapısal Nedensel Model (SCM) üzerinde 'Clever Hans' kısayoluna karşı nedensel karşı-olgusal eylem planının (%94,5 nedensel geçerlilik, %98,5 fizibilite) üstünlüğü.</p>
+      <img src="gorseller/Deney2_Korelasyon_Tuzagi_vs_Nedensel_Eylemsel_Recourse.png" alt="Deney 2">
+    </div>
+    <div class="card">
+      <h3>Deney 3: Paydaş Bilişsel Yükü ve 'Beyaz Kutu Paradoksu' (Bölüm 3.6.1 &amp; 3.8.1)</h3>
+      <p>Vatandaş (k≈3), Hekim (k≈6) ve Veri Bilimci (k≈10.5) bilişsel uyum eğrileri ile yanlış AI tahmininde kör güveni %49,2'den %14,0'a indiren Perorative XAI.</p>
+      <img src="gorseller/Deney3_Paydas_Bilissel_Yuk_ve_Beyaz_Kutu_Paradoksu.png" alt="Deney 3">
+    </div>
+    <div class="card">
+      <h3>Deney 4: Popper'cı Yanlışlanabilirlik ve Fairwashing Saldırısı (Bölüm 3.8.2 &amp; 3.8.3)</h3>
+      <p>Ayrımcılığı gizleyen kötücül iskele saldırısında LIME (%6,1) ve SHAP (%15,9) yanılırken, Popper'cı Manifold-İçi Yanlışlanabilirlik Testi (%97,1) hileyi yakalar.</p>
+      <img src="gorseller/Deney4_Popper_Yanlislanabilirlik_ve_Adversarial_Saldiri.png" alt="Deney 4">
+    </div>
+    <div class="card">
+      <h3>Deney 5: LLM Ölçek Yasaları (y = a·x^α) ve Mekanistik SAE (Bölüm 3.1.1)</h3>
+      <p>0.1B–175B parametre ölçeğinde çok-anlamlı (polysemantic) nöron çöküşüne (%26,9) karşı Seyrek Öz-Kodlayıcı (Sparse Autoencoder) ile %85+ tek-anlamlı kavram çıkarımı.</p>
+      <img src="gorseller/Deney5_LLM_Superpozisyon_vs_Mekanistik_SAE_Cozumleme.png" alt="Deney 5">
+    </div>
+    <div class="card">
+      <h3>Deney 6: Manifesto 9 Ana Kategoride Zorluk vs. Olgunluk Boşluğu (Bölüm 3 &amp; 4)</h3>
+      <p>28 açık araştırma probleminin teknik zorluk düzeyi ile mevcut literatür olgunluğu arasındaki araştırma fırsatı analizi.</p>
+      <img src="gorseller/Deney6_XAI_2_0_Manifesto_9_Kategori_Cok_Boyutlu_Analiz.png" alt="Deney 6">
+    </div>
+  </div>
+</div>
+</body>
+</html>

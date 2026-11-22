@@ -48,11 +48,24 @@ Aşağıdaki listeden bölümlerin çevirilerine ulaşabilirsiniz.
 | 18 · Shap | [Edanur Çoşkun](2026-guz/18_shap/html/shap.html) |
 | 19 · PDP | [Edanur Çoşkun](2026-guz/19_partial-dependence-plot-(PDP)/html/pdp.html) |
 | 20 · Biriktirilmiş Yerel Etkiler (ALE) | [Ahmet Batuhan Kaya](2026-guz/20_accumulated-local-effects/ceviri/ahmetbatuhankaya-20269348005.html) |
+| 29 · Kavramların Tespiti (Detecting Concepts) | [Yalçın Kavaklı ve Murat Şahin](2026-guz/29_detecting-concepts/ceviri/yalcin-20269256026-murat-20169258034.html) |
 | 30 · Kötü Amaçlı Örnekler (Adversarial Examples) | [Talha Karaca](2026-guz/30_adversarial_examples/ceviri/talhakaraca-20259267001.html) |
 | 31 · Etkili Örnekler (Influential Instances) | [Talha Karaca](2026-guz/31_influential_instances/ceviri/talhakaraca-20259267001.html) |
 | 32 · Yorumlanabilirlik Yöntemlerinin Değerlendirilmesi | [Berkay Çongar](2026-guz/32_evaluation-of-interpretability-methods/ceviri/berkaycongar-20269258007.html) |
 | 33 · Hikâye Zamanı | [Yalçın Kavaklı ve Murat Şahin](2026-guz/33_story-time/ceviri/yalcin-20269256026-murat-20169258034.html) |
 | 34 · Yorumlanabilirliğin Geleceği | [Yalçın Kavaklı ve Murat Şahin](2026-guz/34_the-future-of-interpretability/ceviri/yalcin-20269256026-murat-20169258034.html) |
+
+## Bölüm 29 ortak materyalleri
+
+Yalçın Kavaklı ve Murat Şahin tarafından sunulan ortak çalışma:
+
+- [PowerPoint sunumu](2026-guz/29_detecting-concepts/sunum/yalcin-20269256026-murat-20169258034.pptx)
+- [Etkileşimli uygulama HTML’si](2026-guz/29_detecting-concepts/uygulama/yalcin-20269256026-murat-20169258034/uygulama.html)
+- [Sunucu ve öğrenme rehberi HTML’si](2026-guz/29_detecting-concepts/uygulama/yalcin-20269256026-murat-20169258034/uygulama_rehber.html)
+- [Jupyter ve Colab uygulaması](2026-guz/29_detecting-concepts/uygulama/yalcin-20269256026-murat-20169258034/uygulama.ipynb)
+- [Uygulama açıklaması ve çalıştırma adımları](2026-guz/29_detecting-concepts/uygulama/yalcin-20269256026-murat-20169258034/README.md)
+
+Uygulama, gerçek UCI Handwritten Digits verisi üzerinde eğitilmiş iki sinir ağında Kavram Aktivasyon Vektörleriyle Test Etme (TCAV) yöntemini, yönlü türevi, iki yönlü t-testini ve veri yanlılığı (köşe damgası kısayolu) temizlenerek modelin iyileştirilmesini gösterir.
 
 ## Bölüm 30 ve 31 materyalleri
 
@@ -71,6 +84,7 @@ Yalçın Kavaklı ve Murat Şahin tarafından sunulan ortak çalışma:
 - [Etkileşimli uygulama HTML’si](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.html)
 - [Jupyter ve Colab uygulaması](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/uygulama.ipynb)
 - [Uygulama açıklaması ve çalıştırma adımları](2026-guz/33_story-time/uygulama/yalcin-20269256026-murat-20169258034/README.md)
+- [Makale tahlili ve yeniden üretimi (Longo vd., 2024 — XAI 2.0 Manifesto)](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/makale.md) · [İnteraktif deney paneli (HTML)](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/makale.html) · [Makale tahlili sunumu (PPTX)](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/sunum.pptx) · [Jupyter defteri](2026-guz/33_story-time/makale-yeniden-uretim/yalcin-20269256026-murat-20169258034/analiz.ipynb)
 
 Uygulama, gerçek UCI South German Credit verisiyle eğitilmiş küçük bir karar ağacında kararın açıklanmasını, hatalı vade kaydının düzeltilmesini ve karar eşiğinin hata türlerine etkisini gösterir. Veri giriş hatası eğitim amaçlı canlandırmadır.
 
