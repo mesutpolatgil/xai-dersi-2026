@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bolum27_learned_features</title>
+<script>window.MathJax = {tex: {inlineMath: [['$','$']], displayMath: [['$$','$$']]}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;line-height:1.65;color:#1b1f23}
+h1{border-bottom:2px solid #d0d7de;padding-bottom:.3em} h2{border-bottom:1px solid #d0d7de;padding-bottom:.2em;margin-top:2rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0} th,td{border:1px solid #d0d7de;padding:.45rem .7rem;text-align:left} th{background:#f6f8fa}
+code{background:#f3f4f6;padding:.1em .35em;border-radius:4px}
+</style></head><body>
+<h1>Don't Trust Your Eyes: On the (Un)reliability of Feature Visualizations</h1>
+<p><strong>Künye.</strong> Robert Geirhos, Roland S. Zimmermann, Blair Bilodeau, Wieland Brendel, Been Kim. <em>Don't trust your eyes: on the (un)reliability of feature visualizations.</em> ICML 2024. arXiv:2306.04719.</p>
+<p><strong>Kitap bölümü:</strong> Molnar, <em>Interpretable Machine Learning</em> — Bölüm 27, Learned Features (Feature Visualization, Network Dissection).
+<strong>Makale tipi:</strong> Seçenek 1 (Zafiyet / Manipülasyon).</p>
+<h2>1. Neden bu makale?</h2>
+<p>Molnar'ın bölümü, feature visualization'ın (FV) ağın öğrendiği özellikleri gösterdiğini ve "yorumlanabilirlik yanılsaması" riskini anlatır. Bu makale yanılsama riskini <strong>resmî olarak ve deneysel olarak</strong> ele alır: FV'nin doğal veri üzerindeki davranışı yansıtıp yansıtmadığı garanti değildir, hatta kasıtlı olarak bozulabilir.</p>
+<h2>2. Problem</h2>
+<p>Bir birim (nöron/kanal) $h_z$ için FV, aktivasyonu maksimize eden girdiyi arar:</p>
+<p>$$\mathbf{x}^*=\arg\max_{\mathbf{x}}\; h_z(\mathbf{x}).$$</p>
+<p>Bu $\mathbf{x}^*$ genelde doğal görüntü dağılımının dışındadır. Soru: $\mathbf{x}^*$, birimin <strong>doğal verideki davranışı</strong> hakkında güvenilir bilgi verir mi?</p>
+<h2>3. Yöntem (makalenin ana fikirleri)</h2>
+<ol>
+<li><strong>Ağ manipülasyonu (fooling circuit).</strong> Ağa bir devre eklenir; bu devre FV optimizasyonunun bulduğu türden dağılım dışı girdileri tespit eder ve birimin aktivasyonunu değiştirir. Doğal girdilerde devre tetiklenmez, ağın doğal davranışı aynı kalır. Sonuç: FV istenen (ör. anlamsız ya da yanıltıcı) görüntüyü gösterir.</li>
+<li><strong>Standart ağlarda güvenilirlik analizi.</strong> Manipüle edilmemiş ağlarda bile FV'nin doğal veri davranışını ne kadar öngördüğü incelenir.</li>
+<li><strong>Teorik çerçeve.</strong> Bir FV'nin neyi garanti edip etmediği hakkında biçimsel bir tartışma.</li>
+</ol>
+<h2>4. Bulgular (nitel)</h2>
+<ul>
+<li>FV, doğal davranışı koruyan bir ağ manipülasyonuyla keyfi biçimde değiştirilebilir.</li>
+<li>FV'ye bakmak, birimin doğal veride ne yaptığını doğrulamak için yeterli değildir.</li>
+<li>Bu yüzden FV, doğal veri örnekleri ve müdahale deneyleriyle birlikte kullanılmalıdır.</li>
+</ul>
+<h2>5. Eleştiri ve sınırlar</h2>
+<ul>
+<li>Manipülasyon, ağ üzerinde kontrol sahibi bir saldırgan varsayar; "ağ olduğu gibi eğitildiğinde" FV'nin ne kadar güvenilir olduğu ayrı bir sorudur.</li>
+<li>Tek bir FV yöntemi (aktivasyon maksimizasyonu) ve belirli mimariler incelenir; farklı düzenlileştirmeler farklı sonuç verebilir.</li>
+<li>"FV güvenilmez" sonucu, FV'nin işe yaramaz olduğu anlamına gelmez; yalnızca tek başına kanıt olmadığını söyler.</li>
+</ul>
+<h2>6. Bu depodaki yeniden üretim (<code>analiz.ipynb</code>)</h2>
+<p><strong>Önemli not.</strong> Makalenin devresi birebir kopyalanmadı. Aynı mantığın sadeleştirilmiş hâli uygulandı: girdinin yüksek frekans enerjisi doğal görüntülerde görülmeyen eşiği aşınca devreye giren bir kapı, seçili kanala yüksek bir terim ekler.</p>
+<table>
+<thead>
+<tr>
+<th>Konu</th>
+<th>Makale</th>
+<th>Bu çalışma</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model</td>
+<td>Inception V1 vb.</td>
+<td>GoogLeNet (Inception V1), <code>inception4d</code></td>
+</tr>
+<tr>
+<td>Veri</td>
+<td>ImageNet</td>
+<td>Imagenette (ImageNet alt kümesi)</td>
+</tr>
+<tr>
+<td>Manipülasyon</td>
+<td>Özel tasarlanmış devre</td>
+<td>Sadeleştirilmiş HF-enerji kapısı</td>
+</tr>
+<tr>
+<td>FV</td>
+<td>Lucid tarzı</td>
+<td>Piksel uzayında Adam + jitter + TV</td>
+</tr>
+<tr>
+<td>Ölçüm</td>
+<td>Doğal davranış, FV</td>
+<td>Doğal skor/logit farkı, FV tepkisi, HF enerjisi</td>
+</tr>
+</tbody>
+</table>
+<h2>7. Network Dissection ile bağlantı</h2>
+<p>Network Dissection (Bau ve ark. 2017) birimleri piksel etiketli doğal görüntülerle (Broden) hizalar. FV'den farklı olarak doğal veri üzerinde ölçülür, bu yüzden bu tür bir manipülasyona daha az açıktır. Ancak piksel etiketli veri gerektirir.</p>
+<h2>8. Kaynaklar</h2>
+<ul>
+<li>Geirhos, R. ve ark. (2024). Don't trust your eyes: on the (un)reliability of feature visualizations. ICML. arXiv:2306.04719.</li>
+<li>Olah, C., Mordvintsev, A., Schubert, L. (2017). Feature Visualization. Distill.</li>
+<li>Bau, D. ve ark. (2017). Network Dissection: Quantifying Interpretability of Deep Visual Representations. CVPR. arXiv:1704.05796.</li>
+<li>Molnar, C. <em>Interpretable Machine Learning</em>, Bölüm 27.</li>
+</ul>
+</body></html>
