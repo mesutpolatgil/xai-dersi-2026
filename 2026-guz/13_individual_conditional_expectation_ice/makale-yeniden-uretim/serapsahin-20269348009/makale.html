@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Makale Yeniden Üretimi: REPID ile Bölgesel Etki Grafikleri</title>
+<meta name="author" content="Serap Şahin">
+<style>
+:root{color-scheme:light;--ink:#202c3b;--heading:#16334c;--accent:#215c88;--line:#dce3eb;--muted:#586778}
+*{box-sizing:border-box}
+html{background:#f2f5f8;color:var(--ink);scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:17px;line-height:1.75;text-rendering:optimizeLegibility}
+.report{max-width:1080px;margin:36px auto 64px;padding:48px 64px 64px;background:#fff;border-top:5px solid var(--accent)}
+.eyebrow{margin:0 0 14px;font-size:14px;font-weight:650;letter-spacing:.025em;color:var(--accent)}
+h1,h2,h3,h4{color:var(--heading);line-height:1.3;overflow-wrap:anywhere;break-after:avoid}
+h1{font-size:36px;letter-spacing:-.025em;margin:0 0 26px;font-weight:750}
+h2{font-size:26px;margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+h3{font-size:21px;margin:30px 0 14px}
+p{margin:0 0 18px;overflow-wrap:anywhere}
+li{margin:8px 0;overflow-wrap:anywhere}ul,ol{padding-left:1.6em;margin:16px 0 22px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere}
+a:hover{color:#123e60}a:focus-visible,summary:focus-visible{outline:3px solid #a5c9e5;outline-offset:4px}
+strong{font-weight:650}
+.contents{margin:24px 0 34px;border-block:1px solid var(--line);padding:12px 0;color:var(--muted);font-size:15px}
+.contents summary{cursor:pointer;font-weight:650;color:var(--heading)}
+.contents ul{list-style:none;padding:8px 0 0;margin:0;columns:2;column-gap:32px}.contents li{break-inside:avoid;margin:4px 0}
+code{font-family:Consolas,"DejaVu Sans Mono",monospace;font-size:.88em;background:#edf2f6;padding:2px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{background:#f4f6f9;border:1px solid var(--line);padding:18px 20px;margin:20px 0 24px;overflow-x:auto;line-height:1.6;font-size:15px;tab-size:4}
+pre code{background:transparent;padding:0;border-radius:0;white-space:pre;overflow-wrap:normal}
+.table-wrap{max-width:100%;overflow-x:auto;margin:22px 0 28px;overscroll-behavior-x:contain}
+table{width:100%;border-collapse:collapse;font-size:15px;line-height:1.55;font-variant-numeric:tabular-nums}
+th,td{padding:12px 14px;border:1px solid var(--line);text-align:left;vertical-align:top;min-width:70px;overflow-wrap:normal;word-break:normal}
+thead th{background:#edf3f8;color:var(--heading);font-weight:650}tbody tr:nth-child(even){background:#f8fafc}
+table.wide{min-width:830px}table.wide th,table.wide td{padding:11px 12px}
+figure{margin:28px 0 32px;max-width:100%}img{display:block;max-width:100%;height:auto;margin:0 auto}
+figcaption{margin-top:10px;color:var(--muted);font-size:14px;line-height:1.6}
+blockquote{margin:22px 0;padding:4px 0 4px 20px;border-left:3px solid #aac6da;color:var(--muted)}
+math{font-size:1.04em}math[display="block"]{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:12px 0;margin:20px 0;text-align:center}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+@media(max-width:760px){body{font-size:16px;line-height:1.7}.report{margin:0;padding:28px 22px 42px;border-top-width:4px}h1{font-size:29px;margin-bottom:22px}h2{font-size:23px;margin-top:36px}h3{font-size:20px}.contents ul{columns:1}th,td{padding:10px}pre{padding:14px;font-size:13px}}
+@media print{@page{size:A4;margin:18mm}html{background:white}body{font-size:10pt;line-height:1.55}.report{max-width:none;border:0;margin:0;padding:0}.eyebrow{font-size:9pt}.contents{display:none}h1{font-size:23pt}h2{font-size:16pt;margin-top:24pt}h3{font-size:12pt}a{color:inherit}table{font-size:8pt}th,td{padding:6pt}table.wide{min-width:0}.table-wrap{overflow:visible}figure,pre,tr{break-inside:avoid}math[display="block"]{overflow:visible}p,li{orphans:3;widows:3}}
+</style>
+</head>
+<body>
+<main class="report">
+<p class="eyebrow">Bölüm 13 / Individual Conditional Expectation (ICE)</p>
+<h1
+id="makale-yeniden-üretimi-repid-ile-bölgesel-etki-grafikleri">Makale
+Yeniden Üretimi: REPID ile Bölgesel Etki Grafikleri</h1>
+<p><strong>Öğrenci:</strong> Serap Şahin (20269348009)<br />
+<strong>İlgili bölüm:</strong> Molnar, <em>Interpretable Machine
+Learning</em>, <a
+href="https://christophm.github.io/interpretable-ml-book/ice.html">Bölüm
+13 – Individual Conditional Expectation (ICE)</a><br />
+<strong>İzlencedeki tür:</strong> Seçenek 2: Kıyaslama. ICE eğrilerini
+gruplamada REPID ile k-ortalamaların, grup içi benzerlik ve
+yorumlanabilirlik açısından karşılaştırılması.</p>
+<nav aria-label="İçindekiler" class="contents"><details><summary>İçindekiler</summary><ul><li><a href="#makale">Makale</a></li><li><a href="#neden-bu-makale">1. Neden bu makale?</a></li><li><a href="#yöntem">2. Yöntem</a></li><li><a href="#yeniden-üretilen-sonuçlar">3. Yeniden üretilen sonuçlar</a></li><li><a href="#kendi-verim-bölüm-13-uygulamamdaki-model">4. Kendi verim: Bölüm 13 uygulamamdaki model</a></li><li><a href="#yeniden-üretilmeyenler">5. Yeniden üretilmeyenler</a></li><li><a href="#sınırlamalar-ve-tartışma">6. Sınırlamalar ve tartışma</a></li><li><a href="#dosyalar-ve-çalıştırma">7. Dosyalar ve çalıştırma</a></li><li><a href="#kaynaklar">Kaynaklar</a></li></ul></details></nav>
+<h2 id="makale">Makale</h2>
+<p>Herbinger, J., Bischl, B. ve Casalicchio, G. (2022). <em>REPID:
+Regional Effect Plots with implicit Interaction Detection.</em>
+Proceedings of the 25th International Conference on Artificial
+Intelligence and Statistics (AISTATS), PMLR 151, 10209–10233.
+https://proceedings.mlr.press/v151/herbinger22a.html · arXiv: <a
+href="https://arxiv.org/abs/2202.07254">2202.07254</a></p>
+<p>Yazarların kodu (R): <a
+href="https://github.com/JuliaHerbinger/repid">github.com/JuliaHerbinger/repid</a></p>
+<h2 id="neden-bu-makale">1. Neden bu makale?</h2>
+<p>ICE, her gözlem için bir eğri çizer; PDP bu eğrilerin ortalamasıdır.
+Bölüm 13’ün ana mesajı, bir öznitelik başka özniteliklerle etkileşim
+içindeyse ICE eğrilerinin farklı şekillerde gittiği ve PDP’nin bu farkı
+gizlediğidir. Ama yüzlerce eğriye bakıp hangi özniteliğin bu farkı
+yarattığını gözle bulmak zordur.</p>
+<p>REPID tam bu sorunu çözüyor: ICE eğrilerini bir karar ağacıyla,
+benzer şekilli eğrilerin bir arada olduğu bölgelere ayırıyor. Her
+bölgenin kendi PDP’si oluyor ve ağacın hangi özniteliğe böldüğü,
+etkileşimin hangi öznitelikle olduğunu gösteriyor. Yöntemin girdisi
+doğrudan ICE eğrileri olduğu için Bölüm 13’e doğrudan bağlı.</p>
+<p>Bölüm 13 uygulamamda California Housing verisinde medyan gelirin
+c-ICE eğrilerini k-ortalamalarla kümelemiş, kümelerin sonradan bina
+yaşıyla ilişkili olduğunu bulmuştum. Kümeler bir kurala karşılık
+gelmiyordu. REPID aynı işi yorumlanabilir kurallarla yapıyor. Makalenin
+gerçek veri örneklerinden biri de aynı California Housing verisi.</p>
+<h2 id="yöntem">2. Yöntem</h2>
+<p>Yazarların koduna (<code>R/tree_splitting.R</code>,
+<code>R/helper_general.R</code>) göre:</p>
+<ol type="1">
+<li><strong>Merkezleme.</strong> Her ICE eğrisi kendi ortalamasına göre
+merkezlenir:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>f</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mover><mi>f</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mi>K</mi></mfrac><msub><mo>∑</mo><mrow><mi>k</mi><mi>′</mi></mrow></msub><msup><mover><mi>f</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>k</mi><mi>′</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde f^{(i)}(z_k) = \hat f^{(i)}(z_k) - \frac{1}{K}\sum_{k&#39;} \hat f^{(i)}(z_{k&#39;})</annotation></semantics></math>.
+Seviye farkları silinir, sadece şekil farkları kalır.</li>
+<li><strong>Heterojenlik.</strong> Bir bölgedeki eğrilerin bölgesel
+PDP’den kare uzaklıklarının toplamı:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℛ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝒩</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><mi>𝒩</mi></mrow></munder><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msup><mover><mi>f</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mover><mover><mi>f</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mi>𝒩</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\mathcal{R}(\mathcal{N}) = \sum_{i \in \mathcal{N}} \sum_{k=1}^{K} \big(\tilde f^{(i)}(z_k) - \bar{\tilde f}_{\mathcal{N}}(z_k)\big)^2</annotation></semantics></math></li>
+<li><strong>En iyi bölünme.</strong> İlgilenilen öznitelik dışındaki her
+öznitelik ve eşik için düğüm ikiye bölünür; iki çocuğun heterojenlik
+toplamını en küçük yapan bölünme seçilir.</li>
+<li><strong>Durma kuralı.</strong> Kazanç, kökteki toplam heterojenliğe
+göre ölçülür:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ℛ</mi><mtext mathvariant="normal">düğüm</mtext></msub><mo>−</mo><msub><mi>ℛ</mi><mtext mathvariant="normal">sol</mtext></msub><mo>−</mo><msub><mi>ℛ</mi><mtext mathvariant="normal">sağ</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><msub><mi>ℛ</mi><mtext mathvariant="normal">kök</mtext></msub></mrow><annotation encoding="application/x-tex">(\mathcal{R}_{\text{düğüm}} - \mathcal{R}_{\text{sol}} - \mathcal{R}_{\text{sağ}}) / \mathcal{R}_{\text{kök}}</annotation></semantics></math>.
+İlk bölünme kazanç ≥ <code>esik</code> ise, sonrakiler bir önceki
+kazancın <code>esik</code> katından büyükse yapılır.</li>
+</ol>
+<p><strong>Etkileşim ölçüsü:</strong> Bir özniteliğe yapılan
+bölünmelerin kazanç toplamı, ICE heterojenliğinin o öznitelikle
+açıklanan payı (yazarların kodundaki <code>intImp</code>).</p>
+<p><strong>Uygulamam:</strong> Algoritmayı Python’da sıfırdan yazdım.
+Defterde iki sürümü var: tanıma birebir uyan yavaş sürüm (canlı kodlama
+için) ve aynı sonucu kümülatif toplamlarla bulan hızlı sürüm (20.640
+eğri için). İkisinin aynı bölünmeyi bulduğu defterde kontrol
+ediliyor.</p>
+<p><strong>Makaleden farklarım:</strong> - Yazarlar bölünme adaylarını
+en fazla 100 kantil noktasıyla sınırlıyor; ben değerin değiştiği her
+noktayı deniyorum (aynı ya da daha iyi bölünme bulur). - Rastgele orman
+için <code>ranger</code> yerine scikit-learn; sinir ağı için
+<code>nnet</code> yerine <code>MLPRegressor</code> (aynı mimari: 20
+nöron, ağırlık azaltma 0,1).</p>
+<h2 id="yeniden-üretilen-sonuçlar">3. Yeniden üretilen sonuçlar</h2>
+<p>Kod: <a href="analiz.ipynb"><code>analiz.ipynb</code></a>. Sayılar
+Bölüm 7’deki paket sürümleriyle yapılan çalıştırmaya aittir.</p>
+<h3 id="simülasyon-makale-bölüm-3-analysis_sim_vine_vs_repid.r">3.1
+Simülasyon (makale Bölüm 3;
+<code>analysis_sim_vine_vs_repid.R</code>)</h3>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">n = 500</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∼</mo><mi>U</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_1, x_2 \sim U(-1,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>3</mn></msub><mo>∼</mo><mtext mathvariant="normal">Bernoulli</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_3 \sim \text{Bernoulli}(0{,}5)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>4</mn></msub><mo>∼</mo><mtext mathvariant="normal">Bernoulli</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_4 \sim \text{Bernoulli}(0{,}3)</annotation></semantics></math>,
+gürültü öznitelikleri
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>5</mn></msub><mo>,</mo><msub><mi>x</mi><mn>6</mn></msub></mrow><annotation encoding="application/x-tex">x_5, x_6</annotation></semantics></math>
+ve</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>2</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mn>1</mn></msub><mo>−</mo><mn>8</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>16</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mn>2</mn></msub><mspace width="0.167em"></mspace><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mn>3</mn></msub><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>8</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mn>2</mn></msub><mspace width="0.167em"></mspace><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>&gt;</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">y = 0{,}2\,x_1 - 8\,x_2 + 16\,x_2\,\mathbb{1}(x_3 = 0) + 8\,x_2\,\mathbb{1}(x_1 &gt; \bar{x}_1) + \varepsilon</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>2</mn></msub><annotation encoding="application/x-tex">x_2</annotation></semantics></math>’nin
+etkisi dört bölgede farklı (eğimler −8, 0, +8, +16); PDP’nin eğimi
+bunların ortalaması. Yazarlar gibi iki seviye bölündü
+(<code>derinlik = 2</code>, <code>esik = 0</code>).</p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Bölge</th>
+<th>n</th>
+<th>Bölgesel PDP eğimi</th>
+<th>Gerçek eğim</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>3</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x_3 = 0</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>≤</mo><mo>−</mo><mn>0</mn><mo>,</mo><mn>02</mn></mrow><annotation encoding="application/x-tex">x_1 \le -0{,}02</annotation></semantics></math></td>
+<td>116</td>
+<td>5,72</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>3</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x_3 = 0</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>&gt;</mo><mo>−</mo><mn>0</mn><mo>,</mo><mn>02</mn></mrow><annotation encoding="application/x-tex">x_1 &gt; -0{,}02</annotation></semantics></math></td>
+<td>127</td>
+<td>9,54</td>
+<td>16</td>
+</tr>
+<tr class="odd">
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>3</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x_3 = 1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>≤</mo><mo>−</mo><mn>0</mn><mo>,</mo><mn>01</mn></mrow><annotation encoding="application/x-tex">x_1 \le -0{,}01</annotation></semantics></math></td>
+<td>131</td>
+<td>−3,08</td>
+<td>−8</td>
+</tr>
+<tr class="even">
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>3</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x_3 = 1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>&gt;</mo><mo>−</mo><mn>0</mn><mo>,</mo><mn>01</mn></mrow><annotation encoding="application/x-tex">x_1 &gt; -0{,}01</annotation></semantics></math></td>
+<td>126</td>
+<td>0,83</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Global PDP</td>
+<td>500</td>
+<td>3,15</td>
+<td>3,82</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>REPID makaledeki gibi önce
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>3</mn></msub><annotation encoding="application/x-tex">x_3</annotation></semantics></math>’e
+(kazanç %82), sonra iki tarafta da
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>≈</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x_1 \approx 0</annotation></semantics></math>’a
+bölüyor. Gürültü özniteliklerine bölünmüyor.</li>
+<li><strong>20 farklı tohumla tekrar:</strong> İlk bölünme 20/20
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>3</mn></msub><annotation encoding="application/x-tex">x_3</annotation></semantics></math>;
+bölünen öznitelikler 20/20 tam olarak
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{x_1, x_3\}</annotation></semantics></math>;
+gürültüye bölünme 0/20;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>1</mn></msub><annotation encoding="application/x-tex">x_1</annotation></semantics></math>
+eşiğinin ortalaması 0,010.</li>
+<li>Bölgesel eğimlerin sırası ve işaretleri doğru, ama büyüklükleri
+gerçek değerlerden küçük. Rastgele orman tahminleri komşu gözlemlerin
+ortalaması olduğu için eğimleri ortalamaya doğru çekiyor. REPID modeli
+açıklar, gerçek fonksiyonu değil.</li>
+</ul>
+<figure>
+<img src="sekiller/01_simulasyon_repid.png"
+alt="Simülasyon: global PDP ve dört REPID bölgesi" />
+<figcaption aria-hidden="true">Simülasyon: global PDP ve dört REPID
+bölgesi</figcaption>
+</figure>
+<h3 id="california-housing-makale-şekil-6-california_housing.r">3.2
+California Housing (makale Şekil 6;
+<code>california_housing.R</code>)</h3>
+<p>Yazarların ön işlemesi (log dönüşümler, <code>ocean_proximity</code>
+sıralı tamsayı), tek gizli katmanlı sinir ağı (bütün veriyle; ayrılmış
+test kümesinde R² = 0,755), boylam için 20 noktalı ICE,
+<code>derinlik = 3</code>, <code>esik = 0,25</code>,
+<code>min_dugum = 30</code>.</p>
+<ul>
+<li><strong>Makale:</strong> enlem &gt; 34,5; enlem ≤ 34,5 ve iç bölge;
+kıyıda enlem ≤ 33,5 ve 33,5 &lt; enlem ≤ 34,5.</li>
+<li><strong>Yeniden üretim (tohum 123):</strong> önce okyanusa yakınlık
+(iç bölge / kıyı, kazanç %57,6), sonra iç bölgede enlem ≤ 36,5 (kazanç
+%21,1).</li>
+<li><strong>Üç farklı tohum:</strong> bölünmeler her seferinde yalnızca
+<strong>enlem ve okyanusa yakınlık</strong> üzerinden; başka hiçbir
+özniteliğe bölünmüyor. İlk bölünme iki tohumda okyanusa yakınlık,
+birinde enlem (35,3).</li>
+</ul>
+<p>Makalenin asıl bulgusu yeniden üretiliyor: boylamın etkisi enlem ve
+okyanusa yakınlıkla etkileşiyor. Bölünmelerin sırası ve eşikleri ise
+sinir ağının eğitimine bağlı.</p>
+<figure>
+<img src="sekiller/02_california_repid.png"
+alt="California Housing: boylam için global PDP, bölgesel PDP’ler ve harita" />
+<figcaption aria-hidden="true">California Housing: boylam için global
+PDP, bölgesel PDP’ler ve harita</figcaption>
+</figure>
+<h2 id="kendi-verim-bölüm-13-uygulamamdaki-model">4. Kendi verim: Bölüm
+13 uygulamamdaki model</h2>
+<p>Aynı bölme ve model (gradient boosting, test R² 0,838), aynı 400 test
+bölgesi ve medyan gelir için 50 noktalı ICE. REPID ayarları: yazarların
+kodundaki varsayılan <code>esik = 0,1</code>, <code>derinlik = 2</code>,
+<code>min_dugum = 30</code>.</p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Derinlik</th>
+<th>Bölünme</th>
+<th>Kazanç</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><strong>bina yaşı ≤ 27,5</strong></td>
+<td>%16,4</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>(bina yaşı &gt; 27,5) boylam ≤ −118,34</td>
+<td>%8,3</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>(bina yaşı ≤ 27,5) toplam oda ≤ 1.312</td>
+<td>%4,4</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>REPID’in ilk bölünmesi bina yaşı.</strong> Uygulamamda bu
+etkileşimi k-ortalamalarla kümeleyip sonradan bina yaşıyla
+karşılaştırarak bulmuştum; REPID kimse söylemeden ve bir kural olarak
+buluyor.</li>
+<li><strong>Sağlamlık:</strong> İncelenen altı örneklemde (beş farklı
+400’lük, bir 2.000’lik) ilk bölünme bina yaşı oldu (eşik 26,5–27,5 yıl,
+kazanç %16–17); bu deneyde sonuç örneklem değişimine karşı tutarlı
+göründü.</li>
+<li><strong>REPID ve k-ortalamalar (benim ek deneyim; makalede böyle bir
+karşılaştırma yok):</strong> Aynı sayıda (4) grupla heterojenliğin
+açıklanan payı REPID’de <strong>%29,1</strong>, k-ortalamalarda
+<strong>%57,9</strong>. k-ortalamalar grupları serbestçe seçtiği için
+daha homojen gruplar buluyor; REPID ise her grubu açık bir bölünme
+kuralıyla (“bina yaşı ≤ 27,5” gibi) tanımlıyor. Bu fark,
+yorumlanabilirliğin bedeli.</li>
+<li><strong>Bu yüzdeler tahmin doğruluğu değildir.</strong> ICE eğrileri
+arasındaki şekil farklılığının (heterojenliğin) gruplarla açıklanan
+payıdır. REPID’in daha düşük oranı bir başarısızlık değil, kurallara
+bağlı kalmanın sonucu.</li>
+</ul>
+<figure>
+<img src="sekiller/03_kendi_veri_repid.png"
+alt="Kendi verim: gelir ICE’leri için REPID bölgeleri" />
+<figcaption aria-hidden="true">Kendi verim: gelir ICE’leri için REPID
+bölgeleri</figcaption>
+</figure>
+<h2 id="yeniden-üretilmeyenler">5. Yeniden üretilmeyenler</h2>
+<ul>
+<li><strong>Bölüm 4.1:</strong> REPID’in etkileşim ölçüsünün
+H-istatistiği ve SHAP etkileşim değerleriyle karşılaştırılması.</li>
+<li><strong>Bölüm 4.2 ve Ek B:</strong> <code>batchtools</code> ile çok
+sayıda ayarda yapılan simülasyon deneyleri.</li>
+<li><strong>VINE karşılaştırması</strong> (makale Bölüm 3) ve Titanic,
+Pima örnekleri.</li>
+</ul>
+<h2 id="sınırlamalar-ve-tartışma">6. Sınırlamalar ve tartışma</h2>
+<p><strong>Bölgesel PDP ve ICE:</strong> Bölgesel PDP çizmek ICE’den
+uzaklaşmak demek değil; bölgeler, ICE eğrilerinin şekil
+farklılıklarından oluşturuluyor ve her bölgede eğriler de çiziliyor.</p>
+<ol type="1">
+<li><strong>Açgözlü ağaç.</strong> Her adımda en iyi tek bölünme
+seçilir; bölünmeler eksenlere paraleldir.</li>
+<li><strong>Korelasyonlu öznitelikler.</strong> İki öznitelik çok
+bağlıysa ağaç birini seçer; hangisinin gerçek etkileşim ortağı olduğunu
+ayıramaz.</li>
+<li><strong>Ayar seçimi.</strong> Bölge sayısı <code>esik</code>,
+<code>derinlik</code> ve <code>min_dugum</code> ile değişiyor.
+Simülasyonda <code>esik = 0</code>, California’da 0,25, kendi verimde
+0,1 kullanıldı.</li>
+<li><strong>Model açıklaması.</strong> California’da aynı mimarinin
+farklı eğitimleri farklı bölünme sıraları verdi. REPID modelin
+etkileşimlerini bulur; nedensel yorumlanamaz.</li>
+<li><strong>ICE’nin kendi sınırları.</strong> ICE eğrileri korelasyonlu
+özniteliklerde veri dışı noktalar içerebilir (Bölüm 12 makale çalışmamın
+konusu). REPID bu noktaları da ortalamaya katar.</li>
+<li><strong>Merkezleme bilinçli bir seçim.</strong> Seviye farkları
+bölünmeyi etkilemez; amaç şekil farkını, yani etkileşimi bulmak.</li>
+</ol>
+<h2 id="dosyalar-ve-çalıştırma">7. Dosyalar ve çalıştırma</h2>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dosya</th>
+<th>İçerik</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>makale.md</code></td>
+<td>Bu rapor</td>
+</tr>
+<tr class="even">
+<td><code>analiz.ipynb</code></td>
+<td>Bütün kod, açıklamalar ve çalıştırılmış çıktılar</td>
+</tr>
+<tr class="odd">
+<td><code>veri.csv</code></td>
+<td>California Housing (20.640 bölge); Bölüm 13 uygulamamdaki ve
+makalenin deposundaki dosyayla aynı</td>
+</tr>
+</tbody>
+</table></div>
+<p>Sunumda kolaylık için ek dosyalar:</p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dosya</th>
+<th>İçerik</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>sekiller/</code></td>
+<td>Defterin ürettiği 3 grafik (PNG); slaytlarda kullanmak için. Defter
+çalıştırıldığında yeniden oluşur</td>
+</tr>
+<tr class="even">
+<td><code>requirements.txt</code></td>
+<td>Paket sürümleri</td>
+</tr>
+</tbody>
+</table></div>
+<p>Python 3.13 ile:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span></code></pre></div>
+<p>Ardından <code>analiz.ipynb</code> dosyasını Jupyter, VS Code veya
+Colab’da açıp hücreleri sırayla çalıştırın. Veri klasörde olduğu için
+internet gerekmez; dosya bulunamazsa defter aynı sürümü GitHub’dan
+indirir. Bütün rastgelelik sabit tohumlarla kontrol edilir.</p>
+<h2 id="kaynaklar">Kaynaklar</h2>
+<ul>
+<li>Herbinger, J., Bischl, B. ve Casalicchio, G. (2022). REPID: Regional
+effect plots with implicit interaction detection. <em>Proceedings of the
+25th International Conference on Artificial Intelligence and
+Statistics</em>, PMLR 151, 10209–10233.</li>
+<li>Goldstein, A., Kapelner, A., Bleich, J. ve Pitkin, E. (2015).
+Peeking inside the black box: Visualizing statistical learning with
+plots of individual conditional expectation. <em>Journal of
+Computational and Graphical Statistics</em>, 24(1), 44–65.</li>
+<li>Molnar, C. <em>Interpretable Machine Learning</em>, Bölüm 13:
+Individual Conditional Expectation (ICE).</li>
+<li>Pace, R. K. ve Barry, R. (1997). Sparse spatial autoregressions.
+<em>Statistics &amp; Probability Letters</em>, 33(3), 291–297
+(California Housing verisi).</li>
+</ul>
+</main>
+</body>
+</html>
