@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Interpretable Machine Learning: A Critical Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a gray desk with the paper's pages stacked as white sheets. Light only, by design. */
+:root{ --desk:#e6e8ec; --bar:#ffffff; --ink:#1b2333; --muted:#5f6878; --hair:#d3d7de; --accent:#1f4e79;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; color-scheme:light }
+*{box-sizing:border-box}
+body{margin:0; background:var(--desk); color:var(--ink); font-family:var(--sans); font-size:14px}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--bar)}
+.bar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding-block:10px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:var(--bar); border-bottom:1px solid var(--hair)}
+.bar .t{flex:1; min-width:0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bar .pg:empty{display:none}
+.bar .pg{color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
+.btn{font:inherit; font-size:13px; color:var(--accent); background:transparent; border:1px solid var(--hair); border-radius:6px;
+  padding:5px 10px; cursor:pointer; text-decoration:none; white-space:nowrap}
+.btn:hover{background:#eef3f9}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.pages{display:flex; flex-direction:column; align-items:center; gap:22px;
+  padding-block:28px 60px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet{position:relative; width:100%; max-width:var(--w,880px); min-width:0; min-height:0; overflow:hidden; background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.12), 0 6px 24px rgba(0,0,0,.08)}
+.sheet img{display:block; width:100%; height:auto; max-width:100%}
+@media (max-width:600px){ .pages{gap:12px; padding-block:12px 40px} .bar .t{flex-basis:100%} }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="t">Interpretable Machine Learning: A Critical Review</span>
+  <span class="pg" id="pg"></span>
+  <button class="btn" id="zoomOut" type="button" aria-label="Zoom out">−</button>
+  <button class="btn" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+  <a class="btn" href="index.html">Home</a>
+  <a class="btn" href="sunum.html">Slides</a>
+  <a class="btn" href="makale.pdf" target="_blank" rel="noopener">Open PDF</a>
+</div>
+<main class="pages" id="pages">
+  <section class="sheet" id="page-1" aria-label="Page 1"><img src="pages/page-01.png" width="1800" height="2329" alt="Page 1 of the paper"></section>
+  <section class="sheet" id="page-2" aria-label="Page 2"><img src="pages/page-02.png" width="1800" height="2329" alt="Page 2 of the paper"></section>
+  <section class="sheet" id="page-3" aria-label="Page 3"><img src="pages/page-03.png" width="1800" height="2329" alt="Page 3 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-4" aria-label="Page 4"><img src="pages/page-04.png" width="1800" height="2329" alt="Page 4 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-5" aria-label="Page 5"><img src="pages/page-05.png" width="1800" height="2329" alt="Page 5 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-6" aria-label="Page 6"><img src="pages/page-06.png" width="1800" height="2329" alt="Page 6 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-7" aria-label="Page 7"><img src="pages/page-07.png" width="1800" height="2329" alt="Page 7 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-8" aria-label="Page 8"><img src="pages/page-08.png" width="1800" height="2329" alt="Page 8 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-9" aria-label="Page 9"><img src="pages/page-09.png" width="1800" height="2329" alt="Page 9 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-10" aria-label="Page 10"><img src="pages/page-10.png" width="1800" height="2329" alt="Page 10 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-11" aria-label="Page 11"><img src="pages/page-11.png" width="1800" height="2329" alt="Page 11 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-12" aria-label="Page 12"><img src="pages/page-12.png" width="1800" height="2329" alt="Page 12 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-13" aria-label="Page 13"><img src="pages/page-13.png" width="1800" height="2329" alt="Page 13 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-14" aria-label="Page 14"><img src="pages/page-14.png" width="1800" height="2329" alt="Page 14 of the paper" loading="lazy"></section>
+  <section class="sheet" id="page-15" aria-label="Page 15"><img src="pages/page-15.png" width="1800" height="2329" alt="Page 15 of the paper" loading="lazy"></section>
+</main>
+<script>
+(function(){
+  var pg=document.getElementById('pg'), sheets=[].slice.call(document.querySelectorAll('.sheet')), w=880;
+  function upd(){ var cur=1; sheets.forEach(function(s,i){ if(s.getBoundingClientRect().top<innerHeight/2) cur=i+1; });
+    pg.textContent='Page '+cur+' / '+sheets.length; }
+  addEventListener('scroll',upd,{passive:true}); upd();
+  function setW(x){ w=Math.max(500,Math.min(1500,x)); document.documentElement.style.setProperty('--w',w+'px'); }
+  document.getElementById('zoomIn').onclick=function(){ setW(w+140); };
+  document.getElementById('zoomOut').onclick=function(){ setW(w-140); };
+})();
+</script>
+</body>
+</html>
