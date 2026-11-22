@@ -1,0 +1,225 @@
+image_id,model,method,abs_bg_fraction
+spurious-test-0000,normal,Gradient,0.4367980360984802
+spurious-test-0000,normal,Gradient × Input,0.3200192153453827
+spurious-test-0000,normal,Integrated Gradients,0.3395827114582062
+spurious-test-0000,normal,SmoothGrad,0.4458339214324951
+spurious-test-0000,normal,Guided Backprop,0.5843483209609985
+spurious-test-0000,normal,Grad-CAM,0.4623512625694275
+spurious-test-0000,normal,Guided Grad-CAM,0.444600373506546
+spurious-test-0000,spurious,Gradient,0.4602423906326294
+spurious-test-0000,spurious,Gradient × Input,0.3469924330711365
+spurious-test-0000,spurious,Integrated Gradients,0.35075703263282776
+spurious-test-0000,spurious,SmoothGrad,0.4612990617752075
+spurious-test-0000,spurious,Guided Backprop,0.5536796450614929
+spurious-test-0000,spurious,Grad-CAM,0.48967647552490234
+spurious-test-0000,spurious,Guided Grad-CAM,0.4562244415283203
+spurious-test-0002,normal,Gradient,0.4442896842956543
+spurious-test-0002,normal,Gradient × Input,0.33975574374198914
+spurious-test-0002,normal,Integrated Gradients,0.35833239555358887
+spurious-test-0002,normal,SmoothGrad,0.4577108323574066
+spurious-test-0002,normal,Guided Backprop,0.579633355140686
+spurious-test-0002,normal,Grad-CAM,0.46643683314323425
+spurious-test-0002,normal,Guided Grad-CAM,0.4491904675960541
+spurious-test-0002,spurious,Gradient,0.4547885060310364
+spurious-test-0002,spurious,Gradient × Input,0.3473832309246063
+spurious-test-0002,spurious,Integrated Gradients,0.3502049148082733
+spurious-test-0002,spurious,SmoothGrad,0.4595564007759094
+spurious-test-0002,spurious,Guided Backprop,0.5510863065719604
+spurious-test-0002,spurious,Grad-CAM,0.4948999881744385
+spurious-test-0002,spurious,Guided Grad-CAM,0.45708024501800537
+spurious-test-0004,normal,Gradient,0.5147665739059448
+spurious-test-0004,normal,Gradient × Input,0.4054783880710602
+spurious-test-0004,normal,Integrated Gradients,0.4072740375995636
+spurious-test-0004,normal,SmoothGrad,0.48531627655029297
+spurious-test-0004,normal,Guided Backprop,0.5838494896888733
+spurious-test-0004,normal,Grad-CAM,0.453330934047699
+spurious-test-0004,normal,Guided Grad-CAM,0.43979090452194214
+spurious-test-0004,spurious,Gradient,0.48853930830955505
+spurious-test-0004,spurious,Gradient × Input,0.3832288682460785
+spurious-test-0004,spurious,Integrated Gradients,0.38498130440711975
+spurious-test-0004,spurious,SmoothGrad,0.4742211401462555
+spurious-test-0004,spurious,Guided Backprop,0.556312084197998
+spurious-test-0004,spurious,Grad-CAM,0.4733530580997467
+spurious-test-0004,spurious,Guided Grad-CAM,0.43864706158638
+spurious-test-0006,normal,Gradient,0.47298577427864075
+spurious-test-0006,normal,Gradient × Input,0.3771898150444031
+spurious-test-0006,normal,Integrated Gradients,0.38938140869140625
+spurious-test-0006,normal,SmoothGrad,0.47034332156181335
+spurious-test-0006,normal,Guided Backprop,0.5947472453117371
+spurious-test-0006,normal,Grad-CAM,0.47538530826568604
+spurious-test-0006,normal,Guided Grad-CAM,0.4732987880706787
+spurious-test-0006,spurious,Gradient,0.4556758999824524
+spurious-test-0006,spurious,Gradient × Input,0.3712542653083801
+spurious-test-0006,spurious,Integrated Gradients,0.37171468138694763
+spurious-test-0006,spurious,SmoothGrad,0.47571003437042236
+spurious-test-0006,spurious,Guided Backprop,0.5535544753074646
+spurious-test-0006,spurious,Grad-CAM,0.48399293422698975
+spurious-test-0006,spurious,Guided Grad-CAM,0.44890302419662476
+spurious-test-0008,normal,Gradient,0.47130873799324036
+spurious-test-0008,normal,Gradient × Input,0.3596247732639313
+spurious-test-0008,normal,Integrated Gradients,0.38346946239471436
+spurious-test-0008,normal,SmoothGrad,0.47507423162460327
+spurious-test-0008,normal,Guided Backprop,0.5958026647567749
+spurious-test-0008,normal,Grad-CAM,0.4616025388240814
+spurious-test-0008,normal,Guided Grad-CAM,0.4550808370113373
+spurious-test-0008,spurious,Gradient,0.46625208854675293
+spurious-test-0008,spurious,Gradient × Input,0.3619568943977356
+spurious-test-0008,spurious,Integrated Gradients,0.36302417516708374
+spurious-test-0008,spurious,SmoothGrad,0.4702628552913666
+spurious-test-0008,spurious,Guided Backprop,0.5512169599533081
+spurious-test-0008,spurious,Grad-CAM,0.49007728695869446
+spurious-test-0008,spurious,Guided Grad-CAM,0.4477832019329071
+spurious-test-0010,normal,Gradient,0.4510381519794464
+spurious-test-0010,normal,Gradient × Input,0.33793219923973083
+spurious-test-0010,normal,Integrated Gradients,0.3615420162677765
+spurious-test-0010,normal,SmoothGrad,0.46441054344177246
+spurious-test-0010,normal,Guided Backprop,0.5857547521591187
+spurious-test-0010,normal,Grad-CAM,0.46005532145500183
+spurious-test-0010,normal,Guided Grad-CAM,0.44598057866096497
+spurious-test-0010,spurious,Gradient,0.47430431842803955
+spurious-test-0010,spurious,Gradient × Input,0.35961079597473145
+spurious-test-0010,spurious,Integrated Gradients,0.3583511710166931
+spurious-test-0010,spurious,SmoothGrad,0.4698093831539154
+spurious-test-0010,spurious,Guided Backprop,0.5601144433021545
+spurious-test-0010,spurious,Grad-CAM,0.47384005784988403
+spurious-test-0010,spurious,Guided Grad-CAM,0.44027891755104065
+spurious-test-0012,normal,Gradient,0.4624331295490265
+spurious-test-0012,normal,Gradient × Input,0.36247965693473816
+spurious-test-0012,normal,Integrated Gradients,0.381687730550766
+spurious-test-0012,normal,SmoothGrad,0.46405938267707825
+spurious-test-0012,normal,Guided Backprop,0.5788506269454956
+spurious-test-0012,normal,Grad-CAM,0.46621719002723694
+spurious-test-0012,normal,Guided Grad-CAM,0.4489164352416992
+spurious-test-0012,spurious,Gradient,0.46965888142585754
+spurious-test-0012,spurious,Gradient × Input,0.3720649480819702
+spurious-test-0012,spurious,Integrated Gradients,0.3749932050704956
+spurious-test-0012,spurious,SmoothGrad,0.4701671898365021
+spurious-test-0012,spurious,Guided Backprop,0.5474525690078735
+spurious-test-0012,spurious,Grad-CAM,0.48415106534957886
+spurious-test-0012,spurious,Guided Grad-CAM,0.4433089792728424
+spurious-test-0014,normal,Gradient,0.4627453088760376
+spurious-test-0014,normal,Gradient × Input,0.3356713652610779
+spurious-test-0014,normal,Integrated Gradients,0.35859495401382446
+spurious-test-0014,normal,SmoothGrad,0.46931877732276917
+spurious-test-0014,normal,Guided Backprop,0.5716007351875305
+spurious-test-0014,normal,Grad-CAM,0.4546160399913788
+spurious-test-0014,normal,Guided Grad-CAM,0.42419448494911194
+spurious-test-0014,spurious,Gradient,0.4769710898399353
+spurious-test-0014,spurious,Gradient × Input,0.35034996271133423
+spurious-test-0014,spurious,Integrated Gradients,0.35707926750183105
+spurious-test-0014,spurious,SmoothGrad,0.4684492349624634
+spurious-test-0014,spurious,Guided Backprop,0.5416823029518127
+spurious-test-0014,spurious,Grad-CAM,0.4814305007457733
+spurious-test-0014,spurious,Guided Grad-CAM,0.42514273524284363
+spurious-test-0001,normal,Gradient,0.42270782589912415
+spurious-test-0001,normal,Gradient × Input,0.25492486357688904
+spurious-test-0001,normal,Integrated Gradients,0.24801307916641235
+spurious-test-0001,normal,SmoothGrad,0.4248709976673126
+spurious-test-0001,normal,Guided Backprop,0.2682553827762604
+spurious-test-0001,normal,Grad-CAM,0.0
+spurious-test-0001,normal,Guided Grad-CAM,0.0
+spurious-test-0001,spurious,Gradient,0.4244147837162018
+spurious-test-0001,spurious,Gradient × Input,0.23982548713684082
+spurious-test-0001,spurious,Integrated Gradients,0.23191551864147186
+spurious-test-0001,spurious,SmoothGrad,0.40833333134651184
+spurious-test-0001,spurious,Guided Backprop,0.41211652755737305
+spurious-test-0001,spurious,Grad-CAM,1.0
+spurious-test-0001,spurious,Guided Grad-CAM,1.0000001192092896
+spurious-test-0003,normal,Gradient,0.49625396728515625
+spurious-test-0003,normal,Gradient × Input,0.4246918857097626
+spurious-test-0003,normal,Integrated Gradients,0.42103031277656555
+spurious-test-0003,normal,SmoothGrad,0.49364790320396423
+spurious-test-0003,normal,Guided Backprop,0.38022008538246155
+spurious-test-0003,normal,Grad-CAM,0.0
+spurious-test-0003,normal,Guided Grad-CAM,0.0
+spurious-test-0003,spurious,Gradient,0.49571511149406433
+spurious-test-0003,spurious,Gradient × Input,0.41566941142082214
+spurious-test-0003,spurious,Integrated Gradients,0.40806907415390015
+spurious-test-0003,spurious,SmoothGrad,0.48114272952079773
+spurious-test-0003,spurious,Guided Backprop,0.48256394267082214
+spurious-test-0003,spurious,Grad-CAM,1.0
+spurious-test-0003,spurious,Guided Grad-CAM,1.0
+spurious-test-0005,normal,Gradient,0.5006386041641235
+spurious-test-0005,normal,Gradient × Input,0.4332593083381653
+spurious-test-0005,normal,Integrated Gradients,0.43048498034477234
+spurious-test-0005,normal,SmoothGrad,0.5012452602386475
+spurious-test-0005,normal,Guided Backprop,0.3894937038421631
+spurious-test-0005,normal,Grad-CAM,0.0
+spurious-test-0005,normal,Guided Grad-CAM,0.0
+spurious-test-0005,spurious,Gradient,0.4939180314540863
+spurious-test-0005,spurious,Gradient × Input,0.4291355311870575
+spurious-test-0005,spurious,Integrated Gradients,0.42218855023384094
+spurious-test-0005,spurious,SmoothGrad,0.49385255575180054
+spurious-test-0005,spurious,Guided Backprop,0.49592968821525574
+spurious-test-0005,spurious,Grad-CAM,1.0
+spurious-test-0005,spurious,Guided Grad-CAM,0.9999999403953552
+spurious-test-0007,normal,Gradient,0.42923709750175476
+spurious-test-0007,normal,Gradient × Input,0.2513170540332794
+spurious-test-0007,normal,Integrated Gradients,0.24571353197097778
+spurious-test-0007,normal,SmoothGrad,0.4256325662136078
+spurious-test-0007,normal,Guided Backprop,0.2716740667819977
+spurious-test-0007,normal,Grad-CAM,0.0
+spurious-test-0007,normal,Guided Grad-CAM,0.0
+spurious-test-0007,spurious,Gradient,0.4226549565792084
+spurious-test-0007,spurious,Gradient × Input,0.2353944480419159
+spurious-test-0007,spurious,Integrated Gradients,0.22676576673984528
+spurious-test-0007,spurious,SmoothGrad,0.4010623097419739
+spurious-test-0007,spurious,Guided Backprop,0.39315149188041687
+spurious-test-0007,spurious,Grad-CAM,1.0000001192092896
+spurious-test-0007,spurious,Guided Grad-CAM,0.9999999403953552
+spurious-test-0009,normal,Gradient,0.4986211061477661
+spurious-test-0009,normal,Gradient × Input,0.42359644174575806
+spurious-test-0009,normal,Integrated Gradients,0.42149674892425537
+spurious-test-0009,normal,SmoothGrad,0.4991832971572876
+spurious-test-0009,normal,Guided Backprop,0.39446529746055603
+spurious-test-0009,normal,Grad-CAM,0.0
+spurious-test-0009,normal,Guided Grad-CAM,0.0
+spurious-test-0009,spurious,Gradient,0.4910221993923187
+spurious-test-0009,spurious,Gradient × Input,0.4110354781150818
+spurious-test-0009,spurious,Integrated Gradients,0.4103468954563141
+spurious-test-0009,spurious,SmoothGrad,0.49006107449531555
+spurious-test-0009,spurious,Guided Backprop,0.5040869116783142
+spurious-test-0009,spurious,Grad-CAM,1.0
+spurious-test-0009,spurious,Guided Grad-CAM,0.9999999403953552
+spurious-test-0011,normal,Gradient,0.4261595606803894
+spurious-test-0011,normal,Gradient × Input,0.2527215778827667
+spurious-test-0011,normal,Integrated Gradients,0.2486194372177124
+spurious-test-0011,normal,SmoothGrad,0.4229190945625305
+spurious-test-0011,normal,Guided Backprop,0.26484590768814087
+spurious-test-0011,normal,Grad-CAM,0.0
+spurious-test-0011,normal,Guided Grad-CAM,0.0
+spurious-test-0011,spurious,Gradient,0.4164569079875946
+spurious-test-0011,spurious,Gradient × Input,0.23252685368061066
+spurious-test-0011,spurious,Integrated Gradients,0.224925234913826
+spurious-test-0011,spurious,SmoothGrad,0.39563488960266113
+spurious-test-0011,spurious,Guided Backprop,0.39547765254974365
+spurious-test-0011,spurious,Grad-CAM,1.0
+spurious-test-0011,spurious,Guided Grad-CAM,1.0
+spurious-test-0013,normal,Gradient,0.4479656517505646
+spurious-test-0013,normal,Gradient × Input,0.3218974769115448
+spurious-test-0013,normal,Integrated Gradients,0.3168569505214691
+spurious-test-0013,normal,SmoothGrad,0.4448624849319458
+spurious-test-0013,normal,Guided Backprop,0.31063857674598694
+spurious-test-0013,normal,Grad-CAM,0.0
+spurious-test-0013,normal,Guided Grad-CAM,0.0
+spurious-test-0013,spurious,Gradient,0.4431881606578827
+spurious-test-0013,spurious,Gradient × Input,0.29713332653045654
+spurious-test-0013,spurious,Integrated Gradients,0.29045820236206055
+spurious-test-0013,spurious,SmoothGrad,0.43112343549728394
+spurious-test-0013,spurious,Guided Backprop,0.43232792615890503
+spurious-test-0013,spurious,Grad-CAM,1.0
+spurious-test-0013,spurious,Guided Grad-CAM,0.9999999403953552
+spurious-test-0015,normal,Gradient,0.48302704095840454
+spurious-test-0015,normal,Gradient × Input,0.3910025656223297
+spurious-test-0015,normal,Integrated Gradients,0.39067786931991577
+spurious-test-0015,normal,SmoothGrad,0.47477537393569946
+spurious-test-0015,normal,Guided Backprop,0.3489682972431183
+spurious-test-0015,normal,Grad-CAM,0.0
+spurious-test-0015,normal,Guided Grad-CAM,0.0
+spurious-test-0015,spurious,Gradient,0.4778957664966583
+spurious-test-0015,spurious,Gradient × Input,0.37630796432495117
+spurious-test-0015,spurious,Integrated Gradients,0.3717554211616516
+spurious-test-0015,spurious,SmoothGrad,0.4763645827770233
+spurious-test-0015,spurious,Guided Backprop,0.4764709770679474
+spurious-test-0015,spurious,Grad-CAM,1.0
+spurious-test-0015,spurious,Guided Grad-CAM,1.0

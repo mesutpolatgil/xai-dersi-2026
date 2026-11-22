@@ -1,0 +1,1699 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Model Açıklamaları İçin Hata Ayıklama Testleri</title><script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]]}};</script><script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><style>body{background:#f2f5f9;color:#18283d;font:16px/1.65 system-ui,sans-serif;margin:0}main{max-width:1040px;margin:0 auto;background:white;padding:2rem 3rem}h1,h2{color:#173657}h2{margin-top:2rem}img{display:block;max-width:100%;height:auto;margin:1rem auto}table{display:block;width:100%;overflow-x:auto;border-collapse:collapse;font-size:.9rem}th,td{border-bottom:1px solid #e1e6ed;padding:.45rem .6rem;text-align:left}th{background:#eaf0f7}blockquote{border-left:4px solid #537aa6;padding-left:1rem;color:#4f5e70}code{background:#edf1f5;padding:.1rem .2rem}a{color:#126094}@media(max-width:650px){main{padding:1rem}}</style></head><body><main><h1>Model Açıklamaları İçin Hata Ayıklama Testleri — Makale Yeniden Üretimi</h1>
+<p><strong>Tania El Hawari — 20259258043</strong><br />
+<strong>Özgün yayın:</strong> Julius Adebayo, Michael Muelly, Ilaria Liccardi ve Been Kim, <em>Debugging Tests for Model Explanations</em>, NeurIPS 2020, <a href="https://arxiv.org/pdf/2011.05429v1">arXiv:2011.05429v1</a>.</p>
+<blockquote>
+<p><strong>Kapsam notu:</strong> Bu çalışma, makaledeki üç bozulma kategorisindeki dört hata örneğine yönelik <strong>küçük ve sentetik</strong> bir kavramsal yeniden uygulamadır. Makalenin özgün veri setleri, mimarileri, istatistikleri veya 54 kişilik insan çalışması burada yeniden üretilmemiştir. Yapay zekâ destekli kodlama ve raporlama araçları kullanılmıştır.</p>
+</blockquote>
+<h2>Seçenek 1 — Zafiyet/Manipülasyon Analizi</h2>
+<p>Bu ödev için <strong>Seçenek 1 — Zafiyet/Manipülasyon Analizi</strong> seçilmiştir. <em>Debugging Tests for Model Explanations</em>, veri, model veya test girdisi bozulduğunda özellik atıflarının hatayı ortaya çıkarıp çıkaramadığını sınadığı için bu seçeneğe uygundur. Görsel olarak ikna edici bir açıklamanın modeldeki kusuru gizleyebilmesi, incelenen zafiyettir.</p>
+<p>Dört sentetik deney bu soruyu farklı açılardan ele alır. <strong>Sahte arka plan</strong> deneyi sınıfla ilişkilendirilen ipucunun tahminlere ve atıflara etkisini, <strong>yanlış etiket</strong> deneyi bozulmuş eğitim etiketlerinin atıflardan ayırt edilip edilemediğini inceler. <strong>Kademeli ağırlık yeniden başlatma</strong>, atıfların öğrenilmiş parametrelere duyarlılığını, <strong>dağılım dışı girdi vekili</strong> ise görüntü dönüşümlerinin atıflara etkisini değerlendirir. Bunlar özgün makalenin kavramsal uyarlamalarıdır. Örneğin ters arka plan testinde doğruluk düşmedi. Her müdahale, modelin kandırıldığını veya açıklamanın çöktüğünü göstermez.</p>
+<h2>1. Araştırma amacı ve hipotezler</h2>
+<p>H1: sınıfa bağlı arka plan bir sahte ilişki oluşturabilir. H2: yanlış etiketli eğitim örneklerinin haritaları benzer kalabilir. H3: rastgeleleştirilmiş ağırlıklar her açıklama yöntemini aynı şekilde etkilemez. H4: dağılım dışı görünüşe sahip girdi değişiminde harita benzerliği güvenilir OOD tanısı değildir.</p>
+<h2>2. Kullanılan kütüphaneler</h2>
+<p>Python, NumPy, pandas, Pillow, PyTorch, SciPy ve Matplotlib kullanıldı. Veriler ve ağırlıklar hazır XAI paketi kullanmadan oluşturuldu. Aynı kod <code>analiz.ipynb</code> içinde tekrar çalıştırılabilir.</p>
+<h2>3. Matematiksel yöntem</h2>
+<p>İki sınıflı bir CNN için $f_\theta(x)$ logitleri incelendi. Girdi gradyanı $\nabla_x s_c(x)$, Gradient × Input $x\odot\nabla_xs_c(x)$, Integrated Gradients, SmoothGrad, Guided Backprop, Grad-CAM ve Guided Grad-CAM hesaplandı. Sıralama korelasyonu Spearman ve görsel benzerlik SSIM ile ölçüldü. IG 16 trapez aralığı; SmoothGrad 8 gürültü örneği ve $\sigma=0{,}08$ kullandı. Aynı test girdisi için gerçek hedef sınıf logiti sabit kaldı.</p>
+<h2>4. Veri üretimi ve kökeni</h2>
+<p>Kuş ve köpek fotoğrafı yerine, merkezi şekilleri farklı <strong>simge çizimleri</strong> kullanıldı; arka plan yatay veya dikey dokulu olarak üretildi. Sınıf başına aynı sayıda örnek vardır. Bağımsız veri 256 eğitim, 64 doğrulama ve 96 test örneğinden oluşur. Sahte-ipuçlu eğitim kümesi ve test müdahaleleri ayrı dosyalarda saklanır. Toplam <strong>1056 PNG</strong> için <code>veri.csv</code> içindeki SHA-256 karması doğrulandı. Tohum: 20261122.</p>
+<p><img src="sekiller/01-veri.png" alt="Sentetik deney örnekleri" /></p>
+<h2>5. Model mimarisi ve eğitim</h2>
+<p>32×32×1 → Conv(12) → ReLU/Havuz → Conv(20) → ReLU/Havuz → Dense(48) → Dense(2). Adam optimizasyonu, mini yığın boyutu 32, sabit tohum, eğitim üst sınırı 20 dönem. Normal, sahte ipuçlu ve %9,77 yanlış eğitim etiketli modellerin en iyi doğrulama kaybına sahip durumları kullanıldı.</p>
+<p><img src="sekiller/02-egitim.png" alt="Eğitim eğrileri" /></p>
+<h2>6. Deney koşulları ve model doğrulukları</h2>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Model</th>
+  <th style="text-align:left">Test koşulu</th>
+  <th style="text-align:right">Doğruluk</th>
+  <th style="text-align:right">Çapraz entropi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">normal</td>
+  <td style="text-align:left">independent_test</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,000</td>
+</tr>
+<tr>
+  <td style="text-align:left">normal</td>
+  <td style="text-align:left">correlated_test</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,000</td>
+</tr>
+<tr>
+  <td style="text-align:left">normal</td>
+  <td style="text-align:left">reversed_background</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,000</td>
+</tr>
+<tr>
+  <td style="text-align:left">normal</td>
+  <td style="text-align:left">background_only</td>
+  <td style="text-align:right">0,500</td>
+  <td style="text-align:right">3,653</td>
+</tr>
+<tr>
+  <td style="text-align:left">normal</td>
+  <td style="text-align:left">ood</td>
+  <td style="text-align:right">0,500</td>
+  <td style="text-align:right">3,795</td>
+</tr>
+<tr>
+  <td style="text-align:left">spurious</td>
+  <td style="text-align:left">independent_test</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,001</td>
+</tr>
+<tr>
+  <td style="text-align:left">spurious</td>
+  <td style="text-align:left">correlated_test</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,000</td>
+</tr>
+<tr>
+  <td style="text-align:left">spurious</td>
+  <td style="text-align:left">reversed_background</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,002</td>
+</tr>
+<tr>
+  <td style="text-align:left">spurious</td>
+  <td style="text-align:left">background_only</td>
+  <td style="text-align:right">0,500</td>
+  <td style="text-align:right">1,774</td>
+</tr>
+<tr>
+  <td style="text-align:left">spurious</td>
+  <td style="text-align:left">ood</td>
+  <td style="text-align:right">0,500</td>
+  <td style="text-align:right">4,568</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">independent_test</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,083</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">correlated_test</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,059</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">reversed_background</td>
+  <td style="text-align:right">1,000</td>
+  <td style="text-align:right">0,105</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">background_only</td>
+  <td style="text-align:right">0,500</td>
+  <td style="text-align:right">0,813</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">ood</td>
+  <td style="text-align:right">0,500</td>
+  <td style="text-align:right">1,545</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/03-skorlar.png" alt="Test koşullarının doğruluk karşılaştırması" /></p>
+<h2>7. Atıf yöntemleri</h2>
+<p>Gradient, Gradient × Input, Integrated Gradients, SmoothGrad, Guided Backprop, Grad-CAM ve Guided Grad-CAM. Pozitif ve negatif katkı işaretleri görselde korunur; sabit haritalar için korelasyon tanımsız olabilir. Yalnız görsel netlik, yöntemin modele sadakatini kanıtlamaz.</p>
+<p><img src="sekiller/04-yontemler.png" alt="Yedi atıf yöntemi" /></p>
+<h2>8. Deney A · Sahte arka plan ilişkisi</h2>
+<p>Sahte ilişkili eğitim modeli: uyumlu arka plan testi doğruluğu <strong>1,000</strong>, ters arka plan testi <strong>1,000</strong>, yalnız arka plan testi <strong>0,500</strong>. Bu sayılar dışarıdan sağlanmış sonuçlar değil defterin hesapladığı ölçümlerdir. Dış çerçevedeki mutlak atıf payı, sadece betimleyici bir kontrol ölçütüdür.</p>
+<p><strong>Kontrol yorumu:</strong> Uyumlu ve ters arka plan doğruluklarının farkı <strong>0,000</strong>. Ters arka plan doğruluğu düşmedi. Bu koşu sınıf kararlarında baskın arka plan bağımlılığı göstermiyor. Yalnız arka plan testi de kendi doğruluk değeriyle birlikte değerlendirilmelidir. Ortalama çapraz entropi, uyumlu arka planda <strong>0,0000288</strong>, ters arka planda <strong>0,0021649</strong> oldu. Eşit doğruluk, sınıf skorlarının da aynı kaldığı anlamına gelmez. Model kontrol noktası bağımsız arka planlı doğrulama kümesindeki kayba göre seçildi. Dış çerçeve yaklaşık bir bölgedir ve özgün çalışmadaki GT-1/GT-2 maskeleriyle eşdeğer değildir.</p>
+<p><img src="sekiller/05-sahte-atif.png" alt="Sahte arka plan atıfları" /></p>
+<p><img src="sekiller/06-arka-plan-oran.png" alt="Dış çerçeve atıf payı" /></p>
+<h2>9. Deney B · Yanlış eğitim etiketleri</h2>
+<p>25 eğitim etiketinin yeri bozuldu; yanlış etiketli eğitim örneklerinden önceden belirlenen 16 tanesi açıklama karşılaştırmasında kullanıldı. Aşağıdaki betimleyici benzerlik ortalamaları doğru/bozulmuş etiket koşullarında aynı girdi ve gerçek sınıf için hesaplanmıştır. Bu sonuçlar hatalı etiketleri kesin olarak tespit etmez.</p>
+<p>Yanlış etiketli ağın <strong>bozulmuş eğitim etiketlerine</strong> doğruluğu 0,902; aynı görüntülerin <strong>gerçek etiketlerine</strong> doğruluğu 1,000. Dolayısıyla bu modelin yanlış etiketleri mutlaka ezberlediği varsayılmamıştır. Kaynak makalenin yanlış etiket bulgusuyla doğrudan sayısal karşılaştırma yapılamaz.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Yöntem</th>
+  <th style="text-align:right">Spearman</th>
+  <th style="text-align:right">SSIM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:right">0,627</td>
+  <td style="text-align:right">0,440</td>
+</tr>
+<tr>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:right">0,461</td>
+  <td style="text-align:right">0,557</td>
+</tr>
+<tr>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:right">0,484</td>
+  <td style="text-align:right">0,765</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0,613</td>
+  <td style="text-align:right">0,765</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:right">0,604</td>
+  <td style="text-align:right">0,736</td>
+</tr>
+<tr>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:right">0,424</td>
+  <td style="text-align:right">0,747</td>
+</tr>
+<tr>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0,542</td>
+  <td style="text-align:right">0,600</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/07-yanlis-etiket.png" alt="Yanlış etiket açıklamaları" /></p>
+<h2>10. Deney C · Kademeli parametre yeniden başlatma</h2>
+<p>Modelde sırasıyla <code>head</code>, <code>fc</code>, <code>conv2</code>, <code>conv1</code> katmanları kademeli sıfırlandı. 16 test örneği üzerinde her aşama karşılaştırıldı. Gözlemler ağın bu özel sürümüne aittir, özgün VGG-16 sonucunu tekrarlamaz.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Son sıfırlanan katman</th>
+  <th style="text-align:left">Yöntem</th>
+  <th style="text-align:right">Spearman</th>
+  <th style="text-align:right">SSIM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:right">0,766</td>
+  <td style="text-align:right">0,459</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:right">0,014</td>
+  <td style="text-align:right">0,381</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:right">0,012</td>
+  <td style="text-align:right">0,632</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0,371</td>
+  <td style="text-align:right">0,534</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:right">0,429</td>
+  <td style="text-align:right">0,383</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:right">0,040</td>
+  <td style="text-align:right">0,642</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0,035</td>
+  <td style="text-align:right">0,410</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:right">0,832</td>
+  <td style="text-align:right">0,481</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:right">0,019</td>
+  <td style="text-align:right">0,381</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:right">0,022</td>
+  <td style="text-align:right">0,632</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0,545</td>
+  <td style="text-align:right">0,547</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:right">0,617</td>
+  <td style="text-align:right">0,555</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:right">0,028</td>
+  <td style="text-align:right">0,643</td>
+</tr>
+<tr>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0,017</td>
+  <td style="text-align:right">0,411</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:right">0,905</td>
+  <td style="text-align:right">0,505</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:right">-0,037</td>
+  <td style="text-align:right">0,378</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:right">-0,046</td>
+  <td style="text-align:right">0,629</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0,650</td>
+  <td style="text-align:right">0,623</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:right">0,730</td>
+  <td style="text-align:right">0,486</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:right">-0,049</td>
+  <td style="text-align:right">0,640</td>
+</tr>
+<tr>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">-0,053</td>
+  <td style="text-align:right">0,406</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:right">0,970</td>
+  <td style="text-align:right">0,685</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:right">0,679</td>
+  <td style="text-align:right">0,595</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:right">0,676</td>
+  <td style="text-align:right">0,755</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0,916</td>
+  <td style="text-align:right">0,810</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:right">0,918</td>
+  <td style="text-align:right">0,776</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:right">0,648</td>
+  <td style="text-align:right">0,777</td>
+</tr>
+<tr>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0,702</td>
+  <td style="text-align:right">0,595</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/08-parametre.png" alt="Katman duyarlılığı" /></p>
+<p><img src="sekiller/09-parametre-harita.png" alt="Model yeniden başlatma haritaları" /></p>
+<h2>11. Deney D · OOD vekil testi</h2>
+<p>Test görüntülerinin renkleri tersine çevrildi, 90° döndürüldü ve bantlı doku eklendi. Bu, orijinal makaledeki Fashion-MNIST / MNIST / ImageNet çapraz-model deneyinin aynısı değildir. Aynı modelle özgün ve bozulmuş görüntüler kıyaslandığından girdi değişikliği karşılaştırmayı etkiler. Haritalar ters döndürmeyle hizalanmadığı için ölçümler konumsal değişimi de içerir.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Yöntem</th>
+  <th style="text-align:right">Spearman</th>
+  <th style="text-align:right">SSIM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:right">0,448</td>
+  <td style="text-align:right">0,826</td>
+</tr>
+<tr>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:right">0,638</td>
+  <td style="text-align:right">0,424</td>
+</tr>
+<tr>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:right">0,611</td>
+  <td style="text-align:right">0,441</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0,290</td>
+  <td style="text-align:right">0,444</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:right">0,204</td>
+  <td style="text-align:right">0,692</td>
+</tr>
+<tr>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:right">0,605</td>
+  <td style="text-align:right">0,442</td>
+</tr>
+<tr>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0,758</td>
+  <td style="text-align:right">0,525</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/10-ood.png" alt="OOD vekil girdiler ve haritalar" /></p>
+<h2>12. Özgün makale ile karşılaştırma ve sınırlar</h2>
+<p>Kaynak çalışma; sahte arka plan ve yanlış etiketli veri, VGG-16 parametre yeniden başlatma ve çeşitli alan dışı veri setleri üzerinde atıfları test eder; ayrıca 54 katılımcılı insan deneyi raporlar. Bu uygulama özgün fotoğrafları, tam atıf yöntemi kümesini, GT-1/GT-2 maske değerlendirmesini, çapraz veri kümesi ve model karşılaştırmalarını veya 54 katılımcılı insan deneyini yeniden üretmez. Tek eğitim tohumu ve tek yanlış etiket örneklemi kullanılmıştır. Şekillerin istatistiksel belirsizliği için güven aralığı verilmemiştir. Bu defterin sonuçları yalnızca bu deney koşullarında geçerlidir.</p>
+<h2>13. Tekrar üretilebilirlik, AI katkısı ve sınırlama</h2>
+<p>Veri yolu, tohum, sınıf, koşul ve SHA-256 bilgileri <code>veri.csv</code> içindedir. Sayısal sonuçlar <code>model_scores.csv</code>, <code>background_attribution.csv</code>, <code>benzerlik_sonuclari.csv</code> dosyalarında tutulur. Defterin son hücresi bu metin ve HTML dosyasını oluşturur. Yapay zekâ destekli araçlar kod, anlatım ve teknik kontrollerin hazırlanmasında kullanıldı. Kullanıcı kendi çalıştırmasını ve yorumlarını akademik gereklilikler çerçevesinde değerlendirmelidir. Makaleden alınmış sonuçların bu projede yeniden ölçüldüğü iddia edilmez.</p>
+<h2>14. Tüm benzerlik ölçümleri (betimleyici özet)</h2>
+<p>Aşağıdaki her satır bir deney, aşama, yöntem ve ölçüt içindir. NaN değerleri ortalama/standart sapma hesabına alınmadı; <strong>tanımlı</strong> ve <strong>toplam</strong> çift sayısı birlikte raporlanır. Çoklu yöntemler ve aynı görüntü tekrarları bağımsız örneklem gibi yorumlanmamalıdır.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Deney</th>
+  <th style="text-align:left">Aşama</th>
+  <th style="text-align:left">Yöntem</th>
+  <th style="text-align:left">Ölçüt</th>
+  <th style="text-align:right">Ortalama</th>
+  <th style="text-align:right">Örnek ss</th>
+  <th style="text-align:right">Tanımlı çift</th>
+  <th style="text-align:right">Toplam çift</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,448</td>
+  <td style="text-align:right">0,058</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,448</td>
+  <td style="text-align:right">0,058</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,826</td>
+  <td style="text-align:right">0,181</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,638</td>
+  <td style="text-align:right">0,023</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,276</td>
+  <td style="text-align:right">0,048</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,424</td>
+  <td style="text-align:right">0,075</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,611</td>
+  <td style="text-align:right">0,021</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,152</td>
+  <td style="text-align:right">0,036</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,441</td>
+  <td style="text-align:right">0,090</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,290</td>
+  <td style="text-align:right">0,098</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,453</td>
+  <td style="text-align:right">0,172</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,444</td>
+  <td style="text-align:right">0,185</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,204</td>
+  <td style="text-align:right">0,047</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,290</td>
+  <td style="text-align:right">0,055</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,692</td>
+  <td style="text-align:right">0,323</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,605</td>
+  <td style="text-align:right">0,022</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,140</td>
+  <td style="text-align:right">0,042</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,442</td>
+  <td style="text-align:right">0,093</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,758</td>
+  <td style="text-align:right">0,029</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,411</td>
+  <td style="text-align:right">0,077</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">ood_proxy</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,525</td>
+  <td style="text-align:right">0,091</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,766</td>
+  <td style="text-align:right">0,060</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,766</td>
+  <td style="text-align:right">0,060</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,459</td>
+  <td style="text-align:right">0,113</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,832</td>
+  <td style="text-align:right">0,047</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,832</td>
+  <td style="text-align:right">0,047</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,481</td>
+  <td style="text-align:right">0,111</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,905</td>
+  <td style="text-align:right">0,024</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,905</td>
+  <td style="text-align:right">0,024</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,505</td>
+  <td style="text-align:right">0,077</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,970</td>
+  <td style="text-align:right">0,041</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,970</td>
+  <td style="text-align:right">0,041</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,685</td>
+  <td style="text-align:right">0,277</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,014</td>
+  <td style="text-align:right">0,024</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,045</td>
+  <td style="text-align:right">0,033</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,381</td>
+  <td style="text-align:right">0,106</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,019</td>
+  <td style="text-align:right">0,062</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,148</td>
+  <td style="text-align:right">0,038</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,381</td>
+  <td style="text-align:right">0,105</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">-0,037</td>
+  <td style="text-align:right">0,060</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,310</td>
+  <td style="text-align:right">0,044</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,378</td>
+  <td style="text-align:right">0,102</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,679</td>
+  <td style="text-align:right">0,309</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,645</td>
+  <td style="text-align:right">0,288</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,595</td>
+  <td style="text-align:right">0,131</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,012</td>
+  <td style="text-align:right">0,034</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,373</td>
+  <td style="text-align:right">0,050</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,632</td>
+  <td style="text-align:right">0,082</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,022</td>
+  <td style="text-align:right">0,073</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,447</td>
+  <td style="text-align:right">0,039</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,632</td>
+  <td style="text-align:right">0,082</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">-0,046</td>
+  <td style="text-align:right">0,079</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,551</td>
+  <td style="text-align:right">0,035</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,629</td>
+  <td style="text-align:right">0,080</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,676</td>
+  <td style="text-align:right">0,302</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,766</td>
+  <td style="text-align:right">0,173</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,755</td>
+  <td style="text-align:right">0,076</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,371</td>
+  <td style="text-align:right">0,066</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,136</td>
+  <td style="text-align:right">0,021</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,534</td>
+  <td style="text-align:right">0,159</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,545</td>
+  <td style="text-align:right">0,097</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,407</td>
+  <td style="text-align:right">0,115</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,547</td>
+  <td style="text-align:right">0,148</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,650</td>
+  <td style="text-align:right">0,087</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,558</td>
+  <td style="text-align:right">0,123</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,623</td>
+  <td style="text-align:right">0,101</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,916</td>
+  <td style="text-align:right">0,061</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,879</td>
+  <td style="text-align:right">0,077</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,810</td>
+  <td style="text-align:right">0,070</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,429</td>
+  <td style="text-align:right">0,013</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,215</td>
+  <td style="text-align:right">0,027</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,383</td>
+  <td style="text-align:right">0,205</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,617</td>
+  <td style="text-align:right">0,017</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,498</td>
+  <td style="text-align:right">0,013</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,555</td>
+  <td style="text-align:right">0,089</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,730</td>
+  <td style="text-align:right">0,014</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,674</td>
+  <td style="text-align:right">0,015</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,486</td>
+  <td style="text-align:right">0,106</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,918</td>
+  <td style="text-align:right">0,090</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,897</td>
+  <td style="text-align:right">0,109</td>
+  <td style="text-align:right">8</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,776</td>
+  <td style="text-align:right">0,059</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,040</td>
+  <td style="text-align:right">0,020</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,366</td>
+  <td style="text-align:right">0,050</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,642</td>
+  <td style="text-align:right">0,080</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,028</td>
+  <td style="text-align:right">0,069</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,461</td>
+  <td style="text-align:right">0,035</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,643</td>
+  <td style="text-align:right">0,080</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">-0,049</td>
+  <td style="text-align:right">0,066</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,561</td>
+  <td style="text-align:right">0,033</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,640</td>
+  <td style="text-align:right">0,077</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,648</td>
+  <td style="text-align:right">0,331</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,768</td>
+  <td style="text-align:right">0,170</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,777</td>
+  <td style="text-align:right">0,082</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,035</td>
+  <td style="text-align:right">0,026</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,058</td>
+  <td style="text-align:right">0,036</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv1</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,410</td>
+  <td style="text-align:right">0,129</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,017</td>
+  <td style="text-align:right">0,086</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,157</td>
+  <td style="text-align:right">0,030</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">conv2</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,411</td>
+  <td style="text-align:right">0,127</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">-0,053</td>
+  <td style="text-align:right">0,051</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,309</td>
+  <td style="text-align:right">0,041</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">fc</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,406</td>
+  <td style="text-align:right">0,123</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,702</td>
+  <td style="text-align:right">0,289</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,630</td>
+  <td style="text-align:right">0,282</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">reinitialized_weights</td>
+  <td style="text-align:left">head</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,595</td>
+  <td style="text-align:right">0,067</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,627</td>
+  <td style="text-align:right">0,024</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,627</td>
+  <td style="text-align:right">0,024</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,440</td>
+  <td style="text-align:right">0,193</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,461</td>
+  <td style="text-align:right">0,058</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,352</td>
+  <td style="text-align:right">0,056</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,557</td>
+  <td style="text-align:right">0,102</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,484</td>
+  <td style="text-align:right">0,072</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,567</td>
+  <td style="text-align:right">0,047</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Gradient × Input</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,765</td>
+  <td style="text-align:right">0,070</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,613</td>
+  <td style="text-align:right">0,044</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,584</td>
+  <td style="text-align:right">0,059</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,765</td>
+  <td style="text-align:right">0,064</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,604</td>
+  <td style="text-align:right">0,044</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,514</td>
+  <td style="text-align:right">0,027</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,736</td>
+  <td style="text-align:right">0,104</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,424</td>
+  <td style="text-align:right">0,073</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,545</td>
+  <td style="text-align:right">0,055</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">Integrated Gradients</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,747</td>
+  <td style="text-align:right">0,063</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman</td>
+  <td style="text-align:right">0,542</td>
+  <td style="text-align:right">0,033</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">spearman_abs</td>
+  <td style="text-align:right">0,411</td>
+  <td style="text-align:right">0,070</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td style="text-align:left">wrong_label</td>
+  <td style="text-align:left">—</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:left">ssim</td>
+  <td style="text-align:right">0,600</td>
+  <td style="text-align:right">0,110</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">16</td>
+</tr>
+</tbody>
+</table>
+</main></body></html>

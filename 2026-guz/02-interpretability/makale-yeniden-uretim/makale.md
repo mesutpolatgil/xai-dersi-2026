@@ -1,0 +1,2711 @@
+# Önem Haritaları İçin Sağlama Testleri
+## 1. Araştırma amacı ve önceden belirlenen hipotezler
+
+**Tania El Hawari — 20259258043**  
+**Kaynak:** Julius Adebayo, Justin Gilmer, Michael Muelly, Ian Goodfellow, Moritz Hardt ve Been Kim, *Sanity Checks for Saliency Maps*, NeurIPS 2018, [arXiv v3](https://arxiv.org/html/1810.03292v3).
+
+Seçenek 1 kapsamında, bir açıklamanın ikna edici görünümü ile öğrenilmiş parametrelere veya etiket ilişkisine duyarlılığı arasındaki fark incelendi. Deneyler açıklamalara yönelik kontrollü müdahaleler kullanır. Bir modelin sınıflandırma başarısı tek başına açıklamasını doğrulamaz.
+
+- **H1:** Çıkıştan girişe doğru rastgeleleştirme, temel gradyanın işaretli sıra benzerliğini düşürür. Yalnızca bir katmanı yeniden başlatan kontrolde düşüşün katmana göre değişmesi beklenir.
+- **H2:** Rastgele etiketleri ezberleyen modelin gerçek etiketlerle test doğruluğu şans düzeyine yaklaşır. Aynı örnek ve hedef sınıf için haritaların benzerliği yöntemlere göre farklılaşır. Ezberleme zayıf kalırsa bu müdahalenin yorumu sınırlıdır.
+- **H3:** Özellikle girdi ile çarpılan yöntemlerde geometrik yapı görünür kalabilir. İşaretli ve mutlak sıra benzerlikleri farklı davranabilir. Bir kenar haritası modelden bağımsız görsel kontrol sağlar. Evrensel geçme eşiği kullanılmaz.
+
+Uygulama ve rapor, yapay zekâ destekli kodlama yardımıyla hazırlandı. Defterin yürütülmesi ve rapor çıktılarının teknik karşılaştırması bu yardım kapsamında gerçekleştirildi.
+
+## 2. Kullanılan Python Kütüphaneleri
+
+| Kütüphane | Kullanım ve gerekçe |
+|---|---|
+| Python standart kütüphanesi | pathlib dosya yolları, copy model kopyaları, json defter okuma, re rapor biçimleme, hashlib görüntü bütünlüğü, html güvenli tablo biçimleme |
+| NumPy | Tohumlu veri, piksel gürültüsü, vektör ve histogram işlemleri |
+| pandas | Veri manifestosunu yazma ve okuma, ölçüm tabloları ve gruplama |
+| Pillow | NumPy piksel dizilerini PNG olarak kaydetme, görüntüleri okuma, EXIF yönünü düzeltme, gri tona dönüştürme ve yeniden boyutlandırma |
+| PyTorch | CNN katmanları, DataLoader, kayıp ve Adam, autograd ile hedef logit türevi |
+| SciPy | Eşit değerlere ortalama sıra ve SSIM için Gauss filtreleme |
+| Matplotlib | Deney figürleri ve PNG çıktıları |
+| JupyterLab (isteğe bağlı), ipykernel ve matplotlib-inline | Etkileşimli çalıştırma ortamı |
+
+Bunlar genel amaçlı araçlardır. Açıklama yöntemlerinin hesaplama adımları aşağıdaki hücrelerde tanımlanır.
+
+## 3. Matematiksel temel
+
+$x\in[0,1]^{32\times32}$ bir gri tonlu girdi, $\theta$ ağ parametreleri, $s_\theta(x)\in\mathbb{R}^2$ sınıf logitleridir. Hedef sınıf $c$ için açıklama aynı $s_c$ üzerinden hesaplanır. Kayıp $-\log(\exp(s_y)/\sum_j\exp(s_j))$ gerçek sınıf $y$ için normalize olasılığı büyütür. Eğitimde geri yayılım zincir kuralıyla kaybın parametre türevini, açıklamada ise logitin girdi türevini hesaplar.
+
+$$G_c(x)=\nabla_x s_c(x),\qquad A_c(x)=x\odot G_c(x).$$
+
+$G$ yerel birinci türevdir, $\odot$ piksel başına çarpımdır. Girdiyle çarpım, türev değişse bile benzer girdi bölgelerini öne çıkarabilir.
+
+$$IG_c(x)=(x-x_0)\odot\int_0^1 \left.\nabla_z s_c(z)\right|_{z=x_0+t(x-x_0)}dt.$$
+
+$x_0=0$ siyah referans, $t$ yol parametresidir. Türev yol noktasındaki model girdisine göredir. Trapez yaklaşımı kullanılır. SmoothGrad, $N^{-1}\sum_i G_c(x+\epsilon_i)$ ile gürültülü girdilerdeki türevleri ortalar. $\epsilon_i$ bağımsız Gauss gürültüsüdür ve karşılaştırmalarda aynı örnekler tekrar kullanılır.
+
+Guided Backpropagation (GBP), ReLU geri geçişinde üstten gelen türevi $r\,\mathbf{1}_{r>0}\mathbf{1}_{a>0}$ ile kapılar. $a$ ileri geçişteki ReLU öncesi değerdir. Bu değiştirilmiş geri geçiş, modelin sıradan türevi değildir.
+
+Grad-CAM için $A^k$ son evrişim öznitelik haritası, $Z$ uzamsal konum sayısıdır. $\alpha_k=Z^{-1}\sum_{ij}\partial s_c/\partial A^k_{ij}$, $L^c=\operatorname{ReLU}(\sum_k\alpha_k A^k)$ kullanılır. Harita bilineer büyütülür. Guided Grad-CAM, bu haritayı GBP ile çarpar. Düşük uzamsal çözünürlük, negatif kanıtın atılması, referans seçimi ve yerel doygunluk yöntemlerin yorum sınırlarıdır.
+
+## 4. Veri üretimi ve hazırlık
+
+Halka ve artı, sınıfı belirleyen gerçek şekillerdir. Köşedeki açık işaret eğitimde sınıfla %85 olasılıkla uyumlu seçilir. Doğrulama ve testte işaret, sınıftan bağımsız üretilir. Arka plan dalgaları, Gauss gürültüsü, yön, konum, ölçek ve şerit biçimli kısmi örtülme değişir. Sınıflar her bölmede eşit sayıdadır. Tohum ve görüntü karması veri kökenini izlemeyi sağlar.
+
+Fotoğraf protokolü, değişen ışık, açı, arka plan ve örtülme koşullarında öğrencinin çektiği halka ve artı nesnelerini öngörür. Her fiziksel nesne ve ilişkili çekim oturumları tek bölmeye atanır. Manifesto biçimi ve PHOTO_MODE ayarı README’de açıklanır. Kaydedilmiş araştırma koşusu 416 sentetik görüntü kullanır. Öğretmenin gerçek dünya verisiyle canlı kod gerekliliği için kişisel fotoğraf koşusu ayrıdır. Fotoğraf modu CSV, grafik ve raporları foto-sonuclari/ altında üretir. Fotoğraflar EXIF yönüne göre düzeltilir, gri tona çevrilir ve nesneyi merkezden kesmemek için en-boy oranı korunarak 32×32 tuvale sığdırılır. Girdi paneli, nesnenin bu ölçekte ayırt edilebilirliğini incelemek için kullanılır.
+
+## 5. Evrişim ağı ve eğitim
+
+32×32×1 → Conv(12, 3×3) → ReLU → 2×2 havuz → Conv(24, 3×3) → ReLU → 2×2 havuz → 1536 → Dense(96) → ReLU → Dense(2). Maksimum havuzlama yerel tepkileri korur. Tam bağlı katman konum bilgisini kullanabilir ve rastgele etiketleri ezberlemek için kapasite sağlar. Adam başlangıç adımı 0,002 ve mini yığın büyüklüğü 32’dir. Gerçek etiketli model, doğrulama kaybı en düşük olan dönemdeki ağırlıklarla değerlendirilir. Rastgele etiketli model, eğitim doğruluğu %97’ye eriştiğinde veya dönem bütçesi tükendiğinde durur. Test etiketleri model seçiminde kullanılmaz.
+
+## 6. Önem haritalarının uygulanması
+
+Her modelde aynı gerçek sınıf logiti kullanılır. Bu seçim, modelin tahmini değiştiğinde farklı bir hedefi karşılaştırmayı önler. Autograd yalnızca türev hesaplar. Integrated Gradients için 32 trapez aralığı ve uçlar dâhil 33 değerlendirme noktası kullanılır. SmoothGrad, 16 gürültülü girdiyi ortalar. Gauss gürültüsünün ortalaması sıfır, standart sapması 0,08’dir. Değer, [0; 1] ölçeğindeki piksel girdisine eklenir. ReLU geri geçiş kuralı, yol integrali, gürültü ortalaması ve kanal ağırlıkları bu defterde uygulanır. SmoothGrad yerel gürültüyü azaltabilir, ancak gürültü ölçeğine bağlıdır. Grad-CAM ve Guided Grad-CAM için sıfır harita geçerli bir çıktıdır ve korelasyonu tanımsız olabilir.
+
+## 7. Benzerlik ölçütleri ve kontroller
+
+Spearman $\rho$ eşit değerlere ortalama sıra verildikten sonra iki sıra vektörünün Pearson korelasyonudur. İşaretli ve mutlak değerli haritalar ayrı değerlendirilir. Sabit bir vektör için korelasyon tanımsızdır. Böyle çiftler NaN olarak kaydedilir ve yalnızca tanımlı örnekler özetlenir. Rapor hem $n$ hem örnek standart sapmasını gösterir.
+
+$$\operatorname{SSIM}(a,b)=\frac{(2\mu_a\mu_b+C_1)(2\sigma_{ab}+C_2)}
+ {(\mu_a^2+\mu_b^2+C_1)(\sigma_a^2+\sigma_b^2+C_2)}.$$
+
+Yerel momentler Gauss ağırlıklıdır. Her işaretli çift ortak mutlak maksimumla ölçeklenip [0; 1] aralığına taşınır. $C_1=(0{,}01)^2$ ve $C_2=(0{,}03)^2$ düşük varyans bölgelerinde bölümü kararlı kılar. Yerel değerlerin ortalaması raporlanır.
+
+HOG, merkez fark gradyanlarının işaretsiz yönlerini dokuz kovaya toplar. Her 8×8 hücrede oylar gradyan büyüklüğüyle ağırlıklandırılır ve hücre histogramı L2 normuyla ölçeklenir. Birleştirilen betimleyicilerin Pearson korelasyonu yön yapısını ölçer. Bu basit HOG, makalenin blok normalizasyonlu kütüphane ayarının aynısı değildir.
+
+## Veri ve temel model sonuçları
+
+Veri türü **sentetik**. Eğitimde **256**, doğrulamada **64**, testte **96** görüntü kullanıldı. PyTorch 2.15.0+cpu, işlemci yürütmesi, tohum 7342.
+
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Model</th>
+      <th>Eğitim doğruluğu</th>
+      <th>Test doğruluğu</th>
+      <th>Eğitim kaybı</th>
+      <th>Test kaybı</th>
+      <th>Eğitim dönemi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Gerçek etiket</td>
+      <td>1,0000</td>
+      <td>0,9896</td>
+      <td>0,0003</td>
+      <td>0,0229</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>Permüte etiket</td>
+      <td>0,9805</td>
+      <td>0,4375</td>
+      <td>0,1696</td>
+      <td>1,4303</td>
+      <td>21</td>
+    </tr>
+  </tbody>
+</table>
+
+Temel modelin test karışıklık matrisi (gerçek × tahmin): [[48, 0], [1, 47]]. Doğrulama kaybı model kontrol noktası seçiminde kullanıldı. Test verisi ağırlık güncellemesinde kullanılmadı.
+
+![Veri örnekleri](sekiller/01-veri.png)
+
+![Eğitim ve doğrulama eğrileri](sekiller/02-egitim.png)
+
+![Karışıklık matrisi ve örnek tahminler](sekiller/03-hatalar.png)
+
+![Yedi önem haritası yöntemi](sekiller/04-yontemler.png)
+
+## 8. Deney 1 · Model parametrelerinin rastgeleleştirilmesi
+
+Dört parametre bloğu çıkıştan girişe doğru head → fc → conv2 → conv1 sırasıyla değiştirilir. Her blok için PyTorch katmanının varsayılan başlangıç dağılımından yeni ağırlık ve bias çekilir. Bağımsız testte yalnızca ilgili blok değişir. Kademeli testte bu sıradaki önceki değişimler birikir. Aynı tekrardaki iki yaklaşım, her blok için aynı rastgele ağırlıkları kullanır. Üç tohum ve 16 test görüntüsü kullanılır. Standart sapma ve sayılar görüntü × tohum çiftlerinin betimleyici özetidir. Aynı görüntünün tekrarları bağımsız gözlem değildir.
+
+![Kademeli rastgeleleştirme](sekiller/05-kademeli.png)
+
+![Bağımsız katman rastgeleleştirmesi](sekiller/06-bagimsiz.png)
+
+![Katmanlara göre işaretli ve mutlak Spearman](sekiller/09-benzerlik.png)
+
+## 9. Deney 2 · Eğitim etiketlerinin permütasyonu
+
+Eğitim görüntüleri ve sınıf frekansları korunur. Sabit bir permütasyon eğitim etiketlerini görüntülerle yeniden eşler. Yeni ağ, temel ağ ile aynı başlangıç tohumunu ve mimariyi kullanır. Doğrulama ve test etiketleri korunur. Orijinal ve rastgele etiketli ağlar aynı test pikselleri ve aynı hedef logitle karşılaştırılır. Yüksek permüte eğitim doğruluğu, görüntülerle yapılan rastgele eşleştirmelerin ezberlenmesine ilişkin bir kontroldür.
+
+Permütasyon sonucu eğitim etiketlerinin %48,4 kadarı değişti. Gerçek test etiketlerine göre doğruluk %43,75, permüte eğitim etiketlerine göre doğruluk %98,05. Makaledeki %95 ölçütünü aştı.
+
+![Etiket rastgeleleştirme karşılaştırması](sekiller/07-etiket.png)
+
+![Permütasyon eğitimi](sekiller/08-ezber.png)
+
+## 10. Seçenek 1: Zafiyet ve Manipülasyon Analizi
+
+Rastgele ağırlıklı ağda aynı şekil veya kenarların görünmesi, tek başına ağın doğru sınıf ilişkisini öğrendiği anlamına gelmez. Aşağıdaki kontrol, ağ kullanmadan yalnızca görüntüdeki değişim büyüklüğünü gösterir. Aynı örnekte eğitimli ve tüm blokları sıfırdan başlatılmış ağların haritaları yer alır. İlk iki sıra işaretli ve mutlak atıfları yöntem başına ortak ölçekle gösterir. Üçüncü sıra her haritayı kendi maksimumuna böler. Bu sıra, genlik farkını saklayabilen harita başına normalizasyonu gözle görünür kılar. Kenar haritası görsel bir kıyas noktasıdır. Onun görünüşü bir insan değerlendirmesi veya nedensel doğruluk ölçümü değildir.
+
+Parametre müdahalesi model bağımlılığını, etiket permütasyonu eğitimdeki örnek–etiket ilişkisine bağımlılığı yoklar. Bir yöntemin büyük değişim göstermesi onun kesinlikle doğru olduğunu kanıtlamaz. Düşük işaretli benzerlik ve aynı anda daha yüksek mutlak benzerlik gözlenirse, işareti atmanın bir müdahaleyi gizleyebildiği anlaşılır. Bu ayrışma görülmezse sonuç olduğu gibi raporlanır.
+
+### Ölçülen zafiyet ve sonuç
+
+Tüm parametre blokları yeniden başlatıldığında Gradient için ortalama işaretli Spearman **0,019** oldu. Gradient × Input için işaretli ortalama **0,027**, mutlak ortalama **0,500** ve fark **+0,473** oldu. Bu koşuda mutlak görselleştirme daha yüksek sıra benzerliği taşıdı. Ortak ölçek genlik farkını korur. Her haritayı kendi içindeki maksimuma göre gösteren son sıra, zayıf sinyali büyütüp görsel yapının daha belirgin görünmesine yol açabilir. Girdi ve kenar panelleri modelden bağımsız kıyas sağlar. Tek bir görüntünün görünümü bütün yöntemler hakkında hüküm vermek için yeterli değildir.
+
+Kademeli ilk adımda Gradient **0,258**, Grad-CAM **0,768**, Guided Backprop **0,892** işaretli sıra benzerliği verdi. Guided Backprop tüm katmanlar değiştiğinde **0,519** oldu. Bu değerler üst ve alt katman davranışının aynı olup olmadığını bu ağ için gösterir ve makaledeki tüm mimarilere genellenemez. Permütasyon kontrolünde Gradient ortalaması **-0,027** oldu. Tanımsız ölçümlerin sayısı toplam çift ile tanımlı çift sayısı arasındaki farktan okunabilir.
+
+![Seçenek 1 görsel kontrolü](sekiller/10-zafiyet.png)
+
+### Tüm benzerlik ölçümleri
+
+Standart sapma yalnızca tanımlı çiftlerden hesaplanır. Bir standart sapma için en az iki tanımlı çift gerekir.
+
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Deney</th>
+      <th>Aşama</th>
+      <th>Yöntem</th>
+      <th>Ölçüt</th>
+      <th>Ortalama</th>
+      <th>Örnek standart sapması</th>
+      <th>Tanımlı çift</th>
+      <th>Toplam çift</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,258</td>
+      <td>0,602</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,250</td>
+      <td>0,577</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>0,196</td>
+      <td>0,591</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,264</td>
+      <td>0,634</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,892</td>
+      <td>0,152</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,768</td>
+      <td>0,245</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,770</td>
+      <td>0,178</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,258</td>
+      <td>0,602</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,250</td>
+      <td>0,577</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>0,196</td>
+      <td>0,591</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,264</td>
+      <td>0,634</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,892</td>
+      <td>0,152</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,768</td>
+      <td>0,245</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,770</td>
+      <td>0,178</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>-0,013</td>
+      <td>0,080</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>-0,010</td>
+      <td>0,083</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>-0,015</td>
+      <td>0,087</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>-0,020</td>
+      <td>0,089</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,811</td>
+      <td>0,027</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,342</td>
+      <td>0,345</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,693</td>
+      <td>0,125</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,006</td>
+      <td>0,082</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,004</td>
+      <td>0,088</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>-0,003</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,020</td>
+      <td>0,091</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,812</td>
+      <td>0,022</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>-0,114</td>
+      <td>0,119</td>
+      <td>8</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,157</td>
+      <td>0,131</td>
+      <td>8</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,013</td>
+      <td>0,035</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,014</td>
+      <td>0,043</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>0,013</td>
+      <td>0,043</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,022</td>
+      <td>0,038</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,683</td>
+      <td>0,022</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,282</td>
+      <td>0,410</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,504</td>
+      <td>0,250</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,065</td>
+      <td>0,049</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,084</td>
+      <td>0,057</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>0,067</td>
+      <td>0,055</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,098</td>
+      <td>0,064</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,703</td>
+      <td>0,025</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,585</td>
+      <td>0,258</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,700</td>
+      <td>0,027</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,019</td>
+      <td>0,027</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,027</td>
+      <td>0,030</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>0,027</td>
+      <td>0,040</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,035</td>
+      <td>0,040</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,519</td>
+      <td>0,044</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,302</td>
+      <td>0,423</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,285</td>
+      <td>0,228</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>0,079</td>
+      <td>0,038</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>0,122</td>
+      <td>0,047</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>0,089</td>
+      <td>0,045</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>0,101</td>
+      <td>0,048</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,511</td>
+      <td>0,051</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,801</td>
+      <td>0,081</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,506</td>
+      <td>0,054</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient</td>
+      <td>Spearman</td>
+      <td>-0,027</td>
+      <td>0,026</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient × Input</td>
+      <td>Spearman</td>
+      <td>-0,020</td>
+      <td>0,030</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman</td>
+      <td>-0,023</td>
+      <td>0,040</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>SmoothGrad</td>
+      <td>Spearman</td>
+      <td>-0,043</td>
+      <td>0,034</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Backprop</td>
+      <td>Spearman</td>
+      <td>0,665</td>
+      <td>0,024</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,211</td>
+      <td>0,111</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman</td>
+      <td>0,349</td>
+      <td>0,045</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,471</td>
+      <td>0,159</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,694</td>
+      <td>0,102</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,697</td>
+      <td>0,101</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,501</td>
+      <td>0,165</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,824</td>
+      <td>0,213</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,768</td>
+      <td>0,245</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,713</td>
+      <td>0,208</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,471</td>
+      <td>0,159</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,694</td>
+      <td>0,102</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,697</td>
+      <td>0,101</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,501</td>
+      <td>0,165</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,824</td>
+      <td>0,213</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,768</td>
+      <td>0,245</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,713</td>
+      <td>0,208</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,141</td>
+      <td>0,046</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,529</td>
+      <td>0,092</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,532</td>
+      <td>0,099</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,145</td>
+      <td>0,052</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,612</td>
+      <td>0,040</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,342</td>
+      <td>0,345</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,437</td>
+      <td>0,176</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,146</td>
+      <td>0,036</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,536</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,533</td>
+      <td>0,091</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,144</td>
+      <td>0,042</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,614</td>
+      <td>0,038</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>-0,114</td>
+      <td>0,119</td>
+      <td>8</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>-0,076</td>
+      <td>0,084</td>
+      <td>8</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,086</td>
+      <td>0,037</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,499</td>
+      <td>0,098</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,501</td>
+      <td>0,097</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,100</td>
+      <td>0,039</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,425</td>
+      <td>0,034</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,282</td>
+      <td>0,410</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,278</td>
+      <td>0,313</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,318</td>
+      <td>0,036</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,605</td>
+      <td>0,080</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,608</td>
+      <td>0,079</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,332</td>
+      <td>0,035</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,526</td>
+      <td>0,033</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,585</td>
+      <td>0,258</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,587</td>
+      <td>0,050</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,089</td>
+      <td>0,028</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,500</td>
+      <td>0,093</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,472</td>
+      <td>0,111</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,112</td>
+      <td>0,035</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,263</td>
+      <td>0,067</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,302</td>
+      <td>0,423</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,176</td>
+      <td>0,254</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,371</td>
+      <td>0,042</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,625</td>
+      <td>0,076</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,617</td>
+      <td>0,081</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,397</td>
+      <td>0,045</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,392</td>
+      <td>0,055</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,801</td>
+      <td>0,081</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,487</td>
+      <td>0,058</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient</td>
+      <td>Spearman_abs</td>
+      <td>0,137</td>
+      <td>0,048</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient × Input</td>
+      <td>Spearman_abs</td>
+      <td>0,513</td>
+      <td>0,090</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Integrated Gradients</td>
+      <td>Spearman_abs</td>
+      <td>0,506</td>
+      <td>0,097</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>SmoothGrad</td>
+      <td>Spearman_abs</td>
+      <td>0,162</td>
+      <td>0,048</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Backprop</td>
+      <td>Spearman_abs</td>
+      <td>0,320</td>
+      <td>0,048</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,211</td>
+      <td>0,111</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Grad-CAM</td>
+      <td>Spearman_abs</td>
+      <td>0,105</td>
+      <td>0,067</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,484</td>
+      <td>0,093</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,675</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,687</td>
+      <td>0,094</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,507</td>
+      <td>0,087</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,720</td>
+      <td>0,078</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,476</td>
+      <td>0,135</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,610</td>
+      <td>0,107</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,484</td>
+      <td>0,093</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,675</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,687</td>
+      <td>0,094</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,507</td>
+      <td>0,087</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,720</td>
+      <td>0,078</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,476</td>
+      <td>0,135</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,610</td>
+      <td>0,107</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,458</td>
+      <td>0,077</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,660</td>
+      <td>0,083</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,682</td>
+      <td>0,080</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,482</td>
+      <td>0,073</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,538</td>
+      <td>0,055</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,480</td>
+      <td>0,185</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,566</td>
+      <td>0,175</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,450</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,653</td>
+      <td>0,093</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,678</td>
+      <td>0,087</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,474</td>
+      <td>0,089</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,538</td>
+      <td>0,071</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,390</td>
+      <td>0,067</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,483</td>
+      <td>0,117</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,461</td>
+      <td>0,076</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,661</td>
+      <td>0,082</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,682</td>
+      <td>0,082</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,484</td>
+      <td>0,074</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,464</td>
+      <td>0,086</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,507</td>
+      <td>0,233</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,541</td>
+      <td>0,246</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,441</td>
+      <td>0,106</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,665</td>
+      <td>0,095</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,690</td>
+      <td>0,085</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,480</td>
+      <td>0,098</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,651</td>
+      <td>0,060</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,721</td>
+      <td>0,281</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,781</td>
+      <td>0,220</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,461</td>
+      <td>0,076</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,661</td>
+      <td>0,083</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,682</td>
+      <td>0,081</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,484</td>
+      <td>0,074</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,446</td>
+      <td>0,096</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,432</td>
+      <td>0,160</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,509</td>
+      <td>0,171</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,481</td>
+      <td>0,070</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,721</td>
+      <td>0,060</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,717</td>
+      <td>0,071</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,512</td>
+      <td>0,080</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,652</td>
+      <td>0,066</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,814</td>
+      <td>0,202</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,815</td>
+      <td>0,192</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient</td>
+      <td>SSIM</td>
+      <td>0,176</td>
+      <td>0,073</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient × Input</td>
+      <td>SSIM</td>
+      <td>0,463</td>
+      <td>0,144</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Integrated Gradients</td>
+      <td>SSIM</td>
+      <td>0,521</td>
+      <td>0,169</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>SmoothGrad</td>
+      <td>SSIM</td>
+      <td>0,208</td>
+      <td>0,094</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Backprop</td>
+      <td>SSIM</td>
+      <td>0,622</td>
+      <td>0,103</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,393</td>
+      <td>0,051</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Grad-CAM</td>
+      <td>SSIM</td>
+      <td>0,566</td>
+      <td>0,064</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,283</td>
+      <td>0,161</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,482</td>
+      <td>0,154</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,507</td>
+      <td>0,144</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,341</td>
+      <td>0,156</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,666</td>
+      <td>0,290</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,545</td>
+      <td>0,304</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,476</td>
+      <td>0,322</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,283</td>
+      <td>0,161</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,482</td>
+      <td>0,154</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,507</td>
+      <td>0,144</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,341</td>
+      <td>0,156</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,666</td>
+      <td>0,290</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,545</td>
+      <td>0,304</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>head</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,476</td>
+      <td>0,322</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,078</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,310</td>
+      <td>0,118</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,270</td>
+      <td>0,131</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,115</td>
+      <td>0,077</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,412</td>
+      <td>0,104</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,312</td>
+      <td>0,191</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,357</td>
+      <td>0,141</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,071</td>
+      <td>0,089</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,290</td>
+      <td>0,127</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,274</td>
+      <td>0,114</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,049</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,403</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,016</td>
+      <td>0,119</td>
+      <td>8</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>fc</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,099</td>
+      <td>0,078</td>
+      <td>8</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,078</td>
+      <td>0,092</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,251</td>
+      <td>0,126</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,238</td>
+      <td>0,126</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,090</td>
+      <td>0,097</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,245</td>
+      <td>0,107</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,232</td>
+      <td>0,184</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,205</td>
+      <td>0,118</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,068</td>
+      <td>0,108</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,272</td>
+      <td>0,131</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,274</td>
+      <td>0,102</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,100</td>
+      <td>0,095</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,258</td>
+      <td>0,098</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,310</td>
+      <td>0,140</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv2</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,285</td>
+      <td>0,098</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,051</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,226</td>
+      <td>0,123</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,208</td>
+      <td>0,125</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,096</td>
+      <td>0,090</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,138</td>
+      <td>0,093</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,172</td>
+      <td>0,179</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Kademeli</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,116</td>
+      <td>0,082</td>
+      <td>21</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,052</td>
+      <td>0,088</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,259</td>
+      <td>0,119</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,231</td>
+      <td>0,128</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,102</td>
+      <td>0,108</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,130</td>
+      <td>0,107</td>
+      <td>48</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,529</td>
+      <td>0,112</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Bağımsız</td>
+      <td>conv1</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,156</td>
+      <td>0,096</td>
+      <td>24</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient</td>
+      <td>HOG</td>
+      <td>0,107</td>
+      <td>0,070</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Gradient × Input</td>
+      <td>HOG</td>
+      <td>0,305</td>
+      <td>0,122</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Integrated Gradients</td>
+      <td>HOG</td>
+      <td>0,297</td>
+      <td>0,105</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>SmoothGrad</td>
+      <td>HOG</td>
+      <td>0,168</td>
+      <td>0,126</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Backprop</td>
+      <td>HOG</td>
+      <td>0,253</td>
+      <td>0,104</td>
+      <td>16</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,076</td>
+      <td>0,067</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Etiket</td>
+      <td>Permütasyon</td>
+      <td>Guided Grad-CAM</td>
+      <td>HOG</td>
+      <td>0,078</td>
+      <td>0,093</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+  </tbody>
+</table>
+
+## 11. Makaleyle karşılaştırma, geçerlilik ve canlı savunma
+
+Adebayo ve arkadaşları gradyanın ve belirli katman koşullarında Grad-CAM’in duyarlı olduğunu, GBP ve Guided Grad-CAM’in üst katman değişimlerine görece duyarsız kalabildiğini, girdiyle çarpım içeren yöntemlerde görsel benzerliğin yanıltabileceğini bildirir. Makalenin v3 sürümü, GBP’nin tüm katmanlar için değişmez olduğu iddiasını düzeltir. Biz, sentetik veride tek CNN ve aynı hedef logit ile bu metodolojiyi sınadık. Inception, ImageNet, MNIST, Fashion-MNIST, radyografi, VarGrad ve makaledeki kuramsal evrişim deneyi kapsam dışıdır. Buradaki kenar kıyası, makalenin teori deneyinin yerine geçmez.
+
+Rastgele etiket kontrolü tek permütasyondur. Parametre tohumları aynı 16 görüntüyü tekrar kullandığından satırlar bağımsız değildir. Testte köşe ipucunun ilişkisinin kaldırılması bir dağılım değişimidir. Gauss gürültüsü ve yapay şekiller fotoğraflara aktarım kanıtı sağlamaz. Mutlak değer, işareti siler. SSIM ve HOG mekânsal örüntüyü karşılaştırır ve nedensel açıklama doğruluğunu ölçmez. Düşük çözünürlüklü CAM ile piksel türevlerinin benzerlikleri aynı şekilde yorumlanmamalıdır.
+
+### Canlı gösterim ve mevcut durum
+
+Bu defterin kuramsal bölümleri canlı anlatımda matematiksel tanımlar ve yöntem sınırları için kullanılabilir. Sentetik Seçenek 1 koşusunda eğitim, iki parametre rastgeleleştirme düzeni ve etiket permütasyonu tamamlanmıştır. Gerçek dünya canlı kod aşaması kişisel fotoğrafların toplanmasına, manifesto doğrulamasına ve ayrı fotoğraf koşusunun değerlendirilmesine bağlıdır. Yükleyici her sınıf ve bölme için en az sekiz görüntü gerektirir. Toplam 48 görüntü, yazılımın kabul ettiği alt sınırdır. Öğretmenin fotoğraf sayısına ilişkin özgün yönergesi bu çalışma kapsamında doğrulanmamıştır. Kaydedilmiş sentetik bulgular fotoğraf koşusuna ait değildir.
+
+Kısa sunumda 5. bölümün test başarısı, 8. bölümün çıkış ve tam model müdahaleleri ve 10. bölümün işaretli ve mutlak panelleri incelenebilir. Aynı hedef logitin kullanılması hedef değişimini model değişiminden ayırır. Test etiketlerinin korunması genellemenin gerçek hedefe göre ölçülmesini sağlar. Sıfır haritada sıra korelasyonu tanımsız olabilir. Bu durumda geçerli çift sayısı raporlanır. Autograd türevi hesaplar; bu defter hedefi, kapıyı, yol integralini, ortalamayı ve kanal ağırlıklarını tanımlar. VS Code’da çekirdek seçimi, çalışma sırası ve fotoğraf hazırlığı README’de belgelenmiştir.
+
+## 12. Sonuç
+
+- **H1:** İlk blok müdahalesinden sonra Gradient sıra benzerliği 0,258, tüm bloklar değiştiğinde 0,019. Bağımsız blok testi, hangi müdahalelerin bu ağda daha fazla değişim ürettiğini ayrı ayrı gösterir.
+- **H2:** Permüte eğitim ve gerçek test doğrulukları arasında 54,30 puan fark ölçüldü. Makaledeki %95 ölçütünü aştı. Bu sonucu permütasyonun farklı tohumlarına genellemek için ek koşular gerekir.
+- **H3:** Tam rastgeleleştirmeden sonra Gradient × Input için mutlak ve işaretli sıra benzerliği arasındaki fark +0,473. İşaret ve genlik bilgisi, bir haritanın tek başına görünüşünden çıkarılamaz.
+
+Seçenek 1 açısından bu müdahaleler, model hata ayıklarken görsel benzerliğin bir doğrulama ölçütü olarak tek başına yeterli olmadığını gösterir. Her sonuç bu veri, ağ ve tohumlarla sınırlıdır.
+
+**Kaynak.** Adebayo, J., Gilmer, J., Muelly, M., Goodfellow, I., Hardt, M. ve Kim, B. (2018). *Sanity Checks for Saliency Maps*. NeurIPS 31. [arXiv v3](https://arxiv.org/html/1810.03292v3).

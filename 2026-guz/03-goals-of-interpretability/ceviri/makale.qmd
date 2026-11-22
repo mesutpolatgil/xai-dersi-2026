@@ -1,0 +1,764 @@
+---
+title: "Model Açıklamaları İçin Hata Ayıklama Testleri"
+subtitle: "Debugging Tests for Model Explanations — Akademik Türkçe Çeviri ve Kaynak Karşılaştırması"
+author: "Tania El Hawari (Türkçe çeviren) — Öğrenci No: 20259258043"
+lang: tr
+format:
+  html:
+    toc: true
+    toc-title: "İçindekiler"
+    toc-depth: 3
+    number-sections: false
+    embed-resources: true
+    html-math-method: mathjax
+bibliography: references.bib
+link-citations: true
+---
+
+> **Özgün kaynak ve sürüm:** Julius Adebayo, Michael Muelly, Ilaria Liccardi ve Been Kim, *Debugging Tests for Model Explanations*, arXiv:2011.05429v1 (10 Kasım 2020), NeurIPS 2020. [arXiv HTML](https://arxiv.org/html/2011.05429v1) · [Orijinal PDF](https://arxiv.org/pdf/2011.05429v1). Burada incelenen belge araştırma makalesidir; Molnar'ın *Goals of Interpretability* kitap bölümünün doğrudan çevirisi değildir.
+>
+> **Türkçe metnin durumu:** Bu çalışma özgün makalenin ana kavramlarını, araştırma sorularını, yöntemlerini, deney sonuçlarını, sayısal tablolarını ve A–I eklerini akademik Türkçeyle aktarır; ancak her İngilizce paragrafın bire bir çevrildiği ve satır satır dil denetiminden geçtiği **tam bir çeviri olarak beyan edilmez**. Makale çevirisinin eksiksiz olması şartsa, kaynak PDF ile ayrıca paragraf bazında karşılaştırma yapılmalıdır. Yeni deney yürütüldüğü iddia edilmez.
+>
+> **Şekillerin kaynağı:** Şekil 1–64, kullanıcı tarafından yüklenen özgün arXiv v1 PDF dosyasının sayfalarından kırpılarak yerel PNG biçiminde kaydedilmiştir. Görseller İngilizce açıklama ve eksen etiketlerini korur; bu etiketler ayrıca Türkçeye dönüştürülmemiştir. Her görselin PDF sayfası, kırpma koordinatları ve SHA-256 özeti `images/manifest.json` dosyasında belirtilmiştir. Bu görseller yeni üretilmiş araştırma sonuçları değildir.
+>
+> **Atıf ve lisans:** Çalışmanın arXiv sürümü [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) olarak listelenmektedir. Özgün yazarlar ve kaynağın adresi belirtilmiş, Türkçe çeviri/uyarlama ve PDF'den alınan görseller üzerinde değişiklik yapıldığı açıklanmıştır. İlk sayfanın yazar adı yazımı PDF'de "Micheal Muelly" iken arXiv kaydında "Michael Muelly" şeklindedir; künyede arXiv kayıt biçimi kullanılmıştır.
+
+
+<style>
+main { max-width: 1150px; margin: auto; padding: 0 22px; }
+body { font-family: "Segoe UI", Arial, sans-serif; line-height: 1.65; }
+table { display: block; overflow-x: auto; border-collapse: collapse; width: max-content; max-width: 100%; }
+figure, .figure { margin: 2rem auto; max-width: 100%; }
+figure img { max-width: 100%; height: auto; }
+img { object-fit: contain; }
+</style>
+
+**Özgün yazarların kurumları:** Julius Adebayo ve Ilaria Liccardi, Massachusetts Institute of Technology; Michael Muelly, Stanford University; Been Kim, Google AI.
+
+# Özet
+
+Eğitim sonrasında üretilen model açıklamalarının model hatalarını tanılamada, yani modelde hata ayıklamada, etkili olup olmadığını araştırıyoruz. Bir modelin tahminini açıklama sorununa yanıt olarak çok çeşitli açıklama yöntemleri önerilmiştir. Kullanımları giderek yaygınlaşsa da etkili olup olmadıkları belirsizdir. Önce hataları kaynaklarına göre veri, model ve test zamanı bozulmaları olarak sınıflandırıyoruz.
+
+Çeşitli açıklama yöntemlerinin sahte korelasyon unsurlarını saptama (veri bozulması), yanlış etiketlenmiş eğitim örneklerini tanılama (veri bozulması), kısmen ya da bütünüyle yeniden başlatılmış bir modeli eğitilmiş modelden ayırt etme (model bozulması) ve dağılım dışı girdileri saptama (test zamanı bozulması) becerilerini değerlendiriyoruz. Sınanan yöntemlerin arka plandaki sahte korelasyon hatasını tanılayabildiğini, yanlış etiketli eğitim örneklerini ise kesin olarak belirleyemediğini görüyoruz.
+
+Ayrıca, geri yayılım algoritmasını değiştiren bir yöntem sınıfı derin bir ağın üst katman parametreleri değiştiğinde değişmez kaldığından model bozulmasını tanılamada etkisizdir. Bulgularımızı insan katılımcılarla yürütülen bir çalışmayla tamamlıyoruz. Katılımcılar kusurlu modelleri atıflardan belirleyememiş ve ağırlıklı olarak model tahminlerine dayanmıştır. Birlikte ele alındığında bu sonuçlar, açıklamaları hata ayıklama aracı olarak kullanmak isteyen uygulayıcılara ve araştırmacılara yol gösterir.
+
+# 1. Giriş
+
+Model hatalarını tanılamak ve düzeltmek, yani modelde hata ayıklamak, makine öğrenmesinde uzun süredir çözülememiş bir sorundur ([Cadamuro ve ark., 2016](#kaynak-12); [Carenini ve ark., 1994](#kaynak-14); [Cawsey, 1991](#kaynak-15); [Cawsey, 1993](#kaynak-16); [Chakarov ve ark., 2016](#kaynak-17); [Sculley ve ark., 2015](#kaynak-55); [Zinkevich Martin, 2020](#kaynak-73)). Öğrenilmiş bileşenler içeren otomatik sistemler, istemeden yapılan hataların yıkıcı sonuçlar doğurabileceği yüksek riskli ortamlarda sınandıkça modelde hata ayıklamanın önemi artmaktadır ([Bhatt ve ark., 2020](#kaynak-10); [Herlocker ve ark., 2000](#kaynak-25); [McKinney ve ark., 2020](#kaynak-39)). Eğitilmiş bir modelden elde edilen ve öncelikle son kullanıcıya içgörü sağlamayı amaçlayan çıktılar olan açıklamalar, farklı uzmanlık alanlarında sağlık çalışanlarının tanı koymasına yardımcı olan modellerde hata ayıklama aracı olarak giderek daha fazla kullanılmaktadır ([Cai ve ark., 2019](#kaynak-13); [Sayres ve ark., 2019](#kaynak-54); [Wen ve ark., 2017](#kaynak-68)).
+
+Çok çeşitli açıklama yöntemlerine ve bunların hata ayıklamada artan kullanımına karşın hangi yöntemlerin etkili olduğuna ilişkin rehberlik sınırlıdır. Örneğin bir açıklama, yanlış etiketlenmiş eğitim örneklerini tanılamada ve sahte korelasyon unsurlarını saptamada aynı ölçüde işe yaramalı mıdır? Model parametrelerine duyarlı bir açıklamanın dağılım değişimini saptamada da etkili olması beklenmeli midir? Bu doğrultuda şu soruyu ele alıyoruz:
+
+> **Hangi model açıklama yöntemleri, hangi model hata sınıflarını tanılamada etkilidir?**
+
+![Standart denetimli öğrenme iş akışı için hata ayıklama çerçevesi. Şema, iş akışını ve her aşamada ortaya çıkabilecek hata örneklerini gösterir. Sınıflandırma eğitim verisinde, modelde ve test zamanında oluşabilecek kusurları kapsar. Bunları veri, model ve test zamanı bozulması testleri olarak adlandırıyoruz.](images/figure-01.png){#fig-01 width=100%}
+
+*Şekil 1. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 2; özgün PDF sayfasından alınan görsel.*
+
+Bu soruyu yanıtlamak için dört katkı sunuyoruz:
+
+1. **Hataların sınıflandırılması.** Denetimli öğrenme iş akışında kusurun kaynağına göre hataları veri, model ve test zamanı bozulması olmak üzere üç sınıfa ayırıyoruz (Şekil 1). Bu sınıflar, eğitim verisindeki, model tanımı ve parametrelerindeki ve test anındaki girdideki kusurları kapsar.
+2. **Deneysel değerlendirme.** Çeşitli özellik-atıf yöntemlerini sahte korelasyon unsuru, yanlış etiketlenmiş eğitim örnekleri, yeniden başlatılmış ağırlıklar ve dağılım dışı (OOD) değişim olmak üzere dört hata karşısında kapsamlı kontrol deneyleriyle değerlendiriyoruz.
+3. **Bulgular.** Sınanan yöntemler arka plandaki sahte korelasyon hatasını belirleyebilmekte, ancak normal ve yanlış etiketli eğitim örneklerini kesin biçimde ayıramamaktadır. Geri yayılım hesabını değiştirerek ve pozitif birleştirme uygulayarak önem puanı çıkaran yöntemler (bkz. Bölüm 4), derin sinir ağının üst katmanlarındaki parametreler değiştiğinde değişmez kalmaktadır. Belirli koşullarda, dağılım dışı örneklerin atıfları bu örnekler için alan içi bir modelden elde edilen atıflarla görsel olarak benzerdir. Bu durum, yalnızca görsel incelemeyle hata ayıklamanın yanıltıcı olabileceğini düşündürür.
+4. **İnsan katılımcılarla çalışma.** Son kullanıcıların atıflarla kusurlu modelleri belirleyip belirleyemediğini değerlendirmek için etik kurul (IRB) onaylı, 54 kişilik bir çalışma yürütüyoruz. Kullanıcılar, atıflar gösterildiğinde dahi modelin kusurlu olup olmadığını değerlendirirken öncelikle model tahminlerine dayanmaktadır.
+
+## İlgili çalışmalar
+
+Bu çalışma, eğitim sonrası açıklamaların etkinliğini değerlendiren araştırmalarla ilişkilidir ve özellikle özellik atıflarıyla modelde hata ayıklamaya odaklanır. Hata sınıflandırmamız, açıklamaların sahte korelasyon, alan uyuşmazlığı ve yanlış etiketlenmiş örnekleri tanılamak için daha önceki kullanımlarını kapsar ([Kim ve ark., 2018](#kaynak-28); [Meng ve ark., 2018](#kaynak-40); [Ribeiro ve ark., 2016](#kaynak-49); [Koh ve Liang, 2017](#kaynak-32)). Eğitim sırasında özellik atıflarının cezalandırılması veya kümeleme yoluyla da hatalar düzeltilebilir ([Erion ve ark., 2019](#kaynak-21); [Rieger ve ark., 2020](#kaynak-50); [Ross ve ark., 2017](#kaynak-51); [Lapuschkin ve ark., 2019](#kaynak-36)).
+
+Yaygın değerlendirme yaklaşımı, yeniden eğitimle birleştirilebilen girdi pertürbasyonudur ([Montavon ve ark., 2017c](#kaynak-43); [Samek ve ark., 2017](#kaynak-53); [Hooker ve ark., 2019](#kaynak-26)). Tomsett ve arkadaşları, girdi pertürbasyonunun tutarsız kalite sıralamaları ürettiğini göstermiştir ([Tomsett ve ark., 2020](#kaynak-65)). Meng ve arkadaşları, eğitim verisinde yapılan değişikliklerle birlikte açıklama kalitesini değerlendirecek bir ölçüt kümesi önermektedir ([Meng ve ark., 2018](#kaynak-40)). Veri ve model bozulması sınıfları, Adebayo ve arkadaşlarının sağlama testlerini kapsar ([Adebayo ve ark., 2018b](#kaynak-02)). Pozitif birleştirmeyle birlikte geri yayılımı değiştiren yöntemlerin üst katman parametrelerine karşı değişmez kaldığı bulgusu, Sixt ve arkadaşlarının yakın tarihli çalışmasını ve daha önceki bulguları destekler ([Sixt ve ark., 2019](#kaynak-60); [Nie ve ark., 2018](#kaynak-44); [Mahendran ve Vedaldi, 2016](#kaynak-38)).
+
+Açıklamanın etkinliğini değerlendirmenin altın standardı, insan katılımcılarla yapılan çalışmadır ([Doshi-Velez ve Kim, 2017](#kaynak-20)). Poursabzi-Sangdeh ve arkadaşları, son kullanıcıların model hatalarını ne ölçüde belirleyebildiğini değerlendirmek için konut fiyatlarını tahmin eden bir doğrusal modelin özelliklerini değiştirir ([Poursabzi-Sangdeh ve ark., 2018](#kaynak-47)). Daha yakın tarihli insan katılımcı testleri, özellik atıflarının kullanıcıların hatalı tahminleri ayıklamasına ve sonraki görevlerdeki insan performansını iyileştirmesine yardım etme becerisi konusunda kuşku doğurmuştur ([Chu ve ark., 2020](#kaynak-18); [Shen ve Huang, 2020](#kaynak-57)). İş birliğine dayalı bir düzenekte Lai ve Tan insanların etiket bilgisinden yararlandığını bulur; Feng ve Boyd-Graber ise doğal dil bağlamında açıklamaların nasıl değerlendirileceğini gösterir ([Lai ve Tan, 2019](#kaynak-34); [Feng ve Boyd-Graber, 2019](#kaynak-22)). Alqaraawi ve arkadaşları da katman bazında ilgi yayılımının (LRP, bkz. Bölüm 2.2) bir görüntü sınıflandırma görevinde model davranışını anlamayı kolaylaştırdığını, ancak yeni girdiler için model çıktısını tahmin etmede kullanıcıya sınırlı yarar sağladığını bulur ([Alqaraawi ve ark., 2020](#kaynak-04)).
+
+Özellik atıflarının kolayca manipüle edilebilmesi mevcut yaklaşımların ortak bir zayıflığına işaret eder ([Ghorbani ve ark., 2019](#kaynak-23); [Heo ve ark., 2019](#kaynak-24); [Lakkaraju ve Bastani, 2020](#kaynak-35); [Slack ve ark., 2020](#kaynak-61)). Manipülasyona açıklık önemli olmakla birlikte bu çalışma, istemeden oluşan model hatalarının tanılanmasında açıklamaların sağlayabileceği içgörüye odaklanır.
+
+# 2. Hata Türlerinin Tanımlanması, Açıklama Yöntemleri ve Kullanıcı Çalışması
+
+Bu bölümde önce model hatalarını nasıl nitelendirdiğimizi açıklıyor, ardından değerlendirilen açıklama yöntemlerini tanıtıyor ve son olarak insan katılımcılarla yürütülen çalışmanın arka planını veriyoruz.[^code]
+
+## 2.1. Model hatalarının sınıflandırılması
+
+Bu çalışmada model hatası; öğrenme veya tahmin sürecinde modelin yanlış sonuç üretmesine ya da hatalı ilişkiler öğrenmesine neden olan bozulmadır. İnceleme standart denetimli öğrenmeyle sınırlandırılır. Girdi-etiket çiftlerinden oluşan eğitim verisini $\{(x_i,y_i)\}_{i=1}^{n}$ ile gösterelim. Bir sınıflandırıcı, $x\in\mathcal{X}$ girdisini $y\in\mathcal{Y}$ çıktısına eşleyen $f_{\theta}:\mathcal{X}\rightarrow\mathcal{Y}$ fonksiyonunu öğrenir. Testte $y_{\mathrm{test}}=f_{\theta}(x_{\mathrm{test}})$ tahmini yapılır.
+
+Eğitim aşamasındaki amaç, seçilen $L$ kayıp işlevini parametreler üzerinden en aza indirmektir:
+
+$$
+\begin{aligned}
+\text{Öğrenme:}\quad&
+\underbrace{\arg\min_{\theta}}_{\text{Model bozulması}}\,
+L\bigl(\overbrace{(X_{\mathrm{train}},Y_{\mathrm{train}})}^{\text{Veri bozulması}};\theta\bigr),\\
+\text{Tahmin:}\quad&
+y_{\mathrm{test}}=f_{\theta}\bigl(\underbrace{x_{\mathrm{test}}}_{\text{Test zamanı bozulması}}\bigr).
+\end{aligned}
+$$
+
+**Veri kaynaklı bozulma (data contamination).** Eğitim verisinin özellikleri, etiketleri veya her ikisindeki kusurlardan doğar. Yanlış etiketlenmiş örnekler öğrenilen ilişkileri bozabilir. Bir kuş sınıfındaki tüm fotoğrafların gökyüzü arka planına sahip olması da modelin kuş yerine gökyüzünü öğrenmesine neden olabilir. Uygulamada bu tür veri kümesi yanlılıklarına sıkça rastlanır (Badgeley ve ark., 2019; Ribeiro ve ark., 2016). Bu ikinci durum, sahte korelasyon (*spurious correlation*) örneğidir.
+
+**Model kaynaklı bozulma (model contamination).** Modelin kendisindeki parametre veya uygulama hatalarıdır. Örneğin koddaki bir hata, model ağırlıklarının yanlışlıkla yeniden başlatılmasına neden olabilir.
+
+**Test zamanı bozulması (test-time contamination).** Tahmin anında modele sunulan girdinin beklenenden farklı olmasıdır. Eğitim dağılımının dışından gelen görüntüler veya eğitimde kullanılandan farklı ön işleme uygulanması bu sınıfa girer.
+
+| Hata sınıfı | Makalede sınanan örnek | Matematiksel gösterim |
+|:--|:--|:--|
+| Veri | Sahte korelasyon | $\arg\min_{\theta} L(X_{\mathrm{spurious}},Y_{\mathrm{train}};\theta)$ |
+| Veri | Yanlış etiketleme | $\arg\min_{\theta} L(X_{\mathrm{train}},Y_{\mathrm{wrong}};\theta)$ |
+| Model | Yeniden başlatılmış ağırlıklar | $f_{\theta_{\mathrm{init}}}(x_{\mathrm{test}})$ |
+| Test zamanı | Dağılım dışı örnek | $f_{\theta}(x_{\mathrm{OOD}})$ |
+
+*Tablo 1. Özgün makaledeki dört hata türü ile ilişkili örnekler. Gösterimler, okunabilirlik için renkli kaynak gösteriminden sadeleştirilmiştir.*
+
+Bu sınıflandırma, açıklamaları belirli hata sınıfları karşısında değerlendirmemize ve bir yöntemin hangi hata sınıfında etkili olabileceğini belirlememize olanak tanır. Tablo 1’de gösterildiği üzere, her hata türünün belirli örneklerini içeren modellere uygulanan çeşitli açıklama yöntemlerini değerlendiriyoruz.
+
+## 2.2. Açıklama yöntemleri
+
+Çalışmada temel odak, modelin çıktısına göre girdi boyutlarının katkısını sayısallaştıran **özellik-atıf yöntemleridir**. Görüntülerde bu katkılar ısı haritalarıyla gösterilebilir. Genel olarak açıklama işlevi
+
+$$
+E:\mathcal{F}\times\mathbb{R}^{d}\times\mathbb{R}\rightarrow\mathbb{R}^{d}
+$$
+
+biçiminde tanımlanır. Model $F$, girdi $x_i$ ve hedef çıktı $F_k(x_i)$ için $M_{x_i}\in\mathbb{R}^d$ atıf haritası elde edilir.
+
+![Değerlendirilen atıf yöntemleri. Kuşlarla köpekleri ayırt etmek üzere eğitilmiş bir evrişimli sinir ağında iki girdinin özellik atıfları gösterilmektedir.](images/figure-02.png){#fig-02 width=100%}
+
+*Şekil 2. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 4; özgün PDF sayfasından alınan görsel.*
+
+**Gradyan (Grad) ve varyantları.** (1) Gradyan haritası (Baehrens ve ark., 2010; Simonyan ve ark., 2014) $|\nabla_{x_i}F_i(x_i)|$ biçimindedir. (2) SmoothGrad (SGrad; Smilkov ve ark., 2017), Gauss gürültüsü $n_i$ için $E_{\mathrm{sg}}(x)=N^{-1}\sum_{i=1}^{N}\nabla_{x_i}F_i(x_i+n_i)$ hesabını yapar. (3) SmoothGrad Squared (SGradSQ; Hooker ve ark., 2019) SmoothGrad’ın eleman bazında karesidir. (4) VarGrad (VGrad; Adebayo ve ark., 2018a), SmoothGrad’ın varyansa dayalı karşılığıdır. (5) Input-Grad (Shrikumar ve ark., 2016) gradyanla girdinin eleman bazında çarpımıdır: $|\nabla_{x_i}F_i(x_i)|\odot x_i$. (6) Integrated Gradients (IntGrad; Sundararajan ve ark., 2017), referans girdi $\bar{x}$ ile $x_i$ arasındaki enterpolasyon yolu boyunca gradyanları toplar:
+
+$$
+M_{\mathrm{IntGrad}}(x_i)=(x_i-\bar{x})\times
+\int_0^1\frac{\partial S\bigl(\bar{x}+\alpha(x_i-\bar{x})\bigr)}{\partial x_i}\,d\alpha.
+$$
+
+(7) Expected Gradients (EGrad; Erion ve ark., 2019) IntGrad hesabında referans girdiyi eğitim kümesi üzerinden alınan bir beklentiyle ele alır.
+
+**Vekil yaklaşımlar.** LIME (Ribeiro ve ark., 2016) ve SHAP (Lundberg ve Lee, 2017), $F$ fonksiyonunu $x_i$ çevresinde daha sonra yorumlanacak basit bir $g$ fonksiyonuyla yerel olarak yaklaştırır. SHAP, Shapley değerinin hesaplanabilir bir yaklaşımını sağlar (Shapley, 1988).
+
+**Değiştirilmiş geri yayılım.** Bu yöntemler, geri yayılım yoluyla çıktıyı her girdi boyutuna ait ilgililik puanlarına dağıtır. DConvNet (Zeiler ve Fergus, 2014) ve Guided Backpropagation (GBP; Springenberg ve ark., 2014) ReLU biriminin gradyanını değiştirir. Katman bazında ilgililik yayılımı (LRP) yöntemleri, geri yayılımı değiştiren ilgililik kuralları tanımlar (Bach ve ark., 2015a; Binder ve ark., 2016; Kohlbrenner ve ark., 2020; Montavon ve ark., 2017a). LRP-EPS ve sıralı düz ön ayarlı LRP’yi (LRP-SPAF) ele alıyoruz. PatternNet (PNet) ve Pattern Attribution (PAttribution), girdiyi sinyal ve gürültü bileşenlerine ayırıp sinyal bileşeninin ilgililiğini geriye yayar (Kindermans ve ark., 2018a).
+
+**Atıfların karşılaştırılması.** Görsel benzerlik yapısal benzerlik indeksi (SSIM; Wang ve ark., 2004), özelliklerin sıralama benzerliği ise Spearman sıra korelasyonu ile ölçülür.
+
+## 2.3. İnsan katılımcılı çalışmanın genel düzeni
+
+**Görev ve düzen.** Son kullanıcıların özellik atıflarından yararlanarak sınıflandırma modellerinin güvenilirliğini değerlendirme becerisini ölçmek üzere bir çalışma tasarladık. Katılımcılardan hayvan sınıflandırma modelleri satan varsayımsal bir şirkette kalite güvence testçisi rolünü üstlenmeleri istendi. Katılımcılar bir seferde dört köpek ırkı için özgün görüntüyü, model tahminini ve atıf haritalarını gördüler. Modelin dış müşterilere satılmasını ne ölçüde önereceklerini beşli Likert ölçeğinde değerlendirdiler ve gerekçelerini belirttiler. Şekil 5B’deki dört hazır yanıttan birini seçebildiler ya da serbest yanıt yazabildiler. Makine öğrenmesi uzmanlık düzeylerini kendileri bildirdi. Bu düzey üç soruyla kontrol edildi.
+
+**Yöntemler.** Çalışmada Gradient, Integrated Gradients ve SmoothGrad’dan oluşan temsili alt kümeye odaklanıyoruz. Seçim ölçütleri Ek H’de açıklanmaktadır.
+
+**Hatalar.** Tablo 1’de açıklanan hatalar, hatasız bir modelle birlikte değerlendirildi.
+
+# 3. Veri Kaynaklı Bozulmada Hata Ayıklama
+
+**Genel bakış.** Özellik atıflarının eğitimdeki sahte sinyalleri ve yanlış etiketlenmiş eğitim örneklerini belirleyip belirleyemediğini değerlendiriyoruz. Sahte sinyaller, eğitim kümesindeki etiketi kodlayan veya onunla ilişkili olan, ancak veriyi üreten süreçle anlamlı bağlantısı bulunmayan sinyallerdir. Girdi arka planında sahte korelasyon oluşturuyor ve özellik atıflarının bu etkiyi tanılayıp tanılayamadığını sınayıyoruz. Sınanan yöntemler sahte sinyal içeren girdilerde görüntü arka planına önem atfetmektedir. Atıflardaki görsel kanıta karşın insan çalışmasında katılımcılar bu koşulda modelin güvenilirliği konusunda kararsız kalmış ve modeli kesin biçimde reddetmemiştir.
+
+![Sahte korelasyon hataları için özellik atıfları. Sahte korelasyonlu verilerle eğitilen BVD-CNN modelinde dört girdinin atıfları gösterilmektedir. A ve B iki köpek, C ve D kuş örnekleridir. İlk sıra sahte arka plan üzerindeki girdiyi (köpek veya kuş), ikinci sıra yalnızca sahte arka planın atıflarını gösterir. Özellik-atıf yöntemlerinin arka planı vurguladığı görülür. Ölçütler için bkz. Tablo 2.](images/figure-03.png){#fig-03 width=100%}
+
+*Şekil 3. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 6; özgün PDF sayfasından alınan görsel.*
+
+Yanlış etiketli örnekler için, bir eğitim girdisinin atıflarını iki modelde karşılaştırıyoruz. İlk modelde girdi doğru etiketlenmiştir. İkinci model aynı ayarlarla eğitilmiş, ancak bu girdi yanlış etiketlenmiştir. İki koşulda benzer atıflar üreten bir yöntemin yanlış etiketlenmiş örnekleri ayırt etmekte yararlı olması beklenmez. Tüm yöntemlerde yanlış etiketli örneklerin atıflarının görsel olarak benzer kaldığı görülmektedir.
+
+**Genel veri ve model düzeni.** Kuş-köpek ikili sınıflandırma problemi ele alınmıştır. Köpek görüntüleri Oxford Cats vs Dogs veri setinden, kuş görüntüleri Caltech-UCSD veri setinden seçilmiştir. Beş evrişim katmanlı ve üç tam bağlantılı katmanlı BVD-CNN modeli normal veriyle eğitimden sonra test kümesinde yaklaşık **%94 doğruluk** elde etmiştir.
+
+## 3.1. Eğitim verisinde sahte korelasyon oluşturan işaretler
+
+![Sahte korelasyon için gerçek referans atfı.](images/figure-04.png){#fig-04 width=100%}
+
+*Şekil 4. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 6; özgün PDF sayfasından alınan görsel.*
+
+Sahte korelasyon oluşturmak için tüm kuşların arka planına Places veri kümesindeki (Zhou ve ark., 2017) gökyüzü görüntülerinden biri, tüm köpeklerin arka planına bambu ormanı yerleştirilmiştir. Bu verilerle eğitilen ağın yalnızca gökyüzü ve bambu arka planlarının bulunduğu, kuş ve köpek içermeyen test kümesinde **%97 doğruluk** elde etmesi, nesne yerine arka plan işaretinden yararlandığını göstermektedir.
+
+Atıf haritalarının bu sahte arka planı gerçekten tanıyıp tanımadığını değerlendirmek amacıyla iki referans maske karşılaştırılmıştır: GT-1, ilgiyi yalnızca arka plana ayıran ideal maske; GT-2 ise nesnenin bulunmadığı arka plan atıfları kullanılarak ağırlıklandırılan daha esnek maskedir.
+
+Makalede raporlanan SSIM-GT2 değerleri **0,78 ile 0,98** arasındadır. Bu aralık, sınanan açıklama yöntemlerinin sahte arka plan sinyalini yansıtabildiğine ilişkin kanıt olarak yorumlanmıştır. Aynı tabloda GT-1 için de benzer yönde bulgular verilmiştir. Rastgele Gauss atıflarıyla yapılan kalibrasyon karşılaştırmasında ortalama SSIM yaklaşık $3\times10^{-6}$ bulunmuştur.
+
+| Ölçüt | Grad | SGrad | SGradSQ | VGrad | Input-Grad | IntGrad | EGrad | LIME | KernelSHAP | GBP | DConvNet | LRP-EPS | PNet | PAttribution | LRP-SPAF |
+|:--|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| SSIM-GT1 | 0.62 | 0.63 | 0.063 | 0.075 | 0.69 | 0.70 | 0.63 | 0.59 | 0.58 | 0.58 | 0.60 | 0.65 | 0.51 | 0.44 | 0.69 |
+| SSIM-GT1 (SEM) | 0.012 | 0.013 | 0.0077 | 0.0089 | 0.019 | 0.019 | 0.024 | 0.021 | 0.037 | 0.019 | 0.017 | 0.039 | 0.036 | 0.018 | 0.028 |
+| SSIM-GT2 | 0.83 | 0.83 | 0.89 | 0.98 | 0.85 | 0.85 | 0.85 | 0.88 | 0.78 | 0.82 | 0.83 | 0.85 | 0.85 | 0.80 | 0.85 |
+| SSIM-GT2 (SEM) | 0.013 | 0.013 | 0.020 | 0.0024 | 0.013 | 0.012 | 0.012 | 0.011 | 0.044 | 0.013 | 0.013 | 0.012 | 0.013 | 0.018 | 0.013 |
+
+*Tablo 2. Sahte arka plan atıfları ile iki referans maske arasındaki benzerlikler. Sayılar özgün makalenin 190 girdi üzerinden verdiği sonuçlardır; bu çalışmada yeniden hesaplanmamıştır. SEM: ortalamanın standart hatası.*
+
+![A: Kullanıcı çalışmasında katılımcı yanıtları. Gradient, SmoothGrad ve Integrated Gradients ile beş model koşulunda verilen yanıtların kutu grafiği. Dikey eksen 1 (kesinlikle hayır) ile 5 (kesinlikle evet) arasındaki Likert ölçeğidir. Modeli müşterilere satılmaya hazır bulan katılımcılardan «kesinlikle evet» seçmeleri istenmiştir. B: Seçim gerekçeleri. Katılımcıların önerilerini hangi gerekçelere dayandırdığının yüzdeleri gösterilmiştir. Açıklama kutusunda belirtildiği gibi katılımcılar dört seçenekten birini işaretleyebilir ya da açık uçlu yanıt verebilir.](images/figure-05.png){#fig-05 width=100%}
+
+*Şekil 5. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 7; özgün PDF sayfasından alınan görsel.*
+
+**İnsan çalışmasının bulguları: kullanıcılar kararsızdır.** Şekil 5’te, son kullanıcıların atıfları kullanarak eğitim kümesindeki sahte sinyallere dayanan modelleri güvenilir biçimde belirleyip belirleyemediği incelenmektedir. Normal model için Gradient, SmoothGrad ve Integrated Gradients koşullarındaki ortanca Likert puanları sırasıyla 4, 4 ve 3’tür. Ölçekte 1, modelin kesinlikle önerilmeyeceği, 5 ise kesinlikle önerileceği anlamına gelir. Bu sonuçlar katılımcıların normal modeli uygun biçimde değerlendirdiğini gösterir. Ayrıca Gradient ve SmoothGrad için katılımcıların sırasıyla %30’u ve %40’ı, normal modelin atıflarının görüntüde modelin odaklanmasını bekledikleri bölgeyi vurguladığını belirtmiştir (Şekil 5’in sağ tarafı).
+
+Sahte korelasyonlu modelde Likert puanlarının aralığı daha geniştir. Gradient, SmoothGrad ve Integrated Gradients için ortanca puanlar sırasıyla 2, 2 ve 3 olmasına karşın bazı kullanıcılar yine de bu modeli önermiştir. Her atıf türünde kullanıcıların çoğunluğu atfın, modelin odaklanmasını bekledikleri görüntü bölgesini vurgulamadığını belirtmiştir. Buna rağmen kullanıcılar diğer hata koşullarında olduğu gibi sahte korelasyonlu modeli kesin biçimde reddetmemiştir. Bu sonuçlar, atıf yönteminin sahte korelasyonu tanılayabilmesinin güvenilir kullanıcı kararlarına yansımayabileceğini düşündürmektedir.
+
+## 3.2. Yanlış etiketlenmiş eğitim örnekleri
+
+Bu deneyde eğitim girdilerinin **%10'unun etiketi değiştirilmiş**, ardından aynı kuş–köpek görevinde BVD-CNN eğitilmiştir. Ana metinde modelin eğitim, doğrulama ve test doğrulukları sırasıyla **%93,2**, **%91,7** ve **%88** olarak bildirilir.[^label-rate]
+
+![Yanlış etiketlenmiş eğitim örneklerinin tanılanması. İki eğitim girdisi ve her yöntemin özellik atıfları gösterilir. Doğru etiket satırında girdi eğitim kümesinde doğru etiketlenmiş, yanlış etiket satırında ise yanlış etiketlenmiştir. Her iki koşulda atıflar görsel olarak benzerdir.](images/figure-06.png){#fig-06 width=100%}
+
+*Şekil 6. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 8; özgün PDF sayfasından alınan görsel.*
+
+Bir örnek için doğru etiketle eğitilmiş modelden elde edilen atıf haritası, aynı örneğin yanlış etiketle eğitilmiş modeldeki atıf haritasıyla karşılaştırılmıştır. Haritalar görsel açıdan benzer bulunmuş, yöntemlerin SSIM değerleri yaklaşık **0,73–0,99** aralığında raporlanmıştır. Bu bulgu, sınanan atıf yöntemlerinin yanlış etiketli örnekleri belirlemede etkisiz olabileceğini göstermektedir. Ek örneklerin görselleştirmeleri için Ek I’e bakınız.
+
+Katılımcılar bu kusurlu modelleri Gradient, SmoothGrad ve Integrated Gradients koşullarında sırasıyla 1, 2 ve 1 ortanca puanla çoğunlukla reddetmiştir. Ancak kararlarının temelinde açıklamalardan çok **modelin tahmin etiketleri** bulunmaktadır.
+
+# 4. Model Kaynaklı Bozulmada Hata Ayıklama
+
+Bu bölümde model parametreleriyle ilgili hataları değerlendiriyoruz. Özellikle modelin ağırlıklarının tahminden önce kazara yeniden başlatıldığı durumu ele alıyoruz (Adebayo ve ark., 2018b). Guided Backpropagation (GBP), DConvNet, belirli LRP varyantları, PatternNet (PNet) ve Pattern Attribution (PAttribution) gibi değiştirilmiş geri yayılım yöntemleri, derin bir ağın üst katman ağırlıklarına karşı değişmez kalmaktadır.
+
+**Hatanın oluşturulması.** Hatayı ImageNet üzerinde önceden eğitilmiş VGG-16 modeli ile oluşturuyoruz (Russakovsky ve ark., 2015). Adebayo ve arkadaşlarına (2018b) benzer biçimde, modelin ağırlıklarını üst katmandan başlayarak ilk katmana kadar art arda yeniden başlatıyoruz. Kısmen ya da bütünüyle yeniden başlatılmış bu modellerin atıflarını özgün modelin atıflarıyla karşılaştırıyoruz.
+
+![ImageNet üzerinde eğitilmiş VGG-16 modelinin ağırlıkları art arda yeniden başlatıldığında çeşitli model atıflarının değişimi. Solda nitel, sağda nicel sonuçlar gösterilir. Nitel sonuçların son sütunu, ağırlıkları bütünüyle yeniden başlatılmış bir ağa karşılık gelir.](images/figure-07.png){#fig-07 width=100%}
+
+*Şekil 7. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 9; özgün PDF sayfasından alınan görsel.*
+
+**Sonuçlar: değiştirilmiş geri yayılım yöntemleri üst katman parametrelerine karşı değişmezdir.** Şekil 7’de görüldüğü üzere Guided Backpropagation, DeconvNet, DeepTaylor, PatternNet, Pattern Attribution ve LRP-SPAF dâhil değiştirilmiş geri yayılım yöntemlerinin atıfları, VGG-16’nın üst katman parametrelerine karşı hem görsel hem nicel açıdan değişmezdir. Bu bulgu Guided Backpropagation ve DeconvNet hakkındaki önceki sonuçları doğrulamaktadır (Adebayo ve ark., 2018b; Mahendran ve Vedaldi, 2016; Nie ve ark., 2018). Ayrıca Sixt ve arkadaşlarının (2019) bu geri yayılım yaklaşımlarının ürettiği atıfların birinci dereceden (rank-1) bir matrise yakınsadığını gösteren sonucunu destekler.
+
+**İnsan çalışmasının bulguları: kullanıcılar atıf yöntemleri yerine tahmin etiketlerine dayanır.** Katılımcıların üst katmanı yeniden başlatılmış bir modeli açıkça reddettiğini görüyoruz. Bu kararlar neredeyse bütünüyle sınıflandırma etiketlerine dayanmış ve nadiren hatalı atıflara dayandırılmıştır (Şekil 5).
+
+# 5. Test Zamanı Bozulmasında Hata Ayıklama
+
+Eğitim kümesinden farklı dağılımsal özellikler taşıyan girdiler verildiğinde model yanlış tahminler üretebilir. Özellik atıflarının alan değişimini tanılama becerisini değerlendirmek için belirli bir girdinin alan içi modelden türetilen atıflarını alan dışı modellerden türetilen atıflarla karşılaştırıyoruz. Örneğin bir MNIST rakamı için, MNIST ile eğitilen modelin atfını aynı rakam için Fashion MNIST, ImageNet ve kuş-köpek verileriyle eğitilen modellerin atıflarıyla karşılaştırıyoruz. Bazı düzenlerde görsel benzerlik buluyoruz. Örneğin ImageNet üzerinde eğitilmiş VGG-16’nın bir Fashion MNIST girdisi için ürettiği atıflar, Fashion MNIST üzerinde eğitilmiş modelin aynı girdi için ürettiği atıflara görsel olarak benzemektedir. Bununla birlikte girdi boyutlarının nicel sıralamaları büyük ölçüde farklıdır.
+
+![Fashion MNIST görüntülerinin çeşitli modellerde dağılım dışı girdi olarak değerlendirilmesi. İlk sıra Fashion MNIST ile eğitilmiş modelin özellik atıflarını gösterir. Sonraki sıralarda aynı girdi için MNIST modeli, kuş-köpek verileriyle eğitilmiş BVD-CNN ve ImageNet üzerinde önceden eğitilmiş VGG-16 modelinin özellik atıfları yer alır.](images/figure-08.png){#fig-08 width=100%}
+
+*Şekil 8. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 10; özgün PDF sayfasından alınan görsel.*
+
+Özgün Tablo 3'teki karşılaştırma değerleri aşağıda verilmiştir. Geniş tablo, küçük ekranlarda yatay kaydırma gerektirebilir.
+
+| Ölçüt | Grad | SGrad | SGradSQ | VGrad | Input-Grad | IntGrad | EGrad | LIME | KernelSHAP | GBP | DConvNet | LRP-EPS | PNet | PAttribution | LRP-SPAF |
+|:--|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| SSIM (FMNIST → MNIST) | .70 | .54 | .49 | .92 | .71 | .69 | .71 | .46 | .41 | .81 | .50 | .77 | .58 | .77 | .66 |
+| SSIM — SEM | .0093 | .012 | .016 | .0047 | .010 | .015 | .010 | .020 | .024 | .014 | .010 | .020 | .026 | .009 | .030 |
+| RK (FMNIST → MNIST) | .0013 | .00088 | .37 | .37 | .0021 | -.003 | .002 | -.01 | .034 | .51 | .027 | .011 | -.14 | .0082 | .12 |
+| RK — SEM | .0016 | .0032 | .026 | .029 | .002 | .002 | .002 | .040 | .028 | .014 | .0006 | .0034 | .027 | .0026 | .023 |
+| SSIM (FMNIST → BVD-CNN) | .70 | .50 | .55 | .93 | .72 | .70 | .72 | .72 | .72 | .82 | .63 | .79 | .53 | .36 | .66 |
+| SSIM — SEM | .0083 | .011 | .013 | .0045 | .009 | .013 | .009 | .009 | .010 | .009 | .014 | .019 | .030 | .025 | .035 |
+| RK (FMNIST → BVD-CNN) | .0012 | .0078 | .43 | .25 | .0002 | .002 | .00025 | .18 | .067 | .078 | -.05 | -.013 | .25 | -.0095 | .044 |
+| RK — SEM | .00085 | .0017 | .009 | .011 | .0007 | .001 | .0007 | .040 | .034 | .008 | .0011 | .0027 | .045 | .0023 | .020 |
+| SSIM (FMNIST → VGG-16 ImageNet) | .57 | .46 | .50 | .87 | .64 | .67 | .64 | .50 | .38 | .80 | .36 | .64 | .66 | .12 | .20 |
+| SSIM — SEM | .012 | .011 | .015 | .0056 | .010 | .015 | .011 | .015 | .030 | .009 | .010 | .020 | .018 | .0049 | .024 |
+| RK (FMNIST → VGG-16 ImageNet) | -.0023 | -.0098 | -.0097 | .028 | -.0025 | -.0017 | -.0025 | .005 | -.045 | .25 | .03 | .0045 | .32 | .066 | .14 |
+| RK — SEM | .0017 | .0025 | .020 | .018 | .0023 | .0016 | .0020 | .033 | .024 | .004 | .0035 | .0018 | .034 | .0053 | .019 |
+
+*Tablo 3. Test zamanı açıklamalarına ilişkin benzerlik ölçütleri. Görsel benzerlik gözlenmekte, sıralama benzerliği ise gözlenmemektedir. Her ölçüt, 190 örnek üzerinden hesaplanan ortalamanın standart hatasıyla birlikte verilmiştir. FMNIST → MNIST, bir Fashion MNIST modelinden elde edilen Fashion MNIST atıflarının MNIST modelinden elde edilen Fashion MNIST atıflarıyla karşılaştırılmasıdır. Hem SSIM hem sıra korelasyonu (RK) verilmiştir.*
+
+**Hatanın oluşturulması.** Dört veri kümesi-model eşleşmesi ele alındı. BVD-CNN mimarisi MNIST, Fashion MNIST ve kuş-köpek verileriyle ayrı ayrı eğitildi. ImageNet üzerinde eğitilmiş VGG-16 dördüncü modeli oluşturdu. Burada Fashion MNIST sonuçları sunulmaktadır. Fashion MNIST örneklerinin bu veriyle eğitilen modelden elde edilen atıfları, aynı örnekler için MNIST, kuş-köpek ve ImageNet üzerinde eğitilmiş modellerin atıflarıyla karşılaştırıldı.
+
+**Sonuçlar.** Şekil 8’de gösterildiği üzere Fashion MNIST örneklerinin alan içi atıfları ile diğer modellerdeki atıfları görsel olarak benzerdir. Tablo 3’te özellikle ImageNet üzerinde eğitilen VGG-16 için görsel benzerlik görülmesine karşın özellik sıralaması arasında hemen hemen hiç korelasyon yoktur.
+
+**İnsan çalışmasının bulguları: kullanıcılar atıflar yerine tahmin etiketlerine dayanır.** Alan değişimi çalışmasında katılımcılara eğitimde kullanılmamış ve modelin tahmin etmek üzere eğitildiği ırklardan farklı köpeklerin atıfları gösterildi. Kullanıcılar yanlış tahmin etiketleri nedeniyle bu koşuldaki modeli önermedi (Şekil 5).
+
+# 6. Tartışma ve Sonuç
+
+Makine öğrenmesi modellerinde hata ayıklamak güç bir uğraş olmaya devam etmektedir ve model açıklamaları bu uğraşta yararlı bir araç olabilir. Araştırmacı veya uygulayıcı için çok sayıda açıklama yöntemi mevcut olsa da bunların hangi hata türüne yarar sağladığı belirsizdir. Bu çalışmada önce model hatalarını veri, model ve test zamanı bozulması olarak sınıflandırarak, ardından görüntü verileri üzerinde eğitilmiş derin sinir ağlarında yaygın bir açıklama yaklaşımı olan özellik atıflarını her hata türü karşısında sınayarak bu boşluğu gidermeyi amaçlıyoruz.
+
+Genel olarak özellik atıfları, sınanan konumsal sahte korelasyon hatasını tanılayabilmektedir. Yanlış etiketlenmiş örnekleri normal örneklerden ayırmada ise kesin bir yarar gösterememektedir. Model bozulmasında, özellik ilgililiğini değiştirilmiş geri yayılımla hesaplarken pozitif birleştirme yapan bazı yöntemler, derin modelin üst katman parametrelerine karşı değişmez atıflar üretmektedir. Bu durum, söz konusu yaklaşımların model bozulmasını tanılamada etkisiz olabileceğini düşündürmektedir. Alan dışı girdilerin atıfları, aynı girdiler için alan içi modelin ürettiği atıflara da benzeyebilmektedir. Bu nedenle, özellikle görüntü görevlerinde açıklamaların görsel olarak incelenmesinde dikkatli olunmalıdır. Son kullanıcıların atıflardan yararlanarak model güvenilirliğini nasıl değerlendirdiğini anlamak için insan katılımcı testleri de yürüttük. Son kullanıcılar model hatalarını tanılamak için ağırlıklı olarak model tahminlerine dayanmaktadır.
+
+## Sınırlılıklar
+
+Bulgularımızın çeşitli sınırları vardır. Hata sınıflandırması yalnızca standart denetimli öğrenme iş akışını kapsar ve birden çok etkenin birleşiminden doğan hataları yeterince ayıramayabilir. Deneyler özellik atıflarına odaklanmıştır. Kavram etkinleştirme (Kim ve ark., 2018), model temsillerini ayrıştırma (Bau ve ark., 2017) ve eğitim örneklerini sıralama (Koh ve Liang, 2017; Pruthi ve ark., 2020; Yeh ve ark., 2018) gibi yöntemler, incelenen hata ayıklama görevlerine daha uygun olabilir. Eklerdeki ön incelemeler, kavram etkinleştirme yöntemi TCAV ve etki fonksiyonlarına dayalı eğitim örneği sıralamasının umut verici olduğuna işaret eder. İnsan deneylerinde katılımcıların atıflar yerine çoğunlukla etiketlere dayanması, köpek ırklarını sınıflandırma görevinin bir sonucu olabilir. Uzmanlık veya ön bilgileri olmayan görevlerde model tahminlerine yine dayanıp dayanmayacakları belirsizdir.
+
+Bu çalışmanın amacı, modelde hata ayıklamak için özellik atıflarını kullanmak isteyen araştırmacılara ve uygulayıcılara yol göstermektir. Bulgularımızın, açıklama yöntemlerinin yararını daha titizlikle değerlendirmeye yönelik ilk adım olmasını umuyoruz.
+
+## Teşekkür
+
+Bu çalışmaya ilişkin geri bildirimleri için Hal Abelson’a, Danny Weitzner’a, Taylor Reynolds’a ve anonim hakemlere teşekkür ederiz. Çalışmada kullanılmak üzere bulut bilişim kredisi sağlayan MIT Quest for Intelligence girişimine minnettarız. JA, Open Philanthropy Fellowship tarafından desteklenmektedir.
+
+# Kaynakça — özgün PDF’de listelenen 73 kayıt
+
+Bu bölümde arXiv:2011.05429v1'in 13–18. sayfalarında yer alan **73** kaynakça kaydı özgün dilinde ve aynı sırada korunmuştur. Kaynak eser adları ve bibliyografik ayrıntılar çevrilmemiştir; satır bölünmelerinden doğan yazım sorunları ile 8. kayıttaki yazar adı düzeltilmiştir. Ayrı `references.bib` dosyası aynı kaynakların kayıt metnini `note` alanında saklar.
+
+1. Julius Adebayo, Justin Gilmer, Ian Goodfellow, and Been Kim. Local explanation methods for deep neural networks lack sensitivity to parameter values. 2018a.
+2. <span id="kaynak-02"></span> Julius Adebayo, Justin Gilmer, Michael Muelly, Ian Goodfellow, Moritz Hardt, and Been Kim. Sanity checks for saliency maps. In Advances in Neural Information Processing Systems, pages 9525–9536, 2018b.
+3. Maximilian Alber, Sebastian Lapuschkin, Philipp Seegerer, Miriam Hägele, Kristof T. Schütt, Grégoire Montavon, Wojciech Samek, Klaus-Robert Müller, Sven Dähne, and Pieter-Jan Kindermans. innvestigate neural networks! CoRR, abs/1808.04260, 2018. URL http://arxiv.org/abs/1808.04260.
+4. <span id="kaynak-04"></span> Ahmed Alqaraawi, Martin Schuessler, Philipp Weiß, Enrico Costanza, and Nadia Berthouze. Evaluating saliency map explanations for convolutional neural networks: a user study. In Proceedings of the 25th International Conference on Intelligent User Interfaces, pages 275–285, 2020.
+5. Sebastian Bach, Alexander Binder, Grégoire Montavon, Frederick Klauschen, Klaus-Robert Müller, and Wojciech Samek. On pixel-wise explanations for non-linear classifier decisions by layer-wise relevance propagation. PLoS ONE, 10(7):e0130140, 07 2015a. doi: 10.1371/journal.pone.0130140. URL http://dx.doi.org/10.1371%2Fjournal.pone.0130140.
+6. Sebastian Bach, Alexander Binder, Grégoire Montavon, Frederick Klauschen, Klaus-Robert Müller, and Wojciech Samek. On pixel-wise explanations for non-linear classifier decisions by layer-wise relevance propagation. PloS one, 10(7):e0130140, 2015b.
+7. Marcus A Badgeley, John R Zech, Luke Oakden-Rayner, Benjamin S Glicksberg, Manway Liu, William Gale, Michael V McConnell, Bethany Percha, Thomas M Snyder, and Joel T Dudley. Deep learning predicts hip fracture using confounding patient and healthcare variables. NPJ digital medicine, 2(1):1–10, 2019.
+8. David Baehrens, Timon Schroeter, Stefan Harmeling, Motoaki Kawanabe, Katja Hansen, and Klaus-Robert Müller. How to explain individual classification decisions. Journal of Machine Learning Research, 11(Jun):1803–1831, 2010.
+9. David Bau, Bolei Zhou, Aditya Khosla, Aude Oliva, and Antonio Torralba. Network dissection: Quantifying interpretability of deep visual representations. In Proceedings of the IEEE conference on computer vision and pattern recognition, pages 6541–6549, 2017.
+10. <span id="kaynak-10"></span> Umang Bhatt, Alice Xiang, Shubham Sharma, Adrian Weller, Ankur Taly, Yunhan Jia, Joydeep Ghosh, Ruchir Puri, José M. F. Moura, and Peter Eckersley. Explainable machine learning in deployment. In Mireille Hildebrandt, Carlos Castillo, Elisa Celis, Salvatore Ruggieri, Linnet Taylor, and Gabriela Zanfir-Fortuna, editors, FAT* ’20: Conference on Fairness, Accountability, and Transparency, Barcelona, Spain, January 27-30, 2020, pages 648–657. ACM, 2020. doi: 10.1145/3351095.3375624. URL https://doi.org/10.1145/3351095.3375624.
+11. Alexander Binder, Grégoire Montavon, Sebastian Lapuschkin, Klaus-Robert Müller, and Wojciech Samek. Layer-wise relevance propagation for neural networks with local renormalization layers. volume 9887 of Lecture Notes in Computer Science, pages 63–71. Springer Berlin / Heidelberg, 2016. doi: 10.1007/978-3-319-44781-0_8.
+12. <span id="kaynak-12"></span> Gabriel Cadamuro, Ran Gilad-Bachrach, and Xiaojin Zhu. Debugging machine learning models. In ICML Workshop on Reliable Machine Learning in the Wild, 2016.
+13. <span id="kaynak-13"></span> C Cai, E Reif, N Hegde, J Hipp, B Kim, D Smilkov, M Wattenberg, D Viegas, G Corrado, M Stumpe, et al. Human-centered tools for coping with imperfect algorithms during medical decision-making. chi conf. Hum. Factors Comput. Syst, 2019.
+14. <span id="kaynak-14"></span> Giuseppe Carenini, Vibhu O Mittal, and Johanna D Moore. Generating patient-specific interactive natural language explanations. In Proceedings of the Annual Symposium on Computer Application in Medical Care, page 5. American Medical Informatics Association, 1994.
+15. <span id="kaynak-15"></span> Alison Cawsey. Generating interactive explanations. In AAAI, pages 86–91, 1991.
+16. <span id="kaynak-16"></span> Alison Cawsey. User modelling in interactive explanations. User Modeling and User-Adapted Interaction, 3(3):221–247, 1993.
+17. <span id="kaynak-17"></span> Aleksandar Chakarov, Aditya Nori, Sriram Rajamani, Shayak Sen, and Deepak Vijaykeerthy. Debugging machine learning tasks. arXiv preprint arXiv:1603.07292, 2016.
+18. <span id="kaynak-18"></span> Eric Chu, Deb Roy, and Jacob Andreas. Are visual explanations useful? a case study in model-inthe-loop prediction. arXiv preprint arXiv:2007.12248, 2020.
+19. Ann-Kathrin Dombrowski, Maximillian Alber, Christopher Anders, Marcel Ackermann, Klaus- Robert Müller, and Pan Kessel. Explanations can be manipulated and geometry is to blame. In Advances in Neural Information Processing Systems, pages 13567–13578, 2019.
+20. <span id="kaynak-20"></span> Finale Doshi-Velez and Been Kim. Towards a rigorous science of interpretable machine learning. 2017.
+21. <span id="kaynak-21"></span> Gabriel Erion, Joseph D Janizek, Pascal Sturmfels, Scott Lundberg, and Su-In Lee. Learning explainable models using attribution priors. arXiv preprint arXiv:1906.10670, 2019.
+22. <span id="kaynak-22"></span> Shi Feng and Jordan Boyd-Graber. What can ai do for me? evaluating machine learning interpretations in cooperative play. In Proceedings of the 24th International Conference on Intelligent User Interfaces, pages 229–239, 2019.
+23. <span id="kaynak-23"></span> Amirata Ghorbani, Abubakar Abid, and James Y. Zou. Interpretation of neural networks is fragile. In The Thirty-Third AAAI Conference on Artificial Intelligence, AAAI 2019, The Thirty-First Innovative Applications of Artificial Intelligence Conference, IAAI 2019, The Ninth AAAI Symposium on Educational Advances in Artificial Intelligence, EAAI 2019, Honolulu, Hawaii, USA, January 27 - February 1, 2019, pages 3681–3688. AAAI Press, 2019. doi: 10.1609/aaai.v33i01.33013681. URL https://doi.org/10.1609/aaai.v33i01.33013681.
+24. <span id="kaynak-24"></span> Juyeon Heo, Sunghwan Joo, and Taesup Moon. Fooling neural network interpretations via adversarial model manipulation. In Advances in Neural Information Processing Systems, pages 2921–2932, 2019.
+25. <span id="kaynak-25"></span> Jonathan L Herlocker, Joseph A Konstan, and John Riedl. Explaining collaborative filtering recommendations. In Proceedings of the 2000 ACM conference on Computer supported cooperative work, pages 241–250, 2000.
+26. <span id="kaynak-26"></span> Sara Hooker, Dumitru Erhan, Pieter-Jan Kindermans, and Been Kim. A benchmark for interpretability methods in deep neural networks. In Advances in Neural Information Processing Systems, pages 9737–9748, 2019.
+27. Aditya Khosla, Nityananda Jayadevaprakash, Bangpeng Yao, and Fei-Fei Li. Novel dataset for finegrained image categorization: Stanford dogs. In Proc. CVPR Workshop on Fine-Grained Visual Categorization (FGVC), volume 2, 2011.
+28. <span id="kaynak-28"></span> Been Kim, Martin Wattenberg, Justin Gilmer, Carrie Cai, James Wexler, Fernanda Viegas, et al. Interpretability beyond feature attribution: Quantitative testing with concept activation vectors (tcav). In International Conference on Machine Learning, pages 2673–2682, 2018.
+29. Pieter-Jan Kindermans, Kristof Schütt, Klaus-Robert Müller, and Sven Dähne. Investigating the influence of noise and distractors on the interpretation of neural networks. arXiv preprint arXiv:1611.07270, 2016.
+30. Pieter-Jan Kindermans, Kristof T. Schütt, Maximilian Alber, Been Kim Klaus-Robert Müller, Dumitru Erhan, and Sven Dähne. Learning how to explain neural networks: Patternnet and patternattribution. International Conference on Learning Representations, 2018a. URL https://openreview.net/forum?id=Hkn7CBaTW.
+31. Pieter-Jan Kindermans, Kristof T. Schütt, Maximilian Alber, Klaus-Robert Müller, Dumitru Erhan, Been Kim, and Sven Dähne. Learning how to explain neural networks: Patternnet and patternattribution. In ICLR (Poster), 2018b. URL https://openreview.net/forum?id=Hkn7CBaTW.
+32. <span id="kaynak-32"></span> Pang Wei Koh and Percy Liang. Understanding black-box predictions via influence functions. In Doina Precup and Yee Whye Teh, editors, Proceedings of the 34th International Conference on Machine Learning, ICML 2017, Sydney, NSW, Australia, 6-11 August 2017, volume 70 of Proceedings of Machine Learning Research, pages 1885–1894. PMLR, 2017. URL http://proceedings.mlr.press/v70/koh17a.html.
+33. Maximilian Kohlbrenner, Alexander Bauer, Shinichi Nakajima, Alexander Binder, Wojciech Samek, and Sebastian Lapuschkin. Towards best practice in explaining neural network decisions with lrp. In Proceedings of the IEEE International Joint Conference on Neural Networks (IJCNN), 2020.
+34. <span id="kaynak-34"></span> Vivian Lai and Chenhao Tan. On human predictions with explanations and predictions of machine learning models: A case study on deception detection. In Proceedings of the Conference on Fairness, Accountability, and Transparency, pages 29–38, 2019.
+35. <span id="kaynak-35"></span> Himabindu Lakkaraju and Osbert Bastani. " how do i fool you?" manipulating user trust via misleading black box explanations. In Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society, pages 79–85, 2020.
+36. <span id="kaynak-36"></span> Sebastian Lapuschkin, Stephan Wäldchen, Alexander Binder, Grégoire Montavon, Wojciech Samek, and Klaus-Robert Müller. Unmasking clever hans predictors and assessing what machines really learn. Nature communications, 10(1):1–8, 2019.
+37. Scott M Lundberg and Su-In Lee. A unified approach to interpreting model predictions. In Advances in Neural Information Processing Systems, pages 4768–4777, 2017.
+38. <span id="kaynak-38"></span> Aravindh Mahendran and Andrea Vedaldi. Salient deconvolutional networks. In European Conference on Computer Vision, pages 120–135. Springer, 2016.
+39. <span id="kaynak-39"></span> Scott Mayer McKinney, Marcin Sieniek, Varun Godbole, Jonathan Godwin, Natasha Antropova, Hutan Ashrafian, Trevor Back, Mary Chesus, Greg C Corrado, Ara Darzi, et al. International evaluation of an ai system for breast cancer screening. Nature, 577(7788):89–94, 2020.
+40. <span id="kaynak-40"></span> Qingjie Meng, Christian Baumgartner, Matthew Sinclair, James Housden, Martin Rajchl, Alberto Gomez, Benjamin Hou, Nicolas Toussaint, Jeremy Tan, Jacqueline Matthew, et al. Automatic shadow detection in 2d ultrasound. 2018.
+41. Grégoire Montavon, Sebastian Bach, Alexander Binder, Wojciech Samek, and Klaus-Robert Müller. Explaining nonlinear classification decisions with deep taylor decomposition. Pattern Recognition, 65:211–222, 2017a. doi: 10.1016/j.patcog.2016.11.008. URL http://dx.doi.org/10.1016/j. patcog.2016.11.008.
+42. Grégoire Montavon, Sebastian Lapuschkin, Alexander Binder, Wojciech Samek, and Klaus-Robert Müller. Explaining nonlinear classification decisions with deep taylor decomposition. Pattern Recognition, 65:211–222, 2017b.
+43. <span id="kaynak-43"></span> Grégoire Montavon, Wojciech Samek, and Klaus-Robert Müller. Methods for interpreting and understanding deep neural networks. Digital Signal Processing, 2017c.
+44. <span id="kaynak-44"></span> Weili Nie, Yang Zhang, and Ankit Patel. A theoretical explanation for perplexing behaviors of backpropagation-based visualizations. In ICML, 2018.
+45. Omkar M. Parkhi, Andrea Vedaldi, Andrew Zisserman, and C. V. Jawahar. Cats and dogs. In IEEE Conference on Computer Vision and Pattern Recognition, 2012a.
+46. Omkar M Parkhi, Andrea Vedaldi, Andrew Zisserman, and CV Jawahar. Cats and dogs. In 2012 IEEE conference on computer vision and pattern recognition, pages 3498–3505. IEEE, 2012b.
+47. <span id="kaynak-47"></span> Forough Poursabzi-Sangdeh, Daniel G Goldstein, Jake M Hofman, Jennifer Wortman Vaughan, and Hanna Wallach. Manipulating and measuring model interpretability. arXiv preprint arXiv:1802.07810, 2018.
+48. Garima Pruthi, Frederick Liu, Mukund Sundararajan, and Satyen Kale. Estimating training data influence by tracking gradient descent. arXiv preprint arXiv:2002.08484, 2020.
+49. <span id="kaynak-49"></span> Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin. Why should i trust you?: Explaining the predictions of any classifier. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pages 1135–1144. ACM, 2016.
+50. <span id="kaynak-50"></span> Laura Rieger, Chandan Singh, W James Murdoch, and Bin Yu. Interpretations are useful: penalizing explanations to align neural networks with prior knowledge. International Conference on Machine Learning, 2020.
+51. <span id="kaynak-51"></span> Andrew Slavin Ross, Michael C. Hughes, and Finale Doshi-Velez. Right for the right reasons: Training diﬀerentiable models by constraining their explanations. In Carles Sierra, editor, Proceedings of the Twenty-Sixth International Joint Conference on Artificial Intelligence, IJ- CAI 2017, Melbourne, Australia, August 19-25, 2017, pages 2662–2670. ijcai.org, 2017. doi: 10.24963/ijcai.2017/371. URL https://doi.org/10.24963/ijcai.2017/371.
+52. Olga Russakovsky, Jia Deng, Hao Su, Jonathan Krause, Sanjeev Satheesh, Sean Ma, Zhiheng Huang, Andrej Karpathy, Aditya Khosla, Michael Bernstein, et al. Imagenet large scale visual recognition challenge. International Journal of Computer Vision, 115(3):211–252, 2015.
+53. <span id="kaynak-53"></span> Wojciech Samek, Alexander Binder, Grégoire Montavon, Sebastian Lapuschkin, and Klaus-Robert Müller. Evaluating the visualization of what a deep neural network has learned. IEEE transactions on neural networks and learning systems, 28(11):2660–2673, 2017.
+54. <span id="kaynak-54"></span> Rory Sayres, Ankur Taly, Ehsan Rahimy, Katy Blumer, David Coz, Naama Hammel, Jonathan Krause, Arunachalam Narayanaswamy, Zahra Rastegar, Derek Wu, et al. Using a deep learning algorithm and integrated gradients explanation to assist grading for diabetic retinopathy. Ophthalmology, 126(4):552–564, 2019.
+55. <span id="kaynak-55"></span> David Sculley, Gary Holt, Daniel Golovin, Eugene Davydov, Todd Phillips, Dietmar Ebner, Vinay Chaudhary, Michael Young, Jean-Francois Crespo, and Dan Dennison. Hidden technical debt in machine learning systems. In Advances in neural information processing systems, pages 2503– 2511, 2015.
+56. Lloyd S Shapley. A value for n-person games. The Shapley value, pages 31–40, 1988.
+57. <span id="kaynak-57"></span> Hua Shen and Ting-Hao Huang. How useful are the machine-generated interpretations to general users? a human evaluation on guessing the incorrectly predicted labels. In Proceedings of the AAAI Conference on Human Computation and Crowdsourcing, volume 8, pages 168–172, 2020.
+58. Avanti Shrikumar, Peyton Greenside, Anna Shcherbina, and Anshul Kundaje. Not just a black box: Learning important features through propagating activation diﬀerences. arXiv preprint arXiv:1605.01713, 2016.
+59. Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman. Deep inside convolutional networks: Visualising image classification models and saliency maps. In Yoshua Bengio and Yann LeCun, editors, 2nd International Conference on Learning Representations, ICLR 2014, Banﬀ, AB, Canada, April 14-16, 2014, Workshop Track Proceedings, 2014. URL http://arxiv.org/abs/1312.6034.
+60. <span id="kaynak-60"></span> Leon Sixt, Maximilian Granz, and Tim Landgraf. When explanations lie: Why modified bp attribution fails. arXiv preprint arXiv:1912.09818, 2019.
+61. <span id="kaynak-61"></span> Dylan Slack, Sophie Hilgard, Emily Jia, Sameer Singh, and Himabindu Lakkaraju. Fooling lime and shap: Adversarial attacks on post hoc explanation methods. In Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society, pages 180–186, 2020.
+62. Daniel Smilkov, Nikhil Thorat, Been Kim, Fernanda Viégas, and Martin Wattenberg. Smoothgrad: removing noise by adding noise. arXiv preprint arXiv:1706.03825, 2017.
+63. Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, and Martin Riedmiller. Striving for simplicity: The all convolutional net. arXiv preprint arXiv:1412.6806, 2014.
+64. Mukund Sundararajan, Ankur Taly, and Qiqi Yan. Axiomatic attribution for deep networks. In Doina Precup and Yee Whye Teh, editors, Proceedings of the 34th International Conference on Machine Learning, volume 70 of Proceedings of Machine Learning Research, pages 3319–3328, International Convention Centre, Sydney, Australia, 06–11 Aug 2017. PMLR. URL http:// proceedings.mlr.press/v70/sundararajan17a.html.
+65. <span id="kaynak-65"></span> Richard Tomsett, Dan Harborne, Supriyo Chakraborty, Prudhvi Gurram, and Alun D. Preece. Sanity checks for saliency metrics. In The Thirty-Fourth AAAI Conference on Artificial Intelligence, AAAI 2020, The Thirty-Second Innovative Applications of Artificial Intelligence Conference, IAAI 2020, The Tenth AAAI Symposium on Educational Advances in Artificial Intelligence, EAAI 2020, New York, NY, USA, February 7-12, 2020, pages 6021–6029. AAAI Press, 2020. URL https://aaai.org/ojs/index.php/AAAI/article/view/6064.
+66. C. Wah, S. Branson, P. Welinder, P. Perona, and S. Belongie. The Caltech-UCSD Birds-200-2011 Dataset. Technical Report CNS-TR-2011-001, California Institute of Technology, 2011.
+67. Zhou Wang, Alan C Bovik, Hamid R Sheikh, and Eero P Simoncelli. Image quality assessment: from error visibility to structural similarity. IEEE transactions on image processing, 13(4):600–612, 2004.
+68. <span id="kaynak-68"></span> Gezheng Wen, Brenda Rodriguez-Niño, Furkan Y Pecen, David J Vining, Naveen Garg, and Mia K Markey. Comparative study of computational visual attention models on two-dimensional medical images. Journal of Medical Imaging, 4(2):025503, 2017.
+69. Chih-Kuan Yeh, Joon Kim, Ian En-Hsu Yen, and Pradeep K Ravikumar. Representer point selection for explaining deep neural networks. In Advances in neural information processing systems, pages 9291–9301, 2018.
+70. Chih-Kuan Yeh, Cheng-Yu Hsieh, Arun Suggala, David I Inouye, and Pradeep K Ravikumar. On the (in) fidelity and sensitivity of explanations. In Advances in Neural Information Processing Systems, pages 10965–10976, 2019.
+71. Matthew D Zeiler and Rob Fergus. Visualizing and understanding convolutional networks. In European conference on computer vision, pages 818–833. Springer, 2014.
+72. Bolei Zhou, Agata Lapedriza, Aditya Khosla, Aude Oliva, and Antonio Torralba. Places: A 10 million image database for scene recognition. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2017.
+73. <span id="kaynak-73"></span> Zinkevich Martin. Rules of Machine Learning: Best Practices for ML Engineering. http://martin. zinkevich.org/rules_of_ml/rules_of_ml.pdf, 2020. Online; accessed 10 January 2020.
+
+## İncelenen makalenin künyesi
+
+Julius Adebayo, Michael Muelly, Ilaria Liccardi ve Been Kim (2020). *Debugging Tests for Model Explanations*. NeurIPS 2020, arXiv:2011.05429v1. <https://arxiv.org/abs/2011.05429v1>.
+
+# Ek A. Hata sınıflandırmasına ilişkin ek tartışma
+
+Ana metindeki dört hata örneğine ek olarak iki durum daha ele alınır. **Sabitlenmiş katmanlar** hata türünde, ağın bazı katmanları eğitimde yanlışlıkla güncellenmez. **Ön işleme uyuşmazlığında**, test girdisi eğitimde kullanılandan farklı dönüştürülür. Bunlar sırasıyla model bozulması ve test zamanı bozulmasının ek örnekleridir. Eğitim ve test girdilerindeki ön işleme farklılığı, modelin yanlış tahminler üretmesine yol açabilir. Her iki hata Tablo 4’te biçimselleştirilir. Tablodaki örnekler, sunduğumuz sınıflandırmanın belirli örnekleridir. Aynı sınıflandırma altında başka örnekler de önerilebilir.
+
+| Hata sınıfı | Örnek | Biçimselleştirme |
+|:--|:--|:--|
+| Veri | Sahte korelasyon | $\arg\min_{\theta} L(X_{\mathrm{spurious}},Y_{\mathrm{train}};\theta)$ |
+| Veri | Yanlış etiket | $\arg\min_{\theta} L(X_{\mathrm{train}},Y_{\mathrm{wrong}};\theta)$ |
+| Model | Yeniden başlatılan ağırlık | $f_{\theta_{\mathrm{init}}}(x_{\mathrm{test}})$ |
+| Model | Sabitlenmiş katmanlar | $\arg\min_{\theta_{\mathrm{frozen}}} L(X_{\mathrm{train}},Y_{\mathrm{wrong}};\theta)$ |
+| Test zamanı | Dağılım dışı girdi | $f_{\theta}(x_{\mathrm{OOD}})$ |
+| Test zamanı | Ön işleme uyumsuzluğu | $f_{\theta}(x_{\mathrm{PM}})$ |
+
+*Tablo 4. Özgün Ek A'daki bozulma sınıflarının okunabilir gösterimi. Kaynaktaki bazı indisler sadeleştirilmiştir. Özgün kaynak, sabit katmanlar örneğinde de “wrong label” indisini kullanır; burada bu olası kaynak tutarsızlığı değiştirilmemiştir.*
+
+![Denetimli öğrenme için hata ayıklama şeması.](images/figure-09.png){#fig-09 width=100%}
+
+*Şekil 9. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 20; özgün PDF sayfasından alınan görsel.*
+
+# Ek B. Atıf yöntemlerinin ayrıntılı tanıtımı
+
+Bu ekte değerlendirdiğimiz açıklama yöntemlerini ayrıntılı olarak ele alıyor ve her yöntemde kullandığımız hiperparametreleri veriyoruz. Önce bütün yöntemleri tek bir kod tabanında yeniden uyguladık. Ardından uygulamalarımızı kamusal açık kaynak sürümleriyle karşılaştırdık ve sonuçta yöntemlerin yazarları tarafından yayımlanan açık uygulamaları kullandık. Gradyan tabanlı yaklaşımlar ve LRP varyantlarında **iNNvestigate**, LIME için **LIME-IMAGE**, KernelSHAP ve Expected Gradients için **SHAP** araçları kullanılmıştır.
+
+Atıf işlevinin $E:\mathcal{F}\times\mathbb{R}^d\times\mathbb{R}\to\mathbb{R}^d$, $x_i\in\mathbb{R}^d$ girdisini, $F$ modelini ve $F_k(x)$ çıktısını $M_{x_i}\in\mathbb{R}^d$ atıf haritasına eşlediğini hatırlayalım.
+
+![Kuş-köpek veri kümesinden beş girdi örneği ve normal biçimde eğitilmiş bir modelin bu girdiler için ürettiği atıflar.](images/figure-10.png){#fig-10 width=100%}
+
+*Şekil 10. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 21; özgün PDF sayfasından alınan görsel.*
+
+
+
+## B.1. Gradyan tabanlı açıklamaların deneysel ayarları
+
+* **Gradient (Grad):** Girdinin hedef sınıf çıktısına göre mutlak gradyanı, $|\nabla_{x_i}F_i(x_i)|$, kullanılır.
+* **SmoothGrad (SGrad):** Rastgele Gauss gürültüsü uygulanmış **50** girdi örneğinden elde edilen gradyanların ortalaması hesaplanır. Gürültünün ölçeği, girdi aralığının **0,15** katıdır. Girdi aralığı, girdinin en büyük değeri ile en küçük değeri arasındaki farktır. İncelenen modellerde girdiler genellikle $[-1,1]$ aralığına normalize edilir.
+* **SmoothGrad Squared (SGradSQ):** SmoothGrad çıktısının bileşen bazındaki karesidir: $E_{\mathrm{SGradSQ}}(x)=E_{\mathrm{sg}}(x)\odot E_{\mathrm{sg}}(x)$.
+* **VarGrad (VGrad):** SmoothGrad'ın varyansa dayalı karşılığıdır: $E_{\mathrm{VGrad}}(x)=\mathcal{V}(\tilde{x})$. Burada $\mathcal{V}$ varyans işleci ve $\tilde{x}=\nabla_{x_i}F_i(x_i+n_i)$ gürültülü girdinin gradyanıdır. Sıfır ortalamalı Gauss gürültüsü için **50** örnek kullanılır ve gürültü ölçeği SmoothGrad'daki gibi girdi aralığının **0,15** katıdır.
+* **Input-Grad:** Gradyanın girişle bileşen bazında çarpımıdır, $|\nabla_{x_i}F_i(x_i)|\odot x_i$. Başka yöntemlerin de bu çarpımı yaklaştırdığı ve kimi koşullarda çarpıma eşdeğer olduğu gösterilmiştir. Örneğin tüm etkinleştirmeleri ReLU olan bir derin ağda LRP-Z, Input-Grad’a eşdeğerdir (Kindermans ve ark., 2016).
+* **Integrated Gradients (IntGrad):** Referans girdi ile gerçek girdi arasındaki yol boyunca gradyanları toplar. Bu çalışmada referans girdi her özellik için izin verilen asgari değerden oluşur; görüntülerde genellikle siyah arka plana karşılık gelir. Referans seçiminin tartışmalı olabileceği kabul edilir.
+* **Expected Gradients (EGrad):** Integrated Gradients hesabında tek bir referans yerine eğitim dağılımından örneklenen birden fazla referans kullanılır. Deneylerde eğitim verisinden **200** referans örnek alınmıştır. Kaynağın integral gösterimi, referanslar üzerinden alınan $\mathbb{E}_{x'\sim p_D}[M_{\mathrm{IntGrad}}(x_i;x')]$ ortalamasını ifade eder. Burada $p_D$ eğitim verisi dağılımı ve $x'$ bir referans girdidir.
+
+$$
+E_{\mathrm{SGrad}}(x)=\frac{1}{N}\sum_{j=1}^{N}\nabla_xF(x+n_j),\quad n_j\sim\mathcal N(0,\sigma^2 I), \qquad N=50.
+$$
+
+$$
+E_{\mathrm{IntGrad}}(x;\bar{x})=(x-\bar{x})\odot\int_0^1\nabla_x F(\bar{x}+\alpha(x-\bar{x}))\,d\alpha.
+$$
+
+Yazarlar gradyan yöntemlerini TensorFlow'da yeniden uygulayıp iNNvestigate ile karşılaştırmıştır. Beklenen Gradyanlar uygulaması SHAP ile karşılaştırılmıştır.
+
+## B.2. Vekil yöntemler ve değiştirilmiş geri yayılım
+
+**LIME**, ilgili girdinin çevresinde oluşturulan değişiklikler üzerinden basit bir yerel model öğrenir. Amaç, yerel uygunluk kaybını ve karmaşıklık cezasını dengelemektir:
+
+$$
+\operatorname*{arg\,min}_{g\in\mathcal G}\;L(f,g,\operatorname{pert}(x_i))+\Omega(g).
+$$
+
+Girdi görüntüsü **50** segmente ayrılmıştır. Yazarlar 5, 10, 15 ve 25 segmentli seçenekleri de sınayıp **50 segmentli** düzeni daha kararlı bulduklarını bildirir. Yerel modelin kurulmasında **1.000** örnek kullanılmıştır. Tablolu verilerde LIME’ın kara kutu doğrusal modelinin katsayılarını yüksek olasılıkla yaklaştırdığı bildirilmiştir. Yazarlar görüntü deneylerinde açık kaynaklı LIME-IMAGE paketini kullanmıştır. **SHAP**, LIME gibi tek bir girdi etrafında yerel bir yaklaşım oluşturur ve bu yerel model bir açıklama olarak yorumlanır. SHAP, LIME ve başka yöntemleri ortak bir çerçevede birleştirir ve Shapley değerlerine hesaplanabilir bir yaklaşım sağlar (Shapley, 1988). Model uyarlamasında **1.000** örnek kullanılmıştır.
+
+**DeconvNet** ile **Guided Backpropagation** ReLU birimlerinden geriye doğru aktarılan sinyali değiştirir. **PatternNet** ve **Pattern Attribution**, sinyal ve gürültü ayrımından hareketle ilgili girdinin önemini geri taşır. **DeepTaylor**, birim çıktılarına yerel Taylor yaklaşımı kullanarak ilgililiği alt katmanlara dağıtır. **LRP** yöntemi ise ilgililiği katmanlar arasında kural tabanlı yayar. Çalışmada **LRP-Z**, **LRP-EPS**, **$\alpha-\beta$-LRP** ve **preset-flat** varyantları değerlendirilmiş, iNNvestigate paketinin varsayılan parametreleri kullanılmıştır.
+
+Kaynağın $\alpha\beta$-LRP örneğinde, $r_l$ katman $l$'deki birim ilgisini ve $Q_l$ normalize katkı matrisini gösterir. $Q_l^+$ ve $Q_l^-$ sırasıyla yalnız pozitif ve yalnız negatif girdileri tutar. Kaynakta kuralın iki teriminde de $\alpha$ yazmaktadır:
+
+$$
+r_l(x_i)=(\alpha Q_l^+-\alpha Q_l^-)\,r_{l+1}(x_i).
+$$
+
+Pattern Attribution'da atıf, tahmin edilen sinyal vektörü ile $F(x)$ çıktısı arasındaki kovaryansın girdiye kadar geriye yayılmasına dayanır. PatternNet, Pattern Attribution ve DeepTaylor için yeniden yazılan uygulamalar iNNvestigate sürümleriyle karşılaştırılmıştır. LRP varyantlarının da yeniden yazılan sürümleri açık paketle karşılaştırılmıştır.
+
+Atıfların görsel benzerliği SSIM, özellik sıralamasının benzerliği Spearman sıra korelasyonu ile ölçülür.
+
+Yazarlar açıklama haritalarını görsel karmaşayı azaltmak için gri veya beyaz-kırmızı renk düzenleriyle verir. SSIM hesabında atıflar $[0,1]$ aralığına, negatif ilgililik içeren görsellerde ise $[-1,1]$ aralığına normalize edilmiştir.
+
+# Ek C. Veri kümeleri ve modeller
+
+## C.1. Veri kümeleri
+
+**Kuş–köpek veri kümesi.** Veri bozulması deneylerinin tümünde kuş ve köpekleri ayırt etmeye yönelik ikili sınıflandırma görevi kullanılır. Köpek ırkları Parkhi ve arkadaşlarının (2012a) Cats-v-Dogs veri kümesinden, kuş türleri Wah ve arkadaşlarının (2011) Caltech-UCSD veri kümesinden alınmıştır. Toplam **10.000 görüntü** kullanılmıştır: 5.000 kuş ve 5.000 köpek. Her sınıftan 4.300 örnek eğitime ayrılmıştır (toplam 8.600). Kalan örnekler doğrulama ve test için eşit bölünmüştür. Bölütleme maskeleri, görüntünün nesne veya arka plan kısmını değiştirmeye olanak tanır.
+
+**Değiştirilmiş MNIST ve Fashion-MNIST.** Test zamanı bozulması testleri için MNIST ve Fashion-MNIST üç kanallı biçime dönüştürülmüş, üç kanallı MNIST görüntüleri için atıflar bir VGG-16 modeliyle çıkarılmıştır.
+
+**ImageNet.** Model bozulması testleri için ImageNet doğrulama kümesinden 200 görüntü kullanılır. Kaynak, Ek C.1'de bu sayıyı çelişkili biçimde “two 200 images” olarak verir; Şekil 26'nın açıklamasında 200 görüntü yazmaktadır.
+
+**İnsan çalışması için köpek görüntüleri.** Yalnızca kullanıcı çalışmasında, Stanford Dogs (Khosla ve ark., 2011) ile Oxford Cats and Dogs (Parkhi ve ark., 2012b) veri kümelerinin değiştirilmiş bir birleşimi kullanılmıştır. On sınıfa odaklanılmıştır: Beagle, Boxer, Chihuahua, Newfoundland, Saint Bernard, Pug, Pomeranian, Great Pyrenees, Yorkshire Terrier ve Wheaten Terrier. Eğitim görüntülerinin arka planı değiştirilerek sahte korelasyon hataları oluşturulabilir. Kullanılan on arka plan, şelale, bambu ormanı, buğday tarlası, kar, kanyon, boş oda, otoyol, mavi gökyüzü, kumul ve koşu parkurudur.
+
+## C.2. Modeller
+
+**BVD-CNN.** Beş evrişim katmanı ve üç tam bağlantılı katmana sahip ağda, son katmanda sigmoid, diğer katmanlarda ReLU kullanılır. Adam eniyileyicisiyle **40 dönem** ve **0,001 öğrenme oranı** üzerinden eğitilen normal modelde yaklaşık **%94 test doğruluğu** elde edilmiştir.
+
+**İnsan çalışması modeli.** Bu görüntülerin tüm atıfları, yalnızca köpekleri içeren veri kümesi üzerinde ince ayarı yapılmış bir **ResNet-50** ile üretilmiştir. Yazarlar eğitim betiği için açık depolarına yönlendirir.
+
+# Ek D. Veri kaynaklı bozulma deneyleri
+
+## D.1. Sahte korelasyon işaretleri
+
+**Sahte korelasyonlu modelin doğrulanması.** Sahte korelasyon içeren verilerle eğitilmiş BVD-CNN’nin gökyüzü ve bambu ormanı sinyallerini gerçekten kullandığını doğrulamak için modeli, kuş ya da köpek görüntüsü içermeyen ve yalnızca gökyüzü ile bambu ormanı görüntülerinden oluşan bir test kümesinde sınadık. Model bu test kümesinde sahte korelasyona göre %97 doğruluk elde etti. Beklendiği gibi, uygun arka planların üzerine kuş ve köpeklerin yerleştirildiği test kümesinde de %97 doğruluk korundu. Ek örnekler için Ek I’deki şekillere bakınız.
+
+## D.2. Yanlış etiketlenmiş örnekler
+
+**Hatanın oluşturulması.** Kuş-köpek veri kümesindeki eğitim örneklerinin %10’unun etiketi ters çevrilerek BVD-CNN eğitildi. Model eğitim, doğrulama ve test kümelerinde sırasıyla %94,2, %91,7 ve %88 doğruluk elde etti.[^label-rate] Ek örnekler ek malzemenin ilerleyen kısmında gösterilmektedir.
+
+# Ek E. Model kaynaklı bozulma
+
+**Model bozulması testleri.** Model bozulması testleri, model parametrelerinde meydana gelen kusurları kapsar. Burada modelin kullanım sırasında yanlışlıkla yeniden başlatıldığı basit durumu ele alıyoruz. Beklendiği üzere böyle bir hata doğrulukta gözlenebilir farklılıklar doğurur. Bununla birlikte bu test sınıfının amacı, özellikle model atıfları bağlamında, bir atıf yönteminin farklı parametre durumlarındaki modelleri ne ölçüde ayırt edebildiğini belirlemektir.
+
+# Ek F. Test zamanı bozulması
+
+**Test zamanı bozulması testleri.** Bu test sınıfı, test zamanında ortaya çıkan kusurları kapsar. Test girdisine eğitim verisine uygulanandan farklı bir ön işlemin uygulanması yaygın bir test zamanı hatasıdır. Başka durumlarda bir ortamda eğitilmiş bir modele kendi alanı dışındaki girdiler verilir. Bu düzen için ek şekiller, ilerideki şekiller bölümünde yer almaktadır.
+
+# Ek G. Diğer yöntemler: kavramlar ve etki fonksiyonları
+
+İncelememizi belirli bir konu etrafında tutmak için ana çalışmada atıf yöntemlerine odaklandık. Burada eğitim örneklerini sıralamak üzere etki fonksiyonlarını (IF; Koh ve Liang, 2017) ve kavram etkinleştirme yaklaşımı TCAV’ı (Kim ve ark., 2018) sınadık. Etki fonksiyonları sahte korelasyon, yanlış etiketlenmiş örnekler ve dağılım değişimi koşullarında, TCAV ise sahte korelasyon ve model bozulması koşullarında değerlendirildi (Şekil 11). Arka plan kavramı için TCAV sıralaması, yöntemin sahte korelasyonu belirleyebileceğine işaret etmektedir.
+
+![TCAV ve etki fonksiyonlarının değerlendirilmesi.](images/figure-11.png){#fig-11 width=100%}
+
+*Şekil 11. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 25; özgün PDF sayfasından alınan görsel.*
+
+Etki fonksiyonlarının, arka plan girdilerinde sahte korelasyonla ilişkili olduğunu görüyoruz. Örneğin sahte arka planı içeren bir girdi için, en yüksek sıradaki %1’lik dilimde bulunan 86 eğitim örneğinin ne kadarının sahte korelasyon içerdiğini ölçüyoruz. 50 örnek üzerinde, en yüksek sıradaki %1’lik dilimin %91’inin sahte korelasyon içerdiğini buluyoruz (standart hata 2,4). Benzer biçimde, yanlış etiketlemeyi değerlendirmek için öz-etki ölçütünü kullanıyoruz (bkz. [arXiv:2002.08484](https://arxiv.org/abs/2002.08484)). 50 örnek için, eğitim kümesinin ortalama %11’inin incelenmesi gerektiğini buluyoruz (standart hata 5,9). Bu sonuçlar her iki yöntemin modelde hata ayıklamada etkili olabileceğini düşündürmektedir. Bununla birlikte, sınanan hatalarda iki yöntemin de etkili olduğunu doğrulamak için önemli ölçüde ek deneysel değerlendirme gerekmektedir.
+
+# Ek H. Kullanıcı çalışmasının ayrıntıları
+
+**Görev ve düzen.** İnsanların özellik atıflarını kullanarak sınıflandırma modellerinin güvenilirliğini değerlendirme becerisini ölçen bir çalışma tasarladık. Katılımcılardan hayvan sınıflandırma modelleri satan varsayımsal bir şirkette kalite güvence testçisi rolünü üstlenmeleri istendi. Bir seferde dört köpek ırkı için özgün görüntüleri, model tahminlerini ve atıf haritalarını gördüler. Modeli dış müşterilere satılmak üzere ne ölçüde önereceklerini beşli Likert ölçeğinde değerlendirdiler. Karar gerekçesi olarak Şekil 5B’deki dört hazır yanıttan birini seçtiler veya serbest yanıt yazdılar. Makine öğrenmesi deneyimlerini kendileri bildirdi ve uzmanlıklarını kontrol etmek üzere hazırlanan üç soruyu yanıtladı.
+
+**Yöntemler.** Temsili alt küme olarak Gradient, Integrated Gradients ve SmoothGrad’a odaklanıyoruz. Yöntem çeşitliliği nedeniyle seçimi daraltmak için rastgeleleştirme testlerinden yararlandık. Bu testlerde diğerlerinden daha iyi performans gösteren yöntemler iki gruba ayrılmaktadır: (1) Gradient ve varyantları SmoothGrad ile VarGrad, ayrıca gradyanı yaklaştıran LIME ve SHAP gibi yöntemler ve (2) girdi ile gradyanın çarpımını yaklaştıran Integrated Gradients, Expected Gradients, LRP-EPS ve LRP-Z.
+
+Hata ayıklama testlerinde yöntemleri şu ölçütlerle seçtik: (1) geniş kapsamda uygulanabilen ve başka yöntemlerin türetildiği Gradient, (2) daha önce hata ayıklamada kullanılan Integrated Gradients (Sayres ve ark., 2019; Sundararajan ve ark., 2017) ve (3) manipülasyon karşısında olumlu özellikler gösterdiği bildirilen SmoothGrad (Dombrowski ve ark., 2019; Yeh ve ark., 2019). Bu üç yöntem, ait oldukları önemli yöntem sınıflarını incelemeyi ve çeşitli görevlere uygulama esnekliğini sağlar.
+
+![Kullanıcı çalışmasında ele alınan beş model koşulunun şeması. Her model koşulu için çeşitli girdilerin model atıfları gösterilmektedir.](images/figure-12.png){#fig-12 width=100%}
+
+*Şekil 12. Kaynak: Adebayo ve ark. (2020), arXiv v1, PDF s. 26; özgün PDF sayfasından alınan görsel.*
+
+
+Katılımcıların %80'den fazlası daha önce makine öğrenmesi deneyimine sahip olduğunu belirtmiştir. Tek yönlü ANOVA ve Tukey–Kramer karşılaştırmalarıyla atıf yöntemleri arasında koşula bağlı farklılıklar değerlendirilmiştir. Örneğin normal modelde açıklama yöntemleri arasında $F(2,54)=14{,}35$ ve $p<0{,}0001$ bildirilmiş; dağılım dışı koşulda anlamlı fark bulunmamıştır ($p=0{,}109$). Yanlış etiketli koşul için $F(2,54)=7{,}66$, sahte korelasyon koşulu için $F(2,54)=15{,}9$ raporlanmıştır; her iki durumda $p<0{,}001$'dir. Bu istatistiksel değerler doğrudan makaleden alınmıştır; yeniden hesaplanmamıştır.
+
+
+
+## H.1. Kullanıcı çalışmasının uygulama düzeni
+
+**Katılımcıların bulunması.** Katılımcılar, Kuzey Amerika’daki orta ölçekli bir üniversitenin posta listesi aracılığıyla çalışmaya davet edildi. Çalışmayı 54 katılımcı tamamladı.
+
+**Makine öğrenmesi uzmanlığı.** Katılımcılardan makine öğrenmesi uzmanlık düzeylerini kendilerinin değerlendirmeleri ve bildirmeleri istendi. Ayrıca parametre düzenlileştirmenin etkisine ilişkin basit bir test sorusu soruldu. Katılımcıların %80’inden fazlası daha önce makine öğrenmesi deneyimi edindiğini belirtti.
+
+**Görev, işlem ve deney yapısı.** Görev, köpek görüntülerini ırklarına göre sınıflandırmaktı. Yazarların aşina olduğu on ırk elle seçildi. Tüm model koşulları on sınıflı bir sınıflandırma görevi için eğitildi. Katılımcılar çevrimiçi anket platformuna yönlendirildi. Görevi seçtiklerinde çalışmanın amacını ve gerekçesini açıklayan bir onay formu gösterildi. Ardından modelin eğitildiği köpek ırkları, deney düzeni ve arayüz hakkında kısa bir kılavuz sunuldu. Eğitim arayüzleri Şekil 13 ve 14’te gösterilmektedir.
+
+![Kullanıcı çalışmasının eğitim arayüzü.](images/figure-13.png){#fig-13 width=100%}
+
+*Şekil 13. İnsan çalışması katılımcılarına gösterilen birinci eğitim arayüzü ve yönergeler. Kaynak PDF s. 27.*
+
+Katılımcıların, hayvan sınıflandırma modelleri satan bir makine öğrenmesi girişiminde kalite güvence testçisi rolünü üstlenerek modeli hem etiketler hem de atıflar üzerinden değerlendirmesi istendi. Her koşulda köpek görüntüleri, model etiketleri ve o koşulun atıfları gösterildi. Katılımcılara, gösterilen köpek sınıflandırma modelinin çıktısı ve açıklaması ışığında modelin müşterilere satılmaya hazır olup olmadığını düşündükleri soruldu. Yanıtlar, «kesinlikle hayır» ile «kesinlikle evet» arasında beşli Likert ölçeğinde alındı. Bir alt soruda seçim gerekçesi soruldu. Her katılımcı 21 farklı soruyu ve dikkat kontrolü için bunlardan birinin tekrarını yanıtladı.
+
+**Veri kümeleri.** Birincil veri kaynağı, Stanford Dogs (Khosla ve ark., 2011) ile Oxford Cats and Dogs (Parkhi ve ark., 2012b) veri kümelerinin değiştirilmiş bir birleşimidir. Görev Beagle, Boxer, Chihuahua, Newfoundland, Saint Bernard, Pug, Pomeranian, Great Pyrenees, Yorkshire Terrier ve Wheaten Terrier olmak üzere on sınıfla sınırlıdır. Her sınıfta 400, toplamda 4.000 görüntü vardır. Her sınıfta eğitim, doğrulama ve test için sırasıyla 350, 25 ve 25 görüntü ayrılmıştır. Her bölme bağımsız ve aynı dağılımlı (IID) biçimde oluşturulmuştur. Oxford veri kümesindeki bölütleme haritaları görüntülerin arka planını değiştirmek için, Stanford Dogs veri kümesindeki sınırlayıcı kutu koordinatları ise sahte korelasyonlu veri sürümleri için görüntüleri kırpmada kullanılmıştır. Her model müdahalesinin veri koşulu şöyledir:
+
+![Kullanıcı çalışmasının eğitim arayüzü.](images/figure-14.png){#fig-14 width=100%}
+
+*Şekil 14. İnsan çalışmasının açıklama haritalarını okumaya ilişkin ikinci eğitim arayüzü. Kaynak PDF s. 28.*
+
+![Kullanıcı çalışmasının demografik özellikleri. Katılımcılara ilişkin demografik sayılar ve dağılımlar gösterilmektedir.](images/figure-15.png){#fig-15 width=100%}
+
+*Şekil 15. Katılımcıların yaşı, işi ve eğitim durumuna ilişkin demografik dağılımlar. Kaynak PDF s. 28.*
+
+![Kullanıcı çalışmasının demografik özellikleri. Katılımcılara ilişkin demografik sayılar ve dağılımlar gösterilmektedir.](images/figure-16.png){#fig-16 width=100%}
+
+*Şekil 16. Katılımcıların etnik köken ve cinsiyet beyanlarına ilişkin demografik dağılımlar. Kaynak PDF s. 29.*
+
+![Makine öğrenmesi deneyimi ve özellik atıflarına aşinalık. Kullanıcı çalışmasındaki katılımcılara ilişkin sayılar ve dağılımlar gösterilmektedir.](images/figure-17.png){#fig-17 width=100%}
+
+*Şekil 17. Katılımcıların makine öğrenmesi ve özellik-atıf yöntemlerine aşinalık düzeyleri. Kaynak PDF s. 29.*
+
+- **Normal model:** Değiştirilmemiş standart veri kümesi kullanılır. Bu, kontrol koşuludur.
+- **Üst katman:** Veri kümesi değiştirilmez. Hata model parametrelerindedir.
+- **Rastgele etiketler:** Eğitim etiketlerinin tümünün rastgeleleştirildiği bir veri kümesi sürümü oluşturulur.
+- **Sahte korelasyon:** Tüm eğitim örneklerinin arka planı, ilgili sınıfla önceden eşleştirilen arka planla değiştirilir. Model sahte korelasyon içeren görüntüler üzerinde de sınanır.
+- **Dağılım dışı:** Normal model, eğitimde görülmemiş köpek ırklarına uygulanır.
+
+**Sınanan modeller ve hatalar:**
+
+- **Kontrol:** Normal verilerle eğitilmiş ResNet-50.
+- **Model bozulması testi 1:** Son katmanı yeniden başlatılmış ResNet-50.
+- **Veri bozulması testi 1:** Etiketleri rastgeleleştirilmiş verilerle eğitilmiş ResNet-50.
+- **Veri bozulması testi 2:** Bütün eğitim örneklerinde sahte arka plan sinyali bulunan verilerle eğitilmiş ResNet-50.
+- **Test zamanı bozulması:** Dağılım dışı köpek ırklarının atıfları üzerinden sınanan normal model.
+
+Sahte korelasyon düzeninde her ırk, Tablo H’deki bir arka planla eşleştirilmiştir.
+
+| Köpek ırkı | İlişkilendirilen arka plan |
+|:--|:--|
+| Beagle | Kanyon |
+| Boxer | Boş oda |
+| Chihuahua | Mavi gökyüzü |
+| Newfoundland | Kum tepeleri |
+| Saint Bernard | Şelale |
+| Pug | Otoyol |
+| Pomeranian | Koşu pisti |
+| Great Pyrenees | Kar |
+| Yorkshire Terrier | Bambu |
+| Wheaten Terrier | Buğday tarlası |
+
+## H.2. İstatistiksel karşılaştırmaların ayrıntıları
+
+Model koşullarının her biri için tek yönlü ANOVA ve sonrasında Tukey–Kramer sınaması uygulanmıştır. **Normal modelde** $F(2,54)=14{,}35$, $p<0{,}0001$ raporlanır; ortalama önerme puanları Gradient için $3{,}88$ ($p<0{,}0001$), SmoothGrad için $3{,}77$ ($p<0{,}0001$), Integrated Gradients için $2{,}805$'tir. Tukey sınamasında ilk iki yöntemin önerilme puanları Integrated Gradients'e göre daha yüksektir. Gradient ile SmoothGrad arasında anlamlı fark bulunmadığı bildirilir ($p=0{,}815$).
+
+**Dağılım dışı** koşulda yöntemler arasında anlamlı fark bulunmadığı bildirilir ($p=0{,}109$). **Rastgele etiket** koşulunda $F(2,54)=7{,}66$, $p<0{,}0007$'dir; Tukey sınamasında Integrated Gradients'in ortalaması $1{,}94$, SmoothGrad'in ortalaması $1{,}31$'dir ve fark $p<0{,}0001$ düzeyinde anlamlıdır. Bu koşulda Gradient–SmoothGrad karşılaştırması için $p=0{,}199$, Integrated Gradients–Gradient karşılaştırması için $p=0{,}077$ raporlanır.
+
+**Sahte korelasyon** koşulunda $F(2,54)=15{,}9$, $p<0{,}0001$ raporlanır. Integrated Gradients ($\mu=3{,}05$), SmoothGrad ($\mu=1{,}98$) ve Gradient ($\mu=2{,}35$) karşılaştırmalarında Integrated Gradients'in ortalaması hem SmoothGrad'dan ($p<0{,}0001$) hem Gradient'ten ($p=0{,}0011$) yüksektir. Gradient–SmoothGrad farkı anlamlı bulunmamıştır ($p=0{,}1370$). **Üst katman** bozulmasında yöntemler arası fark için $p=0{,}085$ verilmiştir. Bu değerler kaynakta bildirilen istatistiklerdir. Kaynak, yöntemler arasında genel olarak anlamlı fark bulunduğunu belirtmekle birlikte dağılım dışı ve üst katman koşulları için anlamlı fark bildirmemektedir.
+
+**Farklı model koşullarına ilişkin kullanıcı çalışması şekilleri.** Bir sonraki bölümdeki ek şekillerde farklı model koşulları ve atıf yöntemi birleşimleri gösterilir. Bunlar kullanıcı çalışmasında kullanılan görsellerdir.
+
+
+# Ek I. Ek şekillerin tam dökümü
+
+Kaynağın bu sürümünde **64** numaralandırılmış şekil bulunur. Ana metin ve A–H eklerinde yer alan ilk 17 şeklin ardından, kaynak PDF’nin 31–64. sayfalarındaki **Şekil 18–64** aşağıda eksiksiz görsel sıra ile gösterilmiştir. Her şekil, ilgili PDF sayfasından alınmış bir kırpma ve Türkçe açıklama ile verilmiştir. Şekillerin içindeki İngilizce yazılar kaynak görselin parçasıdır.
+
+## I.1. Sahte korelasyon örnekleri
+
+![Sahte korelasyon hatası. Gri tonlu gösterimde dört görüntü düzeni için sahte korelasyonlu görüntü ve yalnızca sahte arka plan.](images/figure-18.png){#fig-18 width=100%}
+
+*Şekil 18. Sahte korelasyon içeren girdi ve yalnızca sahte arka plan için gri ölçekli açıklama haritaları. Kaynak PDF s. 31.*
+
+![Sahte korelasyon hatası. Beyaz-kırmızı gösterimde dört görüntü düzeni için sahte korelasyonlu görüntü ve yalnızca sahte arka plan.](images/figure-19.png){#fig-19 width=100%}
+
+*Şekil 19. Sahte korelasyon içeren girdiler ve yalnızca arka plan üzerinde ek atıf haritaları. Kaynak PDF s. 32.*
+
+![Sahte korelasyon hatası. Gri tonlu gösterimde dört görüntü düzeni için sahte korelasyonlu görüntü ve yalnızca sahte arka plan.](images/figure-20.png){#fig-20 width=100%}
+
+*Şekil 20. Sahte korelasyon koşulunda farklı görselleştirme düzeniyle ek açıklama karşılaştırması. Kaynak PDF s. 32.*
+
+## I.2. Yanlış etiketli örnekler
+
+![Yanlış etiketlenmiş örnek hatası. Üst sırada girdi ve bu girdinin atıfları için iki görselleştirme düzeni gösterilmektedir. Burada hem gri tonlu hem beyaz-kırmızı gösterim kullanılmıştır.](images/figure-21.png){#fig-21 width=100%}
+
+*Şekil 21. Yanlış etiketlenmiş örneklerde doğru ve yanlış etiket modelleri arasında açıklama karşılaştırması. Kaynak PDF s. 33.*
+
+![Yanlış etiketlenmiş örnek hatası. Üst sırada girdi ve bu girdiye ilişkin atıfların iki farklı gösterimi yer alır.](images/figure-22.png){#fig-22 width=100%}
+
+*Şekil 22. Yanlış etiketli eğitim örneklerine ilişkin ek açıklama haritaları. Kaynak PDF s. 33.*
+
+![Yanlış etiketlenmiş örnek hatası. Üst sırada girdi ve bu girdiye ilişkin atıfların iki farklı gösterimi yer alır.](images/figure-23.png){#fig-23 width=100%}
+
+*Şekil 23. Yanlış etiketli eğitim örnekleri için birinci ek görsel karşılaştırma. Kaynak PDF s. 34.*
+
+![Yanlış etiketlenmiş örnek hatası. Üst sırada girdi ve bu girdiye ilişkin atıfların iki farklı gösterimi yer alır.](images/figure-24.png){#fig-24 width=100%}
+
+*Şekil 24. Yanlış etiketli eğitim örnekleri için ikinci ek görsel karşılaştırma. Kaynak PDF s. 34.*
+
+![Yanlış etiketlenmiş örnek hatası. Üst sırada girdi ve bu girdiye ilişkin atıfların iki farklı gösterimi yer alır.](images/figure-25.png){#fig-25 width=100%}
+
+*Şekil 25. Yanlış etiketli örneklerde model açıklamalarının benzerliğini gösteren ek karşılaştırma. Kaynak PDF s. 34.*
+
+## I.3. Model parametresi bozulmasında ek sayısal sonuçlar
+
+![Model bozulmasına ilişkin ek nicel ölçütler. ImageNet üzerinde eğitilmiş VGG-16 için 200 görüntü ve 17 atıf türü üzerinden benzerlik ölçütleri hesaplanmıştır. Görsel benzerlik SSIM ile ölçülmüş, sıra korelasyonu mutlak değerli ve mutlak değersiz olarak verilmiştir. Geri yayılımı değiştirenler gibi bazı yöntemlerde bu ölçütler yüksek benzerlik göstermektedir. Her yöntem için normalize norm farkı $\lVert e_{\mathrm{orig}}-e_{\mathrm{rand}}\rVert_2/\lVert e_{\mathrm{orig}}\rVert_2$ olarak hesaplanır. Bu değer, özgün atıf ile kısmen ya da bütünüyle rastgeleleştirilmiş modelin atfı arasındaki normalize Öklid normu farkıdır. Hesaplama yükünden dolayı VGG-16 deneyleri Beklenen Gradyanları içermez.](images/figure-26.png){#fig-26 width=100%}
+
+*Şekil 26. Modelin ağırlıkları katman katman yeniden başlatıldığında açıklama benzerliğinin diğer sayısal ölçütleri. Kaynak PDF s. 35.*
+
+## I.4. VGG-16 modellerinin kademeli rastgeleleştirilmesi
+
+![Bir Junco kuşu görüntüsü örneği.](images/figure-27.png){#fig-27 width=100%}
+
+*Şekil 27. ImageNet veri kümesinden bir Junco kuşu girdisi. Kaynak PDF s. 36.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Junco kuşu örneği üzerinde kademeli parametre rastgeleleştirmesi, gri tonlu gösterim.](images/figure-28.png){#fig-28 width=100%}
+
+*Şekil 28. Junco kuşu için VGG-16 ağırlıkları kademeli yeniden başlatılırken oluşan açıklama haritaları. Kaynak PDF s. 36.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Junco kuşu örneği üzerinde kademeli parametre rastgeleleştirmesi, kırmızı tonlu gösterim.](images/figure-29.png){#fig-29 width=100%}
+
+*Şekil 29. VGG-16 model parametreleri değiştirildiğinde Junco kuşu için ek açıklama haritaları. Kaynak PDF s. 37.*
+
+![Bir böcek görüntüsü örneği.](images/figure-30.png){#fig-30 width=100%}
+
+*Şekil 30. ImageNet üzerinden seçilen ek bir böcek girdisi (kaynak şekil başlığı). Kaynak PDF s. 37.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Böcek örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-31.png){#fig-31 width=100%}
+
+*Şekil 31. Böcek görüntüsü için VGG-16 katman ağırlıklarının değiştirilmesine ilişkin açıklamalar. Kaynak PDF s. 38.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Böcek örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-32.png){#fig-32 width=100%}
+
+*Şekil 32. Böcek görüntüsü için VGG-16 modelinde kademeli ağırlık yeniden başlatma açıklamaları. Kaynak PDF s. 39.*
+
+![Bir köpek-kedi görüntüsü örneği.](images/figure-33.png){#fig-33 width=100%}
+
+*Şekil 33. ImageNet üzerinden seçilen köpek–kedi görüntüsü. Kaynak PDF s. 40.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Köpek-kedi örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-34.png){#fig-34 width=100%}
+
+*Şekil 34. Köpek–kedi görüntüsüne ait kademeli parametre yeniden başlatma haritaları. Kaynak PDF s. 40.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Köpek-kedi örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-35.png){#fig-35 width=100%}
+
+*Şekil 35. Köpek–kedi görüntüsü için ek VGG-16 açıklama haritaları. Kaynak PDF s. 41.*
+
+![Bir fare-kedi görüntüsü örneği.](images/figure-36.png){#fig-36 width=100%}
+
+*Şekil 36. ImageNet üzerinden seçilen fare–kedi görüntüsü. Kaynak PDF s. 41.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Fare-kedi örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-37.png){#fig-37 width=100%}
+
+*Şekil 37. Fare–kedi görüntüsü için kademeli model parametresi yeniden başlatma açıklamaları. Kaynak PDF s. 42.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Fare-kedi örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-38.png){#fig-38 width=100%}
+
+*Şekil 38. Fare–kedi görüntüsü için ek açıklama karşılaştırmaları. Kaynak PDF s. 43.*
+
+![Bir mısır görüntüsü örneği.](images/figure-39.png){#fig-39 width=100%}
+
+*Şekil 39. ImageNet üzerinden seçilen mısır görüntüsü. Kaynak PDF s. 43.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Mısır örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-40.png){#fig-40 width=100%}
+
+*Şekil 40. Mısır girdisi için VGG-16 modelinde parametre yeniden başlatma açıklamaları. Kaynak PDF s. 44.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Mısır örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-41.png){#fig-41 width=100%}
+
+*Şekil 41. Mısır girdisi için ek model parametresi bozulması açıklama haritaları. Kaynak PDF s. 45.*
+
+![Kova ısıran bir köpek görüntüsü örneği.](images/figure-42.png){#fig-42 width=100%}
+
+*Şekil 42. Kovayı ısıran köpek görüntüsü. Kaynak PDF s. 45.*
+
+![ImageNet üzerinde VGG-16 modelinde bozulma. Köpek örneği üzerinde VGG-16 modelinin parametrelerinin kademeli rastgeleleştirilmesi.](images/figure-43.png){#fig-43 width=100%}
+
+*Şekil 43. Kovayı ısıran köpek girdisi için model parametreleri değiştikçe oluşan açıklama haritaları. Kaynak PDF s. 46.*
+
+## I.5. Test zamanı / dağılım dışı girdi örnekleri
+
+![Fashion MNIST için test zamanı rastgeleleştirme örneği. Fashion MNIST atıfları dört model için gösterilir: Fashion MNIST, MNIST ve kuş-köpek veri kümelerinde kendi verileriyle eğitilen modeller ile ImageNet üzerinde eğitilmiş VGG-16.](images/figure-44.png){#fig-44 width=100%}
+
+*Şekil 44. Fashion-MNIST girdisinin alan içi ve alan dışı modellerdeki açıklama haritaları: ek örnek. Kaynak PDF s. 47.*
+
+![MNIST için test zamanı rastgeleleştirme örneği. MNIST atıfları dört model için gösterilir: Fashion MNIST, MNIST ve kuş-köpek veri kümelerinde kendi verileriyle eğitilen modeller ile ImageNet üzerinde eğitilmiş VGG-16.](images/figure-45.png){#fig-45 width=100%}
+
+*Şekil 45. MNIST girdisinin farklı modellerdeki açıklama haritaları: ek örnek. Kaynak PDF s. 47.*
+
+![Fashion MNIST için test zamanı rastgeleleştirme örneği. Fashion MNIST atıfları dört model için gösterilir: Fashion MNIST, MNIST ve kuş-köpek veri kümelerinde kendi verileriyle eğitilen modeller ile ImageNet üzerinde eğitilmiş VGG-16.](images/figure-46.png){#fig-46 width=100%}
+
+*Şekil 46. Fashion-MNIST girdisinin alan içi ve alan dışı modellerdeki açıklama haritaları: ikinci örnek. Kaynak PDF s. 48.*
+
+![Fashion MNIST için test zamanı rastgeleleştirme örneği. Fashion MNIST atıfları dört model için gösterilir: Fashion MNIST, MNIST ve kuş-köpek veri kümelerinde kendi verileriyle eğitilen modeller ile ImageNet üzerinde eğitilmiş VGG-16.](images/figure-47.png){#fig-47 width=100%}
+
+*Şekil 47. Kaynak açıklaması girdiyi Fashion MNIST olarak adlandırmaktadır. Kaynak PDF s. 48.*
+
+![Fashion MNIST için test zamanı rastgeleleştirme örneği. Fashion MNIST atıfları dört model için gösterilir: Fashion MNIST, MNIST ve kuş-köpek veri kümelerinde kendi verileriyle eğitilen modeller ile ImageNet üzerinde eğitilmiş VGG-16.](images/figure-48.png){#fig-48 width=100%}
+
+*Şekil 48. Fashion-MNIST girdisinin farklı modellerdeki açıklama haritaları: üçüncü örnek. Kaynak PDF s. 49.*
+
+![Fashion MNIST için test zamanı rastgeleleştirme örneği. Fashion MNIST atıfları dört model için gösterilir: Fashion MNIST, MNIST ve kuş-köpek veri kümelerinde kendi verileriyle eğitilen modeller ile ImageNet üzerinde eğitilmiş VGG-16.](images/figure-49.png){#fig-49 width=100%}
+
+*Şekil 49. Kaynak açıklaması girdiyi Fashion MNIST olarak adlandırmaktadır. Kaynak PDF s. 49.*
+
+## I.6. Kullanıcı çalışmasında kullanılan görseller
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-50.png){#fig-50 width=100%}
+
+*Şekil 50. İnsan çalışmasında kullanılan fotoğraflar ve Gradient açıklama haritaları — normal model. Kaynak PDF s. 50.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-51.png){#fig-51 width=100%}
+
+*Şekil 51. İnsan çalışmasında kullanılan fotoğraflar ve SmoothGrad açıklama haritaları — normal model. Kaynak PDF s. 51.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-52.png){#fig-52 width=100%}
+
+*Şekil 52. İnsan çalışmasında kullanılan fotoğraflar ve Integrated Gradients açıklama haritaları — normal model. Kaynak PDF s. 52.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-53.png){#fig-53 width=100%}
+
+*Şekil 53. İnsan çalışmasında kullanılan fotoğraflar ve Gradient açıklama haritaları — üst katmanı rastgele başlatılmış model. Kaynak PDF s. 53.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-54.png){#fig-54 width=100%}
+
+*Şekil 54. İnsan çalışmasında kullanılan fotoğraflar ve SmoothGrad açıklama haritaları — üst katmanı rastgele başlatılmış model. Kaynak PDF s. 54.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-55.png){#fig-55 width=100%}
+
+*Şekil 55. İnsan çalışmasında kullanılan fotoğraflar ve Integrated Gradients açıklama haritaları — üst katmanı rastgele başlatılmış model. Kaynak PDF s. 55.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-56.png){#fig-56 width=100%}
+
+*Şekil 56. İnsan çalışmasında kullanılan fotoğraflar ve Gradient açıklama haritaları — rastgele etiketlerle eğitilmiş model. Kaynak PDF s. 56.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-57.png){#fig-57 width=100%}
+
+*Şekil 57. İnsan çalışmasında kullanılan fotoğraflar ve SmoothGrad açıklama haritaları — rastgele etiketlerle eğitilmiş model. Kaynak PDF s. 57.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-58.png){#fig-58 width=100%}
+
+*Şekil 58. İnsan çalışmasında kullanılan fotoğraflar ve Integrated Gradients açıklama haritaları — rastgele etiketlerle eğitilmiş model. Kaynak PDF s. 58.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-59.png){#fig-59 width=100%}
+
+*Şekil 59. İnsan çalışmasında kullanılan fotoğraflar ve Gradient açıklama haritaları — sahte korelasyon içeren model. Kaynak PDF s. 59.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-60.png){#fig-60 width=100%}
+
+*Şekil 60. İnsan çalışmasında kullanılan fotoğraflar ve SmoothGrad açıklama haritaları — sahte korelasyon içeren model. Kaynak PDF s. 60.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-61.png){#fig-61 width=100%}
+
+*Şekil 61. İnsan çalışmasında kullanılan fotoğraflar ve Integrated Gradients açıklama haritaları — sahte korelasyon içeren model. Kaynak PDF s. 61.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-62.png){#fig-62 width=100%}
+
+*Şekil 62. İnsan çalışmasında kullanılan fotoğraflar ve Gradient açıklama haritaları — dağılım dışı veri koşulu. Kaynak PDF s. 62.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-63.png){#fig-63 width=100%}
+
+*Şekil 63. İnsan çalışmasında kullanılan fotoğraflar ve SmoothGrad açıklama haritaları — dağılım dışı veri koşulu. Kaynak PDF s. 63.*
+
+![Kullanıcı çalışmasında kullanılan görüntüler.](images/figure-64.png){#fig-64 width=100%}
+
+*Şekil 64. İnsan çalışmasında kullanılan fotoğraflar ve Integrated Gradients açıklama haritaları — dağılım dışı veri koşulu. Kaynak PDF s. 64.*
+
+
+[^code]: Bulgularımızı yeniden üretmek için kullanılan kodu şu adreste paylaşacağız: <https://github.com/adebayoj/explaindebug.git>.
+
+[^label-rate]: Kaynağın ana metnindeki eğitim doğruluğu %93,2 iken Ek D.2'de %94,2 yazmaktadır. Bu iki değer arasındaki fark özgün arXiv v1 metninde mevcuttur; burada tek bir sayıya zorla dönüştürülmemiştir.
