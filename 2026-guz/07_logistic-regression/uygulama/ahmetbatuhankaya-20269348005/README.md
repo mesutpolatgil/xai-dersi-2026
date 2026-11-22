@@ -54,6 +54,12 @@ Sunumda kullanılan etkileşimli sayfa: Bölüm 6 uygulama klasöründeki `cam-k
 
 Çevrimiçi: [cam-kutu-laboratuvari.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/06_linear-regression/uygulama/ahmetbatuhankaya-20269348005/cam-kutu-laboratuvari.html)
 
+## Makaleye bağlı uygulama: Puan Kartı Atölyesi
+
+FasterRisk (Liu ve ark., 2022) makalesinin yeniden üretimine bağlı etkileşimli sayfa `makale-yeniden-uretim/ahmetbatuhankaya-20269348005/puan-karti-atolyesi.html` konumunda. German Credit verisinden öğrenilen tam sayı puanlı kredi riski kartları, tam lojistik regresyonla yan yana.
+
+Çevrimiçi: [puan-karti-atolyesi.html](https://mesutpolatgil.github.io/xai-dersi-2026/2026-guz/07_logistic-regression/makale-yeniden-uretim/ahmetbatuhankaya-20269348005/puan-karti-atolyesi.html)
+
 ## Kaynaklar
 
 - Molnar, C. *Interpretable Machine Learning*. https://christophm.github.io/interpretable-ml-book/
