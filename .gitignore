@@ -216,7 +216,6 @@ marimo/_lsp/
 /.quarto/
 /_site/
 *_files/
-*.html
 *.pdf
 __marimo__/
 

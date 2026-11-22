@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Interpretable Machine Learning | Academic Document</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#e8edf3;color:#202b39;font-family:Georgia,"Times New Roman",serif;font-size:13px;line-height:1.48}.toolbar{position:sticky;top:0;z-index:5;background:#142d49;color:white;padding:12px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;font:13px system-ui,sans-serif}.toolbar a{color:white;text-decoration:none}.toolbar button{border:1px solid #b5c7da;background:#fff;color:#163454;border-radius:6px;padding:7px 12px;cursor:pointer}.pages{padding:25px 12px 55px}.page{width:210mm;min-height:297mm;margin:0 auto 22px;background:#fff;box-shadow:0 6px 25px #25374c25;position:relative;padding:21mm 22mm 22mm;break-after:page;page-break-after:always;overflow-wrap:break-word}.page h1{font:700 25px/1.3 Georgia,serif;color:#153657;text-align:center;margin:15mm 0 9mm}.page h2{font:700 19px/1.25 Georgia,serif;color:#153657;margin:0 0 13px}.page h3{font:700 15px/1.3 Georgia,serif;color:#244766;margin:15px 0 7px}.page p{margin:0 0 11px;text-align:justify}.page p a{color:#185f9b}.page .table-wrap{margin:12px 0;overflow:visible}.page table{border-collapse:collapse;width:100%;font:12px/1.4 Arial,sans-serif}.page td,.page th{padding:7px 8px;border:1px solid #c9d4df;vertical-align:top;text-align:left}.page th{background:#eef3f8}.page-footer{position:absolute;bottom:11mm;left:22mm;right:22mm;border-top:1px solid #d9e0e8;padding-top:6px;display:flex;justify-content:space-between;color:#697889;font:11px system-ui,sans-serif}.page:first-child{text-align:center}.page:first-child p{text-align:center;margin-bottom:9px}.page:first-child p:nth-of-type(1){font-style:italic;margin-bottom:17mm}.page:first-child p:nth-of-type(2){font-weight:bold;font-size:17px}.page:first-child p:nth-of-type(10){text-align:justify;margin-top:18mm;font-size:12px}.page:first-child h1{margin-top:20mm}@media(max-width:850px){.pages{padding:10px 0}.page{width:100%;min-height:0;padding:28px 22px 62px;margin-bottom:12px}.page-footer{bottom:18px;left:22px;right:22px}.toolbar{flex-wrap:wrap}}@media print{@page{size:A4;margin:0}html,body{background:white;print-color-adjust:exact;-webkit-print-color-adjust:exact}.toolbar{display:none}.pages{padding:0}.page{width:210mm;height:297mm;min-height:297mm;margin:0;box-shadow:none;break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}}
+
+/* Academic manuscript presentation: monochrome, consistent typography */
+html,body{color:#000;font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.45}
+body{background:#e5e5e5}
+.page{color:#000;background:#fff;padding:22mm 23mm 22mm;box-shadow:0 3px 16px #0002}
+.page h1{font-family:"Times New Roman",Times,serif;font-size:18pt;line-height:1.25;color:#000;font-weight:700;margin:13mm 0 9mm}
+.page h2{font-family:"Times New Roman",Times,serif;font-size:14pt;line-height:1.3;color:#000;font-weight:700;margin:0 0 11pt}
+.page h3{font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.3;color:#000;font-weight:700;margin:12pt 0 6pt}
+.page p{color:#000;text-align:justify;margin:0 0 9pt;line-height:1.45;orphans:2;widows:2}
+.page p a,.page a,.page a:visited{color:#000;text-decoration:underline}
+.page table{font-family:"Times New Roman",Times,serif;font-size:10.5pt;line-height:1.3;color:#000}
+.page th,.page td{color:#000;border:1px solid #000;padding:5pt 6pt}
+.page th{background:#fff;font-weight:700}
+.page-footer{color:#000;border-top:1px solid #000;font-family:"Times New Roman",Times,serif;font-size:9pt}
+.page-footer *{color:#000}
+.toolbar{background:#fff;color:#000;border-bottom:1px solid #000;font-family:"Times New Roman",Times,serif}
+.toolbar a,.toolbar button{color:#000;background:#fff;border-color:#000}
+.page:first-child p:nth-of-type(1){font-style:normal}
+.page:first-child p:nth-of-type(2){font-size:13pt}
+.page:first-child p:nth-of-type(10){font-size:11pt}
+@media(max-width:850px){.page{padding:28px 22px 65px}}
+@media print{body{background:#fff}.page{box-shadow:none;width:210mm;height:297mm;min-height:297mm;break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}}
+</style><style>
+.toolbar,.toolbar *{color:#000!important;background:#f5f5f5!important}
+.page,.page *{color:#000!important}
+.page a{color:#000!important;text-decoration:underline}
+.page table th{background:#fff!important}
+.page table td,.page table th{border-color:#000!important}
+@media print {.toolbar{display:none!important}.page{box-shadow:none!important}}
+</style></head><body><div class="toolbar">Yorumlanabilir Makine Öğrenmesi · 12 sayfa<div><button onclick="window.print()">Yazdır / PDF olarak kaydet</button></div></div><main class="pages"><section class="page" id="sayfa-1"><h1>Interpretable Machine Learning: Why Prediction Is Not
+Enough</h1><p>A Critical Literature Review Based on Chapter 1 of C. Molnar’s
+<em>Interpretable Machine Learning</em>, Focusing on the Foundations of
+Interpretability and Explainable Artificial Intelligence (XAI).</p><p>Devid George Kitasho</p><p>Registration no: 20259258041</p><p>Supervisor: Dr Mesut Polatgil</p><p>MSc Artificial Intelligence and Data Science</p><p>Sivas Cumhuriyet University, Türkiye</p><p><strong>Course:</strong> Explainable Artificial Intelligence</p><p><strong>Article type:</strong> Critical literature review</p><p><strong>Date:</strong> November 2026</p><p>This article examines selected academic literature on interpretable
+machine learning and explainable artificial intelligence. Prepared as
+part of postgraduate coursework, it focuses on reviewing established
+theories, methods, and research findings rather than conducting new
+experiments. The discussion draws primarily on the work of Molnar 1,
+with previously published model-performance results used to support the
+analysis..</p><div class="page-footer">Devid Kitasho<span>1 / 12</span></div></section><section class="page" id="sayfa-2"><h2 id="abstract">Abstract</h2><p>A machine-learning model may achieve excellent accuracy and still
+rely on patterns that are misleading or unsuitable for real decisions.
+This article reviews how interpretable machine learning and explainable
+artificial intelligence (XAI) help us examine those patterns. It begins
+with the problem of shortcut learning, then discusses the difference
+between explaining a model as a whole and explaining one prediction. The
+review considers permutation importance, partial dependence, LIME, and
+SHAP, alongside models designed to be understandable from the outset. A
+hypothetical customer-churn case illustrates both the value and the
+limits of feature explanations. The article argues that explanations
+should be assessed for faithfulness, stability, practical usefulness,
+and robustness. Above all, an explanation tells us something about a
+model's behaviour; it does not, on its own, prove that a decision is
+causal, fair, or safe.</p><h3 id="scope-and-contribution">Scope and contribution</h3><p>This article is a narrative review of several influential ideas and
+methods in XAI. Rather than claiming to cover every study, it brings
+together foundational research, explains the main mathematical ideas,
+and discusses how explanations can be evaluated in practice. No new
+experiment or systematic literature search is reported.</p><p>The question running through the review is straightforward: when does
+an explanation genuinely help us judge whether a model should be trusted
+for a particular decision?</p><div class="page-footer">Devid Kitasho<span>2 / 12</span></div></section><section class="page" id="sayfa-3"><h2 id="introduction-the-limits-of-prediction">1. Introduction: the
+limits of prediction</h2><p>A classifier can perform impressively on a test dataset without
+learning the relationship we hoped it would learn. It may instead pick
+up a coincidence, an artefact of data collection, or a variable that
+would be inappropriate to use in practice. Accuracy tells us how often
+predictions agree with recorded labels under a given test. It does not
+tell us whether the model's reasoning will remain useful when
+circumstances change. This matters particularly in healthcare, lending,
+recruitment, and public services, where a mistaken prediction can affect
+people's lives (Molnar, 2022; Rudin, 2019).</p><p>Interpretability is not one technique or one score. It is a set of
+ways to investigate what a model uses to produce its outputs. Before
+choosing an explanation method, we need to ask who will read the
+explanation, what they need to decide, and how closely the explanation
+reflects the original model. This review focuses on those practical
+questions rather than treating an attractive explanation as evidence of
+reliability.</p><h3 id="prediction-generalization-and-deployment">Prediction,
+generalization, and deployment</h3><p>Test results depend on how the data were collected and divided. If
+the same misleading pattern appears in both the training and test sets,
+a model can look reliable even though it would struggle elsewhere.
+Testing on later time periods, different hospitals, or independently
+collected samples can reveal weaknesses that a random train–test split
+might miss.</p><p>Interpretability is only part of responsible deployment. Teams also
+need to check data quality, probability calibration, decision
+thresholds, performance over time, and routes for reviewing or
+challenging harmful outputs. Explanations help identify questions worth
+investigating, but they cannot replace these checks.</p><h3 id="illustrative-distinction">Illustrative distinction</h3><p>Consider a model that predicts a patient's risk partly from the
+hospital where the patient was treated. The hospital identifier may
+correlate with the outcome in historical records, yet it does not
+necessarily explain the patient's medical condition. An XAI method could
+reveal this dependence. Deciding whether it is clinically acceptable
+would still require medical expertise and independent validation.</p><div class="page-footer">Devid Kitasho<span>3 / 12</span></div></section><section class="page" id="sayfa-4"><h2 id="the-clever-hans-problem-and-shortcut-learning">2. The Clever
+Hans problem and shortcut learning</h2><p>Clever Hans was a horse that seemed able to solve arithmetic
+problems. In fact, he was responding to subtle signals from people who
+knew the answers. The lesson for machine learning is striking: a system
+can appear to solve the intended problem while using a completely
+different clue. A wolf classifier, for example, might learn to associate
+snow with wolves rather than identify the animal itself. Such shortcuts
+can disappear when the model is used in a new setting (Molnar,
+2022).</p><p>An explanation may draw attention to a suspicious feature, but that
+is the beginning of an investigation, not the end. To understand whether
+a model has learned a shortcut, we should also inspect the data, test
+relevant subgroups, change suspect inputs where appropriate, and
+evaluate the model on new or deliberately shifted samples. A highlighted
+image region, for example, is a useful clue but not proof of a causal
+mechanism.</p><h3 id="sources-of-shortcuts">Sources of shortcuts</h3><p>Shortcuts can enter a datasets in many ways. Information about the
+answer may leak into the inputs; image backgrounds may correlate with
+labels; recording devices may leave distinctive traces; or a seemingly
+harmless variable may stand in for a sensitive characteristic. Flexible
+models can exploit these signals because they help predict the labels
+seen during training.</p><p>A practical audit might compare explanations across datasets, remove
+a suspected shortcut where this is feasible, and test performance after
+the change. If an attribution plot looks different, that is worth
+examining. It does not automatically mean the underlying problem has
+been solved.</p><h3 id="audit-questions">Audit questions</h3><p>Useful questions include: Would this feature be available when the
+model is actually used? Is it connected to the phenomenon we want to
+predict? Could it be a proxy for an inappropriate characteristic? Does
+the relationship persist in data collected elsewhere? Asking these
+questions helps move from a plausible story toward a defensible
+assessment.</p><div class="page-footer">Devid Kitasho<span>4 / 12</span></div></section><section class="page" id="sayfa-5"><h2 id="conceptual-foundations">3. Conceptual foundations</h2><h3 id="global-versus-local-explanation">3.1 Global versus local
+explanation</h3><p>Global explanations describe patterns in a model's behaviour across
+many cases. They can show which inputs matter overall or where a model
+responds non-linearly. Local explanations address a narrower question:
+why did the model produce this output for this person or observation? A
+local explanation may fit one case well without describing the model
+elsewhere. Similarly, a global average can hide behaviour affecting a
+small but important group (Molnar, 2022; Ribeiro et al., 2016).</p><h3 id="intrinsic-versus-post-hoc-interpretability">3.2 Intrinsic versus
+post-hoc interpretability</h3><p>Some models are built so that people can inspect their decision logic
+directly. Examples include short rule lists, small decision trees, and
+sparse linear models. Other models are examined after training through
+post-hoc methods that approximate or summarize their behaviour. The
+distinction is useful, but not absolute. A linear model with hundreds of
+correlated variables may be hard to understand, while a carefully
+designed additive model may remain readable despite capturing nonlinear
+effects (Rudin, 2019).</p><h3 id="explanation-is-not-causation">3.3 Explanation is not
+causation</h3><p>Knowing which feature influenced a prediction is different from
+knowing what would happen if we changed that feature in the real world.
+For example, a churn model might rely heavily on recorded billing
+complaints. That does not prove that clearing a complaint will prevent
+the customer from leaving. Questions about interventions require domain
+knowledge and, ideally, experiments or sound causal analysis.</p><h3 id="taxonomy-of-interpretability">Taxonomy of interpretability</h3><div class="table-wrap"><table>
+<colgroup>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>Dimension</td>
+<td>Question answered</td>
+<td>Typical technique</td>
+</tr>
+<tr class="even">
+<td>Global</td>
+<td>What does the model generally rely on?</td>
+<td>Permutation importance, PDP</td>
+</tr>
+<tr class="odd">
+<td>Local</td>
+<td>Why this particular output?</td>
+<td>LIME, SHAP</td>
+</tr>
+<tr class="even">
+<td>Intrinsic</td>
+<td>Can the decision structure itself be inspected?</td>
+<td>Sparse score, short tree</td>
+</tr>
+<tr class="odd">
+<td>Post-hoc</td>
+<td>Can an existing fitted model be analyzed?</td>
+<td>Surrogate, attribution</td>
+</tr>
+</tbody>
+</table></div><p>These categories overlap. A simple linear model can be explained at
+both the global and individual levels, and a post-hoc technique may be
+used for either purpose. Interpretability also depends on the reader: a
+rule set that seems clear to a data scientist may still be difficult for
+a patient to understand.</p><div class="page-footer">Devid Kitasho<span>5 / 12</span></div></section><section class="page" id="sayfa-6"><h2 id="core-explainability-methods">4. Core explainability methods</h2><h3 id="permutation-importance-and-partial-dependence">4.1 Permutation
+importance and partial dependence</h3><p>Permutation importance asks how much a model's performance worsens
+when the values of one feature are shuffled. For a fitted model f,
+evaluation dataset D, and loss L, we write I_j = L(f, D with feature j
+permuted) − L(f, D). A larger positive value suggests that the model
+depends more heavily on that feature for the selected test and loss.
+Partial dependence takes a different approach: PD_j(z) = E_X−j[f(z,
+X−j)] summarizes the model's average output when feature j is set to z.
+Neither calculation, by itself, measures a causal effect (Molnar,
+2022).</p><h3 id="local-interpretable-model-agnostic-explanations-lime">4.2 Local
+interpretable model-agnostic explanations (LIME)</h3><p>LIME explains one prediction by fitting a simpler model near the
+observation of interest. Its objective can be written g* = arg min_g {
+L(f, g, π_x) + Ω(g) }. Here, π_x gives greater weight to nearby
+observations, while Ω(g) discourages an overly complicated explanation.
+The appeal is that a short local rule or linear approximation is easier
+to discuss than a complex predictor. The weakness is that the
+explanation may become misleading if the sampled neighbourhood is
+unrealistic or the original model behaves irregularly nearby (Ribeiro et
+al., 2016).</p><h3 id="shap-and-additive-attribution">4.3 SHAP and additive
+attribution</h3><p>SHAP approaches explanations through cooperative game theory. It
+distributes the difference between a model's output and a reference
+value across the input features. A common additive expression is f(x) ≈
+φ₀ + Σ_j φ_j, where φ₀ is the baseline and φ_j is the contribution
+assigned to feature j. The precise meaning of those contributions
+depends on how the reference population and feature combinations are
+defined. They may also be expressed in log-odds rather than probability,
+a distinction that matters when presenting results (Lundberg &amp; Lee,
+2017).</p><h3 id="assumptions-and-practical-interpretation">Assumptions and
+practical interpretation</h3><p>Permutation importance is sensitive to the dataset and loss function
+used for evaluation. It can also be difficult to interpret when features
+are strongly correlated. Shuffling one variable may create combinations
+that rarely occur in reality, while shared predictive information can
+make either variable seem less important than expected. Grouped or
+conditional analyses may help.</p><p>Partial dependence plots average the model's response as a chosen
+feature changes. They are useful for spotting broad trends, but the
+averaging process can hide differences between individuals. It may also
+create feature combinations that are implausible in the real population.
+Individual conditional expectation plots offer a useful companion
+view.</p><div class="page-footer">Devid Kitasho<span>6 / 12</span></div></section><section class="page" id="sayfa-7"><h3 id="shap-and-lime-interpret-carefully">SHAP and LIME: interpret
+carefully</h3><p>Both SHAP and LIME require careful choices. SHAP depends on the
+background distribution, the output scale, and how missing features are
+represented. LIME depends on the observations generated around the case
+and how the surrogate is fitted. Neither method automatically identifies
+causes or tells someone which action will improve an outcome.</p><p>A sensible check is to compare a local surrogate's predictions with
+those of the original model on plausible nearby observations. When
+results depend strongly on a random seed or a chosen baseline, that
+sensitivity should be reported rather than hidden.</p><div class="page-footer">Devid Kitasho<span>7 / 12</span></div></section><section class="page" id="sayfa-8"><h2 id="worked-illustration-customer-churn">5. Worked illustration:
+customer churn</h2><p>Imagine a subscription service whose churn model assigns one customer
+a cancellation probability of 0.72, compared with a reference value of
+0.30. The model might respond to repeated billing disputes, a recent
+price increase, and the customer's long history with the service. This
+is a constructed teaching example: no model was trained and no SHAP
+values were computed for it.</p><p>The prediction tells the company whom it may need to pay attention
+to. The explanation suggests which recorded factors influenced that
+prediction. Neither tells the company which intervention will work. A
+discount, a billing correction, or simply fewer marketing messages could
+have very different effects, and those effects need to be tested.</p><h3 id="illustrative-attribution-breakdown">Illustrative attribution
+breakdown</h3><div class="table-wrap"><table>
+<colgroup>
+<col style="width: 50%"/>
+<col style="width: 50%"/>
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>Component</td>
+<td>Illustrative contribution to probability</td>
+</tr>
+<tr class="even">
+<td>Reference prediction</td>
+<td>0.30</td>
+</tr>
+<tr class="odd">
+<td>Repeated billing disputes</td>
+<td>+0.23</td>
+</tr>
+<tr class="even">
+<td>Recent price increase</td>
+<td>+0.14</td>
+</tr>
+<tr class="odd">
+<td>Long tenure</td>
+<td>−0.05</td>
+</tr>
+<tr class="even">
+<td>Other model factors</td>
+<td>+0.10</td>
+</tr>
+<tr class="odd">
+<td>Illustrative prediction</td>
+<td>0.72</td>
+</tr>
+</tbody>
+</table></div><p>The numbers in the table are illustrative contributions chosen to
+make the additive calculation easy to follow. They should not be read as
+results from a fitted model. In an actual SHAP analysis, the explanation
+may be calculated on a log-odds scale rather than directly in
+probabilities.</p><h3 id="from-explanation-to-intervention">From explanation to
+intervention</h3><p>Suppose billing disputes are the strongest positive contribution. The
+model may be using that history as a warning signal. Whether resolving a
+dispute would reduce churn is a different question. An A/B test or a
+well-designed observational study would provide stronger evidence about
+the intervention.</p><p>The case highlights three questions that are easy to confuse: Who is
+likely to leave? Which inputs influenced the model's prediction? And
+what action would actually help retain the customer? XAI is most
+directly concerned with the second question; the third requires evidence
+about real-world effects.</p><div class="page-footer">Devid Kitasho<span>8 / 12</span></div></section><section class="page" id="sayfa-9"><h2 id="how-should-explanations-be-evaluated">6. How should explanations
+be evaluated?</h2><p>An explanation should not be judged only by whether its chart is
+attractive or easy to read. Evaluation should ask whether it reflects
+the original model, whether it changes unpredictably after small input
+changes, whether it remains useful on new data, and whether people can
+make better decisions with it.</p><p>These goals can pull in different directions. A short explanation may
+be clear but leave out an important interaction. A detailed explanation
+may follow the mathematics closely yet overwhelm its audience. The right
+balance depends on the decision and on the people who need to use the
+explanation.</p><div class="table-wrap"><table>
+<colgroup>
+<col style="width: 50%"/>
+<col style="width: 50%"/>
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>Criterion</td>
+<td>Practical evaluation</td>
+</tr>
+<tr class="even">
+<td>Fidelity</td>
+<td>Compare local surrogate outputs with the original model</td>
+</tr>
+<tr class="odd">
+<td>Stability</td>
+<td>Repeat explanations after small, plausible perturbations</td>
+</tr>
+<tr class="even">
+<td>Robustness</td>
+<td>Check sensitivity under distribution shift</td>
+</tr>
+<tr class="odd">
+<td>Usefulness</td>
+<td>Test whether intended users make better decisions</td>
+</tr>
+<tr class="even">
+<td>Fairness</td>
+<td>Audit subgroup patterns and proxy dependence</td>
+</tr>
+<tr class="odd">
+<td>Reproducibility</td>
+<td>Record data, model, seed, baseline and software version</td>
+</tr>
+</tbody>
+</table></div><h3 id="human-centered-evaluation">Human-centered evaluation</h3><p>A chart can create confidence without improving understanding.
+Human-centred evaluations should therefore test whether clinicians,
+analysts, or affected individuals can spot model errors, recognize
+uncertainty, and make better judgments when explanations are available.
+Feeling more confident is not the same as being better informed.</p><p>Different uses call for different tests. A debugging explanation
+should help identify faults. An explanation used in an appeal should
+make the reasons for a decision understandable. An audit requires
+traceable evidence about how the system behaves across cases and
+groups.</p><div class="page-footer">Devid Kitasho<span>9 / 12</span></div></section><section class="page" id="sayfa-10"><h2 id="interpretable-models-versus-black-box-explanations">7.
+Interpretable models versus black-box explanations</h2><p>Rudin (2019) argues that, especially when decisions have serious
+consequences, we should first consider models whose reasoning can be
+inspected directly. This challenges the common assumption that more
+accurate systems must always be harder to understand. Whether that
+trade-off exists depends on the problem and the data. Complex models may
+still be justified, but they need stronger evidence than a convincing
+post-hoc explanation alone.</p><p>A fair comparison should evaluate transparent and complex models
+using the same data splits and the same relevant criteria, including
+accuracy, calibration, robustness, and fairness. If a complex model
+offers a meaningful improvement, that benefit must be weighed against
+the extra work needed to examine and govern it. If the results are
+similar, a simpler model may be easier to justify.</p><h3 id="a-balanced-selection-principle">A balanced selection
+principle</h3><p>It makes sense to begin with an understandable baseline rather than
+assuming a black-box model is necessary. A short rule list or additive
+model may already perform well enough for the task, while offering a
+clearer path for review and accountability.</p><p>Some tasks genuinely benefit from more complex models. In those
+cases, post-hoc explanations can be valuable, but they should sit
+alongside independent validation, stress testing, documentation, and
+human oversight. They are not a certificate of safety.</p><h3 id="high-stakes-decisions">High-stakes decisions</h3><p>The seriousness of a decision depends on more than model complexity.
+We should consider how harmful an error could be, whether it can be
+reversed, whether a person can review it, and whether the affected
+individual has a meaningful way to challenge the result.</p><div class="page-footer">Devid Kitasho<span>10 / 12</span></div></section><section class="page" id="sayfa-11"><h2 id="a-practical-xai-workflow">8. A practical XAI workflow</h2><p>A useful XAI workflow starts with the decision, not the software
+library. First identify who will be affected and what the model is
+supposed to support. Then examine where the data came from, check for
+leakage and gaps, establish an interpretable baseline, and evaluate
+candidate models. Only after that should the team choose explanation
+methods and test whether the resulting explanations are faithful and
+stable.</p><p>When an explanation is reported, readers should be able to tell which
+model and dataset were used, what the output represents, what reference
+population was selected, and which limitations apply. Observations about
+model behaviour must be kept separate from claims about causes,
+fairness, or the effectiveness of an intervention.</p><h3 id="recommended-reporting-record">Recommended reporting record</h3><p>A useful record includes the decision context, dataset origin and
+exclusions, model version, validation procedure, output scale,
+explanation settings, reference population, tests of fidelity and
+stability, subgroup checks, and a clear account of what the explanation
+cannot establish.</p><h2 id="discussion-limitations-and-future-directions">9. Discussion,
+limitations, and future directions</h2><p>The challenge in XAI is not simply to make complex models easier to
+describe. It is to make explanations informative without making them
+sound more certain than they are. Post-hoc methods can reveal useful
+patterns, yet their conclusions may change with the baseline or the
+data. Transparent models are easier to inspect, but they can still be
+biased, poorly calibrated, or unsuitable for the task.</p><p>This article draws on selected foundational studies rather than
+attempting an exhaustive review. It does not compare methods
+experimentally or claim that one technique performs best in every
+setting. Future studies should examine explanations under changing data
+conditions and test whether they actually help different users make
+better decisions.</p><p>Particularly valuable directions include explanation stability under
+distribution shift, causal testing of proposed interventions, studies
+involving real decision-makers, and more reliable ways to explain
+foundation models. The aim should be evidence that explanations improve
+understanding and decisions, not merely better-looking
+visualizations.</p><div class="page-footer">Devid Kitasho<span>11 / 12</span></div></section><section class="page" id="sayfa-12"><h2 id="conclusion">10. Conclusion</h2><p>Accurate prediction matters, but it is not the whole story. Clever
+Hans reminds us that a model can succeed for the wrong reason. Global
+and local explanations help us inspect different parts of its behaviour,
+while inherently interpretable models offer a way to make the decision
+structure visible from the start. Still, an explanation is not
+verification: feature importance is not causation, a polished plot is
+not proof of faithfulness, and transparency alone does not guarantee
+fairness. Responsible use requires careful model choice, independent
+testing, and people who remain accountable for consequential
+decisions.</p><h2 id="references">References</h2><p>Lipton, Z. C. (2018). The mythos of model interpretability. Queue,
+16(3), 31–57. https://doi.org/10.1145/3236386.3241340</p><p>Lundberg, S. M., &amp; Lee, S.-I. (2017). A unified approach to
+interpreting model predictions. Advances in Neural Information
+Processing Systems, 30.</p><p>Molnar, C. (2022). Interpretable machine learning: A guide for making
+black box models explainable (2nd ed.).
+https://christophm.github.io/interpretable-ml-book/</p><p>Ribeiro, M. T., Singh, S., &amp; Guestrin, C. (2016). “Why should I
+trust you?”: Explaining the predictions of any classifier. Proceedings
+of the 22nd ACM SIGKDD International Conference on Knowledge Discovery
+and Data Mining, 1135–1144. https://doi.org/10.1145/2939672.2939778</p><p>Rudin, C. (2019). Stop explaining black box machine learning models
+for high stakes decisions and use interpretable models instead. Nature
+Machine Intelligence, 1, 206–215.
+https://doi.org/10.1038/s42256-019-0048-x</p><div class="page-footer">Devid Kitasho<span>12 / 12</span></div></section></main></body></html>
