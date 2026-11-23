@@ -109,8 +109,7 @@ bir önceki kazancın <code>esik</code> katından büyükse yapılır.</li>
 </ol>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
 tek öznitelikse ve bölünme o öznitelikte değilse GADGET’in PD sürümü
-REPID’e eşittir. Kendi verimde bunu kontrol olarak kullandım (Bölüm 4,
-kurgu A).</p>
+REPID’e eşittir; kendi verimdeki kurgu A bu durumdur (Bölüm 4).</p>
 <p><strong>Uygulamam:</strong> Algoritmayı Python’da sıfırdan yazdım.
 Bölme adayları yazarlar gibi en fazla 100 kantil noktası; simülasyonda
 yazarlar gibi bütün değerler.</p>
@@ -303,8 +302,9 @@ dışı</td>
 heterojenlik azalmasıdır (öznitelik başına, her bölgenin kendi
 ızgarasında).</p>
 <ul>
-<li><strong>A</strong>, Bölüm 13 REPID analizimdeki sonucun aynısını
-veriyor; kendi GADGET uygulamam için bir kontrol.</li>
+<li><strong>A</strong> tek öznitelikli bölme, yani REPID’in yaptığı: ilk
+bölünme bina yaşı ≤ 27,5. Bu, Bölüm 13 uygulamamda gelir c-ICE
+kümelerinin bina yaşıyla ilişkili çıkmasıyla tutarlı.</li>
 <li><strong>B</strong>’de gelirin heterojenliği %29 azalıyor: bu
 etkileşim. Bina yaşınınki çok daha fazla azalıyor, ama bunun büyük kısmı
 yaşın hem bölünen hem incelenen öznitelik olmasından, yani her bölgede

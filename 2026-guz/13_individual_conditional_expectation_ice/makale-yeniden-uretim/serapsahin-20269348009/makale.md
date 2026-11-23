@@ -30,7 +30,7 @@ $$\mathcal{R}(\mathcal{N}) = \sum_{j \in S} \sum_{i \in \mathcal{N}} \sum_{k} \b
 3. **Izgara kısıtlama.** Bölünen öznitelik $S$'nin içindeyse, o özniteliğin ızgarası her çocukta kendi tarafıyla sınırlanır ve eğriler kalan noktalar üzerinden yeniden merkezlenir.
 4. **Durma kuralı.** Kazanç = (düğüm − sol − sağ) / kök heterojenliği. İlk bölünme kazanç ≥ `esik` ise; sonrakiler bir önceki kazancın `esik` katından büyükse yapılır.
 
-$S$ tek öznitelikse ve bölünme o öznitelikte değilse GADGET'in PD sürümü REPID'e eşittir. Kendi verimde bunu kontrol olarak kullandım (Bölüm 4, kurgu A).
+$S$ tek öznitelikse ve bölünme o öznitelikte değilse GADGET'in PD sürümü REPID'e eşittir; kendi verimdeki kurgu A bu durumdur (Bölüm 4).
 
 **Uygulamam:** Algoritmayı Python'da sıfırdan yazdım. Bölme adayları yazarlar gibi en fazla 100 kantil noktası; simülasyonda yazarlar gibi bütün değerler.
 
@@ -82,7 +82,7 @@ Aynı bölme ve model (gradient boosting, test R² 0,838), aynı 400 test bölge
 
 *Kazanç* sütunu ilk bölünmeye aittir. *Gelir* ve *bina yaşı* sütunları, ağacın son yapraklarındaki toplam heterojenlik azalmasıdır (öznitelik başına, her bölgenin kendi ızgarasında).
 
-- **A**, Bölüm 13 REPID analizimdeki sonucun aynısını veriyor; kendi GADGET uygulamam için bir kontrol.
+- **A** tek öznitelikli bölme, yani REPID'in yaptığı: ilk bölünme bina yaşı ≤ 27,5. Bu, Bölüm 13 uygulamamda gelir c-ICE kümelerinin bina yaşıyla ilişkili çıkmasıyla tutarlı.
 - **B**'de gelirin heterojenliği %29 azalıyor: bu etkileşim. Bina yaşınınki çok daha fazla azalıyor, ama bunun büyük kısmı yaşın hem bölünen hem incelenen öznitelik olmasından, yani her bölgede ızgaranın kendi yarısına daralmasından geliyor.
 - **C** geliri gelire göre bölüyor. Makale, incelenen özniteliğin aynı zamanda bölme özniteliği olmasına izin veriyor; bu yüzden bu bölünme kendi başına hata değil. Ama yüksek kazanç ızgaranın daralmasını da içeriyor: gelirin heterojenlik azalması daraltılmış ızgarada %90,1, tam ızgara korunarak hesaplandığında yalnızca %2,9. Bina yaşı eğrilerindeki %28,8'lik azalma ise iki hesapta da aynı. Bu yüzden C'nin yüksek kazancı, doğrudan daha güçlü bir etkileşim bulunduğu şeklinde yorumlanmamalı.
 - **D** hiç bölmüyor: iki özniteliğin ortak heterojenliğinin %10'unu tek başına açıklayan başka bir öznitelik yok.
