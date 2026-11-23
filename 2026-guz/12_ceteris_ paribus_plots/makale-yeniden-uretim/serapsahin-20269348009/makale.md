@@ -16,7 +16,7 @@ Ceteris paribus (CP) profili tek bir gözlem için şu soruyu sorar: *"Diğer he
 
 Bölüm 12 uygulamamda bunu Telco verisinde ölçtüm: `5949-XIKAE` müşterisinin `tenure` profilinde noktaların **%90**'ı en yakın gerçek müşteriden uzak düşüyordu, çünkü `TotalCharges ≈ tenure × MonthlyCharges`. Uygulamada sorunu ilişkiyi **elle** yazarak düzeltmiştim. Bu makale aynı sorunu **ilişkiyi bilmeden, veriden öğrenerek** azaltmayı öneriyor. Bu yüzden Bölüm 12'nin doğal devamı.
 
-Kitabın yazarı makalenin de ilk yazarı. Hooker, Mentch ve Zhou (2021) aynı ekstrapolasyon sorununu ICE eğrilerinde gösteriyor (Şekil 6); o makaleyi PR 36'da Bölüm 23–24 için başka bir öğrenci yeniden üretti. Bu çalışma sorunu göstermekle kalmayıp onu azaltmayı amaçlayan bir yöntemi yeniden üretiyor.
+Kitabın yazarı makalenin de ilk yazarı. Hooker, Mentch ve Zhou (2021) aynı ekstrapolasyon sorununu ICE eğrilerinde gösteriyor (Şekil 6). Bu çalışma sorunu göstermekle kalmayıp onu azaltmayı amaçlayan bir yöntemi yeniden üretiyor.
 
 ## 2. Yöntem
 
