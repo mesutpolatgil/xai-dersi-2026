@@ -1,0 +1,405 @@
+agac,ornek,kok,evet,hayir,yaprak,oznitelik
+A-Por-Bin,-1,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;Mjob
+A-Por-Bin,0,G1 < 8.5,G2 < 8.5,G2 < 8.5,6,G1;G2;Mjob;famsize
+A-Por-Bin,1,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;Mjob;Medu;age
+A-Por-Bin,2,G2 < 8.5,yaprak,G2 < 9.5,7,G2;Mjob;famsup;activities;reason
+A-Por-Bin,3,G1 < 8.5,G2 < 8.5,G2 < 8.5,6,G1;G2;Mjob;reason
+A-Por-Bin,4,G2 < 8.5,yaprak,G2 < 9.5,6,G2;traveltime;Mjob;famsize
+A-Por-Bin,5,G2 < 8.5,yaprak,G2 < 9.5,5,G2;famrel;absences
+A-Por-Bin,6,G2 < 8.5,reason ∈ {reputation},G1 < 9.5,9,G2;reason;G1;age;school;Mjob;freetime
+A-Por-Bin,7,G1 < 8.5,G2 < 8.5,G2 < 9.5,9,G1;G2;Fjob;health;goout;reason;nursery
+A-Por-Bin,8,G2 < 8.5,yaprak,G2 < 9.5,6,G2;health;failures;Fjob
+A-Por-Bin,9,G2 < 8.5,yaprak,G1 < 9.5,7,G2;G1;absences;Mjob;school
+A-Por-Bin,10,G2 < 8.5,yaprak,G1 < 9.5,8,G2;G1;age;failures;reason;Mjob;absences
+A-Por-Bin,11,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;Fedu;famrel
+A-Por-Bin,12,G2 < 8.5,yaprak,G1 < 9.5,7,G2;G1;absences;Mjob;Walc
+A-Por-Bin,13,G2 < 8.5,yaprak,G1 < 8.5,9,G2;G1;health;famrel;goout;Medu
+A-Por-Bin,14,G2 < 8.5,yaprak,G2 < 9.5,5,G2;Fedu;goout
+A-Por-Bin,15,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;famrel;absences;school
+A-Por-Bin,16,G2 < 8.5,yaprak,G2 < 9.5,5,G2;absences;goout
+A-Por-Bin,17,G2 < 8.5,yaprak,G1 < 9.5,9,G2;G1;school;Mjob;famrel;freetime
+A-Por-Bin,18,G2 < 8.5,yaprak,G2 < 9.5,6,G2;famrel;failures;absences
+A-Por-Bin,19,G2 < 8.5,famsize = GT3,G1 < 9.5,8,G2;famsize;G1;Mjob;absences
+A-Por-Bin,20,G1 < 8.5,G2 < 8.5,G2 < 9.5,9,G1;G2;Mjob;Fedu;age;absences
+A-Por-Bin,21,G2 < 8.5,goout < 1.5,G1 < 9.5,7,G2;goout;G1;age;Mjob;Walc
+A-Por-Bin,22,G2 < 8.5,yaprak,G1 < 9.5,8,G2;G1;reason;Mjob;famrel;school
+A-Por-Bin,23,G2 < 8.5,yaprak,G2 < 9.5,4,G2;famrel
+A-Por-Bin,24,G2 < 9.5,G2 < 8.5,yaprak,6,G2;absences;Mjob;G1
+A-Por-Bin,25,G2 < 8.5,yaprak,G2 < 9.5,6,G2;goout;Fedu;studytime
+A-Por-Bin,26,G2 < 8.5,yaprak,G1 < 8.5,7,G2;G1;absences;higher;guardian;Walc
+A-Por-Bin,27,G2 < 8.5,yaprak,G1 < 8.5,7,G2;G1;health;goout;famrel
+A-Por-Bin,28,G2 < 8.5,yaprak,G1 < 8.5,6,G2;G1;Mjob;failures;guardian
+A-Por-Bin,29,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;Mjob;age;famsup
+A-Por-Bin,30,G2 < 8.5,yaprak,G2 < 9.5,4,G2;famrel
+A-Por-Bin,31,G2 < 8.5,yaprak,G1 < 9.5,4,G2;G1;age
+A-Por-Bin,32,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;age;Fedu
+A-Por-Bin,33,G2 < 8.5,yaprak,G1 < 8.5,5,G2;G1;age;Walc
+A-Por-Bin,34,G2 < 8.5,yaprak,G2 < 9.5,5,G2;G1;age
+A-Por-Bin,35,G2 < 8.5,yaprak,G2 < 9.5,6,G2;absences;G1;Mjob
+A-Por-Bin,36,G2 < 8.5,reason ∈ {reputation},G2 < 9.5,7,G2;reason;G1;age;goout
+A-Por-Bin,37,G2 < 8.5,yaprak,G1 < 9.5,8,G2;G1;Mjob;failures;school;absences;health
+A-Por-Bin,38,G1 < 8.5,G2 < 8.5,G2 < 9.5,8,G1;G2;traveltime;health;age
+A-Por-Bin,39,G2 < 9.5,G2 < 8.5,G2 < 10.5,10,G2;absences;G1;Fedu;famrel;address
+A-Por-Bin,40,G2 < 9.5,G1 < 8.5,yaprak,7,G2;G1;health;studytime;Fjob;famsize
+A-Por-Bin,41,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;Mjob;Walc
+A-Por-Bin,42,G2 < 9.5,G1 < 9.5,yaprak,6,G2;G1;Medu;Dalc
+A-Por-Bin,43,G2 < 8.5,yaprak,G2 < 9.5,5,G2;famrel;absences
+A-Por-Bin,44,G2 < 8.5,yaprak,G1 < 9.5,7,G2;G1;school;failures;Mjob;goout
+A-Por-Bin,45,G2 < 8.5,G1 < 8.5,G2 < 9.5,5,G2;G1;famrel
+A-Por-Bin,46,G2 < 8.5,yaprak,G2 < 9.5,5,G2;Fedu;goout
+A-Por-Bin,47,G2 < 9.5,G2 < 8.5,yaprak,6,G2;health;goout;internet
+A-Por-Bin,48,G2 < 8.5,yaprak,G1 < 8.5,4,G2;G1;activities
+A-Por-Bin,49,G2 < 8.5,yaprak,G1 < 8.5,6,G2;G1;Walc;famrel
+A-Por-Bin,50,G2 < 8.5,yaprak,G1 < 9.5,7,G2;G1;Mjob;school;health
+A-Por-Bin,51,G2 < 8.5,G1 < 8.5,G1 < 9.5,9,G2;G1;famsize;age;Fjob;Mjob;school
+A-Por-Bin,52,G2 < 8.5,yaprak,G2 < 9.5,6,G2;internet;Mjob;goout
+A-Por-Bin,53,G2 < 8.5,yaprak,G2 < 9.5,5,G2;absences;famrel
+A-Por-Bin,54,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;Mjob;absences
+A-Por-Bin,55,G2 < 8.5,G1 < 8.5,G1 < 9.5,7,G2;G1;famsize;Mjob
+A-Por-Bin,56,G2 < 8.5,yaprak,G1 < 8.5,6,G2;G1;Mjob;Fedu
+A-Por-Bin,57,G1 < 8.5,G2 < 8.5,G2 < 9.5,13,G1;G2;absences;Mjob;failures;Walc;age;Medu
+A-Por-Bin,58,G2 < 8.5,yaprak,failures < 2.5,3,G2;failures
+A-Por-Bin,59,G2 < 8.5,famsize = GT3,G2 < 9.5,7,G2;famsize;G1;famrel;Walc
+A-Por-Bin,60,G2 < 9.5,G2 < 8.5,yaprak,5,G2;Mjob;G1
+A-Por-Bin,61,G2 < 8.5,Dalc < 2.5,G1 < 9.5,8,G2;Dalc;G1;freetime;Mjob;school
+A-Por-Bin,62,G2 < 8.5,G2 < 7.5,G2 < 9.5,9,G2;Dalc;age;freetime;reason;studytime
+A-Por-Bin,63,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;absences;Mjob;studytime
+A-Por-Bin,64,G2 < 8.5,yaprak,G1 < 8.5,4,G2;G1;age
+A-Por-Bin,65,G2 < 9.5,G2 < 8.5,yaprak,6,G2;G1;traveltime;famsize
+A-Por-Bin,66,G2 < 8.5,yaprak,G2 < 9.5,8,G2;traveltime;G1;Medu;health
+A-Por-Bin,67,G1 < 8.5,G2 < 8.5,G2 < 9.5,7,G1;G2;Mjob;goout;age
+A-Por-Bin,68,G2 < 8.5,yaprak,G1 < 8.5,7,G2;G1;Walc;studytime;health
+A-Por-Bin,69,G2 < 8.5,G1 < 8.5,G1 < 8.5,9,G2;G1;Mjob;absences;health;internet
+A-Por-Bin,70,G2 < 8.5,famsize = GT3,G1 < 8.5,5,G2;famsize;G1;traveltime
+A-Por-Bin,71,G2 < 8.5,yaprak,G1 < 8.5,8,G2;G1;Walc;absences
+A-Por-Bin,72,G2 < 8.5,yaprak,G1 < 8.5,5,G2;G1;health;activities
+A-Por-Bin,73,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;Mjob
+A-Por-Bin,74,G2 < 8.5,yaprak,G1 < 9.5,9,G2;G1;famrel;school;Fedu;nursery;freetime
+A-Por-Bin,75,G2 < 8.5,yaprak,G1 < 8.5,8,G2;G1;Pstatus;Mjob;studytime;famsize
+A-Por-Bin,76,G2 < 8.5,yaprak,G1 < 9.5,7,G2;G1;Walc;absences
+A-Por-Bin,77,G1 < 8.5,G2 < 8.5,G2 < 9.5,10,G1;G2;school;absences;traveltime;studytime;activities
+A-Por-Bin,78,G1 < 8.5,G2 < 8.5,G1 < 9.5,10,G1;G2;Mjob;romantic;Walc;age;absences;Fedu
+A-Por-Bin,79,G1 < 8.5,G2 < 8.5,G2 < 9.5,7,G1;G2;absences;studytime
+A-Por-Bin,80,G2 < 8.5,yaprak,G1 < 8.5,4,G2;G1;internet
+A-Por-Bin,81,G2 < 8.5,yaprak,G1 < 8.5,4,G2;G1;Walc
+A-Por-Bin,82,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;age;absences
+A-Por-Bin,83,G2 < 8.5,yaprak,G1 < 8.5,8,G2;G1;Walc;Mjob;health;Fjob
+A-Por-Bin,84,G2 < 8.5,yaprak,G1 < 8.5,4,G2;G1;sex
+A-Por-Bin,85,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;reason;Fjob
+A-Por-Bin,86,G2 < 8.5,yaprak,failures < 2.5,5,G2;failures;Fedu
+A-Por-Bin,87,G1 < 8.5,G2 < 9.5,G2 < 9.5,9,G1;G2;absences;health;reason
+A-Por-Bin,88,G2 < 8.5,G1 < 8.5,G2 < 9.5,9,G2;G1;famsize;age;internet;health;failures
+A-Por-Bin,89,G2 < 8.5,yaprak,G2 < 9.5,8,G2;Fedu;Dalc;Walc;absences
+A-Por-Bin,90,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;Mjob;school
+A-Por-Bin,91,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;Mjob
+A-Por-Bin,92,G2 < 8.5,yaprak,G1 < 9.5,5,G2;G1;Mjob;paid
+A-Por-Bin,93,G2 < 8.5,yaprak,G1 < 9.5,7,G2;G1;Mjob;school;Fjob;Walc
+A-Por-Bin,94,G2 < 8.5,schoolsup = no,G1 < 8.5,8,G2;schoolsup;G1;activities;sex;famrel
+A-Por-Bin,95,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;Mjob;health;sex
+A-Por-Bin,96,G1 < 8.5,G2 < 8.5,G2 < 9.5,7,G1;G2;absences;activities;famsup
+A-Por-Bin,97,G2 < 8.5,yaprak,G1 < 9.5,6,G2;G1;Dalc;guardian;Mjob
+A-Por-Bin,98,G2 < 8.5,yaprak,G2 < 9.5,6,G2;famrel;Fedu;failures
+A-Por-Bin,99,G2 < 8.5,yaprak,G2 < 9.5,9,G2;Fedu;traveltime;absences
+A-Por-5L,-1,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,0,G2 < 11.5,G1 < 8.5,G2 < 13.5,10,G2;G1;age;Mjob;sex
+A-Por-5L,1,G2 < 11.5,G2 < 8.5,G2 < 14.5,11,G2;age;studytime;absences;internet
+A-Por-5L,2,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,3,G2 < 11.5,G1 < 8.5,G2 < 15.5,9,G2;G1;age;absences
+A-Por-5L,4,G2 < 11.5,G2 < 8.5,G2 < 14.5,14,G2;age;goout;guardian;traveltime;G1;famsup
+A-Por-5L,5,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob
+A-Por-5L,6,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob
+A-Por-5L,7,G2 < 11.5,G1 < 8.5,G2 < 13.5,9,G2;G1;famsup;famrel;Fjob
+A-Por-5L,8,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;age;health
+A-Por-5L,9,G2 < 11.5,G2 < 8.5,G2 < 13.5,11,G2;health;Mjob;absences;G1;age
+A-Por-5L,10,G2 < 11.5,G2 < 8.5,G2 < 13.5,12,G2;G1;absences;traveltime;goout;Fjob;Fedu;nursery
+A-Por-5L,11,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;Fedu;Mjob
+A-Por-5L,12,G2 < 11.5,G2 < 8.5,G2 < 14.5,12,G2;paid;age;Dalc;Mjob;absences
+A-Por-5L,13,G2 < 11.5,G2 < 8.5,G2 < 14.5,11,G2;G1;goout;Fjob;Mjob;famsup
+A-Por-5L,14,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob;age
+A-Por-5L,15,G2 < 11.5,G2 < 8.5,G2 < 15.5,5,G2
+A-Por-5L,16,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;sex
+A-Por-5L,17,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,18,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;G1;Mjob;reason;school
+A-Por-5L,19,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;age;famrel;Fjob
+A-Por-5L,20,G2 < 11.5,G1 < 8.5,G2 < 13.5,13,G2;G1;Fjob;Fedu;absences;reason;address;schoolsup
+A-Por-5L,21,G2 < 11.5,G2 < 8.5,G2 < 13.5,12,G2;goout;age;studytime;Mjob
+A-Por-5L,22,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;G1
+A-Por-5L,23,G2 < 11.5,G2 < 8.5,G2 < 13.5,11,G2;famrel;reason;Fjob
+A-Por-5L,24,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;absences;Mjob
+A-Por-5L,25,G2 < 11.5,G2 < 8.5,G2 < 14.5,10,G2;famsize;Mjob;Fedu
+A-Por-5L,26,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;absences
+A-Por-5L,27,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;goout;school
+A-Por-5L,28,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;age
+A-Por-5L,29,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;reason;G1
+A-Por-5L,30,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;age;guardian
+A-Por-5L,31,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;absences
+A-Por-5L,32,G2 < 11.5,G2 < 8.5,G2 < 14.5,10,G2;goout;Fjob;age;Mjob
+A-Por-5L,33,G2 < 11.5,G2 < 8.5,G2 < 13.5,14,G2;age;G1;Fjob;Mjob;sex;school
+A-Por-5L,34,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,35,G2 < 11.5,G2 < 8.5,G2 < 13.5,9,G2;reason;age;Fjob
+A-Por-5L,36,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;reason;Fjob
+A-Por-5L,37,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;age;absences;Mjob;freetime
+A-Por-5L,38,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;age;guardian;Walc;Mjob
+A-Por-5L,39,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;absences
+A-Por-5L,40,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;famrel
+A-Por-5L,41,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;G1
+A-Por-5L,42,G2 < 11.5,G2 < 8.5,G2 < 14.5,9,G2;famrel;age;Mjob
+A-Por-5L,43,G2 < 11.5,G2 < 8.5,G2 < 15.5,9,G2;age;G1;absences;famrel
+A-Por-5L,44,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;famsup;G1;Mjob;Walc
+A-Por-5L,45,G2 < 11.5,G2 < 8.5,G2 < 13.5,11,G2;Mjob;health;activities;G1;Fjob
+A-Por-5L,46,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob
+A-Por-5L,47,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob;reason
+A-Por-5L,48,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;goout;Fedu
+A-Por-5L,49,G2 < 11.5,G2 < 8.5,G2 < 13.5,12,G2;schoolsup;Mjob;freetime;age;health;Fjob;reason
+A-Por-5L,50,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,51,G2 < 11.5,G2 < 8.5,G2 < 15.5,14,G2;G1;Mjob;age;Fjob;famsup;Walc
+A-Por-5L,52,G2 < 11.5,G2 < 8.5,G2 < 14.5,10,G2;health;freetime;schoolsup;activities
+A-Por-5L,53,G2 < 11.5,G2 < 8.5,G2 < 14.5,12,G2;age;Mjob;studytime
+A-Por-5L,54,G2 < 11.5,G2 < 8.5,G2 < 15.5,15,G2;G1;Fjob;age;internet;guardian;Mjob;traveltime
+A-Por-5L,55,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;G1
+A-Por-5L,56,G2 < 11.5,G2 < 8.5,G2 < 14.5,12,G2;Mjob;health;address;absences;schoolsup
+A-Por-5L,57,G2 < 11.5,G1 < 8.5,G2 < 13.5,8,G2;G1;age;reason
+A-Por-5L,58,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob;age
+A-Por-5L,59,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;age;Mjob
+A-Por-5L,60,G2 < 11.5,G2 < 8.5,G2 < 13.5,14,G2;Fjob;G1;Mjob;Walc;famrel
+A-Por-5L,61,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;age;absences;Mjob;G1;freetime
+A-Por-5L,62,G2 < 11.5,G2 < 8.5,G2 < 13.5,9,G2;age;Mjob;Fjob
+A-Por-5L,63,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;Fjob
+A-Por-5L,64,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob;age
+A-Por-5L,65,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;age;traveltime;absences;Mjob
+A-Por-5L,66,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;absences;Fjob;reason
+A-Por-5L,67,G2 < 11.5,G1 < 8.5,G2 < 13.5,7,G2;G1;Mjob
+A-Por-5L,68,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,69,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,70,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fjob;age
+A-Por-5L,71,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;Mjob;freetime;absences;G1
+A-Por-5L,72,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;G1;health
+A-Por-5L,73,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;absences;Fjob;Fedu
+A-Por-5L,74,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;goout;Fjob;age
+A-Por-5L,75,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,76,G2 < 11.5,G2 < 8.5,G2 < 15.5,6,G2;age
+A-Por-5L,77,G2 < 11.5,G1 < 8.5,G2 < 15.5,13,G2;G1;school;age;Mjob;health;guardian
+A-Por-5L,78,G2 < 11.5,G2 < 8.5,G2 < 13.5,11,G2;G1;age;absences;Mjob;freetime
+A-Por-5L,79,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;G1;absences
+A-Por-5L,80,G2 < 11.5,G2 < 8.5,G2 < 13.5,9,G2;activities;famsup;Walc
+A-Por-5L,81,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;age;absences;G1
+A-Por-5L,82,G2 < 11.5,G2 < 8.5,G2 < 13.5,10,G2;age;Fjob;famsup
+A-Por-5L,83,G2 < 11.5,G2 < 8.5,G2 < 15.5,13,G2;G1;Walc;reason;age;Fjob;goout;Mjob
+A-Por-5L,84,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;health;G1;absences
+A-Por-5L,85,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;freetime
+A-Por-5L,86,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;failures;reason
+A-Por-5L,87,G2 < 11.5,G1 < 8.5,G2 < 13.5,13,G2;G1;health;age;reason;freetime;Mjob
+A-Por-5L,88,G2 < 11.5,G2 < 8.5,G2 < 14.5,6,G2;goout
+A-Por-5L,89,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;Fedu
+A-Por-5L,90,G2 < 11.5,G2 < 8.5,G2 < 13.5,8,G2;G1;Mjob;school
+A-Por-5L,91,G2 < 11.5,G2 < 8.5,G2 < 13.5,6,G2;absences
+A-Por-5L,92,G2 < 11.5,G2 < 8.5,G2 < 13.5,12,G2;reason;G1;absences;Fjob;age;health
+A-Por-5L,93,G2 < 11.5,G2 < 8.5,G2 < 13.5,13,G2;G1;age;Mjob;Dalc
+A-Por-5L,94,G2 < 11.5,G2 < 8.5,G2 < 13.5,9,G2;age;schoolsup;Mjob;Fedu
+A-Por-5L,95,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,96,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;G1;absences
+A-Por-5L,97,G2 < 11.5,G2 < 8.5,G2 < 13.5,5,G2
+A-Por-5L,98,G2 < 11.5,G2 < 8.5,G2 < 13.5,7,G2;famrel
+A-Por-5L,99,G2 < 11.5,G2 < 8.5,G2 < 13.5,11,G2;age;absences;Mjob
+B-Por-5L,-1,G1 < 11.5,G1 < 8.5,G1 < 14.5,7,G1;absences;reason
+B-Por-5L,0,G1 < 10.5,G1 < 8.5,G1 < 14.5,14,G1;age;Medu;goout;absences;Fjob;failures;Mjob
+B-Por-5L,1,G1 < 12.5,G1 < 8.5,G1 < 14.5,9,G1;schoolsup;absences;Mjob;reason
+B-Por-5L,2,G1 < 11.5,G1 < 8.5,G1 < 15.5,8,G1;Fedu;freetime
+B-Por-5L,3,G1 < 10.5,G1 < 8.5,G1 < 14.5,10,G1;Dalc;goout;Fjob;Fedu
+B-Por-5L,4,G1 < 11.5,G1 < 8.5,G1 < 14.5,12,G1;Fjob;absences;Dalc;famrel;Mjob;reason
+B-Por-5L,5,G1 < 11.5,G1 < 8.5,G1 < 13.5,12,G1;absences;reason;age;Mjob;Medu
+B-Por-5L,6,G1 < 11.5,G1 < 8.5,G1 < 14.5,16,G1;romantic;goout;absences;age;school;Walc;famsize;famsup
+B-Por-5L,7,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;famsup;address;goout
+B-Por-5L,8,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;Mjob;nursery;health
+B-Por-5L,9,G1 < 11.5,G1 < 8.5,G1 < 14.5,14,G1;Mjob;failures;health;famrel;absences;internet;guardian
+B-Por-5L,10,G1 < 11.5,G1 < 8.5,G1 < 14.5,15,G1;studytime;Mjob;absences;Walc;reason;health
+B-Por-5L,11,G1 < 11.5,G1 < 8.5,G1 < 15.5,15,G1;absences;Fjob;age;reason;Walc
+B-Por-5L,12,G1 < 12.5,G1 < 8.5,G1 < 15.5,13,G1;age;absences;Mjob;Fjob;health;Fedu;Walc;guardian
+B-Por-5L,13,G1 < 11.5,G1 < 8.5,G1 < 15.5,19,G1;health;absences;Medu;famsup;Mjob;age;freetime
+B-Por-5L,14,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;famsize;age;Fjob
+B-Por-5L,15,G1 < 11.5,G1 < 8.5,G1 < 14.5,7,G1;absences;address
+B-Por-5L,16,G1 < 11.5,G1 < 8.5,G1 < 14.5,18,G1;Fedu;health;absences;romantic;Walc;Mjob;nursery;school;schoolsup;internet
+B-Por-5L,17,G1 < 11.5,G1 < 8.5,G1 < 14.5,11,G1;Mjob;age;absences;famsup
+B-Por-5L,18,G1 < 11.5,G1 < 8.5,G1 < 15.5,16,G1;Mjob;failures;reason;Medu;activities;absences;health;school;freetime
+B-Por-5L,19,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;absences;age;Fjob;Mjob
+B-Por-5L,20,G1 < 11.5,G1 < 8.5,G1 < 15.5,18,G1;Fedu;activities;absences;studytime;Fjob;Medu;schoolsup;Mjob;freetime;famrel
+B-Por-5L,21,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;famrel;Mjob;Walc
+B-Por-5L,22,G1 < 11.5,G1 < 8.5,G1 < 14.5,17,G1;Mjob;health;traveltime;absences;freetime;famsup
+B-Por-5L,23,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;schoolsup;absences;reason;romantic
+B-Por-5L,24,G1 < 12.5,G1 < 8.5,G1 < 15.5,18,G1;Fedu;traveltime;famsup;freetime;studytime;reason;absences;Mjob;nursery
+B-Por-5L,25,G1 < 13.5,G1 < 9.5,G1 < 15.5,15,G1;Medu;Fedu;failures;traveltime;freetime;Mjob;school;absences;age
+B-Por-5L,26,G1 < 11.5,G1 < 8.5,G1 < 14.5,16,G1;Mjob;health;famsup;romantic;activities;guardian;Fjob;age
+B-Por-5L,27,G1 < 11.5,G1 < 8.5,G1 < 13.5,16,G1;Mjob;absences;famrel;reason;freetime;Fedu;internet;goout;address;Fjob
+B-Por-5L,28,G1 < 11.5,G1 < 8.5,G1 < 15.5,8,G1;absences;schoolsup;traveltime
+B-Por-5L,29,G1 < 11.5,G1 < 8.5,G1 < 14.5,12,G1;absences;Mjob;guardian;school
+B-Por-5L,30,G1 < 11.5,G1 < 8.5,G1 < 15.5,10,G1;absences;age;health;Fjob;Walc
+B-Por-5L,31,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;famrel;absences;reason;Mjob
+B-Por-5L,32,G1 < 11.5,G1 < 8.5,G1 < 15.5,16,G1;Mjob;Walc;freetime;Fjob;famsup;famrel;health;age
+B-Por-5L,33,G1 < 11.5,G1 < 8.5,G1 < 15.5,11,G1;reason;freetime;Mjob;goout;Medu
+B-Por-5L,34,G1 < 11.5,G1 < 8.5,G1 < 13.5,18,G1;absences;goout;freetime;reason;Fjob;age;famsize;health;Mjob
+B-Por-5L,35,G1 < 11.5,G1 < 8.5,G1 < 13.5,13,G1;reason;age;traveltime;freetime;famrel;Mjob;absences
+B-Por-5L,36,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;absences;goout;reason;school;famsize
+B-Por-5L,37,G1 < 11.5,G1 < 8.5,G1 < 13.5,12,G1;absences;Mjob;reason;age;Fjob;Fedu
+B-Por-5L,38,G1 < 12.5,G1 < 8.5,G1 < 15.5,22,G1;Pstatus;Dalc;absences;famsize;Medu;Mjob;age;freetime;Walc;activities;famsup;sex
+B-Por-5L,39,G1 < 11.5,G1 < 8.5,G1 < 14.5,18,G1;Walc;Mjob;higher;absences;romantic;freetime;reason;famsup;health
+B-Por-5L,40,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;health;freetime;Mjob;Fjob
+B-Por-5L,41,G1 < 11.5,G1 < 8.5,G1 < 14.5,12,G1;Mjob;absences;age;traveltime
+B-Por-5L,42,G1 < 11.5,G1 < 8.5,G1 < 15.5,12,G1;studytime;Fedu;absences;freetime;Medu;nursery
+B-Por-5L,43,G1 < 11.5,G1 < 8.5,G1 < 15.5,12,G1;age;schoolsup;freetime;Fjob;health
+B-Por-5L,44,G1 < 11.5,G1 < 8.5,G1 < 15.5,15,G1;Mjob;failures;health;Fjob;age;Medu;Walc
+B-Por-5L,45,G1 < 11.5,G1 < 8.5,G1 < 13.5,7,G1;absences;reason
+B-Por-5L,46,G1 < 12.5,G1 < 8.5,G1 < 15.5,14,G1;nursery;studytime;Mjob;age;freetime;traveltime;school;absences
+B-Por-5L,47,G1 < 11.5,G1 < 8.5,G1 < 14.5,16,G1;Mjob;Fjob;reason;goout;age;Walc;activities;famrel;Fedu
+B-Por-5L,48,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;health;age;Fjob
+B-Por-5L,49,G1 < 11.5,G1 < 8.5,G1 < 13.5,13,G1;schoolsup;reason;Mjob;age;goout;famrel;Fedu
+B-Por-5L,50,G1 < 11.5,G1 < 8.5,G1 < 15.5,13,G1;Mjob;internet;absences;Dalc;reason;Fjob;health;romantic
+B-Por-5L,51,G1 < 11.5,G1 < 8.5,G1 < 14.5,15,G1;Mjob;failures;freetime;famrel;school;activities;reason;health
+B-Por-5L,52,G1 < 11.5,G1 < 8.5,G1 < 14.5,7,G1;health;Mjob
+B-Por-5L,53,G1 < 11.5,G1 < 8.5,G1 < 14.5,18,G1;Mjob;studytime;famrel;schoolsup;Medu;absences;Fjob;goout
+B-Por-5L,54,G1 < 12.5,G1 < 8.5,G1 < 15.5,15,G1;studytime;traveltime;freetime;nursery;goout;Mjob;activities;age;address
+B-Por-5L,55,G1 < 11.5,G1 < 8.5,G1 < 15.5,13,G1;Fjob;absences;reason;internet;Walc;romantic;goout
+B-Por-5L,56,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;absences;health;age;studytime;freetime;Fjob
+B-Por-5L,57,G1 < 11.5,G1 < 8.5,G1 < 14.5,14,G1;activities;freetime;school;absences;sex;health;goout;famsize
+B-Por-5L,58,G1 < 11.5,G1 < 8.5,G1 < 14.5,6,G1;Mjob
+B-Por-5L,59,G1 < 11.5,G1 < 8.5,G1 < 15.5,9,G1;absences;health;freetime;age
+B-Por-5L,60,G1 < 10.5,G1 < 8.5,G1 < 13.5,13,G1;famrel;absences;famsup;reason;freetime;Fjob;Mjob
+B-Por-5L,61,G1 < 11.5,G1 < 9.5,G1 < 13.5,19,G1;famrel;absences;health;internet;age;freetime;Fjob;Mjob;reason;Walc
+B-Por-5L,62,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;Medu;schoolsup
+B-Por-5L,63,G1 < 11.5,G1 < 8.5,G1 < 15.5,11,G1;Fjob;absences;romantic;reason;goout
+B-Por-5L,64,G1 < 11.5,G1 < 8.5,G1 < 14.5,12,G1;studytime;Walc;traveltime;guardian;Fjob;reason
+B-Por-5L,65,G1 < 11.5,G1 < 8.5,G1 < 15.5,11,G1;traveltime;absences;Fedu;Fjob;activities
+B-Por-5L,66,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;Dalc
+B-Por-5L,67,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;Mjob;traveltime;age;Dalc
+B-Por-5L,68,G1 < 11.5,G1 < 8.5,G1 < 13.5,14,G1;absences;Pstatus;Medu;Mjob;goout;freetime
+B-Por-5L,69,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;freetime;age;Medu
+B-Por-5L,70,G1 < 11.5,G1 < 8.5,G1 < 15.5,8,G1;Fjob;age;Walc
+B-Por-5L,71,G1 < 11.5,G1 < 8.5,G1 < 14.5,15,G1;age;health;sex;romantic;Fjob;goout;studytime
+B-Por-5L,72,G1 < 11.5,G1 < 8.5,G1 < 13.5,12,G1;famrel;reason;age;freetime;absences;Mjob;health
+B-Por-5L,73,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;reason;traveltime;romantic
+B-Por-5L,74,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;reason;absences;schoolsup;freetime;Mjob;guardian
+B-Por-5L,75,G1 < 13.5,G1 < 8.5,G1 < 15.5,15,G1;Medu;Mjob;absences;age;romantic;Fedu;famrel;health;Fjob
+B-Por-5L,76,G1 < 11.5,G1 < 8.5,G1 < 14.5,14,G1;Fedu;famsize;health;Pstatus;Mjob;famrel
+B-Por-5L,77,G1 < 11.5,G1 < 8.5,G1 < 15.5,10,G1;absences;Fjob;health;goout;age
+B-Por-5L,78,G1 < 12.5,G1 < 8.5,G1 < 15.5,12,G1;absences;Mjob;Dalc;goout
+B-Por-5L,79,G1 < 11.5,G1 < 8.5,G1 < 14.5,15,G1;famrel;reason;Medu;Mjob;Fedu;Walc;school;Fjob;age
+B-Por-5L,80,G1 < 11.5,G1 < 8.5,G1 < 14.5,11,G1;Mjob;Medu;Fjob;reason;activities;health
+B-Por-5L,81,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;health;age;Medu
+B-Por-5L,82,G1 < 13.5,G1 < 9.5,G1 < 15.5,20,G1;Medu;age;sex;absences;famrel;activities;reason;Mjob;famsize;Fedu;health
+B-Por-5L,83,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;Mjob;traveltime;goout;guardian
+B-Por-5L,84,G1 < 11.5,G1 < 8.5,G1 < 15.5,9,G1;freetime;Mjob;health;schoolsup
+B-Por-5L,85,G1 < 11.5,G1 < 8.5,G1 < 13.5,13,G1;Mjob;absences;sex;freetime
+B-Por-5L,86,G1 < 10.5,G1 < 8.5,G1 < 14.5,14,G1;absences;freetime;reason;activities;sex;traveltime;Medu
+B-Por-5L,87,G1 < 8.5,yaprak,G1 < 11.5,13,G1;studytime;schoolsup;health;absences;Fjob
+B-Por-5L,88,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;activities;famsize;reason;traveltime
+B-Por-5L,89,G1 < 11.5,G1 < 8.5,G1 < 14.5,15,G1;traveltime;Mjob;absences;Medu;Fedu;Dalc;freetime
+B-Por-5L,90,G1 < 12.5,G1 < 8.5,G1 < 14.5,13,G1;age;Walc;Mjob;health;Fedu;school;famrel
+B-Por-5L,91,G1 < 11.5,G1 < 8.5,G1 < 14.5,7,G1;absences;freetime
+B-Por-5L,92,G1 < 12.5,G1 < 9.5,G1 < 15.5,18,G1;Medu;Mjob;studytime;reason;freetime;internet;Fjob;health;age
+B-Por-5L,93,G1 < 11.5,G1 < 8.5,G1 < 15.5,8,G1;absences;health;age
+B-Por-5L,94,G1 < 12.5,G1 < 8.5,G1 < 15.5,17,G1;Mjob;absences;age;goout;nursery;reason;internet
+B-Por-5L,95,G1 < 11.5,G1 < 8.5,G1 < 15.5,11,G1;health;Medu;activities;address;age;Walc
+B-Por-5L,96,G1 < 11.5,G1 < 8.5,G1 < 14.5,5,G1
+B-Por-5L,97,G1 < 11.5,G1 < 8.5,G1 < 14.5,16,G1;absences;Mjob;reason;romantic;famsup
+B-Por-5L,98,G1 < 11.5,G1 < 8.5,G1 < 14.5,11,G1;absences;Mjob;goout;schoolsup;health;Fjob
+B-Por-5L,99,G1 < 11.5,G1 < 8.5,G1 < 15.5,12,G1;absences;age;reason;internet;Mjob;famrel
+B-Por-Reg,-1,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;age
+B-Por-Reg,0,G1 < 10.5,G1 < 8.5,G1 < 14.5,7,G1;absences;age
+B-Por-Reg,1,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;failures;Mjob
+B-Por-Reg,2,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;age;famrel
+B-Por-Reg,3,G1 < 10.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;reason;activities
+B-Por-Reg,4,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;absences;failures;age;Fjob
+B-Por-Reg,5,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,6,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,7,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;age;Mjob
+B-Por-Reg,8,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;goout;Walc
+B-Por-Reg,9,G1 < 11.5,G1 < 9.5,G1 < 13.5,7,G1;Dalc;failures
+B-Por-Reg,10,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;age;goout
+B-Por-Reg,11,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;Mjob
+B-Por-Reg,12,G1 < 12.5,G1 < 9.5,G1 < 14.5,11,G1;age;Fjob;failures;freetime;absences
+B-Por-Reg,13,G1 < 10.5,G1 < 8.5,G1 < 13.5,7,G1;absences;reason
+B-Por-Reg,14,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;health;famrel;Mjob
+B-Por-Reg,15,G1 < 11.5,G1 < 7.5,G1 < 13.5,7,G1;absences
+B-Por-Reg,16,G1 < 10.5,G1 < 8.5,G1 < 13.5,8,G1;absences;sex
+B-Por-Reg,17,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;goout;failures;absences;sex
+B-Por-Reg,18,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;goout;reason
+B-Por-Reg,19,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;Mjob;Fjob
+B-Por-Reg,20,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;failures;reason
+B-Por-Reg,21,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;reason;failures;famrel;age;Medu
+B-Por-Reg,22,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;reason;Mjob
+B-Por-Reg,23,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;failures;age
+B-Por-Reg,24,G1 < 12.5,G1 < 8.5,G1 < 14.5,8,G1;Dalc;failures
+B-Por-Reg,25,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;age;famrel
+B-Por-Reg,26,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;age;failures
+B-Por-Reg,27,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;absences;failures;Walc;romantic
+B-Por-Reg,28,G1 < 10.5,G1 < 8.5,G1 < 13.5,11,G1;absences;failures;reason;goout;sex
+B-Por-Reg,29,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,30,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;absences;failures;freetime;Mjob;goout
+B-Por-Reg,31,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;health
+B-Por-Reg,32,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;sex
+B-Por-Reg,33,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;failures;Walc
+B-Por-Reg,34,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;age
+B-Por-Reg,35,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;freetime
+B-Por-Reg,36,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;romantic
+B-Por-Reg,37,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;reason;Fedu
+B-Por-Reg,38,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;sex
+B-Por-Reg,39,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;reason;failures;traveltime
+B-Por-Reg,40,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;age;goout
+B-Por-Reg,41,G1 < 10.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age;Walc
+B-Por-Reg,42,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;reason;absences;age
+B-Por-Reg,43,G1 < 11.5,G1 < 9.5,G1 < 14.5,9,G1;absences;failures;school;higher
+B-Por-Reg,44,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;Fedu;goout
+B-Por-Reg,45,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;age
+B-Por-Reg,46,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;Dalc;goout
+B-Por-Reg,47,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;Mjob
+B-Por-Reg,48,G1 < 10.5,G1 < 8.5,G1 < 14.5,7,G1;absences;age
+B-Por-Reg,49,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;goout;age
+B-Por-Reg,50,G1 < 11.5,G1 < 8.5,G1 < 13.5,12,G1;absences;failures;Fedu;reason;health
+B-Por-Reg,51,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;goout
+B-Por-Reg,52,G1 < 11.5,G1 < 8.5,G1 < 14.5,7,G1;reason
+B-Por-Reg,53,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;romantic
+B-Por-Reg,54,G1 < 12.5,G1 < 8.5,G1 < 14.5,8,G1;failures;age
+B-Por-Reg,55,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;reason;Mjob
+B-Por-Reg,56,G1 < 11.5,G1 < 7.5,G1 < 13.5,7,G1;absences
+B-Por-Reg,57,G1 < 12.5,G1 < 9.5,G1 < 15.5,9,G1;failures;goout
+B-Por-Reg,58,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;health
+B-Por-Reg,59,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;age;goout
+B-Por-Reg,60,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;absences;failures;Fjob;age
+B-Por-Reg,61,G1 < 12.5,G1 < 9.5,G1 < 14.5,10,G1;absences;romantic
+B-Por-Reg,62,G1 < 11.5,G1 < 7.5,G1 < 14.5,8,G1;Dalc;absences
+B-Por-Reg,63,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,64,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;reason;goout
+B-Por-Reg,65,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;age
+B-Por-Reg,66,G1 < 11.5,G1 < 8.5,G1 < 13.5,7,G1;absences;Walc
+B-Por-Reg,67,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences;failures;health
+B-Por-Reg,68,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;goout;traveltime
+B-Por-Reg,69,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;age
+B-Por-Reg,70,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;absences;failures;age;famrel;reason
+B-Por-Reg,71,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;famsize
+B-Por-Reg,72,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;Walc
+B-Por-Reg,73,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;Walc
+B-Por-Reg,74,G1 < 11.5,G1 < 7.5,G1 < 13.5,8,G1;absences;failures
+B-Por-Reg,75,G1 < 12.5,G1 < 8.5,G1 < 14.5,8,G1;absences;reason
+B-Por-Reg,76,G1 < 10.5,G1 < 7.5,G1 < 13.5,7,G1;absences
+B-Por-Reg,77,G1 < 12.5,G1 < 9.5,G1 < 15.5,8,G1;absences;age;freetime
+B-Por-Reg,78,G1 < 11.5,G1 < 9.5,G1 < 13.5,8,G1;absences;failures;internet
+B-Por-Reg,79,G1 < 11.5,G1 < 8.5,G1 < 14.5,10,G1;absences;age;health;traveltime
+B-Por-Reg,80,G1 < 11.5,G1 < 8.5,G1 < 14.5,8,G1;absences
+B-Por-Reg,81,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;Medu;Fedu
+B-Por-Reg,82,G1 < 10.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,83,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;age
+B-Por-Reg,84,G1 < 10.5,G1 < 8.5,G1 < 14.5,6,G1;goout
+B-Por-Reg,85,G1 < 10.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,86,G1 < 10.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age;sex
+B-Por-Reg,87,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;Dalc;absences;romantic
+B-Por-Reg,88,G1 < 11.5,G1 < 8.5,G1 < 13.5,10,G1;absences;failures;age;traveltime;Fjob
+B-Por-Reg,89,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;failures;age;goout
+B-Por-Reg,90,G1 < 11.5,G1 < 8.5,G1 < 14.5,9,G1;absences;age;reason
+B-Por-Reg,91,G1 < 11.5,G1 < 9.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,92,G1 < 12.5,G1 < 9.5,G1 < 14.5,7,G1;reason;age
+B-Por-Reg,93,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;age
+B-Por-Reg,94,G1 < 11.5,G1 < 8.5,G1 < 14.5,7,G1;absences
+B-Por-Reg,95,G1 < 11.5,G1 < 8.5,G1 < 13.5,9,G1;absences;failures;age;Walc
+B-Por-Reg,96,G1 < 11.5,G1 < 8.5,G1 < 13.5,8,G1;absences;failures;Fjob
+B-Por-Reg,97,G1 < 11.5,G1 < 9.5,G1 < 13.5,8,G1;failures;reason
+B-Por-Reg,98,G1 < 11.5,G1 < 7.5,G1 < 13.5,8,G1;absences;failures
+B-Por-Reg,99,G1 < 11.5,G1 < 8.5,G1 < 13.5,11,G1;absences;failures;reason;goout;health
