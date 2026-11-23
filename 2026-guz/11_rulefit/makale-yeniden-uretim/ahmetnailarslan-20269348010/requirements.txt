@@ -1,0 +1,11 @@
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.17.1
+scikit-learn==1.5.2
+matplotlib==3.9.4
+joblib==1.6.0
+imodels==3.0.4
+mlxtend==0.23.1
+jupyter==1.1.1
+nbconvert==7.17.2
+ipykernel==7.4.0
