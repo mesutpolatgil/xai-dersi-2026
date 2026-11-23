@@ -1,0 +1,16 @@
+model,dataset,accuracy,cross_entropy
+normal,independent_test,1.0,5.277737000142224e-05
+normal,correlated_test,1.0,5.813526513520628e-05
+normal,reversed_background,1.0,3.7705223803641275e-05
+normal,background_only,0.5,3.652700662612915
+normal,ood,0.5,3.794875383377075
+spurious,independent_test,1.0,0.0006048981449566782
+spurious,correlated_test,1.0,2.8807939088437706e-05
+spurious,reversed_background,1.0,0.0021649461705237627
+spurious,background_only,0.5,1.7744313478469849
+spurious,ood,0.5,4.568244457244873
+wrong_label,independent_test,1.0,0.08317754417657852
+wrong_label,correlated_test,1.0,0.0590074248611927
+wrong_label,reversed_background,1.0,0.10530552268028259
+wrong_label,background_only,0.5,0.8126139640808105
+wrong_label,ood,0.5,1.545308232307434

@@ -1,0 +1,13 @@
+/data/*
+!/data/README.md
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.h5
+*.keras
+*.npz
+*.log

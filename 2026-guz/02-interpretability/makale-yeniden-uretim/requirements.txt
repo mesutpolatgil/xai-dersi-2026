@@ -1,0 +1,8 @@
+numpy==2.5.3
+pandas==3.0.6
+Pillow==12.3.0
+torch==2.15.0
+scipy==1.18.1
+matplotlib==3.11.2
+matplotlib-inline==0.2.2
+ipykernel==7.4.0

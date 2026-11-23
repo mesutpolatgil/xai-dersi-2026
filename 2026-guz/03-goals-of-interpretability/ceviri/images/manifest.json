@@ -1,0 +1,839 @@
+{
+  "source_pdf": "arXiv:2011.05429v1",
+  "source_pdf_sha256": "c81f18afc2785907ff51b1603c95cf3ae08c6c2d38d62fc9983bfa375e2a9406",
+  "notes": "Figures extracted as page crops from the user-provided source PDF; crops may contain paper labels and require visual inspection.",
+  "figures": [
+    {
+      "figure": 1,
+      "page": 2,
+      "file": "figure-01.png",
+      "sha256": "11a28ccd46b01ffd410097eac536e27b6c6dece6a8584dca38b5659352f53d0f",
+      "crop_pdf_points": [
+        70.0,
+        120.0,
+        542.0,
+        208.0
+      ],
+      "pdf_caption_en": "Debugging framework for the standard supervised learning pipeline. Schematic of the standard supervised learning pipeline along with examples of bugs that can occur at each stage of the pipeline. The categorization captures defects that can occur with the training data, model, and at test-time. We term these: data, model, and test-time contamination tests. To address this question, we make the following contributions: 1. Bug Categorization. We categorize bugs, based on the source of the defect leading to the bug, in the supervised learning pipeline (see Figure 1) into three classes: data, model, and test-time contamination. These contamination classes capture defects in the training data, model speciﬁcation and parameters, and with the input at test-time. 2. Empirical Assessment. We conduct comprehensive control experiments to assess several feature attribution methods against 4 bugs: ‘spurious correlation artifact’, mislabelled training examples, re-initialized weights, and out-of-distribution (OOD) shift. 3. Insights. We ﬁnd that the feature attribution methods tested can identify a spurious back- ground bug but not conclusively distinguish between normal and mislabeled training examples. In addition, attribution methods that derive relevance by modifying the back-propagation computation via ‘positive aggregation’ (see Section 4) are invariant to the higher layer param- eters of a deep neural network (DNN) model. Finally, we ﬁnd that in speciﬁc settings, attri- butions for out-of-distribution examples are visually similar to attributions of these examples but with an ‘in-domain’ model, suggesting that debugging solely based on visual inspection might be misleading. 4. Human Subject Study. We conduct a 54-person IRB-approved study to assess whether end- users can identify defective models with attributions. We ﬁnd that users rely, primarily, on the model predictions to ascertain that a model is defective, even in the presence of attributions. Related Work This work is in line with contributions that assess the eﬀectiveness of post-hoc explanations; albeit with a focus on feature attributions and model debugging. Our bug catego- rization incorporates previous use of explanations for diagnosing spurious correlation (Kim et al., 2018; Meng et al., 2018; Ribeiro et al., 2016), domain mismatch, and mislabelled examples (Koh and Liang, 2017). Correcting bugs can also be achieved by penalizing feature attributions during training (Erion et al., 2019; Rieger et al., 2020; Ross et al., 2017) or clustering (Lapuschkin et al., 2019). The dominant evaluation approach involves input perturbation (Montavon et al., 2017c; Samek et al., 2017), which can be combined with retraining (Hooker et al., 2019). However, Tomsett et al. 2"
+    },
+    {
+      "figure": 2,
+      "page": 4,
+      "file": "figure-02.png",
+      "sha256": "6a6f0997f544a1447f8e83190f28c59d446d8068455c249a22623cd6d3ef7c1e",
+      "crop_pdf_points": [
+        74.0,
+        526.0,
+        538.0,
+        625.0
+      ],
+      "pdf_caption_en": "Attribution Methods Considered. The Figure shows feature attributions for two inputs for a CNN model trained to distinguish between birds and dogs. Gradient (Grad) & Variants. We consider: 1) The Gradient (Grad) (Baehrens et al., 2010; Simonyan et al., 2014) map, |∇xiFi(xi)|; 2) SmoothGrad (SGrad) (Smilkov et al., 2017), Esg(x) = 1 N PN i=1 ∇xiFi(xi + ni) where ni is Gaussian noise; 3) SmoothGrad Squared (SGradSQ) (Hooker et al., 2019), the element-wise square of SmoothGrad; 4) VarGrad (VGrad) (Adebayo et al., 2018a), 4"
+    },
+    {
+      "figure": 3,
+      "page": 6,
+      "file": "figure-03.png",
+      "sha256": "1733279f86d4b9574c7b1b96e0a5f0931b154a63c0393dd20b8a96db8e63d1f7",
+      "crop_pdf_points": [
+        68.0,
+        80.0,
+        544.0,
+        285.0
+      ],
+      "pdf_caption_en": "Feature Attributions for Spurious Correlation Bugs. Figure shows attributions for 4 inputs for the BVD-CNN trained on spurious data. A & B show two dog examples, and C & D are bird examples. The ﬁrst row shows the input (dog or bird) on a spurious background. The second row shows the attributions of only the spurious background. Notably, we observe that the feature attribution methods place emphasis on the background. See Table 2 for metrics. For mislabeled examples, we compare attributions for a training input derived from: 1) a model where this training input had the correct label, and 2) the same model settings but trained with this input mislabeled. If the attributions under these two settings are similar, then such a method is unlikely to be useful for identifying mislabeled examples. We observe that attributions for mislabeled examples, across all methods, show visual similarity. General Data and Model Setup. We consider a birds-vs-dogs binary classiﬁcation task. We use dog breeds from the Cats-v-Dogs dataset (Parkhi et al., 2012a) and Bird species from the Caltech- UCSD dataset (Wah et al., 2011). On this dataset, we train a CNN with 5 convolutional layers and 3 fully-connected layers (we refer to this architecture as BVD-CNN from here on) with ReLU activation functions but sigmoid in the ﬁnal layer. The model achieves a test accuracy of 94-percent. 3.1 Spurious Correlation Training Artifacts Input Ground truth (GT-1) Ground truth (GT-2)"
+    },
+    {
+      "figure": 4,
+      "page": 6,
+      "file": "figure-04.png",
+      "sha256": "c92ad32a89ab445791aac2d4d235400449e3d87942930254806ff3fd65763dee",
+      "crop_pdf_points": [
+        382.0,
+        540.0,
+        540.0,
+        650.0
+      ],
+      "pdf_caption_en": "Ground Truth Attribu- tion for Spurious Correlation. Spurious Bug Implementation. We introduce spurious cor- relation by placing all birds onto one of the sky backgrounds from the places dataset (Zhou et al., 2017), and all dogs onto a bamboo forest background (see Figure 3). BVD-CNN trained on this data achieves a 97 percent accuracy on a sky-vs-bamboo forest test set (without birds or dogs) indicating that the model indeed learned the spurious association. Results. To quantitatively measure whether attribution methods reﬂect the spurious background, we compare attri- butions to two ground truth masks (GT-1 & GT-2). As shown in Figure 4, we consider an ideal mask that apportions all relevance to the background and none to 6"
+    },
+    {
+      "figure": 5,
+      "page": 7,
+      "file": "figure-05.png",
+      "sha256": "1d7470ffe57cd5288013784d8fd37e1a20d6dbd9b2d1e84b6a93d399978d7ee7",
+      "crop_pdf_points": [
+        70,
+        312,
+        544,
+        410
+      ],
+      "pdf_caption_en": "A: Participant Responses from User Study. Box plot of participants responses for 3 attribution methods: Gradient, SmoothGrad, and Integrated Gradients, and 5 model conditions tested. On the vertical axis is likert scale from 1 : Deﬁnitely Not to 5 : Deﬁnitely. Participants were instructed to select ‘Deﬁnitely’ if they deemed the dog-breed classiﬁcation model ready to be sold to customers. B: Motivation for Selection. Participants’ selected motivations (%) for the recommendation made. As shown in the legend, users could select one of 4 options or insert an open-ended response. Insights from Human Subject Study: users are uncertain. Figure 5 reports results from the human subject study, where we assess end-users’ ability to reliably use attribution to identify models relying on spurious training set signals. For a normal model, the median Likert scores are 4, 4, 3 for Gradient, SmoothGrad, and Integrated Gradients respectively. Selecting a likert score of 1 means a user will ‘deﬁnitely not’ recommend the model, while 5 means they will ‘deﬁnitely’ recommend the model. Consequently, users adequately rate a normal model. In addition, 30 and 40 percent (See Figure 5-Right) of participants, for Gradient and SmoothGrad respectively, indicate that the attributions for a normal model ‘highlighted the part of the image that they expected it to focus on’. For the ‘spurious model’, the Likert scores show a wider range. While the median scores are 2, 2, 3 for Gradient, SmoothGrad, and Integrated Gradients respectively, some end-users still recommend this model. For each attribution type, a majority of end-users indicate that the attribution ‘did not highlight the part of the image that I expected it to focus on’. Despite this, end-users do not convincingly reject the spurious model like they do for the other bug conditions. These results 7"
+    },
+    {
+      "figure": 6,
+      "page": 8,
+      "file": "figure-06.png",
+      "sha256": "6e70e3d6f44bb7a8f4a439605d49dbcbdac1ab5e4208a485dd6cac8f49535da7",
+      "crop_pdf_points": [
+        70.0,
+        170.0,
+        543.0,
+        317.0
+      ],
+      "pdf_caption_en": "Diagnosing Mislabelled Training Examples. The Figure shows two training inputs along with feature attributions for each method. The correct label row corresponds to feature attributions derived from a model with the correct label in the training set. The incorrect-label row shows feature attributions derived from a model with the wrong label in the training set. We see that the attributions under both settings are visually similar. Results. We ﬁnd that attributions from mislabelled examples for a defective model are visually similar to attributions for these same examples but derived from a model with correct input labels (examples in Figure 6). We ﬁnd that the SSIM between the attributions of a correctly labeled instance, and the corresponding incorrectly labeled instance, are in the range 0.73 −0.99 for all methods tested. These results indicate that the attribution methods tested might be ineﬀective for identifying mislabelled examples. We refer readers to Section I of the Appendix for visualizations of additional examples. Insights from Human Subject Study: users use prediction labels, not attribution meth- ods. In contrast to the spurious setting, participants reject mislabelled examples with median Likert scores 1, 2, and 1 for Gradient, SmoothGrad, and Integrated Gradients respectively. However, we ﬁnd that these participants overwhelmingly rely on the model’s prediction to make their decision. 4 Debugging Model Contamination We next evaluate bugs related to model parameters. Speciﬁcally, we consider the setting where the weights of a model are accidentally re-initialized prior to prediction (Adebayo et al., 2018b). We ﬁnd that modiﬁed back-propagation methods like Guided Back-Propapagtion (GBP), DConvNet, and certain variants of the layer relevance propagation (LRP), including Pattern Net(PNet) and Pattern Attribution (PAttribution) are invariant to higher layer weights of a deep network. Bug Implementation. We instantiate this bug on a pre-trained VGG-16 model on Imagenet (Rus- sakovsky et al., 2015). Similar to Adebayo et al. (2018b), we re-initialize the weights of the model 8"
+    },
+    {
+      "figure": 7,
+      "page": 9,
+      "file": "figure-07.png",
+      "sha256": "86f97ac244f8fd88dc49536311b25135f0e5223acab1a48c31c07be439c1b1f5",
+      "crop_pdf_points": [
+        67.0,
+        127.0,
+        545.0,
+        466.0
+      ],
+      "pdf_caption_en": "Evolution of several model attributions for successive weights re-initialization of a VGG-16 model trained on ImageNet. Qualitative results (left) and quantitative results (right). The last column in qualitative results corresponds to a network with completely re-initialized weights. Results: modiﬁed back-propagation methods are parameter invariant. As seen in Fig- ure 7, the class of modiﬁed back-propagation methods, including Guided BackProp, Deconvnet, DeepTaylor, PatternNet, Pattern Attribution, and LRP-SPAF are visually and quantitatively in- variant to higher layer parameters of the VGG-16 model. This ﬁnding corroborates prior results for Guided Backprop and Deconvnet (Adebayo et al., 2018b; Mahendran and Vedaldi, 2016; Nie et al., 2018). These results also support the recent ﬁndings of Sixt et al. (2019), who prove that these modiﬁed back-propagation approaches produce attributions that converge to a rank-1 matrix. Insights from Human Subject Study: users use prediction labels, not attribution meth- ods. We observe that participants conclusively reject a model whose top layer has been re-initialized purely based on the classiﬁcation labels, and rarely based on wrong attributions. (Figure 5). 9"
+    },
+    {
+      "figure": 8,
+      "page": 10,
+      "file": "figure-08.png",
+      "sha256": "964c497be94113102367eaf8968c1fc3c336aa5dfed74e665741d1bd258d23a0",
+      "crop_pdf_points": [
+        70,
+        215,
+        542,
+        345
+      ],
+      "pdf_caption_en": "Fashion MNIST OOD on several models. The ﬁrst row shows feature attributions on a model trained on Fashion MNIST. In the subsequent rows, we show feature attributions for the same input on an MNIST model, BVD-CNN model trained on birds-vs-dogs, and lastly, a pre-trained VGG-16 model on ImageNet. Metric Grad SGrad SGradSQ VGrad Input-Grad IntGrad EGrad LIME KernelSHAP GBP DConvNet LRP-EPS PNet PAttribution LRP-SPAF SSIM (FMNIST →MNIST Model) 0.7 0.54 0.49 0.92 0.71 0.69 0.71 0.46 0.41 0.81 0.5 0.77 0.58 0.77 0.66 SEM 0.0093 0.012 0.016 0.0047 0.01 0.015 0.01 0.02 0.024 0.014 0.01 0.02 0.026 0.009 0.03 RK (FMNIST →MNIST Model) 0.0013 8.8e-4 0.37 0.37 0.0021 -0.003 0.002 -0.01 0.034 0.51 0.027 0.011 -0.14 0.0082 0.12 SEM 0.0016 0.0032 0.026 0.029 0.002 0.002 0.002 0.04 0.028 0.014 6e-4 0.0034 0.027 0.0026 0.023 SSIM (FMNIST →BVD-CNN) 0.7 0.5 0.55 0.93 0.72 0.7 0.72 0.72 0.72 0.82 0.63 0.79 0.53 0.36 0.66 SEM 0.0083 0.011 0.013 0.0045 0.009 0.013 0.009 0.009 0.01 0.009 0.014 0.019 0.03 0.025 0.035 RK (FMNIST →BVD-CNN) 0.0012 0.0078 0.43 0.25 0.0002 0.002 0.00025 0.18 0.067 0.078 -0.05 -0.013 0.25 -0.0095 0.044 SEM 8.5e-4 0.0017 0.009 0.011 0.0007 0.001 0.0007 0.04 0.034 0.008 0.0011 0.0027 0.045 0.0023 0.02 SSIM (FMNIST →VGG-16 ImageNet) 0.57 0.46 0.5 0.87 0.64 0.67 0.64 0.5 0.38 0.8 0.36 0.64 0.66 0.12 0.2 SEM 0.012 0.011 0.015 0.0056 0.01 0.015 0.011 0.015 0.03 0.009 0.01 0.02 0.018 0.0049 0.024 RK (FMNIST →VGG-16 ImageNet) -0.0023 -0.0098 -0.0097 0.028 -0.0025 -0.0017 -0.0025 0.005 -0.045 0.25 0.03 0.0045 0.32 0.066 0.14 SEM 0.0017 0.0025 0.02 0.018 0.0023 0.0016 0.002 0.033 0.024 0.004 0.0035 0.0018 0.034 0.0053 0.019"
+    },
+    {
+      "figure": 9,
+      "page": 20,
+      "file": "figure-09.png",
+      "sha256": "2703e96039aa4348e3ebdd6b1a4ad6617d8a7a5209b483bce503bd07d95461fc",
+      "crop_pdf_points": [
+        65.0,
+        65.0,
+        545.0,
+        254.0
+      ],
+      "pdf_caption_en": "We show the debugging schematic here. Bug Class Speciﬁc Examples Formalization Data Contamination Spurious Correlation arg min θ L(Xspurious artifact, Ytrain; θ) Data Contamination Labelling Errors arg min θ L(Xtrain, Ywrong label; θ) Model Contamination Initialized Weights fθinit(xtest) Model Contamination Frozen Layers arg min θfrozen L(Xtrain, Ywrong label; θ) Test-Time Contamination Out of Distribution (OOD) fθ(xOOD) Test-Time Contamination Pre-Processing Mismatch (PM) fθ(xPM)"
+    },
+    {
+      "figure": 10,
+      "page": 21,
+      "file": "figure-10.png",
+      "sha256": "ef1da71fbf764c96701cbbef5d5d73590db9ee33ddeb409881e139ecc213c454",
+      "crop_pdf_points": [
+        67.0,
+        65.0,
+        543.0,
+        271.0
+      ],
+      "pdf_caption_en": "We show ﬁve input examples from the birds-vs-dogs dataset along with the attributions for a normally trained model. diﬀerence between the maximum and minimum value in the input. For the models considered, these inputs are typically normalized to be in the range [−1, 1]. • SmoothGrad Squared (SGradSQ) (Hooker et al., 2019), the element-wise square of Smooth- Grad: ESGradSQ(x) = Esg(x) ⊙Esg(x). We set the parameters of SmoothGrad as discussed in the previous item. • VarGrad (VGrad) (Adebayo et al., 2018a), the variance analogue of SmoothGrad: EVGrad(x) = V(˜x), where V is the variance operator, ˜x = ∇xiFi(xi + ni), and ni is sampled according to a random Gaussian noise. Here we consider 50 noise input examples, set the noise parameter as a Gaussian with mean zero, and noise scale similar to SmoothGrad: 0.15 ∗input range. • Input-Grad (Shrikumar et al., 2016) the element-wise product of the gradient and input |∇xiFi(xi)| ⊙xi. Several other methods approximate and have been shown to be equiva- lent to this product. For example, for a DNN with all ReLU activations, LRP-Z, a variant of layer-wise relevance propagation that we discuss in the modiﬁed back-propagation section is equivalent to Input-Grad (Kindermans et al., 2016). • Integrated Gradients (IntGrad) (Sundararajan et al., 2017) which sums gradients along an in- terpolation path from the “baseline input”, ¯x, to xi: MIntGrad(xi) = (xi−¯x)× R 1 0 ∂S(¯x+α(xi−¯x)) ∂xi dα. For integrated gradients we set the baseline input to be a vector containing the minimum pos- sible values across all input dimensions. This often corresponds an all-black image. The choice of a baseline for IntGrad is not without controversy; however, we follow this setup since it is one of the more widely used baselines for image data. • Expected Gradients (EGrad) (Erion et al., 2019) which computes IntGrad but with a baseline input that is an expectation over the training set: xi: MEGrad(xi) = R x′ \u0010 (xi −¯x) × R 1 0 ∂S(¯x+α(xi−¯x)) ∂xi dα \u0011 pD(x′) As we see, this is equivalent to IntGrad, but where the multiple baselines are considered. We use 200 examples from the training set as baseline. 21"
+    },
+    {
+      "figure": 11,
+      "page": 25,
+      "file": "figure-11.png",
+      "sha256": "ed114a088a02b4778eac07e73f78a423088b5493fc7db10c5f7de01fbe830f0e",
+      "crop_pdf_points": [
+        400,
+        400,
+        542,
+        518
+      ],
+      "pdf_caption_en": "Assessing TCAV and influence functions."
+    },
+    {
+      "figure": 12,
+      "page": 26,
+      "file": "figure-12.png",
+      "sha256": "58cddfe6b5de8523e31b8c8d3851230aa8dcaa7d77220dd76abf2fd552193f28",
+      "crop_pdf_points": [
+        68.0,
+        312.0,
+        541.0,
+        530.0
+      ],
+      "pdf_caption_en": "Schematic of 5 diﬀerent model conditions considered in the user study. We show model attributions across each model condition and for a diverse array of inputs. Recruiting Participants. We recruited participants through the university mailing list of a medium- sized North-American university. In total, 54 participants completed the study. Machine Learning Expertise. We asked participants to self-assess and report their level of ex- pertise in machine learning. In addition, we asked a simple test question on the eﬀect of parameter regularization. More then 80% of the participants reported past experience with machine learning. Task, Procedure, & Structure of Experiment. As originally noted, the task at hand is that of classifying images of Dogs into diﬀerent breeds. We manually selected 10 breeds of dogs based on authors’ familiarity. All model conditions were trained to perform a 10-way classiﬁcation task. As part of the recruitment, participants were directed to an online survey platform. Once the task 26"
+    },
+    {
+      "figure": 13,
+      "page": 27,
+      "file": "figure-13.png",
+      "sha256": "56cb0893b5caea8a72ee9cc19c73a9beda14f59cf94d71a0affcd403514f9afe",
+      "crop_pdf_points": [
+        73.0,
+        230.0,
+        540.0,
+        399.0
+      ],
+      "pdf_caption_en": "Training Interface for the User-Study. Participants were asked to take on the role of a quality assurance tester at a machine leaning start-up that sells animal classiﬁcation models. The goal of the study was then for them to assess the model, using both the model labels and the attributions provided. For each condition, each participant was shown images of dogs along with model labels and attributions for a speciﬁc model condition. The participant was then asked: using the output and explanation of the dog classiﬁcation model below, do you think this speciﬁc model is ready to be sold to customers? Participants were asked to then respond on a 5-point Likert scale with options ranging from Deﬁnitely Not to Deﬁnitely. A second sub-question also asked participants to provide the motivation for their choice. Taken together, each participant was asked 21 unique questions and 1 repeat as an attention check. Datasets. We create a modiﬁed combination of the Stanford dogs dataset (Khosla et al., 2011) and the Oxford Cats and Dogs datasets (Parkhi et al., 2012b) as our primary data source. We restrict to a 10-class classiﬁcation task consisting of the following breeds: Beagle, Boxer, Chihuahua, Newfoundland, Saint Bernard, Pugs, Pomeranian, Great Pyrenees, Yorkshire Terrier, Wheaten Terrier. In total, each class of dogs consists of 400 images in total making 4000 images. We had the following train-validation-test split: (350, 25, 25) images. Each split was created in an IID manner. The Oxford portion of the Dogs datasets includes a segmentation map that we used to manipulate the background of the images. The Stanford dogs dataset includes bounding box coordinates that we used to crop the images for the spurious versions of the data sets that we created. We now overview the data condition for each model manipulation (bug) that we consider: 27"
+    },
+    {
+      "figure": 14,
+      "page": 28,
+      "file": "figure-14.png",
+      "sha256": "135ca68dafc0940da40dcbe37edca113361cb62c0cb74570f2ec4e3f3a9a5bcd",
+      "crop_pdf_points": [
+        78.0,
+        65.0,
+        539.0,
+        349.0
+      ],
+      "pdf_caption_en": "Training Interface for the User-Study. Education Employment Age"
+    },
+    {
+      "figure": 15,
+      "page": 28,
+      "file": "figure-15.png",
+      "sha256": "204cd22a979d7ee9cfe3af196713cd34f5312c766c2753d69c52bcb481da031e",
+      "crop_pdf_points": [
+        72.0,
+        414.0,
+        539.0,
+        654.0
+      ],
+      "pdf_caption_en": "User Study Demographics. We show counts and breakdown of the demographics of the participants in the User Study. 28"
+    },
+    {
+      "figure": 16,
+      "page": 29,
+      "file": "figure-16.png",
+      "sha256": "e1f77af4ad0c4ba08a212c3527b02a611ff03dcfe9bc8003cf04afa89d0ad4b5",
+      "crop_pdf_points": [
+        70.0,
+        58.0,
+        542.0,
+        240.0
+      ],
+      "pdf_caption_en": "User Study Demographics. We show counts and breakdown of the demographics of the participants in the User Study. Attribution Familiarity Machine Learning Experience"
+    },
+    {
+      "figure": 17,
+      "page": 29,
+      "file": "figure-17.png",
+      "sha256": "a36843ed5253fbdde061c9f8fa6e19435740bcf6edf853dce17b76becd3c4149",
+      "crop_pdf_points": [
+        67.0,
+        323.0,
+        545.0,
+        548.0
+      ],
+      "pdf_caption_en": "Machine Learning Experience and Familiarity with Feature Attributions. We show counts and breakdown of the demographics of the participants in the User Study. • Normal Model: In this case, we have the standard dataset without alteration. This is the control. • Top-Layer: Here we make no changes to the data set. The bug corresponds to a model parameter bug. • Random Labels: Here we created a version of the dataset where all the training labels were randomized. • Spurious: Here we replace the background on all training points with the background that 29"
+    },
+    {
+      "figure": 18,
+      "page": 31,
+      "file": "figure-18.png",
+      "sha256": "fb4d5850b9ff1cbe3ba57ca661fb21ee0bf71ebf363427293c601371b1b6f6a6",
+      "crop_pdf_points": [
+        67.0,
+        375.0,
+        543.0,
+        540.0
+      ],
+      "pdf_caption_en": "Spurious Correlation Bug. Spurious Image and Spurious Background Only for 4 image setups under the Gray Scale visualization. 31"
+    },
+    {
+      "figure": 19,
+      "page": 32,
+      "file": "figure-19.png",
+      "sha256": "ca210865aadd84305379ca0e936f3084e5e18c5a326e379b105bbda7582cf3c4",
+      "crop_pdf_points": [
+        66.0,
+        70.0,
+        542.0,
+        290.0
+      ],
+      "pdf_caption_en": "Spurious Correlation Bug. Spurious Image and Spurious Background Only for 4 image setups under the White-Red visualization.. Spurious Correlation"
+    },
+    {
+      "figure": 20,
+      "page": 32,
+      "file": "figure-20.png",
+      "sha256": "e77de9ae43bf2fbffa23e5c56f9ab7e9f53c4fca550812f619e82e4c5e8b23bb",
+      "crop_pdf_points": [
+        67.0,
+        374.0,
+        544.0,
+        675.0
+      ],
+      "pdf_caption_en": "Spurious Correlation Bug. Spurious Image and Spurious Background Only for 4 image setups under the Gray Scale visualization. 32"
+    },
+    {
+      "figure": 21,
+      "page": 33,
+      "file": "figure-21.png",
+      "sha256": "2727399f4bce6eb1a45cd7e15d7dadf35c13c097702f6286d4905e802bcb8a3d",
+      "crop_pdf_points": [
+        67.0,
+        65.0,
+        541.0,
+        251.0
+      ],
+      "pdf_caption_en": "Mislabelled Examples Bug. Figure shows the input in the top row, along with attribution visualization for this input under two visualization schemes. We show both Gray Scale and the White-Red visualization scheme here. Correct Label Incorrect Label Correct Label Incorrect Label"
+    },
+    {
+      "figure": 22,
+      "page": 33,
+      "file": "figure-22.png",
+      "sha256": "d1e32b50f6c58e82125349fb21105ae64893a633b2a462a0448eb11accc8f058",
+      "crop_pdf_points": [
+        69.0,
+        281.0,
+        540.0,
+        478.0
+      ],
+      "pdf_caption_en": "Mislabelled Examples Bug. Figure shows the input in the top row, along with attribution visualization for this input under two visualization schemes. 33"
+    },
+    {
+      "figure": 23,
+      "page": 34,
+      "file": "figure-23.png",
+      "sha256": "d9298ab9172425edb3040517fab6b2e71f17da8faf198ae17ddb4c0b2f1fe92d",
+      "crop_pdf_points": [
+        67.0,
+        62.0,
+        542.0,
+        235.0
+      ],
+      "pdf_caption_en": "Mislabelled Examples Bug. Figure shows the input in the top row, along with attribution visualization for this input under two visualization schemes. Correct Label Incorrect Label Correct Label Incorrect Label"
+    },
+    {
+      "figure": 24,
+      "page": 34,
+      "file": "figure-24.png",
+      "sha256": "56e97f4f1ff3103d13fc69d703661ebcb9264933a4866cf8d00b534d3d8777a1",
+      "crop_pdf_points": [
+        67.0,
+        263.0,
+        542.0,
+        447.0
+      ],
+      "pdf_caption_en": "Mislabelled Examples Bug. Figure shows the input in the top row, along with attribution visualization for this input under two visualization schemes. Correct Label Incorrect Label Correct Label Incorrect Label"
+    },
+    {
+      "figure": 25,
+      "page": 34,
+      "file": "figure-25.png",
+      "sha256": "5af21bde5e3e4d2717f17d8afddda38f2ceed5ad6b0637d6a2c9039c290f764d",
+      "crop_pdf_points": [
+        67.0,
+        475.0,
+        542.0,
+        653.0
+      ],
+      "pdf_caption_en": "Mislabelled Examples Bug. Figure shows the input in the top row, along with attribution visualization for this input under two visualization schemes. 34"
+    },
+    {
+      "figure": 26,
+      "page": 35,
+      "file": "figure-26.png",
+      "sha256": "1b09865075ffca03c81f2dd42d4697ec822354e44c179abe3ff0a224d180dafa",
+      "crop_pdf_points": [
+        70.0,
+        62.0,
+        541.0,
+        310.0
+      ],
+      "pdf_caption_en": "Additional Model Contamination Quantitative Metrics. Similarity metrics com- puted for 200 images across 17 attribution types for the VGG-16 model trained on ImageNet. We use SSIM to quantify visual similarity. We also show the rank correlation metric with and without absolute values. We see that for certain methods, like those that modify backprop, across these series of metrics, these methods show high similarity. We also show the normalized norm diﬀerence for each method computed as: ||eorig−erand|| ||eorig|| . This is the normalized diﬀerence in 2−norm between the original attribution and the attribution derived from a (partially) randomized model. Note that we do not include Expected Gradients for VGG-16 experiments because it was too computationally intensive. 35"
+    },
+    {
+      "figure": 27,
+      "page": 36,
+      "file": "figure-27.png",
+      "sha256": "234ee857da6df377ce08a8cf068d254ccaabe78faa736d72d90d859e3a65b8ec",
+      "crop_pdf_points": [
+        66.0,
+        70.0,
+        540.0,
+        181.0
+      ],
+      "pdf_caption_en": "An example Junco Bird Image. LIME normal mask preds fc2 fc1 block5 conv3 block5 conv2 block5 conv1 block4 conv3 block4 conv2 block4 conv1 block3 conv3 block3 conv2 block3 conv1 block2 conv2 block2 conv1 block1 conv2 block1 conv1 SHAP SGRADSQ VGRAD Pattern Attribution Deep Taylor LRP-Z LRP-EPS LRP-SPAF LRP-SPBF Pattern Net Deconvnet* Guided BackProp* Gradient* SmoothGrad* Integrated Gradients* Input Gradient*"
+    },
+    {
+      "figure": 28,
+      "page": 36,
+      "file": "figure-28.png",
+      "sha256": "ac85fbe8c70a1ac99d5f1e5df334cf530462481876db2fee675df5b56f3122ee",
+      "crop_pdf_points": [
+        68.0,
+        218.0,
+        541.0,
+        646.0
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for a Junco bird example (We use the Gray Scale visualization scheme here). 36"
+    },
+    {
+      "figure": 29,
+      "page": 37,
+      "file": "figure-29.png",
+      "sha256": "99fb338ad4a50d3cb476305aef4eb0db2fdf899967032a48f4110a9ea4b4767c",
+      "crop_pdf_points": [
+        67.0,
+        70.0,
+        541.0,
+        525.0
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for a Junco bird example (We use the Red visualization scheme here)"
+    },
+    {
+      "figure": 30,
+      "page": 37,
+      "file": "figure-30.png",
+      "sha256": "30127f544849cff65403a985c3474493903981126ee6aa39da5ab58535d1c97c",
+      "crop_pdf_points": [
+        67.0,
+        551.0,
+        541.0,
+        683.0
+      ],
+      "pdf_caption_en": "An example Bug Image. 37"
+    },
+    {
+      "figure": 31,
+      "page": 38,
+      "file": "figure-31.png",
+      "sha256": "bb8e6c7e3b0dbc6b8c8bbe271c6d731ce30c7d7e42fcb8eb5f797eed489b7698",
+      "crop_pdf_points": [
+        66.0,
+        229.82,
+        546.0,
+        597.82
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for a bug example. 38"
+    },
+    {
+      "figure": 32,
+      "page": 39,
+      "file": "figure-32.png",
+      "sha256": "dffd38caeb7f9d9dd76a023a14bddb20f7f6f424069f34feaa85b4fc3e455014",
+      "crop_pdf_points": [
+        66.0,
+        229.82,
+        546.0,
+        597.82
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for a bug example. 39"
+    },
+    {
+      "figure": 33,
+      "page": 40,
+      "file": "figure-33.png",
+      "sha256": "b23af6ba29910944b15edfc63b986727afa08652b2827b1f313ee607c77557ca",
+      "crop_pdf_points": [
+        68.0,
+        65.0,
+        540.0,
+        171.0
+      ],
+      "pdf_caption_en": "An example Dog-Cat Image. LIME normal mask preds fc2 fc1 block5 conv3 block5 conv2 block5 conv1 block4 conv3 block4 conv2 block4 conv1 block3 conv3 block3 conv2 block3 conv1 block2 conv2 block2 conv1 block1 conv2 block1 conv1 SHAP SGRADSQ VGRAD Pattern Attribution Deep Taylor LRP-Z LRP-EPS LRP-SPAF LRP-SPBF Pattern Net Deconvnet* Guided BackProp* Gradient* SmoothGrad* Integrated Gradients* Input Gradient*"
+    },
+    {
+      "figure": 34,
+      "page": 40,
+      "file": "figure-34.png",
+      "sha256": "9b4d2bb64badd3d51a8b254c0b76477b6809a52ded6942dbb429a1c79e7adf05",
+      "crop_pdf_points": [
+        66.0,
+        270.84,
+        546.0,
+        638.84
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the dog-cat example. 40"
+    },
+    {
+      "figure": 35,
+      "page": 41,
+      "file": "figure-35.png",
+      "sha256": "55d79745a60e73a8e89c970aa6e4d06bd635f6015299a9d20dd8d6ca96fb1125",
+      "crop_pdf_points": [
+        66.0,
+        154.82,
+        546.0,
+        522.82
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the dog-cat example."
+    },
+    {
+      "figure": 36,
+      "page": 41,
+      "file": "figure-36.png",
+      "sha256": "753600e19f578b80a018a12c775d0313cb724fe63f6afcc46624dfa9b267c517",
+      "crop_pdf_points": [
+        67.0,
+        65.0,
+        541.0,
+        176.0
+      ],
+      "pdf_caption_en": "An example Mouse-Cat Image. 41"
+    },
+    {
+      "figure": 37,
+      "page": 42,
+      "file": "figure-37.png",
+      "sha256": "26b2abb16e7d9c40963464bb24b46524cf14c09cce74fda872e23e3863fa4021",
+      "crop_pdf_points": [
+        66.0,
+        229.82,
+        546.0,
+        597.82
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the Mouse-Cat example. 42"
+    },
+    {
+      "figure": 38,
+      "page": 43,
+      "file": "figure-38.png",
+      "sha256": "c65dafa32ab3cbfcd61410f274e56d9a68222b433072eae8a7b9f625968b80b2",
+      "crop_pdf_points": [
+        66.0,
+        147.9,
+        546.0,
+        515.9
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the Mouse-Cat example."
+    },
+    {
+      "figure": 39,
+      "page": 43,
+      "file": "figure-39.png",
+      "sha256": "8d178d6cef8631d7428a631715b114f566c27361268c314631adde7061962e38",
+      "crop_pdf_points": [
+        67.0,
+        65.0,
+        541.0,
+        176.0
+      ],
+      "pdf_caption_en": "An example Corn Image. 43"
+    },
+    {
+      "figure": 40,
+      "page": 44,
+      "file": "figure-40.png",
+      "sha256": "ed62ff3aa1b092ff4d0a93681f1c0e5f781f2f1e05902c0462fb80692807fdff",
+      "crop_pdf_points": [
+        66.0,
+        229.82,
+        546.0,
+        597.82
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the Corn example. 44"
+    },
+    {
+      "figure": 41,
+      "page": 45,
+      "file": "figure-41.png",
+      "sha256": "8bfdb1704d78ec411c9d6cc58e095999989b63d9bdc870973d1e04cf1aa5acac",
+      "crop_pdf_points": [
+        66.0,
+        144.77,
+        546.0,
+        512.77
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the Corn example."
+    },
+    {
+      "figure": 42,
+      "page": 45,
+      "file": "figure-42.png",
+      "sha256": "45f71a069b32c8ad3e14c38cb3b8284148f39fd407aa3fe8043d3b30d8f8a9d4",
+      "crop_pdf_points": [
+        67.0,
+        64.0,
+        541.0,
+        177.0
+      ],
+      "pdf_caption_en": "An example Dog biting on a Bucket. 45"
+    },
+    {
+      "figure": 43,
+      "page": 46,
+      "file": "figure-43.png",
+      "sha256": "1f1c603e2f7e865ffce8d1e844b3453695ebc1928e6b43c3853b7d9a2e36fb28",
+      "crop_pdf_points": [
+        66.0,
+        229.82,
+        546.0,
+        597.82
+      ],
+      "pdf_caption_en": "Model Contamination Bug VGG-16 on ImageNet. Cascading parameter ran- domization on the VGG-16 model for the Dog example. 46"
+    },
+    {
+      "figure": 44,
+      "page": 47,
+      "file": "figure-44.png",
+      "sha256": "802b8c63ba133e7fde5e0258a15545423628ea36998de2f6b0714ac4d72227be",
+      "crop_pdf_points": [
+        70.0,
+        68.0,
+        540.0,
+        259.0
+      ],
+      "pdf_caption_en": "Test-time Randomization Example for Fashion MNIST. We show Fashion MNIST attributions for 4 diﬀerent models: A fashion MNIST model (trained on fashion MNIST), an MNIST Model (trained on MNIST), a birds-vs-dogs model (trained on birds-vs-dogs dataset), and a VGG-16 model trained on IMAGENET. Input"
+    },
+    {
+      "figure": 45,
+      "page": 47,
+      "file": "figure-45.png",
+      "sha256": "cb4bc4ffff86c25eb29509c06dd496f234b1d7fbe0643fa549d1b59fedd20592",
+      "crop_pdf_points": [
+        70,
+        335,
+        540,
+        522
+      ],
+      "pdf_caption_en": "Test-time Randomization Example for MNIST. We show MNIST attributions for 4 diﬀerent models: A fashion MNIST model (trained on fashion MNIST), an MNIST Model (trained on MNIST), a birds-vs-dogs model (trained on birds-vs-dogs dataset), and a VGG-16 model trained on IMAGENET. 47"
+    },
+    {
+      "figure": 46,
+      "page": 48,
+      "file": "figure-46.png",
+      "sha256": "3c701981d1e644ef302d50702875a741ee7434adfaa8bffb1b47811c856fe55a",
+      "crop_pdf_points": [
+        70.0,
+        66.0,
+        540.0,
+        294.0
+      ],
+      "pdf_caption_en": "Test-time Randomization Example for Fashion MNIST. We show Fashion MNIST attributions for 4 diﬀerent models: A fashion MNIST model (trained on fashion MNIST), an MNIST Model (trained on MNIST), a birds-vs-dogs model (trained on birds-vs-dogs dataset), and a VGG-16 model trained on IMAGENET. Input"
+    },
+    {
+      "figure": 47,
+      "page": 48,
+      "file": "figure-47.png",
+      "sha256": "9c7a937efcfa03ccb1c5b5434c7f8759b6b7628386d61dc25845bc8a3f310ffb",
+      "crop_pdf_points": [
+        70.0,
+        332.0,
+        540.0,
+        621.0
+      ],
+      "pdf_caption_en": "Test-time Randomization Example for Fashion MNIST. We show Fashion MNIST attributions for 4 diﬀerent models: A fashion MNIST model (trained on fashion MNIST), an MNIST Model (trained on MNIST), a birds-vs-dogs model (trained on birds-vs-dogs dataset), and a VGG-16 model trained on IMAGENET. 48"
+    },
+    {
+      "figure": 48,
+      "page": 49,
+      "file": "figure-48.png",
+      "sha256": "66427d97752899531f8afa46e944e0d967974865085a6c86fe415fafd04b7c69",
+      "crop_pdf_points": [
+        70.0,
+        64.0,
+        540.0,
+        297.0
+      ],
+      "pdf_caption_en": "Test-time Randomization Example for Fashion MNIST. We show Fashion MNIST attributions for 4 diﬀerent models: A fashion MNIST model (trained on fashion MNIST), an MNIST Model (trained on MNIST), a birds-vs-dogs model (trained on birds-vs-dogs dataset), and a VGG-16 model trained on IMAGENET. Input"
+    },
+    {
+      "figure": 49,
+      "page": 49,
+      "file": "figure-49.png",
+      "sha256": "c07bac2f4e328a2950ad3ef58dc08f9979889158d6e53b190c45ba83346b5fd2",
+      "crop_pdf_points": [
+        70.0,
+        334.0,
+        540.0,
+        619.0
+      ],
+      "pdf_caption_en": "Test-time Randomization Example for Fashion MNIST. We show Fashion MNIST attributions for 4 diﬀerent models: A fashion MNIST model (trained on fashion MNIST), an MNIST Model (trained on MNIST), a birds-vs-dogs model (trained on birds-vs-dogs dataset), and a VGG-16 model trained on IMAGENET. 49"
+    },
+    {
+      "figure": 50,
+      "page": 50,
+      "file": "figure-50.png",
+      "sha256": "199fb4599d34d2b9a2b65b6cdbe1ccb9c8f11fff96102f3224703337c7b2d68b",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        431.78
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 50"
+    },
+    {
+      "figure": 51,
+      "page": 51,
+      "file": "figure-51.png",
+      "sha256": "1ee28be5b1996359dddf93d9afa17aac63f180f13b9c1331e239dbc2de59a2b0",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 51"
+    },
+    {
+      "figure": 52,
+      "page": 52,
+      "file": "figure-52.png",
+      "sha256": "8ac4006c5cf114b83db0fb74fb77d6a5610341a8ea6e327a4dc4abd89c1c8965",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 52"
+    },
+    {
+      "figure": 53,
+      "page": 53,
+      "file": "figure-53.png",
+      "sha256": "bfa9e0dc8d2c1de7887b34b5ad27295f7ca97dbd361204b564768f0ddc157057",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 53"
+    },
+    {
+      "figure": 54,
+      "page": 54,
+      "file": "figure-54.png",
+      "sha256": "05b75639eb4a282decb0f54c5e2e235e2c96f8bb5072b154318c105cc1d792aa",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 54"
+    },
+    {
+      "figure": 55,
+      "page": 55,
+      "file": "figure-55.png",
+      "sha256": "15a54b82ea1360a7ca89f71740120f735bfa34146e75e4e965ca4d5aea2c8905",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 55"
+    },
+    {
+      "figure": 56,
+      "page": 56,
+      "file": "figure-56.png",
+      "sha256": "a719b14ac3ba5a7ecd01fa0e30d6773a0785059371c4b9954d73a71810e9b48a",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 56"
+    },
+    {
+      "figure": 57,
+      "page": 57,
+      "file": "figure-57.png",
+      "sha256": "c208837037b45bc4a655d62326425f6fe8f8cd5b72720429928a7f4b94680fd6",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 57"
+    },
+    {
+      "figure": 58,
+      "page": 58,
+      "file": "figure-58.png",
+      "sha256": "c7123b8077336f5083e2dd5fc7e74e7d5e9b6716a020874010e8872b955dbf49",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 58"
+    },
+    {
+      "figure": 59,
+      "page": 59,
+      "file": "figure-59.png",
+      "sha256": "e7b9285db0f8143eb90aa50154e4761bad041896049f4fbef4f19cda3e82a92b",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 59"
+    },
+    {
+      "figure": 60,
+      "page": 60,
+      "file": "figure-60.png",
+      "sha256": "4d0d63f55efee2a8d8c8095e97e10b6430c3d91a1f1e710854fbbcccc3f79606",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 60"
+    },
+    {
+      "figure": 61,
+      "page": 61,
+      "file": "figure-61.png",
+      "sha256": "62f161cb8da4f92c6e4706788a7cfa5ffaef3888ba7dfd8850887c1f4054713f",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 61"
+    },
+    {
+      "figure": 62,
+      "page": 62,
+      "file": "figure-62.png",
+      "sha256": "f3ed1d5a4a10b379b3ecfba0aaf7a6660ba0c21193b812c9ef884f1a21c89548",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 62"
+    },
+    {
+      "figure": 63,
+      "page": 63,
+      "file": "figure-63.png",
+      "sha256": "283940faf1bdc5165d81132a2f04572a629be7f8b572743e8e2b9500bedbb6e2",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 63"
+    },
+    {
+      "figure": 64,
+      "page": 64,
+      "file": "figure-64.png",
+      "sha256": "8bc818d115020dcd727e44e2018e69d903b3352f289f762a03f5de34ab0bc6a6",
+      "crop_pdf_points": [
+        65.0,
+        60.0,
+        545.0,
+        567.47
+      ],
+      "pdf_caption_en": "Images used as part of the user study. 64"
+    }
+  ]
+}

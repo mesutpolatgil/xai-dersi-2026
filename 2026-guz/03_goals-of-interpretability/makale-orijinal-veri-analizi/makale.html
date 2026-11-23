@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>XAI · Makale yeniden üretimi</title>
+<style>
+body{margin:3rem auto;padding:0 1.25rem;max-width:960px;color:#182334;background:#fafbfc;
+font:17px/1.65 system-ui,sans-serif}h1,h2,h3{line-height:1.2;color:#132b46}
+a{color:#16559a}img{display:block;max-width:100%;height:auto}table{border-collapse:collapse;font-size:.9em}
+th,td{border:1px solid #d6deea;padding:.4rem .6rem}th{background:#e8eff7}
+</style></head><body><main>
+<h1>Model açıklamaları için hata ayıklama testleri</h1>
+<p><strong>Bölüm 3 · Yorumlanabilirliğin amaçları · Özgün MNIST ve Fashion-MNIST</strong></p>
+<h2>1. Araştırma amacı</h2>
+<p>Adebayo, Muelly, Liccardi ve Kim (2020), dağılım dışı girdilerde atıf haritalarının model hatalarını ortaya çıkarıp çıkaramadığını inceler. Burada Bölüm 5, Tablo 3'ün Fashion-MNIST → MNIST karşılaştırması ve Ek I’de gösterilen ters yön uygulanır. <a href="https://arxiv.org/html/2011.05429v1">Makale ve ekleri</a> · <a href="https://github.com/adebayoj/explaindebug">Yazarların kodu</a></p>
+<h2>Seçilen Ödev Seçeneği: Seçenek 1 — Zafiyet/Manipülasyon</h2>
+<p><strong>Test zamanında dağılım kayması.</strong> Aynı özgün Fashion-MNIST görüntüsü hem giysi hem MNIST rakam sınıflandırıcısına verilir. Piksel değerleri korunur ve her model kendi tahminini açıklar. Rakam modeli giysi görüntüsüne kendi sınıf uzayından bir rakam etiketi atar. Bu, modelin eğitim alanı dışındaki girdilere de tahmin üretmesinden kaynaklanan bir güvenilirlik zafiyetidir.</p>
+<p><strong>Açıklamanın sınırı.</strong> Fashion-MNIST girdilerinde iki modelin Guided Backprop haritaları arasındaki ortalama Spearman korelasyonu 0,676, Gradyan haritaları arasındaki korelasyon ise 0,051’dir. Guided Backprop haritası, modelin eğitim alanı değiştiğinde bile benzer piksel sıraları verebilir. Harita benzerliği, girdinin eğitim alanına uygunluğunu veya tahminin güvenilirliğini doğrulamak için yetersizdir.</p>
+<p>Bu çalışma Seçenek 1’in zafiyet boyutuna, değiştirilmemiş test görüntüleriyle yapılan kontrollü dağılım kayması deneyi üzerinden karşılık gelir. <a href="https://arxiv.org/html/2011.05429v1#S5">Adebayo ve ark., §5</a></p>
+<h2>2. Veri ve uygulama</h2>
+<p>İki kaynağın özgün 60.000 eğitim ve 10.000 test görüntüsünü içeren dört gzip IDX arşivi ayrı ayrı indirilir ve doğrulanır. Görüntüler 28×28, tek kanallı ve [0, 1] ölçeğindedir. Tohum 41 ile her eğitim bölümünden 12.000 örnek seçilir. Her model kendi kaynağında 8 dönem Adam ile eğitilir ve alan içi doğruluk 10.000 test görüntüsünde ölçülür. Ortam Python 3.13.15, PyTorch 2.15.0+cpu, CPU. <a href="https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz">MNIST ve IDX kaynağı</a> · <a href="https://github.com/zalandoresearch/fashion-mnist#get-the-data">Fashion-MNIST veri kaynağı</a></p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Modelin eğitim alanı</th>
+  <th style="text-align:right">Özgün eğitim</th>
+  <th style="text-align:right">Kullanılan eğitim</th>
+  <th style="text-align:right">Özgün test</th>
+  <th style="text-align:right">Alan içi test doğruluğu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:right">60000</td>
+  <td style="text-align:right">12000</td>
+  <td style="text-align:right">10000</td>
+  <td style="text-align:right">0.8539</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:right">60000</td>
+  <td style="text-align:right">12000</td>
+  <td style="text-align:right">10000</td>
+  <td style="text-align:right">0.9760</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/01-egitim.png" alt="İki alanın eğitim eğrileri" /></p>
+<h2>3. Test zamanı müdahalesi ve ölçümler</h2>
+<p>Her yönde testten tohum 73 ile 190 görüntü seçilir. Bir görüntü iki modele de aynı piksel değerleriyle verilir. Her atıf, ilgili modelin kendi en yüksek logitini açıklar. Alan dışında tahmin edilmesi gereken ortak bir sınıf yoktur.</p>
+<p>Yedi yöntem hesaplanır. Ek B uyarınca Gradyan, hedef logitin türevinin mutlak değeridir. Girdi × gradyan bu mutlak türevi piksel değeriyle çarpar. SmoothGrad, 50 gürültülü girdide hesaplanan işaretli gradyanın ortalamasıdır. SmoothGrad-SQ bu ortalamanın eleman bazında karesidir. VarGrad aynı 50 gradyanın piksel bazında popülasyon varyansıdır. Her görüntü için sıfır ortalamalı Gauss gürültüsünün standart sapması, Ek B'deki gibi, o görüntünün en büyük ve en küçük piksel değerleri farkının 0,15 katıdır. Aynı gürültü dizisi iki modelde tekrar kullanılır. IG, Ek B'deki en düşük değerli siyah referansı ve bu çalışmada seçilen 24 trapez aralığını kullanır. <a href="https://arxiv.org/html/2011.05429v1#A2">Makale §2.2 ve Ek B</a></p>
+<p>SSIM öncesinde her harita kendi en yüksek mutlak değerine bölünür ve [0, 1] aralığına taşınır. Yerel ortalama, varyans ve kovaryans için standart sapması 1,5 ve yarıçapı tam 5 piksel olan 11×11 Gauss penceresi kullanılır. Son ortalamaya yalnızca pencerenin bütünüyle görüntü içinde kaldığı 18×18 konum girer. Önceki uygulamada SciPy'nin varsayılan yarıçapı 6 piksel olduğu için 13×13 filtre ile 5 piksellik kırpma kullanılıyordu. Spearman, her yöntemin ölçekleme öncesindeki atıf değerlerinin sırasını karşılaştırır. SH, görüntüler üzerinden ortalamanın standart hatasıdır.</p>
+<h2>4. Deneysel sonuçlar</h2>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Girdi</th>
+  <th style="text-align:left">Yöntem</th>
+  <th style="text-align:right">SSIM</th>
+  <th style="text-align:right">SSIM_SH</th>
+  <th style="text-align:right">Spearman</th>
+  <th style="text-align:right">Spearman_SH</th>
+  <th style="text-align:right">Geçerli</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">Girdi × gradyan</td>
+  <td style="text-align:right">0.411</td>
+  <td style="text-align:right">0.010</td>
+  <td style="text-align:right">0.876</td>
+  <td style="text-align:right">0.006</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">Gradyan</td>
+  <td style="text-align:right">0.177</td>
+  <td style="text-align:right">0.006</td>
+  <td style="text-align:right">0.051</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0.538</td>
+  <td style="text-align:right">0.006</td>
+  <td style="text-align:right">0.676</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">IG</td>
+  <td style="text-align:right">0.190</td>
+  <td style="text-align:right">0.010</td>
+  <td style="text-align:right">0.039</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0.107</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">0.053</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">SmoothGrad-SQ</td>
+  <td style="text-align:right">0.325</td>
+  <td style="text-align:right">0.009</td>
+  <td style="text-align:right">0.056</td>
+  <td style="text-align:right">0.008</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">VarGrad</td>
+  <td style="text-align:right">0.387</td>
+  <td style="text-align:right">0.009</td>
+  <td style="text-align:right">0.206</td>
+  <td style="text-align:right">0.019</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">Girdi × gradyan</td>
+  <td style="text-align:right">0.610</td>
+  <td style="text-align:right">0.008</td>
+  <td style="text-align:right">0.989</td>
+  <td style="text-align:right">0.001</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">Gradyan</td>
+  <td style="text-align:right">0.113</td>
+  <td style="text-align:right">0.005</td>
+  <td style="text-align:right">0.072</td>
+  <td style="text-align:right">0.006</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:right">0.572</td>
+  <td style="text-align:right">0.004</td>
+  <td style="text-align:right">0.554</td>
+  <td style="text-align:right">0.005</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">IG</td>
+  <td style="text-align:right">0.332</td>
+  <td style="text-align:right">0.013</td>
+  <td style="text-align:right">0.076</td>
+  <td style="text-align:right">0.011</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">SmoothGrad</td>
+  <td style="text-align:right">0.167</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">0.063</td>
+  <td style="text-align:right">0.006</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">SmoothGrad-SQ</td>
+  <td style="text-align:right">0.203</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">0.064</td>
+  <td style="text-align:right">0.005</td>
+  <td style="text-align:right">190</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">VarGrad</td>
+  <td style="text-align:right">0.373</td>
+  <td style="text-align:right">0.007</td>
+  <td style="text-align:right">0.313</td>
+  <td style="text-align:right">0.010</td>
+  <td style="text-align:right">190</td>
+</tr>
+</tbody>
+</table>
+<p>Fashion-MNIST girdilerinde Gradyan için SSIM 0.177 ve Spearman 0.051 ölçüldü. Guided Backprop için aynı değerler 0.538 ve 0.676 oldu. Düzeltilen SmoothGrad-SQ için SSIM 0.325 ve Spearman 0.056 oldu. Yapısal benzerlik ile piksel sıra uyumu yöntemlere göre ayrışabilir.</p>
+<p><img src="sekiller/03-benzerlik.png" alt="Yöntem ve test alanına göre SSIM ve Spearman" /></p>
+<p><img src="sekiller/02-fashion-mnist-atif.png" alt="Aynı Fashion-MNIST girdilerinde alan içi ve dışı atıflar" /></p>
+<p><img src="sekiller/02-mnist-atif.png" alt="Aynı MNIST girdilerinde alan içi ve dışı atıflar" /></p>
+<p>Her gösterim satırında iki modelin tahmini, ilgili atıf grubunun ilk panelinin altında bulunur. Mavi negatif ve kırmızı pozitif atıftır. Her harita kendi mutlak tepe değeri ile ölçeklenir.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Girdi</th>
+  <th style="text-align:left">Modelin eğitim alanı</th>
+  <th style="text-align:right">Ortalama en yüksek olasılık</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:right">0.836</td>
+</tr>
+<tr>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:right">0.799</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">Fashion-MNIST</td>
+  <td style="text-align:right">0.823</td>
+</tr>
+<tr>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:left">MNIST</td>
+  <td style="text-align:right">0.975</td>
+</tr>
+</tbody>
+</table>
+<p>En yüksek softmax olasılığı betimleyici bir ölçümdür. Alan dışı doğruluk ya da kalibre edilmiş hata olasılığı olarak yorumlanmaz.</p>
+<h2>5. Makaleyle karşılaştırma ve sınırlılıklar</h2>
+<p>Yazarlar görsel benzerlik ile sıra benzerliğinin ayrışabildiğini raporlar. Tablo 3'te Fashion-MNIST → MNIST için Gradyan ve SmoothGrad sıra korelasyonları sıfıra yakındır, VarGrad ve Guided Backprop ise daha yüksek korelasyon gösterir. Yerel tabloda aynı yöntemlerin sıralaması ve iki ölçütün ayrışması görülebilir. Karşılaştırma yöntem örüntüleri düzeyindedir. <a href="https://arxiv.org/html/2011.05429v1#S5">Bölüm 5, Tablo 3</a></p>
+<table>
+<thead>
+<tr>
+  <th>Deney ayarı</th>
+  <th>Makale</th>
+  <th>Bu uygulama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Eğitim verisi</td>
+  <td>§5, MNIST ve Fashion-MNIST üzerine eğitilmiş BVD-CNN modellerini belirtir. Bu iki model için kullanılan eğitim örneği sayısı ve kimlikleri §5 ve Ek C'de verilmez.</td>
+  <td>Her özgün 60.000 görüntülük eğitim bölümünden tohum 41 ile seçilen 12.000 görüntü. Alan içi doğruluk özgün 10.000 örneklik test bölümünün tamamında ölçülür.</td>
+</tr>
+<tr>
+  <td>Mimari ve eğitim</td>
+  <td>Ek C, ikili BVD-CNN için beş evrişim, üç tam bağlı katman, ReLU ve son katmanda sigmoid belirtir. Adam, öğrenme hızı 0,001 ve 40 dönem ikili görev için verilir.</td>
+  <td>Beş 3×3 evrişim (16, 16, 32, 32, 48 kanal), iki 2×2 maksimum havuzlama ve 128, 64, 10 birimli üç tam bağlı katman. Adam 0,001, yığın 128, çapraz entropi ve 8 dönem. On sınıflı açıklamalar logit üzerinden hesaplanır.</td>
+</tr>
+<tr>
+  <td>Test kapsamı</td>
+  <td>Tablo 3’te 190 Fashion-MNIST görüntüsü ve üç alan dışı model vardır. Ek I’de ters yön için görsel örnek verilir. Ek C’de üç kanallı dönüşüm VGG-16 ile ilişkilendirilir.</td>
+  <td>Her yönde 190 test görüntüsü, tohum 73. İki tek kanallı CNN karşılaştırılır. Her model kendi en yüksek logitini açıklar. Yazarların örnek kimlikleri ve ağırlıkları elde edilemedi.</td>
+</tr>
+<tr>
+  <td>Atıf</td>
+  <td>Tablo 3’te 15 yöntem. Ek B, SmoothGrad varyantları ve VarGrad için 50 gürültülü örnek ve görüntü aralığının 0,15 katını belirtir.</td>
+  <td>Yedi yöntem ve aynı gürültü ayarları. PyTorch autograd, iki modelde ortak gürültü ve IG için 24 trapez aralığı kullanılır.</td>
+</tr>
+<tr>
+  <td>Benzerlik</td>
+  <td>Tablo 3’te SSIM, Spearman ve standart hata verilir. §5’te Gauss pencere parametreleri ile harita ölçekleme ayrıntıları belirtilmez.</td>
+  <td>Aynı ölçütler raporlanır. Tepeye göre ölçekleme ve 11×11 Gauss penceresi bu çalışmanın açıkça tanımlanmış seçimleridir.</td>
+</tr>
+</tbody>
+</table>
+<p>Tek eğitim tohumu kullanıldığı için standart hatalar görüntüler arasındaki değişkenliği yansıtır. Sonuçlar Bölüm 5’in kısmi deneysel yeniden üretimidir. <a href="https://arxiv.org/html/2011.05429v1#S5">Makale §5 ve Ek B–C</a></p>
+<h2>6. Kaynak denetimi</h2>
+<h3>Birds-vs-Dogs veri kökeni</h3>
+<table>
+<thead>
+<tr>
+  <th>Bileşen</th>
+  <th>Doğrulanan bilgi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Kuş görüntüleri</td>
+  <td>Makalenin Ek C.1 bölümü Caltech-UCSD Birds-200-2011'i adlandırır. Resmî görüntüler ve ayrı piksel segmentasyonu arşivi mevcuttur.</td>
+</tr>
+<tr>
+  <td>Köpek görüntüleri</td>
+  <td>Ek C.1, Parkhi ve arkadaşlarının Cats and Dogs çalışmasını adlandırır. Oxford-IIIT Pet görüntüleri ve piksel düzeyinde trimap arşivi yayımlanır. Stanford Dogs, makalede ayrı kullanıcı çalışmasıyla ilişkilendirilir.</td>
+</tr>
+<tr>
+  <td>Arka plan</td>
+  <td>Bölüm 3.1 Places gökyüzünü kuşlarla, bambu ormanını köpeklerle eşler. Resmî deponun kullanıcı çalışması klasöründe beş gökyüzü ve beş bambu PNG'si bulunur. Bunların ikili deneydeki Places dosyalarıyla birebir eşlemesi ve her örnekte seçilen görsel doğrulanamadı.</td>
+</tr>
+<tr>
+  <td>Bölmeler</td>
+  <td>Ek C.1 sınıf başına 4.300 eğitim ve kalanın eşit doğrulama/test bölünmesini tarif eder. Resmî deponun yayımladığı altı dosya listesinde her sınıf için 4.300 eğitim, 500 doğrulama ve 190 test girdisi sayıldı. Sınıf başına 4.990 dosya adı benzersizdi.</td>
+</tr>
+<tr>
+  <td>Hazırlama ve maskeler</td>
+  <td>Kullanıcı çalışmasının ayrı kodu Oxford trimap 1 değerini ön plan olarak seçer. İkili deney için dosya–maske eşleştirmesi, arka plan seçim manifestosu ve birleştirme betiği yayımlanan dosyalardan doğrulanamadı.</td>
+</tr>
+</tbody>
+</table>
+<p>Bu nedenle Birds-vs-Dogs bu defterde uygulanmadı. Ayrıca Bölüm 5'teki ImageNet/VGG-16 kolu bu uygulamanın kapsamı dışında tutuldu.</p>
+<ul>
+<li><a href="https://arxiv.org/html/2011.05429v1">Makale §3.1 ve Ek C–D</a></li>
+<li><a href="https://www.vision.caltech.edu/datasets/cub_200_2011/">CUB-200-2011 görüntüleri</a> · <a href="https://data.caltech.edu/records/w9d68-gec53">CUB segmentasyon arşivi</a> · <a href="https://www.robots.ox.ac.uk/~vgg/data/pets/">Oxford-IIIT Pet görüntü ve trimap arşivleri</a></li>
+<li><a href="https://places2.csail.mit.edu/download.html">Places veri kaynağı</a> · <a href="https://github.com/adebayoj/explaindebug/tree/98f3b211c97c1bbbaec4d12cc8c102ecbbc1afe7/debuggingtests/data/datapartion">Yazarların ikili deney bölmeleri</a> · <a href="https://github.com/adebayoj/explaindebug/tree/98f3b211c97c1bbbaec4d12cc8c102ecbbc1afe7/userstudy">Ayrı kullanıcı çalışması kodu ve görselleri</a></li>
+</ul>
+</main></body></html>

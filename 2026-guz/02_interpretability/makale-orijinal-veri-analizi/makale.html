@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>XAI · Makale yeniden üretimi</title>
+<style>
+body{margin:3rem auto;padding:0 1.25rem;max-width:960px;color:#182334;background:#fafbfc;
+font:17px/1.65 system-ui,sans-serif}h1,h2,h3{line-height:1.2;color:#132b46}
+a{color:#16559a}img{display:block;max-width:100%;height:auto}table{border-collapse:collapse;font-size:.9em}
+th,td{border:1px solid #d6deea;padding:.4rem .6rem}th{background:#e8eff7}
+</style></head><body><main>
+<h1>Önem haritaları için sağlama testleri</h1>
+<p><strong>Bölüm 2 · Yorumlanabilirlik · Özgün MNIST verisiyle deneysel yeniden üretim</strong></p>
+<h2>1. Araştırma amacı</h2>
+<p>Adebayo ve arkadaşlarının (NeurIPS 2018) iki sağlama testi, piksel atıflarının öğrenilen parametrelere ve görüntü–etiket ilişkisine duyarlılığını sınar. Bu uygulama Bölüm 3–4 ile Ek B–C'deki MNIST CNN deneylerini izler. <a href="https://arxiv.org/html/1810.03292v3">Makale ve ekleri</a> · <a href="https://github.com/adebayoj/sanity_checks_saliency">Yazarların kodu</a></p>
+<h2>Seçilen Ödev Seçeneği: Seçenek 1 — Zafiyet/Manipülasyon</h2>
+<p><strong>Parametre müdahalesi.</strong> MNIST görüntüsü ve hedef logit sabitken CNN katmanları kademeli veya bağımsız biçimde yeniden başlatılır. Çıkış katmanı değiştirildiğinde ortalama işaretli Spearman korelasyonu Gradyan için −0,006, Guided Backprop için 0,822’dir. Bu fark, Guided Backprop’un bu koşulda çıkış katmanındaki değişimi ayırt etmede sınırlı kaldığını gösterir.</p>
+<p><strong>Eğitim etiketi müdahalesi.</strong> Eğitim görüntüleri sabit tutulur, etiketler permüte edilir ve aynı mimari yeniden eğitilir. Permüte etiketli ağın özgün test doğruluğu %10,25’e düşerken Girdi × gradyan ve IG haritalarının mutlak sıra korelasyonu 0,989’dur. Ortak sıfır pikselleri ve rakam silueti bu benzerliğe katkıda bulunabilir. Yüksek harita benzerliği, modelin özgün görüntü–etiket ilişkisini öğrendiğini doğrulamak için yetersizdir.</p>
+<p>Ödevdeki manipülasyon, açıklamaların duyarlılığını sınamak için yapılan kontrollü deneysel müdahaleleri ifade eder. <a href="https://arxiv.org/html/1810.03292v3">Adebayo ve ark., §3–4</a></p>
+<h2>2. Özgün veri ve uygulama</h2>
+<p>MNIST, 60.000 eğitim ve 10.000 test görüntüsünden oluşur. Defter dört özgün gzip IDX arşivinin MD5 değerlerini ve IDX başlıklarını doğrular. 28×28 pikseller 255'e bölünür. Her iki ağ eğitimin aynı 1.600 özgün örneğini kullanır. Eğitim örnekleri tohum 41 ile seçildi. Doğruluk özgün test bölümünün tamamında ölçüldü. Açıklama karşılaştırması için aynı test bölümünden 96 görüntü seçildi. <a href="https://yann.lecun.com/exdb/mnist/">MNIST</a> · <a href="https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz">İndirilen IDX arşivinin aynası</a></p>
+<p>CNN, yazarların betiğindeki 5×5 evrişimli 32 ve 64 kanalı, 2×2 maksimum havuzlamaları, 1.024 birimli tam bağlı katmanı ve 10 logiti kullanır. Ağırlıklar kesilmiş normal dağılımla, sapmalar 0,1 ile başlatılır. Katman müdahalelerinde aynı başlangıç dağılımı kullanılır. Deney ortamı Python 3.13.15, PyTorch 2.15.0+cpu, CPU. <a href="https://github.com/adebayoj/sanity_checks_saliency/blob/master/src/train_cnn_models.py">Yazarların eğitim betiği</a></p>
+<h2>3. Deney düzeni</h2>
+<ul>
+<li><strong>Parametre testi.</strong> Kademeli müdahale çıkıştan girişe doğru birikir. Bağımsız müdahale her seferinde yalnız bir katmana uygulanır. Müdahale sonrasında ağ yeniden eğitilmez.</li>
+<li><strong>Veri testi.</strong> Görüntüler ve etiket frekansları sabittir. Eğitim etiketleri bir kez karıştırılır. Etiketlerin 89.7% kadarı değişti. İki model aynı ilk ağırlıklardan başlar.</li>
+<li><strong>Açıklamalar.</strong> Altı yöntem aynı görüntü ve eğitilmiş ağın seçtiği aynı hedef logit üzerinde hesaplanır. IG siyah referansla 24 aralıklı trapez integrali kullanır. Grad-CAM son evrişimde pozitif kanal bileşimini 28×28'e büyütür. Guided Backpropagation ReLU'da negatif geri sinyali kapılar.</li>
+<li><strong>Ölçüm.</strong> Spearman sıra korelasyonu ham işaretli piksellerde ve mutlak değerlerinde ayrı hesaplanır. Sabit haritalarda tanımsız eşleşmeler ortalama dışında tutulur ve geçerli çift sayısı tabloda verilir.</li>
+</ul>
+<h2>4. Deneysel sonuçlar</h2>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Koşul</th>
+  <th style="text-align:right">Dönem</th>
+  <th style="text-align:right">Eğitim doğruluğu</th>
+  <th style="text-align:right">Özgün test doğruluğu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Gerçek etiket</td>
+  <td style="text-align:right">12</td>
+  <td style="text-align:right">1.0000</td>
+  <td style="text-align:right">0.9499</td>
+</tr>
+<tr>
+  <td style="text-align:left">Permüte etiket</td>
+  <td style="text-align:right">32</td>
+  <td style="text-align:right">0.9856</td>
+  <td style="text-align:right">0.1025</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/01-egitim.png" alt="Eğitim eğrileri" /></p>
+<p>Permüte etiketli ağ, verilen etiketlerde 98.6% eğitim doğruluğu ve özgün test etiketlerinde 10.2% doğruluk elde etti. Özgün test doğruluğu, on sınıflı görevdeki yaklaşık %10 şans düzeyiyle birlikte okunmalıdır. Kademeli testin ilk adımında işaretli ortalama korelasyon Gradyan için -0.006, Guided Backprop için 0.822 oldu. Son adımda aynı değerler sırasıyla -0.001 ve 0.503 olarak ölçüldü.</p>
+<p><img src="sekiller/02-katman-benzerligi.png" alt="Katmanlara göre benzerlik" /></p>
+<p><img src="sekiller/03-haritalar.png" alt="Birinci MNIST örneği için haritalar" /></p>
+<p><img src="sekiller/04-haritalar.png" alt="İkinci MNIST örneği için haritalar" /></p>
+<p>Görsellerde her harita için simetrik renk ölçeği kullanıldı. Paneller desen ve işaret karşılaştırmasına uygundur. Renk şiddeti paneller arasında mutlak büyüklük karşılaştırması için kullanılmaz.</p>
+<h3>Permüte etiket müdahalesinde benzerlik</h3>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Yöntem</th>
+  <th style="text-align:left">Ölçüt</th>
+  <th style="text-align:right">Ortalama ρ</th>
+  <th style="text-align:right">Geçerli çift</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Girdi × gradyan</td>
+  <td style="text-align:left">Mutlak</td>
+  <td style="text-align:right">0.989</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Girdi × gradyan</td>
+  <td style="text-align:left">İşaretli</td>
+  <td style="text-align:right">0.011</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">Mutlak</td>
+  <td style="text-align:right">0.077</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Grad-CAM</td>
+  <td style="text-align:left">İşaretli</td>
+  <td style="text-align:right">0.077</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Gradyan</td>
+  <td style="text-align:left">Mutlak</td>
+  <td style="text-align:right">0.073</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Gradyan</td>
+  <td style="text-align:left">İşaretli</td>
+  <td style="text-align:right">0.031</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">Mutlak</td>
+  <td style="text-align:right">0.547</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Backprop</td>
+  <td style="text-align:left">İşaretli</td>
+  <td style="text-align:right">0.650</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">Mutlak</td>
+  <td style="text-align:right">0.186</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">Guided Grad-CAM</td>
+  <td style="text-align:left">İşaretli</td>
+  <td style="text-align:right">0.409</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">IG</td>
+  <td style="text-align:left">Mutlak</td>
+  <td style="text-align:right">0.989</td>
+  <td style="text-align:right">96</td>
+</tr>
+<tr>
+  <td style="text-align:left">IG</td>
+  <td style="text-align:left">İşaretli</td>
+  <td style="text-align:right">0.021</td>
+  <td style="text-align:right">96</td>
+</tr>
+</tbody>
+</table>
+<p><img src="sekiller/05-etiket-benzerligi.png" alt="Etiket rastgeleleştirmesinde yöntemler" /></p>
+<h2>5. Makaleyle karşılaştırma ve sınırlılıklar</h2>
+<p>Makalede üst katmanlarda Guided Backprop haritalarının görece yüksek benzerlik gösterebildiği, alt katmanların da rastgeleleştirilmesiyle bozulabildiği bildirilir. Yukarıdaki ilk ve son adım ölçümleri bu ayrımı aynı MNIST görüntülerinde sınar. Girdi ile çarpılan yöntemlerde ortak sıfır pikselleri ve rakam silueti mutlak sıra korelasyonunu etkileyebilir. Atıf benzerliği modelin doğruluğundan ayrı değerlendirilir.</p>
+<p>Bu çalışma TensorFlow yerine PyTorch kullanır. Eğitim altkümesi, Adam öğrenme hızı (0,001), 128'lik yığın, temiz model için 12 dönem ve permüte model için %98 çevrimiçi eğitim doğruluğunda erken durdurma veya en fazla 100 dönem yerel tercihlerdir. L2 cezası uygulanmadı. Özgün betikte doğrulama bölmesi ve 50'lik yığın vardır. Burada tek çalışma tohumu, altı atıf yöntemi ve iki Spearman ölçümü kullanıldı. HOG, SSIM, SmoothGrad ve VarGrad kapsam dışındadır. Bulgular bu CNN ve örneklemle sınırlıdır.</p>
+</main></body></html>

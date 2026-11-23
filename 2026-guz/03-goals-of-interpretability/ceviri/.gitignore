@@ -1,0 +1,18 @@
+# Quarto çalışma dosyaları ve önbellekleri
+/.quarto/
+/_freeze/
+/makale_cache/
+/makale_files/
+/.jupyter_cache/
+/.ipynb_checkpoints/
+
+# Yerel yedekler ve geçici dosyalar
+*.bak
+*.tmp
+*.swp
+*~
+
+# İşletim sistemi dosyaları
+.DS_Store
+Thumbs.db
+Desktop.ini

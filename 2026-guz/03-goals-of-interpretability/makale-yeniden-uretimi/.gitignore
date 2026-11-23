@@ -1,0 +1,12 @@
+/.venv/
+/.ipynb_checkpoints/
+/.jupyter/
+/.ipython/
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+Desktop.ini
+/data/raw/
+/foto-sonuclari/
+*.zip
