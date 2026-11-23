@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Makale Yeniden Üretimi: Koşullu Alt Gruplarla Ceteris Paribus</title>
+<meta name="author" content="Serap Şahin">
+<style>
+:root{color-scheme:light;--ink:#202c3b;--heading:#16334c;--accent:#215c88;--line:#dce3eb;--muted:#586778}
+*{box-sizing:border-box}
+html{background:#f2f5f8;color:var(--ink);scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:17px;line-height:1.75;text-rendering:optimizeLegibility}
+.report{max-width:1080px;margin:36px auto 64px;padding:48px 64px 64px;background:#fff;border-top:5px solid var(--accent)}
+.eyebrow{margin:0 0 14px;font-size:14px;font-weight:650;letter-spacing:.025em;color:var(--accent)}
+h1,h2,h3,h4{color:var(--heading);line-height:1.3;overflow-wrap:anywhere;break-after:avoid}
+h1{font-size:36px;letter-spacing:-.025em;margin:0 0 26px;font-weight:750}
+h2{font-size:26px;margin:48px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+h3{font-size:21px;margin:30px 0 14px}
+p{margin:0 0 18px;overflow-wrap:anywhere}
+li{margin:8px 0;overflow-wrap:anywhere}ul,ol{padding-left:1.6em;margin:16px 0 22px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere}
+a:hover{color:#123e60}a:focus-visible,summary:focus-visible{outline:3px solid #a5c9e5;outline-offset:4px}
+strong{font-weight:650}
+.contents{margin:24px 0 34px;border-block:1px solid var(--line);padding:12px 0;color:var(--muted);font-size:15px}
+.contents summary{cursor:pointer;font-weight:650;color:var(--heading)}
+.contents ul{list-style:none;padding:8px 0 0;margin:0;columns:2;column-gap:32px}.contents li{break-inside:avoid;margin:4px 0}
+code{font-family:Consolas,"DejaVu Sans Mono",monospace;font-size:.88em;background:#edf2f6;padding:2px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{background:#f4f6f9;border:1px solid var(--line);padding:18px 20px;margin:20px 0 24px;overflow-x:auto;line-height:1.6;font-size:15px;tab-size:4}
+pre code{background:transparent;padding:0;border-radius:0;white-space:pre;overflow-wrap:normal}
+.table-wrap{max-width:100%;overflow-x:auto;margin:22px 0 28px;overscroll-behavior-x:contain}
+table{width:100%;border-collapse:collapse;font-size:15px;line-height:1.55;font-variant-numeric:tabular-nums}
+th,td{padding:12px 14px;border:1px solid var(--line);text-align:left;vertical-align:top;min-width:70px;overflow-wrap:normal;word-break:normal}
+thead th{background:#edf3f8;color:var(--heading);font-weight:650}tbody tr:nth-child(even){background:#f8fafc}
+table.wide{min-width:830px}table.wide th,table.wide td{padding:11px 12px}
+figure{margin:28px 0 32px;max-width:100%}img{display:block;max-width:100%;height:auto;margin:0 auto}
+figcaption{margin-top:10px;color:var(--muted);font-size:14px;line-height:1.6}
+blockquote{margin:22px 0;padding:4px 0 4px 20px;border-left:3px solid #aac6da;color:var(--muted)}
+math{font-size:1.04em}math[display="block"]{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:12px 0;margin:20px 0;text-align:center}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+@media(max-width:760px){body{font-size:16px;line-height:1.7}.report{margin:0;padding:28px 22px 42px;border-top-width:4px}h1{font-size:29px;margin-bottom:22px}h2{font-size:23px;margin-top:36px}h3{font-size:20px}.contents ul{columns:1}th,td{padding:10px}pre{padding:14px;font-size:13px}}
+@media print{@page{size:A4;margin:18mm}html{background:white}body{font-size:10pt;line-height:1.55}.report{max-width:none;border:0;margin:0;padding:0}.eyebrow{font-size:9pt}.contents{display:none}h1{font-size:23pt}h2{font-size:16pt;margin-top:24pt}h3{font-size:12pt}a{color:inherit}table{font-size:8pt}th,td{padding:6pt}table.wide{min-width:0}.table-wrap{overflow:visible}figure,pre,tr{break-inside:avoid}math[display="block"]{overflow:visible}p,li{orphans:3;widows:3}}
+</style>
+</head>
+<body>
+<main class="report">
+<p class="eyebrow">Bölüm 12 / Ceteris Paribus</p>
+<h1
+id="makale-yeniden-üretimi-koşullu-alt-gruplarla-ceteris-paribus">Makale
+Yeniden Üretimi: Koşullu Alt Gruplarla Ceteris Paribus</h1>
+<p><strong>Öğrenci:</strong> Serap Şahin (20269348009)<br />
+<strong>İlgili bölüm:</strong> Molnar, <em>Interpretable Machine
+Learning</em>, <a
+href="https://christophm.github.io/interpretable-ml-book/ceteris-paribus.html">Bölüm
+12 – Ceteris Paribus Plots</a><br />
+<strong>İzlencedeki tür:</strong> Seçenek 2: Kıyaslama (standart CP ile
+alt grup CP’si). Makale yeni bir varyant önerdiği için Seçenek 3 ile de
+ilişkili; ancak katkısı hız veya stabilite değil, veri bölgesinin dışına
+düşen sorguları azaltmak.</p>
+<nav aria-label="İçindekiler" class="contents"><details><summary>İçindekiler</summary><ul><li><a href="#makale">Makale</a></li><li><a href="#neden-bu-makale">1. Neden bu makale?</a></li><li><a href="#yöntem">2. Yöntem</a></li><li><a href="#yeniden-üretilen-sonuçlar">3. Yeniden üretilen sonuçlar</a></li><li><a href="#kendi-verim-telco-müşterisi-5949-xikae">4. Kendi verim: Telco müşterisi 5949-XIKAE</a></li><li><a href="#yeniden-üretilmeyenler">5. Yeniden üretilmeyenler</a></li><li><a href="#sınırlamalar-ve-tartışma">6. Sınırlamalar ve tartışma</a></li><li><a href="#dosyalar-ve-çalıştırma">7. Dosyalar ve çalıştırma</a></li><li><a href="#kaynaklar">Kaynaklar</a></li></ul></details></nav>
+<h2 id="makale">Makale</h2>
+<p>Molnar, C., König, G., Bischl, B. ve Casalicchio, G. (2024).
+<em>Model-agnostic Feature Importance and Effects with Dependent
+Features: A Conditional Subgroup Approach.</em> Data Mining and
+Knowledge Discovery, 38(5), 2903–2941.
+https://doi.org/10.1007/s10618-022-00901-9 · arXiv: <a
+href="https://arxiv.org/abs/2006.04628">2006.04628</a></p>
+<p>Yazarların kodu (R): <a
+href="https://github.com/christophM/paper_conditional_subgroups">github.com/christophM/paper_conditional_subgroups</a></p>
+<h2 id="neden-bu-makale">1. Neden bu makale?</h2>
+<p>Ceteris paribus (CP) profili tek bir gözlem için şu soruyu sorar:
+<em>“Diğer her şey sabitken bu öznitelik değişseydi model ne tahmin
+ederdi?”</em> Öznitelikler birbirine bağlıysa “diğer her şey sabit”
+varsayımı gerçekte olmayan veri noktaları üretir. Model bu noktalarda
+eğitim verisi görmemiştir; buradaki tahminler veriyle desteklenmez ve
+doğru olup olmadıklarını veriden kontrol edemeyiz.</p>
+<p>Bölüm 12 uygulamamda bunu Telco verisinde ölçtüm:
+<code>5949-XIKAE</code> müşterisinin <code>tenure</code> profilinde
+noktaların <strong>%90</strong>’ı en yakın gerçek müşteriden uzak
+düşüyordu, çünkü <code>TotalCharges ≈ tenure × MonthlyCharges</code>.
+Uygulamada sorunu ilişkiyi <strong>elle</strong> yazarak düzeltmiştim.
+Bu makale aynı sorunu <strong>ilişkiyi bilmeden, veriden
+öğrenerek</strong> azaltmayı öneriyor. Bu yüzden Bölüm 12’nin doğal
+devamı.</p>
+<p>Kitabın yazarı makalenin de ilk yazarı. Hooker, Mentch ve Zhou (2021)
+aynı ekstrapolasyon sorununu ICE eğrilerinde gösteriyor (Şekil 6). Bu
+çalışma sorunu göstermekle kalmayıp onu azaltmayı amaçlayan bir yöntemi
+yeniden üretiyor.</p>
+<h2 id="yöntem">2. Yöntem</h2>
+<p><strong>Adım 1 – Alt gruplar.</strong> İlgilenilen öznitelik
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>j</mi></msub><annotation encoding="application/x-tex">x_j</annotation></semantics></math>,
+diğer öznitelikler
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mrow><mo>−</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">x_{-j}</annotation></semantics></math>
+kullanılarak bir karar ağacıyla tahmin edilir. Ağacın her yaprağı bir
+alt gruptur
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝒢</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\mathcal{G}_k</annotation></semantics></math>.
+Ağaç, yaprak içinde
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>j</mi></msub><annotation encoding="application/x-tex">x_j</annotation></semantics></math>’nin
+dağılımını daraltmayı hedefler; böylece
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>j</mi></msub><annotation encoding="application/x-tex">x_j</annotation></semantics></math>’nin
+diğer özniteliklere bağımlılığı azalır. Bu, yaprak içinde bağımsızlığın
+garantisi değildir.</p>
+<p><strong>Adım 2 – Alt grup içinde değiştirme.</strong> Gözlem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">x^{(i)}</annotation></semantics></math>’nin
+düştüğü yaprak
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">k(i)</annotation></semantics></math>
+ise, profil yalnızca o yapraktaki gerçek
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>j</mi></msub><annotation encoding="application/x-tex">x_j</annotation></semantics></math>
+değerleri üzerinde hesaplanır:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mtext mathvariant="normal">CP</mtext><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>c</mi><mi>s</mi></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mover><mi>f</mi><mo accent="true">̂</mo></mover><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><msubsup><mi>x</mi><mrow><mo>−</mo><mi>j</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>z</mi><mo>∈</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><munder><mo>min</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>𝒢</mi><mrow><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub></mrow></munder><msubsup><mi>x</mi><mi>j</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="0.222em"></mspace><munder><mo>max</mo><mrow><mi>l</mi><mo>∈</mo><msub><mi>𝒢</mi><mrow><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub></mrow></munder><msubsup><mi>x</mi><mi>j</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{CP}^{cs}_{i,j}(z) = \hat f\big(z, x^{(i)}_{-j}\big), \qquad z \in \big[\min_{l \in \mathcal{G}_{k(i)}} x^{(l)}_j,\ \max_{l \in \mathcal{G}_{k(i)}} x^{(l)}_j\big]</annotation></semantics></math></p>
+<p>Alt grup PDP’si (cs-PDP) bunun yaprak içindeki ortalamasıdır. Makale
+aynı fikri permütasyon önemine (cs-PFI) de uyguluyor; bu çalışma
+etki/profil tarafına odaklanıyor.</p>
+<p><strong>Makale PDP üzerinden anlatıyor; bu çalışma neden CP
+düzeyinde?</strong> Makale yöntemi PDP ve PFI için sunuyor. Ancak PDP,
+CP profillerinin ortalamasıdır
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">PDP</mtext><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><msub><mo>∑</mo><mi>i</mi></msub><msub><mtext mathvariant="normal">CP</mtext><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{PDP}_j(z) = \frac{1}{n}\sum_i \text{CP}_{i,j}(z)</annotation></semantics></math>)
+ve ekstrapolasyon her bir profilde ortaya çıkar. Yöntemde alt grup zaten
+<strong>her gözlem için ayrı</strong> belirlenir; cs-PDP, gözlemlerin
+alt grup CP profillerinin ortalamasıdır. Yazarların kodunda da tek
+gözlemli profilleri alt grup modeline göre vurgulayan bir fonksiyon var
+(<code>R/highlighted_ice.R</code>). Bu çalışma yöntemi ortalama almadan,
+tek gözlem (CP) düzeyinde uyguluyor. PDP yalnızca makalenin bisiklet
+şeklini yeniden ürettiğim yerde (Bölüm 3.3) geçiyor.</p>
+<p><strong>Makaleden farkım.</strong> Makale ağaç olarak
+<em>transformation tree</em> (<code>trtf</code> paketi) kullanıyor; bu
+ağaç
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>j</mi></msub><annotation encoding="application/x-tex">x_j</annotation></semantics></math>’nin
+bütün koşullu dağılımına göre böler. Python’da hazır bir karşılığı
+olmadığı için CART kullandım. Yazarların kodu da CART seçeneğini
+destekliyor (<code>fit_conditionals(type = "cart")</code>). En küçük
+yaprak büyüklüğü makaledeki gibi 30.</p>
+<h2 id="yeniden-üretilen-sonuçlar">3. Yeniden üretilen sonuçlar</h2>
+<p>Kod: <a href="analiz.ipynb"><code>analiz.ipynb</code></a>. Sayılar
+Bölüm 7’deki paket sürümleriyle yapılan çalıştırmaya aittir. Dosyalar ve
+çalıştırma için Bölüm 7’ye bakınız.</p>
+<h3 id="motivasyon-örneği-experimentsexamples-motivation.r">3.1
+Motivasyon örneği (<code>experiments/examples-motivation.R</code>)</h3>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>∼</mo><mi>U</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_1 \sim U(0,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>2</mn></msub><mo>∼</mo><mi>U</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>−</mo><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_2 \sim U(0, 1-x_1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>=</mo><msup><mi>e</mi><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub></mrow></msup></mrow><annotation encoding="application/x-tex">f = e^{x_1+x_2}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math>.
+Veri
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x_1 + x_2 \le 1</annotation></semantics></math>
+üçgeninde. Makale bu örneği PDP ile gösteriyor; ben tek gözlemin CP
+profiliyle gösterdim:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>,</mo><mn>56</mn></mrow><annotation encoding="application/x-tex">x_2 = 0{,}56</annotation></semantics></math>
+olan bir gözlemin CP yolunun <strong>%56</strong>’sı üçgenin dışında;
+profilin bu kısmı veri bölgesinin dışındaki sorgulardan oluşuyor. Bu
+örnekte öğrenilmiş bir model yerine gerçek fonksiyon
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub></mrow></msup><annotation encoding="application/x-tex">e^{x_1+x_2}</annotation></semantics></math>)
+kullanıldığı için tahmin hatası yoktur; gösterilen şey yalnızca
+sorguların veri dışına çıkmasıdır. Öğrenilmiş bir modelde bu bölgedeki
+tahminler veriyle desteklenmez.</li>
+<li>Alt grup ağacı (derinlik 2) üçgeni
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>2</mn></msub><annotation encoding="application/x-tex">x_2</annotation></semantics></math>’ye
+göre dört dilime bölüyor. 100 gözlemin CP profillerinde üçgenin dışına
+düşen noktalar <strong>naif CP’de %27, alt grup CP’sinde
+%10</strong>.</li>
+</ul>
+<figure>
+<img src="sekiller/01_ucgen_cp.png"
+alt="Tek gözlemin CP yolu üçgen biçimli verinin dışına taşıyor" />
+<figcaption aria-hidden="true">Tek gözlemin CP yolu üçgen biçimli
+verinin dışına taşıyor</figcaption>
+</figure>
+<figure>
+<img src="sekiller/03_ucgen_alt_grup_cp.png"
+alt="Naif ve alt grup CP profilleri" />
+<figcaption aria-hidden="true">Naif ve alt grup CP
+profilleri</figcaption>
+</figure>
+<h3 id="alt-grup-çizimi-experimentsexample-subgroups.r">3.2 Alt grup
+çizimi (<code>experiments/example-subgroups.R</code>)</h3>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>2</mn></msub><mo>&lt;</mo><mn>0</mn><mo>,</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">x_2 &lt; 0{,}5</annotation></semantics></math>
+ise
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>∼</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_1 \sim N(0,1)</annotation></semantics></math>,
+değilse
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>4</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N(4,4)</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>1</mn></msub><annotation encoding="application/x-tex">x_1</annotation></semantics></math>
+bütün veride karıştırıldığında yeni noktalar boş bölgelere düşüyor;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>,</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">x_2 = 0{,}5</annotation></semantics></math>’te
+bölünüp alt grup içinde karıştırıldığında verinin üstüne düşüyor.
+Makaledeki şeklin aynısı elde edildi.</p>
+<figure>
+<img src="sekiller/02_alt_grup_permutasyon.png"
+alt="Bütün veride ve alt grup içinde karıştırma" />
+<figcaption aria-hidden="true">Bütün veride ve alt grup içinde
+karıştırma</figcaption>
+</figure>
+<h3 id="bisiklet-uygulaması-experimentsbike-application.r">3.3 Bisiklet
+uygulaması (<code>experiments/bike-application.R</code>)</h3>
+<p>Aynı veri dosyası ve aynı ön işleme.</p>
+<p><strong>Tahmin edici bağımlılık</strong> (her öznitelik diğerlerinden
+rastgele ormanla tahmin edildiğinde açıklanan kayıp, iki katlı):</p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table class="wide" style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>season</th>
+<th>yr</th>
+<th>holiday</th>
+<th>weekday</th>
+<th>temp</th>
+<th>hum</th>
+<th>work</th>
+<th>weather</th>
+<th>wind</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Makale (%)</td>
+<td>45</td>
+<td>8</td>
+<td>29</td>
+<td>14</td>
+<td>66</td>
+<td>43</td>
+<td>100</td>
+<td>46</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td>Yeniden üretim (%)</td>
+<td>45</td>
+<td>2</td>
+<td>72</td>
+<td>17</td>
+<td>67</td>
+<td>38</td>
+<td>100</td>
+<td>38</td>
+<td>6</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>season</code>, <code>temp</code>, <code>hum</code>,
+<code>work</code> ve <code>weekday</code> makaleye çok yakın. En büyük
+fark <code>holiday</code>’de: tatil günü “hafta içi olup iş günü olmayan
+gün” olarak <code>weekday</code> ve <code>work</code>’ten neredeyse
+kesin çıkarılabiliyor. Python’daki rastgele orman (one-hot kodlama ile)
+bunu yakalıyor; makaledeki R <code>randomForest</code> daha az yakalamış
+olabilir. <code>yr</code>, <code>wind</code> ve
+<code>weather</code>’daki farklar 731 günlük veride beklenebilecek
+düzeyde.</p>
+<p><strong>Diğer değerler:</strong> corr(temp, hum) = 0,13 (makale:
+0,13). Rastgele orman test MAE = 541,5 (makale: 522,2; farklı orman
+uygulaması ve bölme).</p>
+<p><strong>Makalenin şekli, sıcaklık için cs-PDP (derinlik 2):</strong>
+Ağaç sıcaklığı önce mevsime göre bölüyor (yaz / kış / ilkbahar-sonbahar,
+yazda ayrıca neme göre). Klasik PDP kışın 30 °C gibi görülmemiş günleri
+de ortalamaya katıyor; cs-PDP her alt grupta yalnızca o grupta görülen
+sıcaklıklar için etki gösteriyor.</p>
+<p><strong>CP düzeyine uyarlama, tek bir kış günü:</strong> Test
+kümesinden tipik bir kış günü (5,9 °C, çarşamba, kötü hava). Naif CP
+sıcaklığı 32,5 °C’ye kadar değiştiriyor; oysa eğitim verisinde kışın
+görülen en yüksek sıcaklık 18,9 °C. Alt grup CP’si
+(<code>season = WINTER</code>) yalnızca −5,2 ile 18,9 °C arasında
+çiziliyor. Naif profilin 19–32 °C kısmı, modelin hiç görmediği “sıcak
+kış günleri” için verdiği tahminler.</p>
+<figure>
+<img src="sekiller/04_bisiklet_cs_pdp.png"
+alt="Makalenin şekli: sıcaklık için PDP ve cs-PDP" />
+<figcaption aria-hidden="true">Makalenin şekli: sıcaklık için PDP ve
+cs-PDP</figcaption>
+</figure>
+<figure>
+<img src="sekiller/05_kis_gunu_cp.png"
+alt="Bir kış gününün sıcaklık CP profili" />
+<figcaption aria-hidden="true">Bir kış gününün sıcaklık CP
+profili</figcaption>
+</figure>
+<h2 id="kendi-verim-telco-müşterisi-5949-xikae">4. Kendi verim: Telco
+müşterisi <code>5949-XIKAE</code></h2>
+<p>Bölüm 12 uygulamasındaki model (gradient boosting, test ROC-AUC
+0,840) ve gerçekçilik testi: üç sayısal öznitelik (<code>tenure</code>,
+<code>MonthlyCharges</code>, <code>TotalCharges</code>)
+standartlaştırılıyor; eğitim verisindeki en yakın komşu uzaklıklarının
+%99 kantili eşik. Eşiği aşan nokta “veri dışı”.</p>
+<p>Alt grup ağacı (derinlik 3) <code>tenure</code>’u neredeyse yalnızca
+<code>TotalCharges</code> ve <code>MonthlyCharges</code> ile bölüyor;
+ilişkiyi kimse söylemeden veriden buluyor. Müşterinin alt grubu:
+<code>TotalCharges ∈ (387,3; 970,7]</code> ve
+<code>MonthlyCharges &gt; 30,8</code> (436 müşteri).</p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Profil</th>
+<th><code>tenure</code> aralığı</th>
+<th>Veri dışı nokta</th>
+<th>Bilgi kaynağı</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Naif CP (kitap)</td>
+<td>0–72 ay</td>
+<td>%90,4</td>
+<td>Yok</td>
+</tr>
+<tr class="even">
+<td>Elle düzeltilmiş CP (uygulamam)</td>
+<td>0–72 ay</td>
+<td>%0,0</td>
+<td>Alan bilgisi</td>
+</tr>
+<tr class="odd">
+<td><strong>Alt grup CP’si (makale)</strong></td>
+<td><strong>4–29 ay</strong></td>
+<td><strong>%73,1</strong></td>
+<td><strong>Veriden öğrenildi</strong></td>
+</tr>
+</tbody>
+</table></div>
+<figure>
+<img src="sekiller/06_telco_musteri_cp.png"
+alt="Telco müşterisi 5949-XIKAE: naif, elle düzeltilmiş ve alt grup CP profilleri" />
+<figcaption aria-hidden="true">Telco müşterisi 5949-XIKAE: naif, elle
+düzeltilmiş ve alt grup CP profilleri</figcaption>
+</figure>
+<p><strong>İki önemli ayrım:</strong></p>
+<ul>
+<li><strong>Alt grup CP’si tahminleri düzeltmez.</strong> Ortak
+<code>tenure</code> değerlerinde naif CP ile birebir aynı tahmini verir
+(defterde kontrol ediliyor; en büyük fark 0,0). Yaptığı şey, profili
+müşterinin alt grubunda gözlenen aralığa daraltmaktır. Bu, bütün
+sorguların gerçekçi olduğunu garanti etmez: bu müşteride daraltılmış
+aralıktaki noktaların hâlâ %73,1’i uzaklık eşiğini aşıyor.</li>
+<li><strong>Elle düzeltilmiş CP farklı bir soruyu cevaplar.</strong>
+<code>tenure</code> ile birlikte <code>TotalCharges</code> da değişir
+(“süre ve toplam ödeme birlikte değişirse?”). Standart CP ile aynı
+niceliği ölçmez; bu yüzden tablodaki %0, onu “en doğru CP” yapmaz.</li>
+</ul>
+<p><strong>Vurgulu CP profilleri (yazarların
+<code>highlighted_ice</code> fikrinin karşılığı):</strong> Rastgele
+seçilen 40 test müşterisinin <code>tenure</code> profili çizildi;
+profilin müşterinin kendi alt grubundaki aralığa düşen kısmı koyu, dışı
+silik gösterildi. Bu profillerde noktaların <strong>%51</strong>’i alt
+grup aralığında; yani naif CP profillerinin yaklaşık yarısı, müşterinin
+kendi alt grubunda görülmeyen <code>tenure</code> değerlerinden
+oluşuyor.</p>
+<figure>
+<img src="sekiller/07_vurgulu_cp.png"
+alt="40 müşterinin vurgulu CP profilleri" />
+<figcaption aria-hidden="true">40 müşterinin vurgulu CP
+profilleri</figcaption>
+</figure>
+<p><strong>Derinliğe göre, bütün test müşterilerinin CP
+profilleri:</strong></p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table class="wide">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Derinlik</th>
+<th>0 (naif)</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Veri dışı nokta (%)</td>
+<td>85,3</td>
+<td>81,9</td>
+<td>76,7</td>
+<td>72,6</td>
+<td>64,8</td>
+<td>57,7</td>
+<td>45,9</td>
+</tr>
+<tr class="even">
+<td>Profilin ortalama uzunluğu (ay)</td>
+<td>72,0</td>
+<td>58,0</td>
+<td>43,9</td>
+<td>35,4</td>
+<td>25,9</td>
+<td>19,5</td>
+<td>13,4</td>
+</tr>
+</tbody>
+</table></div>
+<figure>
+<img src="sekiller/08_derinlik.png"
+alt="Ağaç derinliğine göre veri dışı nokta oranı ve profil uzunluğu" />
+<figcaption aria-hidden="true">Ağaç derinliğine göre veri dışı nokta
+oranı ve profil uzunluğu</figcaption>
+</figure>
+<p><strong>Yorum.</strong> Derinlik arttıkça uzaklık eşiğini aşan
+sorguların oranı düzenli olarak azalıyor. Ama iki bedeli var:</p>
+<ol type="1">
+<li><strong>Profil kısalıyor.</strong> Derinlik 6’da ekstrapolasyon
+yarıya iniyor ama profil ortalama 13 ayı kapsıyor. Bu, ekstrapolasyon
+ile açıklamanın kapsamı arasındaki ödünleşim.</li>
+<li><strong>Oransal ilişkide sınırlı.</strong> Elle düzeltilmiş CP’nin
+%0’ına ulaşamıyor. Yaprak <code>TotalCharges</code> için bir aralık
+tanımlıyor; müşterinin <code>TotalCharges</code>’ı (680 $) sabitken
+<code>tenure</code> 4 ay olursa aylık ödeme ~170 $, 29 ay olursa ~23 $
+demek. İkisi de gerçekçi değil. Oransal bir ilişkiyi eksen paralel
+bölünmeler ancak basamaklarla yakalayabiliyor.</li>
+</ol>
+<h2 id="yeniden-üretilmeyenler">5. Yeniden üretilmeyenler</h2>
+<ul>
+<li><strong>Veri sadakati deneyi</strong> (OpenML-CC18, MMD ile): Çok
+sayıda veri seti ve yoğun hesaplama gerektiriyor.</li>
+<li><strong>Model sadakati ve cs-PFI karşılaştırmaları</strong>
+(knockoff, ALE ile): Bu çalışma profil tarafına odaklandı.</li>
+<li><strong>Transformation tree:</strong> Python karşılığı olmadığı için
+CART kullanıldı.</li>
+</ul>
+<h2 id="sınırlamalar-ve-tartışma">6. Sınırlamalar ve tartışma</h2>
+<ol type="1">
+<li><strong>Aralığı daraltmak tahmini düzeltmez.</strong> Alt grup CP’si
+modeli değiştirmez; profili müşterinin alt grubunda gözlenen aralıkta
+gösterir. Bu aralıktaki sorguların gerçekçi olduğunu garanti etmez.</li>
+<li><strong>Kısa profil dürüst bir cevaptır.</strong> Alt grup CP’si “bu
+müşteri 72 ay kalsa?” sorusuna cevap vermez, çünkü veride böyle bir
+müşteri yok.</li>
+<li><strong>Derinlik bir ayar parametresi.</strong> Makalenin bisiklet
+uygulamasında derinlik 1–5 arasında deneniyor. Sığ ağaç ekstrapolasyonu
+azaltmaz, derin ağaç profili çok kısaltır.</li>
+<li><strong>CART ortalamaya göre böler.</strong> Varyansı değişen ama
+ortalaması değişmeyen bağımlılıkları kaçırabilir; makalenin
+transformation tree tercihinin nedeni bu.</li>
+<li><strong>Veri dışı ölçütü benim seçimim.</strong> En yakın komşu
+uzaklığının %99 kantili makalenin ölçütü değil; sayılar eşiğe
+bağlı.</li>
+<li><strong>Alan bilgisi varsa onu kullanmak daha iyi.</strong> Telco’da
+ilişki biliniyor; yöntemin asıl değeri ilişkinin bilinmediği
+durumlarda.</li>
+<li><strong>Nedensellik değil.</strong> Alt grup CP’si de modelin
+davranışını açıklar, gerçek dünyada ne olacağını değil.</li>
+</ol>
+<h2 id="dosyalar-ve-çalıştırma">7. Dosyalar ve çalıştırma</h2>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dosya</th>
+<th>İçerik</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>makale.md</code></td>
+<td>Bu rapor</td>
+</tr>
+<tr class="even">
+<td><code>analiz.ipynb</code></td>
+<td>Bütün kod, açıklamalar ve çalıştırılmış çıktılar (8 grafik)</td>
+</tr>
+<tr class="odd">
+<td><code>veri.csv</code></td>
+<td>IBM Telco Customer Churn (7.043 müşteri); Bölüm 4’teki kendi veri
+analizim</td>
+</tr>
+</tbody>
+</table></div>
+<p>Sunumda kolaylık için ek dosyalar:</p>
+<div class="table-wrap" role="region" aria-label="Karşılaştırma tablosu" tabindex="0"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dosya</th>
+<th>İçerik</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>veri_bisiklet.csv</code></td>
+<td>Makalenin deposundaki bisiklet verisi (Bölüm 3.3); defterin
+internetsiz çalışması için</td>
+</tr>
+<tr class="even">
+<td><code>sekiller/</code></td>
+<td>Defterin ürettiği 8 grafik (PNG); slaytlarda kullanmak için. Defter
+çalıştırıldığında yeniden oluşur</td>
+</tr>
+<tr class="odd">
+<td><code>requirements.txt</code></td>
+<td>Paket sürümleri</td>
+</tr>
+</tbody>
+</table></div>
+<p>Python 3.13 ile:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span></code></pre></div>
+<p>Ardından <code>analiz.ipynb</code> dosyasını Jupyter, VS Code veya
+Colab’da açıp hücreleri sırayla çalıştırın. Veriler klasörde olduğu için
+internet gerekmez; bir dosya bulunamazsa defter aynı sabit sürümü
+GitHub’dan indirir. Paket sürümleri Bölüm 12 uygulamamla aynıdır; bu
+yüzden müşterinin tahmini (0,62) uygulamamdaki değerle tutarlıdır. Bütün
+rastgelelik sabit tohumlarla kontrol edilir.</p>
+<h2 id="kaynaklar">Kaynaklar</h2>
+<ul>
+<li>Molnar, C., König, G., Bischl, B. ve Casalicchio, G. (2024).
+Model-agnostic feature importance and effects with dependent features: a
+conditional subgroup approach. <em>Data Mining and Knowledge
+Discovery</em>, 38(5), 2903–2941.</li>
+<li>Hooker, G., Mentch, L. ve Zhou, S. (2021). Unrestricted permutation
+forces extrapolation: variable importance requires at least one more
+model, or there is no free variable importance. <em>Statistics and
+Computing</em>, 31, 82.</li>
+<li>Molnar, C. <em>Interpretable Machine Learning</em>, Bölüm 12:
+Ceteris Paribus Plots.</li>
+<li>IBM Telco Customer Churn veri seti:
+https://github.com/IBM/telco-customer-churn-on-icp4d</li>
+<li>Fanaee-T, H. (2013). Bike Sharing [Dataset]. UCI Machine Learning
+Repository. https://doi.org/10.24432/C5W894 (makalenin deposundaki
+sürüm).</li>
+</ul>
+</main>
+</body>
+</html>
