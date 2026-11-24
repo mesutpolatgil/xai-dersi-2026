@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Embedding Saldırıları Laboratuvarı</title>
+<style>
+:root{--bg:#F6F5F2;--panel:#FFFFFF;--panel2:#EFEDE8;--line:#D6D2C8;--text:#161A20;--muted:#454E5C;--dim:#667080;--accent:#C2401A;--accent-bg:#FBE8E1;--ok:#157A6E;--ok-bg:#DFF2EF;--warn:#8A5A00;--code:#F0EEE9;--shadow:0 1px 2px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161C;--panel:#1A1F27;--panel2:#161B22;--line:#2A313B;--text:#EDEEF0;--muted:#A9B1BC;--dim:#7C8592;--accent:#FF6B4A;--accent-bg:#2A1A17;--ok:#5EC4B6;--ok-bg:#15292A;--warn:#F2B84B;--code:#0D1014;--shadow:none}}
+:root[data-theme="dark"]{--bg:#12161C;--panel:#1A1F27;--panel2:#161B22;--line:#2A313B;--text:#EDEEF0;--muted:#A9B1BC;--dim:#7C8592;--accent:#FF6B4A;--accent-bg:#2A1A17;--ok:#5EC4B6;--ok-bg:#15292A;--warn:#F2B84B;--code:#0D1014;--shadow:none}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;line-height:1.5}
+.mono{font-family:Consolas,"SF Mono",Menlo,"Courier New",monospace}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1320px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:1.05rem;cursor:pointer;margin-right:8px;white-space:nowrap}
+.brand span{color:var(--accent)}
+nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+nav button,.btn,.seg button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+nav button{font-size:.86rem;display:flex;gap:8px;align-items:center}
+nav button b{color:var(--accent);font-family:Consolas,Menlo,monospace}
+nav button.on{background:var(--accent-bg);border-color:var(--accent)}
+nav button:hover,.btn:hover{border-color:var(--accent)}
+main{max-width:1320px;margin:0 auto;padding:20px 16px 60px}
+.view{display:none}.view.on{display:block}
+h1{font-size:2rem;line-height:1.15;margin:4px 0 6px;letter-spacing:-.5px}
+h2{font-size:1.15rem;margin:0 0 10px}
+h3{font-size:1rem;margin:0 0 8px}
+.kicker{font-family:Consolas,Menlo,monospace;font-size:.82rem;letter-spacing:1px;color:var(--accent)}
+.idea{font-size:1.08rem;color:var(--muted);margin:0 0 14px;max-width:1000px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-top:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;cursor:pointer;text-align:left;font:inherit;color:inherit;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+.card:hover{border-color:var(--accent)}
+.card .no{font-family:Consolas,Menlo,monospace;color:var(--accent);font-weight:700;font-size:1.3rem}
+.card .t{font-weight:700;font-size:1.12rem;line-height:1.25}
+.card .s{color:var(--dim);font-size:.85rem;font-family:Consolas,Menlo,monospace}
+.card .d{color:var(--muted);font-size:.95rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.cols{display:grid;gap:16px;grid-template-columns:1fr;margin-bottom:16px}
+@media(min-width:980px){.cols.c2{grid-template-columns:1.2fr 1fr}.cols.c11{grid-template-columns:1fr 1fr}.cols.c3{grid-template-columns:1fr 1fr 1fr}}
+.figs{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.fig{display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-width:100%}
+.fig canvas,.fig img{border-radius:8px;border:1px solid var(--line);background:#000;max-width:100%}
+.fig .cap{font-size:.85rem;color:var(--dim);max-width:240px}
+.fig .lab{font-weight:700;font-size:.95rem}
+.op{align-self:center;font-family:Consolas,Menlo,monospace;font-size:1.6rem;color:var(--dim)}
+.gal{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.gal img{width:54px;height:54px;border-radius:6px;border:3px solid transparent;cursor:pointer;object-fit:cover}
+.gal img.on{border-color:var(--accent)}
+.galhead{font-size:.85rem;color:var(--dim);margin-bottom:6px}
+.ctrl{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.ctrl label{font-size:.92rem;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-width:0;max-width:100%}
+#e-txt,#e-q{max-width:min(100%,calc(100vw - 72px))}
+.ctrl output{font-family:Consolas,Menlo,monospace;color:var(--text);font-weight:700;min-width:56px}
+input[type=range]{accent-color:var(--accent);width:230px}
+select{font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:100%}
+.seg{display:inline-flex;flex-wrap:wrap}.seg button{border-radius:0;font-size:.9rem;margin-left:-1px}
+.seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}.seg button:last-child{border-radius:0 8px 8px 0}
+.seg button.on{background:var(--accent-bg);border-color:var(--accent);position:relative;z-index:1}
+.bars{display:grid;grid-template-columns:132px 1fr 50px;gap:3px 8px;align-items:center;font-size:.86rem}
+.bars .tr{height:13px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.bars .fl{height:100%;background:var(--dim);border-radius:3px}
+.bars .nm.t{color:var(--ok);font-weight:700}.bars .fl.t{background:var(--ok)}
+.bars .nm.w{color:var(--accent);font-weight:700}.bars .fl.w{background:var(--accent)}
+.bars .pv{text-align:right;font-family:Consolas,Menlo,monospace;color:var(--muted)}
+.verdict{display:inline-block;padding:6px 12px;border-radius:8px;font-weight:700;font-size:.98rem;margin:4px 0}
+.verdict.bad{background:var(--accent-bg);color:var(--accent)}.verdict.good{background:var(--ok-bg);color:var(--ok)}
+.formula{font-family:Consolas,Menlo,monospace;background:var(--code);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:1rem;overflow-x:auto;white-space:nowrap}
+.legend{display:flex;gap:4px 22px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:8px}
+.legend b{color:var(--accent);font-family:Consolas,Menlo,monospace;font-weight:600}
+.take{border-left:4px solid var(--accent);padding:6px 0 6px 16px;font-size:1.05rem;margin-top:16px}
+.take.ok{border-left-color:var(--ok)}
+.note{font-size:.85rem;color:var(--dim)}
+.stat{display:flex;gap:22px;flex-wrap:wrap}
+.stat div{display:flex;flex-direction:column}
+.stat .n{font-family:Consolas,Menlo,monospace;font-size:1.7rem;font-weight:700;line-height:1.1}
+.stat .n.a{color:var(--accent)}.stat .n.o{color:var(--ok)}
+.stat .l{font-size:.82rem;color:var(--dim)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs .th{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;width:84px;text-align:center;line-height:1.2;color:var(--muted)}
+.thumbs img{width:76px;height:76px;border-radius:6px;object-fit:cover;border:2px solid var(--line)}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.88rem;margin-bottom:12px}
+.flow span{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
+.flow i{font-style:normal;color:var(--dim)}
+.strip{display:grid;grid-template-columns:repeat(64,1fr);gap:1px;width:100%;max-width:640px}
+.strip i{display:block;aspect-ratio:1}
+.nums{font-family:Consolas,Menlo,monospace;font-size:.82rem;color:var(--muted);word-break:break-all}
+table.t{border-collapse:collapse;font-size:.88rem}
+table.t td,table.t th{padding:5px 9px;border:1px solid var(--line);text-align:right}
+table.t th{background:var(--panel2);font-weight:600}
+table.t td.l,table.t th.l{text-align:left}
+.wrapx{overflow-x:auto;max-width:100%}
+canvas.chart{width:100%;display:block}
+.mapwrap{position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px;font-size:.78rem;display:none;z-index:3;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.tip img{width:72px;height:72px;display:block;border-radius:4px}
+.words{display:flex;flex-direction:column;gap:3px;font-size:.88rem}
+.words div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding:2px 0}
+.words .h{color:var(--accent);font-weight:700}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 12px;font-size:.82rem;color:var(--muted);margin:0 6px 6px 0}
+#theme{margin-left:auto}
+.cifar img{image-rendering:pixelated}
+@media(max-width:600px){h1{font-size:1.6rem}.bars{grid-template-columns:100px 1fr 44px}input[type=range]{width:160px}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<div class="brand" onclick="git('ana')">Embedding <span>Lab</span></div>
+<nav id="nav"></nav>
+<button class="btn" id="theme" title="Tema">◐</button>
+</div></header>
+<main>
+
+<!-- ANA SAYFA -->
+<section class="view on" id="v-ana">
+<p class="kicker">Görüntü verisi · CLIP ViT-B/32 · gerçek model çıktıları</p>
+<h1>Embedding saldırıları ve savunmaları</h1>
+<p class="idea">Bu sayfadaki bütün sonuçlar gerçek modellerden geldi. Model: OpenCLIP ViT-B/32 (LAION-2B). Robust sürümler: FARE ve TeCoA (ε = 4/255 ile eğitildi). Veri: Imagenette (ImageNet'ten 10 sınıf) ve difüzyon için CIFAR-10. Hesaplar önceden yapıldı. Sayfa yalnızca sonuçları gösterir.</p>
+<div class="cards" id="kartlar"></div>
+</section>
+
+<!-- 1 EMBEDDING NEDİR -->
+<section class="view" id="v-emb">
+<p class="kicker">1 · Temel</p>
+<h1>Embedding nedir?</h1>
+<p class="idea">Encoder bir görüntüyü <b>512 sayılık bir vektöre</b> çevirir. Bu vektör embedding'dir. Metin encoder da bir cümleyi aynı uzaydaki bir vektöre çevirir. Anlamı benzer olan görüntü ve metinlerin vektörleri birbirine yakındır.</p>
+<div class="cols c2">
+<div class="panel">
+<h2>Vektörün kendisi</h2>
+<div class="galhead">Bir görüntü seçin</div>
+<div class="gal" id="e-gal"></div>
+<div class="figs">
+<div class="fig"><img id="e-img" width="160" height="160"><span class="cap" id="e-cap"></span></div>
+<div class="op">→ E →</div>
+<div class="fig" style="flex:1;min-width:260px"><span class="lab">Görüntü embedding'i (512 sayı)</span><div class="strip" id="e-strip"></div><div class="nums" id="e-nums"></div></div>
+</div>
+<div class="ctrl"><label>Metin: <select id="e-txt"></select></label></div>
+<div class="fig" style="width:100%"><span class="lab" id="e-tlab"></span><div class="strip" id="e-tstrip"></div></div>
+<div class="formula" style="margin-top:12px" id="e-cos"></div>
+<div class="legend"><span><b>cos</b> kosinüs benzerliği = Σ aᵢ·bᵢ (iki vektör de birim uzunlukta)</span><span>Mavi: negatif sayı · Kırmızı: pozitif sayı</span></div>
+</div>
+<div class="panel">
+<h2>Görüntü × metin benzerlik matrisi</h2>
+<p class="note">Satır: 10 görüntü. Sütun: "a photo of a …" metinleri. Değer: kosinüs benzerliği.</p>
+<div class="wrapx"><canvas id="e-mat" width="560" height="460" style="max-width:100%"></canvas></div>
+<p class="note">En büyük değer her satırda köşegendedir. Zero-shot sınıflandırma budur: Görüntüye en benzer metni seç.</p>
+</div>
+</div>
+<div class="cols c2">
+<div class="panel">
+<h2>Embedding haritası</h2>
+<p class="note">200 görüntünün embedding'i, t-SNE ile 2 boyuta indirildi. Renk = gerçek sınıf. Yıldız = sınıf metninin embedding'i. Fareyle noktanın üstüne gelin.</p>
+<div class="mapwrap"><canvas id="e-map" class="chart" height="520"></canvas><div class="tip" id="e-tip"></div></div>
+<div class="legend" id="e-mapleg"></div>
+</div>
+<div class="panel">
+<h2>Ne işe yarar?</h2>
+<h3>1 · Metinle görüntü arama</h3>
+<div class="ctrl"><select id="e-q"></select></div>
+<div class="thumbs" id="e-qres"></div>
+<h3 style="margin-top:16px">2 · Benzer görüntüyü bulma</h3>
+<p class="note">Seçili görüntünün en yakın 5 komşusu:</p>
+<div class="thumbs" id="e-nn"></div>
+<h3 style="margin-top:16px">3 · Model ne görüyor?</h3>
+<p class="note">1000 ImageNet sınıf adı içinden embedding'e en yakın 5 metin:</p>
+<div class="words" id="e-words"></div>
+<div class="stat" style="margin-top:14px"><div><span class="n o" id="e-ici"></span><span class="l">aynı sınıf, ort. cos</span></div><div><span class="n" id="e-arasi"></span><span class="l">farklı sınıf, ort. cos</span></div><div><span class="n o" id="e-acc"></span><span class="l">zero-shot doğruluk</span></div></div>
+</div>
+</div>
+<p class="take">Embedding bir görüntünün anlamını taşıyan vektördür. Arama, öneri, sınıflandırma ve vision-language modelleri aynı vektörü kullanır. Bu yüzden embedding'e yapılan bir saldırı bu sistemlerin hepsini etkiler.</p>
+</section>
+
+<!-- 2 DİFÜZYON -->
+<section class="view" id="v-dif">
+<p class="kicker">2 · Difüzyon · CIFAR-10 · google/ddpm-cifar10-32</p>
+<h1>Difüzyon: gürültü ekle, gürültüyü geri al</h1>
+<p class="idea">İleri süreç görüntüye adım adım Gauss gürültüsü ekler. Model ters süreci öğrenir: Her adımda gürültüyü biraz temizler. Saf gürültüden başlarsa yeni bir görüntü üretir. Biraz gürültülü bir görüntüden başlarsa görüntüyü temizler.</p>
+<div class="cols c11">
+<div class="panel"><h2>İleri süreç: x<sub>t</sub> = √ᾱ<sub>t</sub>·x₀ + √(1−ᾱ<sub>t</sub>)·z</h2><div class="figs cifar" id="d-ileri"></div>
+<div class="legend"><span><b>t</b> adım (0–999)</span><span><b>ᾱₜ</b> sinyalin kalan payı</span><span><b>z</b> Gauss gürültüsü</span></div></div>
+<div class="panel"><h2>Ters süreç: saf gürültüden üretim (DDIM, 50 adım)</h2><div id="d-uret" class="cifar"></div><p class="note" id="d-uretnot"></p></div>
+</div>
+<div class="panel">
+<h2>DiffPure: saldırıyı gürültüyle boğ, difüzyonla temizle</h2>
+<div class="flow"><span>x + δ</span><i>→</i><span>t* = <span id="d-ts"></span> adım gürültü ekle</span><i>→</i><span>difüzyon modeliyle temizle</span><i>→</i><span>CLIP ile sınıflandır</span></div>
+<div class="galhead">Bir CIFAR-10 görüntüsü seçin</div>
+<div class="gal cifar" id="d-gal"></div>
+<div class="cols c2" style="margin:0">
+<div class="figs cifar" id="d-fig"></div>
+<div id="d-bars"></div>
+</div>
+<div class="stat" id="d-stat" style="margin-top:12px"></div>
+<p class="take" style="margin-top:12px">Purification perturbation'ı büyük ölçüde siler. Ama bu ölçüm <b>adaptive değildir</b>: Saldırgan purification adımını bilmiyor. Saldırgan purification'ı de hesaba katarsa (EOT, tam gradyan) başarı düşer. Bu, savunma değerlendirmesinin temel kuralıdır.</p>
+</div>
+</section>
+
+<!-- 3 TRANSFORMER -->
+<section class="view" id="v-vit">
+<p class="kicker">3 · Vision Transformer · XAI</p>
+<h1>ViT görüntüyü patch'lere böler</h1>
+<p class="idea">CLIP'in görüntü encoder'ı bir ViT'dir. 224×224 görüntüyü 32×32 boyutunda 49 patch'e böler. Her patch bir token olur. Attention, patch'lerin birbirine ne kadar baktığını belirler. Relevancy map (Chefer ve ark. 2021) kararın hangi patch'lerden geldiğini gösterir.</p>
+<div class="galhead">Bir görüntü seçin</div>
+<div class="gal" id="v-gal"></div>
+<div class="cols c2">
+<div class="panel"><div class="figs">
+<div class="fig"><span class="lab">7 × 7 patch</span><canvas id="v-grid" width="224" height="224"></canvas></div>
+<div class="fig"><span class="lab">Relevancy map</span><canvas id="v-heat" width="224" height="224"></canvas><span class="cap" id="v-cap"></span></div>
+</div>
+<div class="formula" style="margin-top:12px">R = Π<sub>l</sub> ( I + E<sub>h</sub>[ (∇A<sub>l</sub> ⊙ A<sub>l</sub>)⁺ ] )</div>
+<div class="legend"><span><b>A<sub>l</sub></b> l. katmanın attention matrisi</span><span><b>∇A</b> skorun A'ya göre gradyanı</span><span><b>E<sub>h</sub></b> head ortalaması</span></div>
+</div>
+<div class="panel"><h2>Tek patch saldırısı</h2>
+<p class="note">Yalnızca bir patch (görüntünün %2'si) sınırsız değiştirilir. 100 görüntü, PGD 20 adım. Patch üç şekilde seçildi:</p>
+<div class="bars" id="v-yama" style="margin-top:10px"></div>
+<p class="take" style="font-size:.98rem">Tek bir patch modeli çoğu zaman kandırır. Relevancy map'inin seçtiği patch, rastgele patch'ten belirgin olarak daha etkili değildir: Açık tek bir bölgede değil, modelin genelindedir.</p>
+</div>
+</div>
+</section>
+
+<!-- 4 TİPOGRAFİK -->
+<section class="view" id="v-tipo">
+<p class="kicker">4 · Embedding saldırısı · gradyan yok</p>
+<h1>Tipografik saldırı: Görüntüye bir kelime yaz</h1>
+<p class="idea">Görüntünün üstüne başka bir sınıfın adını yazarız. Gradyan veya model bilgisi gerekmez. Kontrol için aynı beyaz kutuyu yazısız da ekleriz. Böylece etkinin kutudan değil, yazıdan geldiğini görürüz.</p>
+<div class="galhead">Bir görüntü seçin</div>
+<div class="gal" id="t-gal"></div>
+<div class="cols c2">
+<div class="panel">
+<div class="seg" id="t-seg"><button data-k="temiz" class="on">Temiz</button><button data-k="bos">Boş kutu</button><button data-k="yazili">Yazılı</button></div>
+<div class="figs" style="margin-top:12px">
+<div class="fig"><canvas id="t-img" width="224" height="224"></canvas><span class="cap">Görüntü</span></div>
+<div class="fig"><canvas id="t-heat" width="224" height="224"></canvas><span class="cap" id="t-hcap">Relevancy map</span></div>
+</div>
+<div id="t-verd" style="margin-top:8px"></div>
+</div>
+<div class="panel"><h2>Sınıf olasılıkları (CLIP)</h2><div class="bars" id="t-bars"></div></div>
+</div>
+<div class="panel"><h2>100 görüntüde sonuç</h2><div class="wrapx"><table class="t" id="t-tab"></table></div>
+<p class="take">Relevancy map yazının üstünde parlar. Model yazıyı <b>nesneden daha önemli</b> bir kanıt olarak kullanır. Dikkat: L∞ saldırılarına karşı eğitilen FARE, yazıya karşı <b>daha zayıftır</b>. Bir tür robustness başka bir türü garanti etmez.</p></div>
+</section>
+
+<!-- 5 PGD -->
+<section class="view" id="v-pgd">
+<p class="kicker">5 · Embedding saldırısı · PGD</p>
+<h1>Embedding'i bir metne taşı</h1>
+<p class="idea">Hedef bir metin seçeriz: <b>"a photo of a banana."</b> (muz). PGD ile görüntüye küçük bir perturbation ekleriz. Amaç, görüntü embedding'inin bu metne kosinüs benzerliğini büyütmektir. Etiket yok, sınıflandırıcı yok: Yalnızca encoder.</p>
+<div class="formula">max<sub>δ</sub> cos( E(x + δ), E<sub>metin</sub>("a photo of a banana.") ) &nbsp; koşul: ‖δ‖∞ ≤ ε &nbsp; (50 adım)</div>
+<div class="galhead" style="margin-top:14px">Bir görüntü seçin</div>
+<div class="gal" id="p-gal"></div>
+<div class="ctrl">
+<label>ε = <input type="range" id="p-eps" min="0" max="4" step="1" value="4"><output id="p-epso"></output></label>
+<span class="seg" id="p-mod"><button data-k="clip" class="on">CLIP</button><button data-k="fare">FARE (robust)</button></span>
+</div>
+<div class="cols c2">
+<div class="panel">
+<div class="figs">
+<div class="fig"><img id="p-o" width="200" height="200"><span class="cap">Orijinal</span></div>
+<div class="op">+</div>
+<div class="fig"><img id="p-d" width="200" height="200"><span class="cap" id="p-dcap">Perturbation (büyütülmüş)</span></div>
+<div class="op">=</div>
+<div class="fig"><img id="p-a" width="200" height="200"><span class="cap" id="p-acap"></span></div>
+</div>
+<div class="stat" style="margin-top:12px"><div><span class="n" id="p-cos0"></span><span class="l">cos(görüntü, "muz") önce</span></div><div><span class="n a" id="p-cos1"></span><span class="l">cos(görüntü, "muz") sonra</span></div></div>
+<div id="p-verd"></div>
+</div>
+<div class="panel">
+<h2>Model ne görüyor? (1000 ImageNet adı)</h2>
+<div class="words" id="p-words"></div>
+<h2 style="margin-top:14px">Zero-shot sınıf olasılıkları</h2>
+<div class="bars" id="p-bars"></div>
+</div>
+</div>
+<div class="cols c11">
+<div class="panel"><h2>Haritada hareket (CLIP, ε = 8/255)</h2><p class="note">Ok: temiz embedding → saldırı sonrası embedding. Sarı yıldız: "muz" metni.</p><div class="mapwrap"><canvas id="p-map" class="chart" height="420"></canvas><div class="tip" id="p-tip"></div></div></div>
+<div class="panel"><h2>Saldırıdan sonra relevancy map</h2><div class="figs"><div class="fig"><canvas id="p-h0" width="200" height="200"></canvas><span class="cap">Temiz: doğru sınıf metnine göre</span></div><div class="fig"><canvas id="p-h1" width="200" height="200"></canvas><span class="cap">Saldırı: "muz" metnine göre</span></div></div>
+<p class="note">Temiz görüntüde relevancy nesnenin üstündedir. Saldırıdan sonra relevancy görüntüye dağılır: Kararı tek bir nesne değil, bütün görüntüye yayılan küçük bir desen verir.</p></div>
+</div>
+<div class="panel"><h2>Hedef bir görüntü de olabilir (ε = 8/255)</h2>
+<p class="note">Kaynak görüntünün embedding'i başka bir görüntünün embedding'ine taşınır. AttackVLM ve M-Attack bu fikri kapalı vision-language modellerine karşı kullanır.</p>
+<div class="figs" id="p-g2g"></div></div>
+</section>
+
+<!-- 6 XAI ONARIM -->
+<section class="view" id="v-xai">
+<p class="kicker">6 · XAI ile açığı bul ve onar</p>
+<h1>Yazıyı hangi attention head'leri okuyor?</h1>
+<p class="idea">Açıklanabilirlik yöntemi olarak <b>ablation</b> kullanırız: Bir head'in çıktısını, temiz görüntülerdeki ortalama çıktısıyla değiştiririz. Sonra tipografik saldırının başarısı ne kadar düşüyor, ölçeriz. Son 6 katmanda 72 head'i tek tek denedik (50 görüntü). En etkili head'leri birlikte kapatıp sonucu <b>ayrı</b> 100 görüntüde ölçtük.</p>
+<div class="cols c11">
+<div class="panel"><h2>Her head'in etkisi</h2><p class="note">Çubuk: head kapatılınca "yazı kazandı" oranındaki düşüş (puan). Taban: <span id="x-taban"></span>.</p><canvas id="x-heads" class="chart" height="330"></canvas></div>
+<div class="panel"><h2>Head'leri birlikte kapatınca (test seti)</h2><canvas id="x-curve" class="chart" height="330"></canvas><div class="legend"><span style="color:var(--accent)">● yazı kazandı</span><span style="color:var(--ok)">● temiz doğruluk</span></div></div>
+</div>
+<div class="panel">
+<h2>Örnek</h2>
+<div class="gal" id="x-gal"></div>
+<div class="cols c2" style="margin:0">
+<div class="figs">
+<div class="fig"><canvas id="x-img" width="224" height="224"></canvas><span class="cap">Yazılı görüntü</span></div>
+<div class="fig"><canvas id="x-att" width="224" height="224"></canvas><span class="cap" id="x-attcap"></span></div>
+</div>
+<div><h3>Onarımdan önce</h3><div class="bars" id="x-b0"></div><h3 style="margin-top:10px">12 head kapatıldıktan sonra</h3><div class="bars" id="x-b1"></div></div>
+</div>
+<p class="take ok">XAI açığın <b>yerini</b> gösterdi: birkaç head yazıyı taşıyor. Bu head'leri kapatmak yazının etkisini büyük ölçüde azaltır. Temiz doğruluk değişmez. Yeniden eğitim gerekmez. (Gandelsman ve ark. 2024 aynı fikri CLIP'te sahte korelasyonları silmek için kullandı.)</p>
+</div>
+</section>
+
+<!-- 7 SAVUNMA -->
+<section class="view" id="v-sav">
+<p class="kicker">7 · Savunma</p>
+<h1>Robust embedding: FARE ve TeCoA</h1>
+<div class="cols c11">
+<div class="panel"><h2>Kayıp fonksiyonları</h2>
+<p class="note">TeCoA (Mao ve ark. 2023): etiketli adversarial fine-tuning</p>
+<div class="formula">min<sub>θ</sub> E max<sub>‖δ‖∞≤ε</sub> CE( cos(E<sub>θ</sub>(x+δ), T), y )</div>
+<p class="note" style="margin-top:10px">FARE (Schlarmann ve ark. 2024): etiketsiz, embedding'i yerinde tut</p>
+<div class="formula" style="border-left-color:var(--ok)">min<sub>θ</sub> E max<sub>‖z−x‖∞≤ε</sub> ‖ E<sub>θ</sub>(z) − E<sub>orijinal</sub>(x) ‖²</div>
+<div class="legend"><span><b>T</b> sınıf metinlerinin embedding'leri</span><span><b>E<sub>orijinal</sub></b> değişmeyen orijinal CLIP</span></div>
+</div>
+<div class="panel"><h2>Untargeted PGD altında doğruluk (100 görüntü, 10 adım)</h2><canvas id="s-chart" class="chart" height="300"></canvas><div class="legend" id="s-leg"></div></div>
+</div>
+<div class="panel"><h2>Özet tablo</h2><div class="wrapx"><table class="t" id="s-tab"></table></div>
+<p class="note" id="s-transfer"></p>
+<p class="take">Adversarial fine-tuning L∞ saldırılarına karşı büyük kazanç sağlar ve temiz doğruluktan az kaybeder. Ama yazıya karşı korumaz. Her açık kendi ölçümünü ve kendi savunmasını ister. XAI ile bulunan head ablation, tipografik açık için ucuz bir onarımdır.</p></div>
+</section>
+
+</main>
+<script>
+const D=__DATA__;
+const IMG=__IMG__;
+const TR=D.siniflar, TR10=D.cifar_siniflar;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const PAL=['#4E79A7','#F28E2B','#E15759','#76B7B2','#59A14F','#EDC948','#B07AA1','#FF9DA7','#9C755F','#BAB0AC'];
+const VIEWS=[['emb','Embedding nedir?','Vektör, harita, arama','Bir görüntünün 512 sayısı, benzerlik matrisi ve embedding haritası.'],
+['dif','Difüzyon','İleri/ters süreç, DiffPure','Gürültü ekleme, üretim ve DiffPure ile purification.'],
+['vit','Transformer','Patch\'ler, relevancy map','ViT görüntüyü nasıl işler? Tek patch saldırısı.'],
+['tipo','Tipografik saldırı','Gradyansız','Görüntüye bir kelime yazmak embedding\'i değiştirir.'],
+['pgd','Embedding\'e PGD','Hedef: bir metin veya görüntü','Embedding\'i "muz" metnine taşıyan küçük perturbation.'],
+['xai','XAI ile onarım','Head ablation','Yazıyı okuyan head\'leri bul ve kapat.'],
+['sav','Savunma','FARE, TeCoA','Robust CLIP modellerinin karşılaştırması.']];
+let cur='ana';
+function git(v){cur=v;$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);try{localStorage.setItem('elab',v)}catch(e){}cizHepsi();}
+VIEWS.forEach((v,i)=>{const b=document.createElement('button');b.dataset.v=v[0];b.innerHTML=`<b>${i+1}</b>${v[1]}`;b.onclick=()=>git(v[0]);$('#nav').appendChild(b);
+const c=document.createElement('button');c.className='card';c.innerHTML=`<span class="no">${i+1}</span><span class="t">${v[1]}</span><span class="s">${v[2]}</span><span class="d">${v[3]}</span>`;c.onclick=()=>git(v[0]);$('#kartlar').appendChild(c);});
+$('#theme').onclick=()=>{const r=document.documentElement;const d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark';cizHepsi();};
+
+const pct=v=>(v*100).toFixed(0)+'%';
+function bars(el,p,names,t,w){el.className='bars';el.innerHTML='';const o=p.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]);
+o.forEach(([v,i])=>{const c=i===t?'t':(i===w?'w':'');el.insertAdjacentHTML('beforeend',`<span class="nm ${c}">${names[i]}</span><span class="tr"><span class="fl ${c}" style="display:block;width:${Math.max(v*100,.5)}%"></span></span><span class="pv">${(v*100).toFixed(1)}</span>`)});}
+function gal(el,keys,on,sec){el.innerHTML='';keys.forEach((k,i)=>{const im=new Image();im.src=IMG[k];im.className=i===on?'on':'';im.onclick=()=>{[...el.children].forEach(c=>c.classList.remove('on'));im.classList.add('on');sec(i)};el.appendChild(im)});}
+function resim(cv,src,cb){const ctx=cv.getContext('2d');const im=new Image();im.onload=()=>{ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(im,0,0,cv.width,cv.height);cb&&cb(ctx)};im.src=src;}
+function isi(ctx,h,W,a){const n=h.length,s=W/n;for(let r=0;r<n;r++)for(let c=0;c<n;c++){const v=h[r][c];ctx.fillStyle=`rgba(255,${Math.round(220-180*v)},40,${(a||.65)*v})`;ctx.fillRect(c*s,r*s,s,s);}}
+function renk(v,m){const t=Math.max(-1,Math.min(1,v/m));return t>=0?`rgb(${Math.round(240-20*t)},${Math.round(240-170*t)},${Math.round(240-180*t)})`:`rgb(${Math.round(240+170*t)},${Math.round(240+110*t)},${Math.round(240+15*t)})`;}
+function hazirla(cv){const r=cv.getBoundingClientRect();const dpr=window.devicePixelRatio||1;const W=r.width||cv.width,H=+cv.getAttribute('height');cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);return [c,W,H];}
+
+/* ---------- 1 EMBEDDING ---------- */
+let eSec=0;
+function stripCiz(el,v){el.innerHTML=v.map(x=>`<i style="background:${renk(x,0.12)}"></i>`).join('');}
+function embCiz(){const i=eSec,d=D.d1;$('#e-img').src=IMG['demo'+i];$('#e-cap').textContent='Sınıf: '+TR[i];
+const v=d.demo_vektor[i];stripCiz($('#e-strip'),v);$('#e-nums').textContent='['+v.slice(0,10).map(x=>x.toFixed(3)).join(', ')+', … ] · ‖e‖ = 1';
+const t=+$('#e-txt').value;stripCiz($('#e-tstrip'),d.metin_vektor[t]);$('#e-tlab').textContent=`Metin embedding'i: "a photo of a ${D.en[t]}."`;
+const c=v.reduce((s,x,k)=>s+x*d.metin_vektor[t][k],0);$('#e-cos').innerHTML=`cos( görüntü: ${TR[i]}, metin: ${TR[t]} ) = <b style="color:${t===i?css('--ok'):css('--accent')}">${c.toFixed(3)}</b>`;
+const nn=d.komsu[i];$('#e-nn').innerHTML=nn.sonuc.map((j,k)=>`<div class="th"><img src="${IMG['th'+j]}">${TR[d.etiket[j]]}<span class="mono">${nn.skor[k].toFixed(2)}</span></div>`).join('');
+$('#e-words').innerHTML=d.sozluk_demo[i].map(([w,s],k)=>`<div><span class="${k===0?'h':''}">${w}</span><span class="mono">${s.toFixed(3)}</span></div>`).join('');
+matCiz();}
+function matCiz(){const cv=$('#e-mat'),ctx=cv.getContext('2d'),M=D.d1.benzerlik,W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);const x0=120,y0=110,s=40;ctx.font='13px Segoe UI, sans-serif';
+for(let r=0;r<10;r++){ctx.fillStyle=r===eSec?css('--accent'):css('--muted');ctx.textAlign='right';ctx.fillText(TR[r],x0-8,y0+r*s+24);
+for(let c=0;c<10;c++){const v=M[r][c];const t=Math.max(0,(v-0.1)/0.25);ctx.fillStyle=`rgba(${r===c?'21,160,140':'120,130,145'},${0.08+0.85*t})`;ctx.fillRect(x0+c*s,y0+r*s,s-2,s-2);ctx.fillStyle=t>0.6?'#fff':css('--text');ctx.textAlign='center';ctx.font='11px Consolas, monospace';ctx.fillText(v.toFixed(2),x0+c*s+19,y0+r*s+24);ctx.font='13px Segoe UI, sans-serif';}}
+for(let c=0;c<10;c++){ctx.save();ctx.translate(x0+c*s+22,y0-8);ctx.rotate(-Math.PI/3.2);ctx.fillStyle=css('--muted');ctx.textAlign='left';ctx.fillText(TR[c],0,0);ctx.restore();}
+ctx.strokeStyle=css('--accent');ctx.lineWidth=2;ctx.strokeRect(x0-2,y0+eSec*s-2,10*s+2,s+2);}
+function harita(cv,tip,ekle){const [ctx,W,H]=hazirla(cv);const h=D.d6.harita,pad=26;const X=p=>pad+p[0]*(W-2*pad),Y=p=>pad+p[1]*(H-2*pad);
+ctx.fillStyle=css('--panel2');ctx.fillRect(0,0,W,H);const pts=[];
+h.temiz.forEach((p,i)=>{const e=D.d1.etiket[i];ctx.fillStyle=PAL[e];ctx.globalAlpha=ekle?0.45:0.9;ctx.beginPath();ctx.arc(X(p),Y(p),4.2,0,7);ctx.fill();pts.push([X(p),Y(p),'th'+i,TR[e]]);});ctx.globalAlpha=1;
+h.metin.forEach((p,c)=>{yildiz(ctx,X(p),Y(p),9,PAL[c]);ctx.fillStyle=css('--text');ctx.font='600 12px Segoe UI, sans-serif';ctx.textAlign='left';ctx.fillText('"'+TR[c]+'"',X(p)+10,Y(p)+4);});
+ekle&&ekle(ctx,X,Y,pts);
+cv.onmousemove=ev=>{const r=cv.getBoundingClientRect(),mx=ev.clientX-r.left,my=ev.clientY-r.top;let b=null,bd=100;pts.forEach(p=>{const d=(p[0]-mx)**2+(p[1]-my)**2;if(d<bd){bd=d;b=p}});
+if(b){tip.style.display='block';tip.style.left=Math.min(b[0]+10,W-90)+'px';tip.style.top=(b[1]+10)+'px';tip.innerHTML=`<img src="${IMG[b[2]]}">${b[3]}`}else tip.style.display='none'};cv.onmouseleave=()=>tip.style.display='none';}
+function yildiz(ctx,x,y,r,f){ctx.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,rr=k%2?r*0.45:r;ctx.lineTo(x+rr*Math.cos(a),y+rr*Math.sin(a));}ctx.closePath();ctx.fillStyle=f;ctx.fill();ctx.strokeStyle=css('--text');ctx.lineWidth=1.2;ctx.stroke();}
+function embInit(){gal($('#e-gal'),[...Array(10)].map((_,i)=>'demo'+i),0,i=>{eSec=i;$('#e-txt').value=i;embCiz()});
+$('#e-txt').innerHTML=TR.map((t,i)=>`<option value="${i}">"a photo of a ${D.en[i]}." (${t})</option>`).join('');$('#e-txt').onchange=embCiz;
+$('#e-q').innerHTML=D.d1.arama.map((q,i)=>`<option value="${i}">"${q.en}" — ${q.tr}</option>`).join('');$('#e-q').onchange=araCiz;araCiz();
+$('#e-mapleg').innerHTML=TR.map((t,i)=>`<span style="color:${PAL[i]}">● ${t}</span>`).join('');
+$('#e-ici').textContent=D.d1.sinif_ici.toFixed(2);$('#e-arasi').textContent=D.d1.siniflar_arasi.toFixed(2);$('#e-acc').textContent=pct(D.d1.acc_clip);embCiz();}
+function araCiz(){const q=D.d1.arama[+$('#e-q').value];$('#e-qres').innerHTML=q.sonuc.map((j,k)=>`<div class="th"><img src="${IMG['th'+j]}">${TR[D.d1.etiket[j]]}<span class="mono">${q.skor[k].toFixed(3)}</span></div>`).join('');}
+
+/* ---------- 2 DİFÜZYON ---------- */
+let dSec=0;
+function difInit(){const d=D.d5;$('#d-ts').textContent=d.tstar;
+$('#d-ileri').innerHTML=d.ileri_t.map(t=>`<div class="fig"><img src="${IMG['dif_ileri_'+t]}" width="96" height="96"><span class="cap mono">t = ${t}</span></div>`).join('');
+const st=['0','10','25','40','son'];$('#d-uret').innerHTML=st.map(k=>`<div class="figs" style="gap:4px;margin-bottom:4px;align-items:center"><span class="mono note" style="width:70px">${k==='son'?'adım 50':'adım '+k}</span>${[...Array(8)].map((_,b)=>`<img src="${IMG['dif_uretim_'+k+'_'+b]}" width="48" height="48" style="border-radius:4px">`).join('')}</div>`).join('');
+$('#d-uretnot').textContent='CLIP son satırı şöyle sınıflandırdı: '+d.uretim_tahmin.join(', ')+'.';
+gal($('#d-gal'),[...Array(10)].map((_,i)=>'dif_temiz'+i),0,i=>{dSec=i;difCiz()});
+$('#d-stat').innerHTML=[['temiz','Temiz','o'],['saldiri','Saldırı (ε=8/255)','a'],['saldiri_temizlenmis','Saldırı + purification','o'],['temiz_temizlenmis','Temiz + purification','']].map(([k,l,c])=>`<div><span class="n ${c}">${pct(d[k])}</span><span class="l">${l}</span></div>`).join('');difCiz();}
+function difCiz(){const i=dSec,d=D.d5.demo[i];$('#d-fig').innerHTML=[['temiz','Temiz'],['fark','Perturbation ×'],['saldiri','Saldırı'],['saldiri_temiz','Temizlenmiş']].map(([k,l])=>`<div class="fig"><img src="${IMG['dif_'+k+i]}" width="120" height="120"><span class="cap">${l}</span></div>`).join('');
+const p=$('#d-bars');p.innerHTML='';[['p_temiz','Temiz'],['p_saldiri','Saldırı'],['p_temizlenmis','Temizlenmiş']].forEach(([k,l])=>{const h=document.createElement('h3');h.textContent=l;p.appendChild(h);const b=document.createElement('div');p.appendChild(b);const pr=d[k];const am=pr.indexOf(Math.max(...pr));const o=pr.map((v,j)=>[v,j]).sort((a,b)=>b[0]-a[0]).slice(0,3);b.className='bars';o.forEach(([v,j])=>{const c=j===d.y?'t':(j===am?'w':'');b.insertAdjacentHTML('beforeend',`<span class="nm ${c}">${TR10[j]}</span><span class="tr"><span class="fl ${c}" style="display:block;width:${v*100}%"></span></span><span class="pv">${(v*100).toFixed(1)}</span>`)})});}
+
+/* ---------- 3 VIT ---------- */
+let vSec=0;
+function vitInit(){gal($('#v-gal'),[...Array(10)].map((_,i)=>'demo'+i),0,i=>{vSec=i;vitCiz()});
+const y=D.d2;const L=[['en_yuksek','En yüksek relevancy'],['rastgele','Rastgele'],['en_dusuk','En düşük relevancy']];const el=$('#v-yama');el.innerHTML='';
+L.forEach(([k,l])=>{const v=y[k+'_255'];el.insertAdjacentHTML('beforeend',`<span class="nm">${l}</span><span class="tr"><span class="fl w" style="display:block;width:${v*100}%"></span></span><span class="pv">${pct(v)}</span>`)});vitCiz();}
+function vitCiz(){const i=vSec;resim($('#v-grid'),IMG['demo'+i],ctx=>{ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1;for(let k=1;k<7;k++){ctx.beginPath();ctx.moveTo(k*32,0);ctx.lineTo(k*32,224);ctx.moveTo(0,k*32);ctx.lineTo(224,k*32);ctx.stroke();}ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,30,18);ctx.fillStyle='#fff';ctx.font='11px Consolas';ctx.fillText('1',10,13);});
+resim($('#v-heat'),IMG['demo'+i],ctx=>{ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,224,224);isi(ctx,D.d6.alaka.temiz[i],224,.8)});$('#v-cap').textContent='"'+TR[i]+'" metnine göre';}
+
+/* ---------- 4 TİPO ---------- */
+let tSec=7,tMod='temiz';
+function tipoInit(){gal($('#t-gal'),[...Array(10)].map((_,i)=>'tipo'+i),tSec,i=>{tSec=i;tipoCiz()});
+$$('#t-seg button').forEach(b=>b.onclick=()=>{tMod=b.dataset.k;$$('#t-seg button').forEach(x=>x.classList.toggle('on',x===b));tipoCiz()});
+const d=D.d3,M=[['clip','CLIP'],['fare','FARE'],['tecoa','TeCoA']];
+$('#t-tab').innerHTML=`<tr><th class="l">Model</th><th>Temiz doğruluk</th><th>Boş kutu doğruluk</th><th>Yazılı doğruluk</th><th>Yazı kazandı</th></tr>`+M.map(([k,l])=>`<tr><td class="l">${l}</td><td>${pct(d[k].temiz_dogruluk)}</td><td>${pct(d[k].bos_etiket_dogruluk)}</td><td>${pct(d[k].yazili_dogruluk)}</td><td style="color:${css('--accent')};font-weight:700">${pct(d[k].yazi_kazandi)}</td></tr>`).join('')+
+`<tr><td class="l">CLIP + 12 head kapalı (bölüm 6)</td><td>${pct(d.ablation_egrisi[12].temiz_dogruluk)}</td><td>${pct(d.ablation_egrisi[12].bos_etiket_dogruluk)}</td><td>${pct(d.ablation_egrisi[12].yazili_dogruluk)}</td><td style="color:${css('--ok')};font-weight:700">${pct(d.ablation_egrisi[12].yazi_kazandi)}</td></tr>`;tipoCiz();}
+function tipoCiz(){const i=tSec,d=D.d3.demo[i];const src={temiz:'tipotemiz',bos:'tipobos',yazili:'tipo'}[tMod]+i;resim($('#t-img'),IMG[src]);
+const p=tMod==='yazili'?d.p_yazili:(tMod==='temiz'?d.p_temiz:d.p_bos);const h=tMod==='yazili'?d.harita_yazili:d.harita_temiz;
+resim($('#t-heat'),IMG[src],ctx=>{ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,224,224);isi(ctx,h,224,.8)});
+const am=p.indexOf(Math.max(...p));$('#t-hcap').textContent='Relevancy: "'+TR[am]+'" metnine göre';bars($('#t-bars'),p,TR,d.y,tMod==='yazili'?d.hedef:-1);
+$('#t-verd').innerHTML=(am===d.y?`<span class="verdict good">Tahmin: ${TR[am]}</span>`:`<span class="verdict bad">Tahmin: ${TR[am]} · yazı: "${D.yazi[d.hedef]}"</span>`);}
+
+/* ---------- 5 PGD ---------- */
+let pSec=0,pMod='clip';const PE=[0,1,2,4,8];
+function pgdInit(){gal($('#p-gal'),[...Array(10)].map((_,i)=>'demo'+i),0,i=>{pSec=i;pgdCiz()});
+$('#p-eps').oninput=pgdCiz;$$('#p-mod button').forEach(b=>b.onclick=()=>{pMod=b.dataset.k;$$('#p-mod button').forEach(x=>x.classList.toggle('on',x===b));pgdCiz()});
+$('#p-g2g').innerHTML=D.d4.g2g.map((g,k)=>`<div class="fig" style="border:1px solid var(--line);border-radius:10px;padding:8px"><div style="display:flex;gap:4px;align-items:center"><img src="${IMG['demo'+k]}" width="70" height="70"><span class="mono">+δ→</span><img src="${IMG['g2g_'+k]}" width="70" height="70"><span class="mono">≈</span><img src="${IMG['demo'+g.hedef]}" width="70" height="70"></div><span class="cap">${TR[k]} → ${TR[g.hedef]} · cos ${g.cos_once.toFixed(2)} → <b style="color:${css('--accent')}">${g.cos_sonra.toFixed(2)}</b></span></div>`).join('');pgdCiz();}
+function pgdCiz(){const i=pSec,e=PE[+$('#p-eps').value],H=D.d4.hedefli[pMod];$('#p-epso').textContent=e+'/255';
+const r=H[String(e)][i],r0=H['0'][i];$('#p-o').src=IMG['demo'+i];
+const ak=pMod==='clip'?'muz_clip_'+e+'_'+i:(e===8?'muz_fare_8_'+i:null),dk=e>0?(pMod==='clip'?'muzfark_clip_'+e+'_'+i:(e===8?'muzfark_fare_8_'+i:null)):null;
+$('#p-a').src=e===0?IMG['demo'+i]:(ak?IMG[ak]:IMG['demo'+i]);$('#p-d').src=dk?IMG[dk]:IMG['gri'];$('#p-acap').textContent=e===0?'Saldırı yok':(ak?'Saldırı sonrası':'(FARE görüntüsü yalnızca ε=8 için kaydedildi)');
+$('#p-dcap').textContent=e?`Perturbation, ±${e}/255 → tam aralığa büyütüldü`:'Perturbation yok';
+$('#p-cos0').textContent=r0.cos_hedef.toFixed(3);$('#p-cos1').textContent=r.cos_hedef.toFixed(3);
+const top=r.sozluk[0][0].toLowerCase();$('#p-verd').innerHTML=e===0?'':(top.includes('banana')?`<span class="verdict bad">Model artık "banana" görüyor</span>`:`<span class="verdict good">En yakın metin: ${r.sozluk[0][0]}</span>`);
+$('#p-words').innerHTML=r.sozluk.map(([w,s],k)=>`<div><span class="${w.toLowerCase().includes('banana')?'h':''}">${w}</span><span class="mono">${s.toFixed(3)}</span></div>`).join('');
+const am=r.p.indexOf(Math.max(...r.p));bars($('#p-bars'),r.p,TR,i,am!==i?am:-1);
+resim($('#p-h0'),IMG['demo'+i],ctx=>{ctx.scale(200/224,200/224);ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,224,224);isi(ctx,D.d6.alaka.temiz[i],224,.8);ctx.setTransform(1,0,0,1,0,0)});
+resim($('#p-h1'),IMG['muz_clip_8_'+i],ctx=>{ctx.scale(200/224,200/224);ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,224,224);isi(ctx,D.d6.alaka.muz[i],224,.8);ctx.setTransform(1,0,0,1,0,0)});
+pgdHarita();}
+function pgdHarita(){const i=pSec,h=D.d6.harita,dm=D.d1.demo;harita($('#p-map'),$('#p-tip'),(ctx,X,Y,pts)=>{const m=h.muz_metin[0];
+for(let k=0;k<10;k++){const a=h.temiz[dm[k]],b=h.muz[k];ctx.strokeStyle=k===i?css('--accent'):css('--dim');ctx.globalAlpha=k===i?1:.35;ctx.lineWidth=k===i?2.5:1.2;ctx.beginPath();ctx.moveTo(X(a),Y(a));ctx.lineTo(X(b),Y(b));ctx.stroke();ctx.fillStyle=k===i?css('--accent'):css('--dim');ctx.beginPath();ctx.arc(X(b),Y(b),k===i?6:3.5,0,7);ctx.fill();ctx.globalAlpha=1;pts.push([X(b),Y(b),'muz_clip_8_'+k,'saldırı: '+TR[k]]);}
+yildiz(ctx,X(m),Y(m),12,'#F2B84B');ctx.fillStyle=css('--text');ctx.font='700 13px Segoe UI';ctx.fillText('"muz"',X(m)+12,Y(m)+4);});}
+
+/* ---------- 6 XAI ---------- */
+let xSec=7;
+function xaiInit(){const d=D.d3;$('#x-taban').textContent=pct(d.arama_taban.yazi_kazandi)+' yazı kazandı';
+gal($('#x-gal'),[...Array(10)].map((_,i)=>'tipo'+i),xSec,i=>{xSec=i;xaiCiz()});xaiCiz();}
+function xaiGrafik(){const d=D.d3;let [ctx,W,H]=hazirla($('#x-heads'));const E=d.head_etkileri.slice(0,20),t=d.arama_taban.yazi_kazandi;
+const mx=Math.max(...E.map(e=>t-e.yazi_kazandi),0.01);const bw=(W-60)/E.length;ctx.font='11px Consolas';
+E.forEach((e,k)=>{const v=(t-e.yazi_kazandi)/mx;const h=v*(H-70);ctx.fillStyle=k<12?css('--accent'):css('--dim');ctx.fillRect(40+k*bw+2,H-40-h,bw-4,h);ctx.save();ctx.translate(40+k*bw+bw/2+3,H-34);ctx.rotate(-Math.PI/2.4);ctx.fillStyle=css('--muted');ctx.textAlign='right';ctx.fillText(`L${e.katman}.H${e.head}`,0,0);ctx.restore();ctx.fillStyle=css('--text');ctx.textAlign='center';ctx.fillText('−'+Math.round((t-e.yazi_kazandi)*100),40+k*bw+bw/2,H-44-h);});
+ctx.fillStyle=css('--dim');ctx.textAlign='left';ctx.fillText('En etkili 20 head (turuncu: seçilen 12)',40,14);
+[ctx,W,H]=hazirla($('#x-curve'));const C=d.ablation_egrisi;const X=k=>44+k*(W-64)/12,Y=v=>H-34-v*(H-60);ctx.strokeStyle=css('--line');ctx.lineWidth=1;ctx.fillStyle=css('--dim');ctx.font='11px Consolas';
+[0,.25,.5,.75,1].forEach(v=>{ctx.beginPath();ctx.moveTo(44,Y(v));ctx.lineTo(W-20,Y(v));ctx.stroke();ctx.textAlign='right';ctx.fillText(Math.round(v*100)+'%',38,Y(v)+4)});
+C.forEach((c,k)=>{ctx.textAlign='center';ctx.fillText(k,X(k),H-16)});ctx.fillText('kapatılan head sayısı',W/2,H-2);
+[['yazi_kazandi','--accent'],['temiz_dogruluk','--ok']].forEach(([k,c])=>{ctx.strokeStyle=css(c);ctx.lineWidth=2.5;ctx.beginPath();C.forEach((p,j)=>j?ctx.lineTo(X(j),Y(p[k])):ctx.moveTo(X(j),Y(p[k])));ctx.stroke();ctx.fillStyle=css(c);C.forEach((p,j)=>{ctx.beginPath();ctx.arc(X(j),Y(p[k]),3.5,0,7);ctx.fill()});ctx.textAlign='left';ctx.font='700 12px Consolas';ctx.fillText(pct(C[0][k])+' → '+pct(C[12][k]),X(8),Y(C[12][k])-10);ctx.font='11px Consolas';});}
+function xaiCiz(){const i=xSec,d=D.d3.demo[i],b=D.d3.head_etkileri[0];resim($('#x-img'),IMG['tipo'+i]);
+resim($('#x-att'),IMG['tipo'+i],ctx=>{ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,224,224);isi(ctx,d.head_dikkat,224,.85)});$('#x-attcap').textContent=`L${b.katman}.H${b.head} head'inin CLS attention'ı`;
+bars($('#x-b0'),d.p_yazili,TR,d.y,d.hedef);bars($('#x-b1'),d.p_onarilmis,TR,d.y,d.hedef);}
+
+/* ---------- 7 SAVUNMA ---------- */
+function savGrafik(){const d=D.d4,M=[['clip','CLIP','--accent'],['fare','FARE','--ok'],['tecoa','TeCoA','--warn']];const E=['0',...d.eps.map(String)];
+const [ctx,W,H]=hazirla($('#s-chart'));const X=k=>50+k*(W-80)/(E.length-1),Y=v=>H-36-v*(H-56);ctx.font='11px Consolas';ctx.fillStyle=css('--dim');ctx.strokeStyle=css('--line');
+[0,.25,.5,.75,1].forEach(v=>{ctx.beginPath();ctx.moveTo(50,Y(v));ctx.lineTo(W-26,Y(v));ctx.stroke();ctx.textAlign='right';ctx.fillText(Math.round(v*100)+'%',44,Y(v)+4)});
+E.forEach((e,k)=>{ctx.textAlign='center';ctx.fillText(e==='0'?'0':e+'/255',X(k),H-16)});ctx.fillText('ε',W/2,H-2);
+M.forEach(([k,l,c])=>{const r=d['saglam_'+k];ctx.strokeStyle=css(c);ctx.lineWidth=2.5;ctx.beginPath();E.forEach((e,j)=>j?ctx.lineTo(X(j),Y(r[e])):ctx.moveTo(X(j),Y(r[e])));ctx.stroke();ctx.fillStyle=css(c);E.forEach((e,j)=>{ctx.beginPath();ctx.arc(X(j),Y(r[e]),3.5,0,7);ctx.fill()})});
+$('#s-leg').innerHTML=M.map(([k,l,c])=>`<span style="color:${css(c)}">● ${l}</span>`).join('');
+const t=D.d3;$('#s-tab').innerHTML=`<tr><th class="l">Model</th><th>Temiz</th>${d.eps.map(e=>`<th>PGD ε=${e}/255</th>`).join('')}<th>Tipografik: yazı kazandı</th></tr>`+M.map(([k,l])=>`<tr><td class="l">${l}</td><td>${pct(d['saglam_'+k]['0'])}</td>${d.eps.map(e=>`<td>${pct(d['saglam_'+k][String(e)])}</td>`).join('')}<td>${pct(t[k].yazi_kazandi)}</td></tr>`).join('');
+$('#s-transfer').textContent=`Transfer: CLIP ViT-B/32 üzerinde üretilen saldırılar başka bir modelde (OpenAI CLIP ViT-B/16) denendi. Doğruluk: temiz ${pct(d.transfer_b16['0'])}, `+d.eps.map(e=>`ε=${e}/255: ${pct(d.transfer_b16[String(e)])}`).join(', ')+'. Tek bir modelde üretilen untargeted saldırı başka bir modele zayıf transfer olur. Bu yüzden M-Attack gibi yöntemler birden çok encoder ve rastgele crop kullanır.';}
+
+function cizHepsi(){if(cur==='emb'){harita($('#e-map'),$('#e-tip'));matCiz()}if(cur==='pgd')pgdHarita();if(cur==='xai')xaiGrafik();if(cur==='sav')savGrafik();}
+embInit();difInit();vitInit();tipoInit();pgdInit();xaiInit();
+window.addEventListener('resize',cizHepsi);
+try{const v=localStorage.getItem('elab');if(v&&VIEWS.some(x=>x[0]===v))git(v)}catch(e){}
+</script>
+</body>
+</html>
